@@ -1,0 +1,23 @@
+Package: pacnvegetation
+Title: PACN Vegetation Data Analysis and Visualization
+Version: 0.0.0.9000
+Authors@R: 
+    c(person(given = "Sarah",
+           family = "Wright",
+           role = c("aut", "cre"),
+           email = "sarah_wright@nps.gov"),
+    person(given = "Jacob",
+           family = "Gross",
+           role = c("aut"),
+           email = "jacob_gross@nps.gov"))
+Description: This package is the home of all reusable code related to PACN vegetation protocols.
+License: CC0
+Encoding: UTF-8
+LazyData: true
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.1.1
+Suggests: 
+    testthat
+Imports: 
+    magrittr
+Language: en-US
