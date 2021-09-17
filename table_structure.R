@@ -22,6 +22,7 @@ tbl_Sites_short <- tbl(DB, "tbl_Sites") %>%
 
   tbl_Sites_extra <- tbl(DB, "tbl_Sites") %>%
   select(Site_ID, Site_Name)
+#select(-Site_Desc, -Site_Notes, -SSMA_TimeStamp)
 
 
 # Plant Community & Sampling Frames within the parks.
@@ -35,6 +36,7 @@ tbl_Locations_short <- tbl(DB, "tbl_Locations") %>%
 
 tbl_Locations_extra <- tbl(DB, "tbl_Locations") %>%
   select(Location_ID, Site_ID, Zone, Management_Unit)
+#(s)
 
 
 # Plots within Sampling Frames
