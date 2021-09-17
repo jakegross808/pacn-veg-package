@@ -5,6 +5,109 @@ library(tidyverse)
 
 DB <- dbConnect(odbc::odbc(), "pacnveg")
 
+#.----
+# LINKING TABLES ----
+
+
+# 1 Spatial --------------------------------------------------------------------
+
+# Park Codes
+#....Sites----
+tbl(DB, "tbl_Sites") %>%
+  colnames()
+
+tbl_Sites_short <- tbl(DB, "tbl_Sites") %>%
+  select(Site_ID, Unit_Code) %>%
+
+
+  tbl_Sites_extra <- tbl(DB, "tbl_Sites") %>%
+  select(Site_ID, Site_Name)
+#select(-Site_Desc, -Site_Notes, -SSMA_TimeStamp)
+
+
+# Plant Community & Sampling Frames within the parks.
+#....Locations----
+tbl(DB, "tbl_Locations") %>%
+  colnames()
+
+tbl_Locations_short <- tbl(DB, "tbl_Locations") %>%
+  select(Location_ID, Site_ID, Community, Sampling_Frame)
+
+
+tbl_Locations_extra <- tbl(DB, "tbl_Locations") %>%
+  select(Location_ID, Site_ID, Zone, Management_Unit)
+#(s)
+
+
+# Plots within Sampling Frames
+#....Plots----
+tbl(DB, "tbl_Plot") %>%
+  colnames()
+
+tbl_Plot_short <- tbl(DB, "tbl_Plot") %>%
+  select(Plot_ID, Location_ID, Plot_Number, Plot_Type) %>%
+  collect()
+
+tbl_Plot_extra <- tbl(DB, "tbl_Plot") %>%
+  select(Plot_ID, Location_ID, Plot_Number, Azimuth_Plot,
+         Start_Lat, Start_Long, Center_Lat, Center_Long, End_Lat, End_Long,
+         GCS, GCS_Datum, Lat_Dir, Long_Dir)
+tbl_Plot_extra
+
+# 2 Temporal -------------------------------------------------------------------
+
+#....Events----
+tbl(DB, "tbl_Events") %>%
+  colnames()
+
+tbl_Events_short <- tbl(DB, "tbl_Events") %>%
+  select(Event_ID, Plot_ID, Start_Date, End_Date, QA_Plot)
+
+tbl_Events_extra <- tbl(DB, "tbl_Events") %>%
+  select(Event_ID, Plot_ID, Images, Max_veg_ht, Event_Notes,
+         Entered_date, Updated_date, Verified, Verified_by, Verified_date,
+         Certified, Certified_by, Certified_date,QA_notes, Completion_time)
+
+
+
+# 3 Species --------------------------------------------------------------------
+tbl(DB, "tlu_Species") %>%
+  colnames()
+
+tlu_Species_short <- tbl(DB, "tlu_Species") %>%
+  select(Species_ID, Scientific_name, Code, Life_form) %>%
+  collect()
+
+check_dups <- tlu_Species_short %>%
+  select(Species_ID, Scientific_name, Code, Life_form) %>%
+  group_by(Scientific_name) %>%
+  filter(n()>1)
+
+tlu_Species_extra <- tbl(DB, "tlu_Species") %>%
+  select(Species_ID, Taxonomic_Order, Taxonomic_Family, Genus, Species,
+         Subdivision, Authority, Synonym, Authority_Source, Citation,
+         Common_name, Life_cycle, Complete, Update_date, Update_by,
+         Update_comments)
+#select(-SSMA_TimeStamp, -TSN)
+
+# ....subtbl xref_Park_Species_Nativity ----
+# Cross-reference table between parks and nativity of a species.
+# Nativity is park specific (example Casuarina equisetifolia
+# [Species_ID=20100315154438-239126026.630402] is "Non-Native" in HAVO
+# and "Native" in AMME
+
+tbl(DB, "xref_Park_Species_Nativity") %>%
+  colnames()
+
+xref_Park_Species_Nativity_short <- tbl(DB, "xref_Park_Species_Nativity") %>%
+  select(Species_ID, Park, Nativity)
+
+xref_Park_Species_Nativity_extra <- tbl(DB, "xref_Park_Species_Nativity") %>%
+  select(Species_ID, Park, Park_common_name, Distribution, Conservation_Status)
+#select(-Life_form, -Life_form, -Update_date, -Update_by, -Update_comments -SSMA_TimeStamp)
+#.----
+
+
 
 # DATA TABLES ----
 
@@ -139,7 +242,7 @@ tbl(DB, "tbl_Woody_Debris") %>%
 
 tbl_Woody_Debris <- tbl(DB, "tbl_Woody_Debris") %>%
   select(Woody_Debris_ID, Event_ID, Transect, Length)
-#select(-Sort_Order, -SSMA_TimeStamp)
+#select(-Comments, -Sort_Order, -SSMA_TimeStamp)
 
 
 # ....subtbl Debris_Species  ----
@@ -150,11 +253,9 @@ tbl(DB, "tbl_Debris_Species") %>%
   colnames()
 
 tbl_Debris_Species <- tbl(DB, "tbl_Debris_Species") %>%
-  select(Woody_Debris_ID, Debris_type, Diameter, Decay_Class, Comments) %>%
-  #select(-Debris_Species_ID, -Sort_Order, SSMA_TimeStamp)
-  collect()
+  select(Woody_Debris_ID, Debris_type, Diameter, Decay_Class, Comments)
+#select(-Debris_Species_ID, -Sort_Order, SSMA_TimeStamp)
 
 
 
-# SPECIES --------------------------------------------------------------------------
 
