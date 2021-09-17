@@ -31,7 +31,7 @@ library(dbplyr) # A 'dplyr' back end for databases that allows you
 
 #'* If teleworking, connect to Pulse Secure First! *
 
-DB <- dbConnect(odbc::odbc(), "XXXXXXXXXXXXXXXXXXX") #open connection (connection string removed)
+DB <- dbConnect(odbc::odbc(), "pacnveg") #open connection (connection string removed)
 
 # summary of the connection
 summary(DB)
@@ -267,7 +267,7 @@ tbl_Debris_Species <- tbl(DB, "tbl_Debris_Species") %>%
 tbl_Lg_Woody_Individual <- tbl(DB, "tbl_Lg_Woody_Individual") %>%
   select(Large_Woody_ID, Event_ID, Species_ID, Life_Form, Quad, Status, Height,
          Height_Dead, Boles, DBH, DBH_Basal, Vigor, Fruit_Flower, Rooting, Foliar,
-         Stem_Length, Shrublike_Growth, Resprouts) %>%
+         Shrublike_Growth, Resprouts) %>%
   collect()
 
 
@@ -483,7 +483,7 @@ tlu_Enumerations <- tbl(DB, "tlu_Enumerations") %>%
 tlu_Species <- tbl(DB, "tlu_Species") %>%
   select(Species_ID, TSN, Taxonomic_Order, Taxonomic_Family, Scientific_name,
          Genus, Species, Authority, Authority_Source, Common_name, Code,
-         Life_cycle, Species_complete, Update_date,
+         Life_cycle, Complete, Update_date,
          Update_comments, Synonym, Citation, Subdivision) %>%
   collect()
 
