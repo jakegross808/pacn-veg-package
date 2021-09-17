@@ -27,7 +27,7 @@ tbl(DB, "tbl_Multiple_Boles") %>%
   colnames()
 
 tbl_Multiple_Boles <- tbl(DB, "tbl_Multiple_Boles") %>%
-  select(Large_Woody_ID, DBH, Root_Sprout, Status)
+  select(Large_Woody_ID, DBH_Bole, Root_Sprout, Status_Bole)
 #select(-Bole_ID, -SSMA_TimeStamp)
 
 # ....subtbl Snags ----
@@ -35,7 +35,7 @@ tbl_Multiple_Boles <- tbl(DB, "tbl_Multiple_Boles") %>%
 tbl(DB, "tbl_Snags") %>%
   colnames()
 tbl_Snags <- tbl(DB, "tbl_Snags")%>%
-  select(Large_Woody_ID, Basal_diameter, Height)
+  select(Large_Woody_ID, Basal_diameter, Height_Snag)
 #select(-Snag_ID, -Sort_Order, -SSMA_TimeStamp)
 
 # ....subtbl Basal_Sprout ----
@@ -73,7 +73,7 @@ tbl(DB, "tbl_Presence") %>%
   colnames()
 
 tbl_Presence <- tbl(DB, "tbl_Presence") %>%
-  select(Event_ID, Species_ID, Fruit_Flower, Comments, Dead, Outside_Plot, cf)
+  select(Event_ID, Species_ID, Fruit_Flower, Dead, Outside_Plot, cf, Comments)
 #select(-Presence_ID, -Sort_Order, -SSMA_TimeStamp)
 tbl_Presence
 
