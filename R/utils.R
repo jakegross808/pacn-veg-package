@@ -81,7 +81,7 @@ LoadPACNVeg <- function(ftpc_params = "pacn", eips_paths, data_path, data_source
       }
 
       ftpc_data <- ReadFTPC(ftpc_conn)
-      DBI::dbDisconnect(ftpc_conn)
+      # DBI::dbDisconnect(ftpc_conn)
       eips_data <- ReadEIPS(eips_paths)
 
       data <- c(ftpc_data, eips_data)
@@ -139,8 +139,7 @@ ReadFTPC <- function(conn) {
   LgWoodyIndividual <- dplyr::tbl(conn, "tbl_Lg_Woody_Individual") %>%
     dplyr::select(Large_Woody_ID, Event_ID, Species_ID, Life_Form, Quad, Status, Height,
            Height_Dead, Boles, DBH, DBH_Basal, Vigor, Fruit_Flower, Rooting, Foliar,
-           Caudex_Length, Shrublike_Growth, Resprouts, Measurement_Type) %>%
-    dplyr::collect()
+           Caudex_Length, Shrublike_Growth, Resprouts, Measurement_Type)
   # Subtable - Bole DBH for trees that have multiple boles.
   LgWoodyMultipleBoles <- dplyr::tbl(conn, "tbl_Multiple_Boles") %>%
     dplyr::select(Large_Woody_ID, DBH_Bole = DBH, Root_Sprout, Status_Bole = Status) %>%
@@ -188,6 +187,7 @@ ReadFTPC <- function(conn) {
   UnderstoryHigh <- dplyr::inner_join(UnderstoryCover, UnderstoryHigh, by = "Point_ID") %>%
     dplyr::mutate(Stratum = "High")
 
+  # TODO: find an alternative to rbind (this doesn't work)
   UnderstoryCover <- rbind(UnderstoryLow, UnderstoryHigh)
 
   # Dead, downed wood and tree fern logs
@@ -203,15 +203,15 @@ ReadFTPC <- function(conn) {
     dplyr::collect()
 
   data <- list(
-    LgWoodyIndividual = LgWoodyIndividual,
-    LgWoodyMultipleBoles = LgWoodyMultipleBoles,
-    LgWoodyBasalSprout = LgWoodyBasalSprout,
-    LgWoodySnags = LgWoodySnags,
-    TreeCanopyHeight = TreeCanopyHeight,
-    Presence = Presence,
-    SmWoodyTally = SmWoodyTally,
-    # UnderstoryCover = UnderstoryCover,
-    WoodyDebris = WoodyDebris
+    'LgWoodyIndividual' = LgWoodyIndividual,
+    'LgWoodyMultipleBoles' = LgWoodyMultipleBoles,
+    'LgWoodyBasalSprout' = LgWoodyBasalSprout,
+    'LgWoodySnags' = LgWoodySnags,
+    'TreeCanopyHeight' = TreeCanopyHeight,
+    'Presence' = Presence,
+    'SmWoodyTally' = SmWoodyTally,
+    'UnderstoryCover' = UnderstoryCover,
+    'WoodyDebris' = WoodyDebris
   )
 
   return(data)
