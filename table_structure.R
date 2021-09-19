@@ -328,7 +328,7 @@ xref_Understory_High <- tbl(DB, "xref_Understory_High") %>%
 
 
 
-#5 Woody Debris ----------------------------------------------------------------
+#6 Woody Debris ----------------------------------------------------------------
 # Dead, downed wood and tree fern logs
 # with a diameter >=7.6 at the point of planar intersection.
 

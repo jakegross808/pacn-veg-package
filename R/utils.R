@@ -133,53 +133,229 @@ LoadPACNVeg <- function(ftpc_params = "pacn", eips_paths, data_path, data_source
 #' @return A list of tibbles
 #'
 ReadFTPC <- function(conn) {
+  # A. Spatial -----------------------------------------------------------------
+  # . . 1. tbl_Sites----
 
-  # Tree density information collected for small trees (subalpine),
-  # large trees (forest, coastal, subalpine), and large tree ferns (forest).
-  LgWoodyIndividual <- dplyr::tbl(conn, "tbl_Lg_Woody_Individual") %>%
-    dplyr::select(Large_Woody_ID, Event_ID, Species_ID, Life_Form, Quad, Status, Height,
-           Height_Dead, Boles, DBH, DBH_Basal, Vigor, Fruit_Flower, Rooting, Foliar,
-           Caudex_Length, Shrublike_Growth, Resprouts, Measurement_Type) %>%
-    dplyr::collect()
-  # Subtable - Bole DBH for trees that have multiple boles.
-  LgWoodyMultipleBoles <- dplyr::tbl(conn, "tbl_Multiple_Boles") %>%
-    dplyr::select(Large_Woody_ID, DBH_Bole = DBH, Root_Sprout, Status_Bole = Status) %>%
-    dplyr::collect()
-  # Subtable - Extra data for dead trees
-  LgWoodySnags <- dplyr::tbl(conn, "tbl_Snags")%>%
-    dplyr::select(Large_Woody_ID, Basal_diameter, Height_Snag = Height) %>%
-    dplyr::collect()
-  # Subtable - Sprout size data collected in recently disturbed sites for individuals
-  # that have been top killed and are alive only by basal sprouts.
-  LgWoodyBasalSprout <- dplyr::tbl(conn, "tbl_Basal_Sprout") %>%
-    dplyr::select(Large_Woody_ID, Sprout_Ht, W1, W2, Area, Volume) %>%
+  #Sites (e.g. Park Codes)
+
+  #Short
+  tbl_Sites_short <- dplyr::tbl(DB, "tbl_Sites") %>%
+    dplyr::select(Site_ID, Unit_Code)
+
+  #Extra
+  tbl_Sites_extra <- dplyr::tbl(DB, "tbl_Sites") %>%
+    dplyr::select(Site_ID, Unit_Code, Site_Name)
+
+  # . . 2. tbl_Locations----
+
+  #Locations (e.g. Sampling Frame)
+
+  #Short
+  tbl_Locations_short <- dplyr::tbl(DB, "tbl_Locations") %>%
+    dplyr::select(Location_ID, Site_ID, Community, Sampling_Frame)
+
+  #Extra
+  tbl_Locations_extra <- dplyr::tbl(DB, "tbl_Locations") %>%
+    dplyr::select(Location_ID, Site_ID, Community, Sampling_Frame, Zone, Management_Unit)
+
+  # . . 3. tbl_Plot----
+
+  #Plots (e.g. Plot numbers, Plot type (Fixed vs. Rotational, Plot coordinates))
+
+  #Short
+  tbl_Plot_short <- dplyr::tbl(DB, "tbl_Plot") %>%
+    dplyr::select(Plot_ID, Location_ID, Plot_Number, Plot_Type)
+
+  #Extra
+  tbl_Plot_extra <- dplyr::tbl(DB, "tbl_Plot") %>%
+    dplyr::select(Plot_ID, Location_ID, Plot_Number, Azimuth_Plot,
+           Start_Lat, Start_Long, Center_Lat, Center_Long, End_Lat, End_Long,
+           GCS, GCS_Datum, Lat_Dir, Long_Dir, Plot_Notes)
+
+  # B. Temporal ----------------------------------------------------------------
+  # . . 1. tbl_Events----
+
+  #Events (e.g. The date the plot was sampled, QA/QC records)
+
+  #Short
+  tbl_Events_short <- dplyr::tbl(DB, "tbl_Events") %>%
+    dplyr::select(Event_ID, Plot_ID, Start_Date, QA_Plot)
+
+  #Extra
+  tbl_Events_extra <- dplyr::tbl(DB, "tbl_Events") %>%
+    dplyr::select(Event_ID, Plot_ID, Start_Date, Images, Max_veg_ht,
+           Entered_date, Updated_date, Verified, Verified_by, Verified_date,
+           Certified, Certified_by, Certified_date, Completion_time,
+           Event_Notes, QA_notes)
+
+
+  # . . . . **join** Spatial & Temp ---------------------------------------------------
+
+  # . . . . Events ----
+  Events <- tbl_Events_short %>%
+    dplyr::left_join(tbl_Plot_short, by = "Plot_ID") %>%
+    dplyr::left_join(tbl_Locations_short, by = "Location_ID") %>%
+    dplyr::left_join(tbl_Sites_short, by = "Site_ID") %>%
+    dplyr::select(Start_Date, Unit_Code, Community, Sampling_Frame, Plot_Type,
+           Plot_Number, QA_Plot, Event_ID) %>%
     dplyr::collect()
 
-  # Recorded within each plot by measuring the height of ~five canopy trees per
-  # plot that represent the average canopy height within the plot.
-  TreeCanopyHeight <- dplyr::tbl(conn, "tbl_Tree_Canopy_Height") %>%
+
+  # . . . . Events_extra ----
+  Events_extra <- tbl_Events_extra %>%
+    dplyr::left_join(tbl_Plot_extra, by = "Plot_ID") %>%
+    dplyr::left_join(tbl_Locations_extra, by = "Location_ID") %>%
+    #Move long text columns to end because of SQL driver error:
+    dplyr::relocate(Plot_Notes, .after = last_col()) %>%
+    dplyr::relocate(Event_Notes, .after = last_col()) %>%
+    dplyr::relocate(QA_notes, .after = last_col()) %>%
+    dplyr::left_join(tbl_Sites_extra, by = "Site_ID") %>%
+    #Move long text columns to end because of SQL driver error:
+    dplyr::relocate(Plot_Notes, .after = last_col()) %>%
+    dplyr::relocate(Event_Notes, .after = last_col()) %>%
+    dplyr::relocate(QA_notes, .after = last_col())
+
+  # . . Events_extra_QAQC
+  Events_extra_QAQC <- Events_extra %>%
+    dplyr::select(Start_Date, Unit_Code, Sampling_Frame, Plot_Number,
+           Entered_date, Updated_date, Verified, Verified_by, Verified_date,
+           Certified, Certified_by, Certified_date, Completion_time,
+           Event_Notes, Plot_Notes, QA_notes) %>%
+    dplyr::collect()
+
+  # . . Events_extra_xy
+  Events_extra_xy <- Events_extra %>%
+    dplyr::select(Start_Date, Unit_Code, Sampling_Frame, Plot_Number,
+           Azimuth_Plot, Start_Lat, Start_Long, Center_Lat, Center_Long,
+           End_Lat, End_Long, GCS, GCS_Datum, Lat_Dir, Long_Dir) %>%
+    dplyr::collect()
+
+  # . . Events_extra_other
+  Events_extra_other <- Events_extra %>%
+    dplyr::select(Start_Date, Unit_Code, Sampling_Frame, Zone, Management_Unit,
+                  Plot_Number, Max_veg_ht, Site_Name, Images) %>%
+    dplyr::collect()
+
+
+  # C. Species ----------------------------------------------------------------
+
+  # . . 1. tlu_Species----
+
+  #Short
+  tlu_Species_short <- dplyr::tbl(DB, "tlu_Species") %>%
+    dplyr::select(Species_ID, Scientific_name, Code, Life_form)
+
+  #Extra
+  tlu_Species_extra <- dplyr::tbl(DB, "tlu_Species") %>%
+    dplyr::select(Species_ID, Code, Taxonomic_Order, Taxonomic_Family, Genus, Species,
+           Subdivision, Authority, Synonym, Authority_Source, Citation,
+           Common_name, Life_cycle, Complete, Update_date, Update_by,
+           Update_comments)
+
+  # . . 2. xref_Park_Species_Nativity----
+
+  #Short
+  xref_Park_Species_Nativity_short <- dplyr::tbl(DB, "xref_Park_Species_Nativity") %>%
+    dplyr::select(Species_ID, Park, Nativity)
+
+  #Extra
+  xref_Park_Species_Nativity_extra <- dplyr::tbl(DB, "xref_Park_Species_Nativity") %>%
+    dplyr::select(Species_ID, Park, Life_form, Nativity, Park_common_name,
+           Distribution, Conservation_Status)
+
+  # . . . . **join** Species & Nativity-------------------------------------------------
+
+  # . . . . Species ----
+  Species <- tlu_Species_short %>%
+    dplyr::right_join(xref_Park_Species_Nativity_short, by = "Species_ID") %>%
+    dplyr::collect()
+
+  # . . . . Species_extra ----
+  Species_extra <- tlu_Species_extra %>%
+    dplyr::right_join(xref_Park_Species_Nativity_extra, by = "Species_ID") %>%
+    dplyr::collect()
+
+  # D. Monitoring Data----------------------------------------------------------
+
+  # . . 1. tbl_Lg_Woody_Individual----
+  # Large Trees & Large Tree Ferns (>10 cm DBH)
+  tbl_Lg_Woody_Individual <- dplyr::tbl(DB, "tbl_Lg_Woody_Individual") %>%
+    dplyr::select(Large_Woody_ID, Event_ID, Species_ID, Quad, Status, Height,
+                  Height_Dead, Boles, DBH, DBH_Other = DBH_Basal, Vigor,
+                  Fruit_Flower, Rooting, Foliar, Caudex_Length,
+                  Shrublike_Growth, Resprouts, Measurement_Type)
+
+  # . . . . tbl_Multiple_Boles----
+  # Sub-table - Bole DBH for trees that have multiple boles.
+  tbl_Multiple_Boles <- dplyr::tbl(DB, "tbl_Multiple_Boles") %>%
+    dplyr::select(Large_Woody_ID, DBH_Bole = DBH, Status_Bole = Status)
+
+  # . . . . LgTrees ----
+  LgTrees <- Events %>%
+    dplyr::right_join(tbl_Lg_Woody_Individual, by = "Event_ID") %>%
+    dplyr::left_join(tbl_Multiple_Boles, by = "Large_Woody_ID") %>%
+    dplyr::left_join(Species, by = c("Species_ID", "Unit_Code" = "Park")) %>%
+    dplyr::select(-Large_Woody_ID, -Event_ID, -Species_ID) %>%
+    dplyr::collect()
+
+
+  # . . 2. tbl_Tree_Canopy_Height----
+  # Height of canopy, sub-canopy, and emergent trees
+
+  tbl_Tree_Canopy_Height <- dplyr::tbl(DB, "tbl_Tree_Canopy_Height") %>%
     dplyr::select(Event_ID, Species_ID, Quad, Status, Top, Base, Base_ht,
-           Distance, Height, Method, DBH, Comments) %>%
+                  Distance, Height, Method, DBH, Comments)
+  # . . . . Canopy ----
+  Canopy <- Events %>%
+    dplyr::right_join(tbl_Tree_Canopy_Height, by = "Event_ID") %>%
+    dplyr::left_join(Species, by = c("Species_ID", "Unit_Code" = "Park")) %>%
+    dplyr::select(-Event_ID, -Species_ID) %>%
+    #Move long text columns to end because of SQL driver error:
+    dplyr::relocate(Comments, .after = last_col()) %>%
     dplyr::collect()
 
-  # List of species present within plot.
-  Presence <- dplyr::tbl(conn, "tbl_Presence") %>%
-    dplyr::select(Event_ID, Species_ID, Fruit_Flower, Dead, Outside_Plot, cf, Comments) %>%
+
+  # . . 3. tbl_Presence----
+  # List of species present within plot
+  tbl_Presence <- dplyr::tbl(DB, "tbl_Presence") %>%
+    dplyr::select(Event_ID, Species_ID, Fruit_Flower, Dead,
+                  Outside_Plot, cf, Comments)
+  # . . . . Presence ----
+  Presence <- Events %>%
+    dplyr::right_join(tbl_Presence, by = "Event_ID") %>%
+    dplyr::left_join(Species, by = c("Species_ID", "Unit_Code" = "Park")) %>%
+    dplyr::select(-Event_ID, -Species_ID) %>%
+    #Move long text columns to end because of SQL driver error:
+    dplyr::relocate(Comments, .after = last_col()) %>%
     dplyr::collect()
 
-  # Count data, foliar height, and rooting height data tallied for
-  # vines, seedlings, shrubs, small trees, and small tree ferns.
-  SmWoodyTally <- dplyr::tbl(conn, "tbl_Sm_Woody_Tally") %>%
-    dplyr::select(Event_ID, Species_ID, Transect, Life_Form, DBH, Status,
-           Foliar, Rooting, Count, Comments) %>%
+
+
+  # . . 4. tbl_Sm_Woody_Tally----
+  # Vines, seedlings, shrubs, small trees, and small tree ferns.
+  tbl_Sm_Woody_Tally <- dplyr::tbl(DB, "tbl_Sm_Woody_Tally") %>%
+    dplyr::select(Event_ID, Species_ID, Transect, DBH, Status,
+                  Foliar, Rooting, Count, Comments)
+  # . . . . SmWoody ----
+  SmWoody <- Events %>%
+    dplyr::right_join(tbl_Sm_Woody_Tally, by = "Event_ID") %>%
+    dplyr::left_join(Species, by = c("Species_ID", "Unit_Code" = "Park")) %>%
+    dplyr::select(-Event_ID, -Species_ID) %>%
+    #Move long text columns to end because of SQL driver error:
+    dplyr::relocate(Comments, .after = last_col()) %>%
     dplyr::collect()
 
+
+
+  # . . 5. tbl_Understory_Cover----
   # point-intercept cover of  species and substrate
   # two stratum: 1)low [0-1m] 2) high [1-2m]
   UnderstoryCover <- dplyr::tbl(conn, "tbl_Understory_Cover") %>%
     dplyr::select(Event_ID, Point_ID, Point, Substrate)
+  # . . . . xref_Understory_Low----
   UnderstoryLow <- dplyr::tbl(conn, "xref_Understory_Low") %>%
     dplyr::select(Event_ID, Point_ID, Species_ID, Dead)
+  # . . . . xref_Understory_High----
   UnderstoryHigh <- dplyr::tbl(conn, "xref_Understory_High") %>%
     dplyr::select(Event_ID, Point_ID, Species_ID, Dead)
 
@@ -190,28 +366,48 @@ ReadFTPC <- function(conn) {
 
   UnderstoryCover <- rbind(UnderstoryLow, UnderstoryHigh)
 
-  # Dead, downed wood and tree fern logs
-  # with a diameter >=7.6 at the point of planar intersection.
-  WoodyDebris <- dplyr::tbl(conn, "tbl_Woody_Debris") %>%
-    dplyr::select(Woody_Debris_ID, Event_ID, Transect, Length)
-  # Subtable - Additional information on debris type (wood/tree fern), diameter,
-  # and decay class
-  WoodyDebrisSpecies <- dplyr::tbl(conn, "tbl_Debris_Species") %>%
-    dplyr::select(Woody_Debris_ID, Debris_type, Diameter, Decay_Class, Comments)
-
-  WoodyDebris <- dplyr::left_join(WoodyDebris, WoodyDebrisSpecies, by = "Woody_Debris_ID") %>%
+  # . . . . Understory ----
+  Understory <- Events %>%
+    dplyr::right_join(UnderstoryCover, by = "Event_ID") %>%
+    dplyr::left_join(Species, by = c("Species_ID", "Unit_Code" = "Park")) %>%
+    dplyr::select(-Event_ID, -Species_ID) %>%
     dplyr::collect()
 
+
+
+  # . . 6. tbl_Woody_Debris----
+  # Dead, downed wood and tree fern logs
+  # with a diameter >=7.6 at the point of planar intersection.
+  tbl_Woody_Debris <- dplyr::tbl(conn, "tbl_Woody_Debris") %>%
+    dplyr::select(Woody_Debris_ID, Event_ID, Transect, Length)
+
+  # . . . . tbl_Debris_Species----
+  # Subtable - Additional information on debris type (wood/tree fern), diameter,
+  # and decay class
+  tbl_Debris_Species <- dplyr::tbl(conn, "tbl_Debris_Species") %>%
+    dplyr::select(Woody_Debris_ID, Debris_type, Diameter, Decay_Class, Comments)
+
+  # . . . . Debris ----
+  Debris <- Events %>%
+    dplyr::right_join(tbl_Woody_Debris, by = "Event_ID") %>%
+    dplyr::left_join(tbl_Debris_Species, by = "Woody_Debris_ID") %>%
+    dplyr::select(-Woody_Debris_ID, -Event_ID) %>%
+    dplyr::collect()
+
+
+
+  # List ----
   data <- list(
-    LgWoodyIndividual = LgWoodyIndividual,
-    LgWoodyMultipleBoles = LgWoodyMultipleBoles,
-    LgWoodyBasalSprout = LgWoodyBasalSprout,
-    LgWoodySnags = LgWoodySnags,
-    TreeCanopyHeight = TreeCanopyHeight,
+    Events_extra_QAQC = Events_extra_QAQC,
+    Events_extra_xy = Events_extra_xy,
+    Events_extra_other = Events_extra_other,
+    Species_extra = Species_extra,
+    LgTrees = LgTrees,
+    Canopy = Canopy,
     Presence = Presence,
-    SmWoodyTally = SmWoodyTally,
-    # UnderstoryCover = UnderstoryCover,
-    WoodyDebris = WoodyDebris
+    SmWoody = SmWoody,
+    # Understory = Understory,
+    Debris = Debris
   )
 
   return(data)
