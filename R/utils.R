@@ -197,8 +197,7 @@ ReadFTPC <- function(conn) {
     dplyr::left_join(tbl_Locations_short, by = "Location_ID") %>%
     dplyr::left_join(tbl_Sites_short, by = "Site_ID") %>%
     dplyr::select(Start_Date, Unit_Code, Community, Sampling_Frame, Plot_Type,
-           Plot_Number, QA_Plot, Event_ID) %>%
-    dplyr::collect()
+           Plot_Number, QA_Plot, Event_ID)
 
 
   # . . . . Events_extra ----
@@ -267,8 +266,7 @@ ReadFTPC <- function(conn) {
 
   # . . . . Species ----
   Species <- tlu_Species_short %>%
-    dplyr::right_join(xref_Park_Species_Nativity_short, by = "Species_ID") %>%
-    dplyr::collect()
+    dplyr::right_join(xref_Park_Species_Nativity_short, by = "Species_ID")
 
   # . . . . Species_extra ----
   Species_extra <- tlu_Species_extra %>%
@@ -350,25 +348,26 @@ ReadFTPC <- function(conn) {
   # . . 5. tbl_Understory_Cover----
   # point-intercept cover of  species and substrate
   # two stratum: 1)low [0-1m] 2) high [1-2m]
-  UnderstoryCover <- dplyr::tbl(conn, "tbl_Understory_Cover") %>%
+  UnderstoryCover <- dplyr::tbl(DB, "tbl_Understory_Cover") %>%
     dplyr::select(Event_ID, Point_ID, Point, Substrate)
   # . . . . xref_Understory_Low----
-  UnderstoryLow <- dplyr::tbl(conn, "xref_Understory_Low") %>%
-    dplyr::select(Event_ID, Point_ID, Species_ID, Dead)
+  UnderstoryLow <- dplyr::tbl(DB, "xref_Understory_Low") %>%
+    dplyr::select(Point_ID, Species_ID, Dead)
   # . . . . xref_Understory_High----
-  UnderstoryHigh <- dplyr::tbl(conn, "xref_Understory_High") %>%
-    dplyr::select(Event_ID, Point_ID, Species_ID, Dead)
+  UnderstoryHigh <- dplyr::tbl(DB, "xref_Understory_High") %>%
+    dplyr::select(Point_ID, Species_ID, Dead)
 
   UnderstoryLow <- dplyr::inner_join(UnderstoryCover, UnderstoryLow, by = "Point_ID") %>%
     dplyr::mutate(Stratum = "Low")
   UnderstoryHigh <- dplyr::inner_join(UnderstoryCover, UnderstoryHigh, by = "Point_ID") %>%
     dplyr::mutate(Stratum = "High")
 
-  UnderstoryCover <- rbind(UnderstoryLow, UnderstoryHigh)
+  UnderstoryCover <- dplyr::union_all(UnderstoryLow, UnderstoryHigh)
 
   # . . . . Understory ----
   Understory <- Events %>%
     dplyr::right_join(UnderstoryCover, by = "Event_ID") %>%
+    filter(Unit_Code == "AMME") %>%#'* Temporary filter ...doesn't seem to help*
     dplyr::left_join(Species, by = c("Species_ID", "Unit_Code" = "Park")) %>%
     dplyr::select(-Event_ID, -Species_ID) %>%
     dplyr::collect()
