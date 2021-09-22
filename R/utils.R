@@ -53,13 +53,15 @@ LoadPACNVeg <- function(ftpc_params = "pacn", eips_paths, data_path, data_source
     eips_paths <- normalizePath(eips_paths, mustWork = FALSE)
     cache_path <- normalizePath(paste0(rappdirs::user_cache_dir(appname = "pacnvegetation"), "/pacnveg_cache_data.rds"), mustWork = FALSE)
     cache_expiration_path <- normalizePath(paste0(rappdirs::user_cache_dir(appname = "pacnvegetation"), "/pacnveg_cache_expiration.rds"), mustWork = FALSE)
+    cache_lastrefreshed_path <- normalizePath(paste0(rappdirs::user_cache_dir(appname = "pacnvegetation"), "/pacnveg_cache_lastrefreshed.rds"), mustWork = FALSE)
     cache_exists <- file.exists(cache_path) && file.exists(cache_expiration_path)
     cache_valid <- cache_exists && (is.null(readRDS(cache_expiration_path)) ||  # If cache expiration set to NULL, always read from cache
                                      readRDS(cache_expiration_path) > Sys.time())
 
     # If cache = TRUE and isn't expired, read data from there, otherwise load from databases
     if (cache & cache_valid) {
-      cat("Loading data from local cache\n")
+      cache_last_refreshed <- readRDS(cache_lastrefreshed_path)
+      cat("Loading data from local cache\n", "Data last read from database on ", cache_last_refreshed)
       data <- readRDS(cache_path)
     } else {
       # Verify that Access db(s) exist
@@ -88,9 +90,11 @@ LoadPACNVeg <- function(ftpc_params = "pacn", eips_paths, data_path, data_source
 
       if (cache) {
         # Save data and expiration date to cache
-        expiration <- Sys.time() + lubridate::days(expire_interval_days)
+        refreshed <- Sys.time()
+        expiration <- refreshed + lubridate::days(expire_interval_days)
         saveRDS(data, file = cache_path)
         saveRDS(expiration, file = cache_expiration_path)
+        saveRDS(refreshed, file = cache_lastrefreshed_path)
       }
     }
   # End read from cache or database
