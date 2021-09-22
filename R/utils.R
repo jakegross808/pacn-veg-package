@@ -440,3 +440,26 @@ ReadCSV <- function(data_path) {
 
   return(data)
 }
+
+WritePACNVeg <- function(path, data) {
+  if (!dir.exists(path)) {
+    dir.create(path)
+  }
+
+  lapply(names(data), function(d) {
+    if (d == "Understory") {
+      chunks <- data[[d]] %>%
+        dplyr::distinct(Unit_Code, Sampling_Frame) %>% dplyr::collect()
+      for (i in 1:nrow(chunks)) {
+        park <- chunks[[i, "Unit_Code"]]
+        sframe <- chunks[[i, "Sampling_Frame"]]
+        message(paste0("Writing sample frame ", sframe, " at ", park, " to csv\n"))
+        data.table::fwrite(data[[d]] %>% dplyr::filter(Unit_Code == park, Sampling_Frame == sframe) %>% dplyr::collect(),
+                           file.path(path, paste0(d, ".csv")), append = (i > 1))
+      }
+    } else {
+      data.table::fwrite(data[[d]] %>% dplyr::collect(), file.path(path, paste0(d, ".csv")))
+    }
+
+  })
+}
