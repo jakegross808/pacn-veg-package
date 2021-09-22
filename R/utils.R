@@ -143,11 +143,11 @@ ReadFTPC <- function(conn) {
   #Sites (e.g. Park Codes)
 
   #Short
-  tbl_Sites_short <- dplyr::tbl(DB, "tbl_Sites") %>%
+  tbl_Sites_short <- dplyr::tbl(conn, "tbl_Sites") %>%
     dplyr::select(Site_ID, Unit_Code)
 
   #Extra
-  tbl_Sites_extra <- dplyr::tbl(DB, "tbl_Sites") %>%
+  tbl_Sites_extra <- dplyr::tbl(conn, "tbl_Sites") %>%
     dplyr::select(Site_ID, Unit_Code, Site_Name)
 
   # . . 2. tbl_Locations----
@@ -155,11 +155,11 @@ ReadFTPC <- function(conn) {
   #Locations (e.g. Sampling Frame)
 
   #Short
-  tbl_Locations_short <- dplyr::tbl(DB, "tbl_Locations") %>%
+  tbl_Locations_short <- dplyr::tbl(conn, "tbl_Locations") %>%
     dplyr::select(Location_ID, Site_ID, Community, Sampling_Frame)
 
   #Extra
-  tbl_Locations_extra <- dplyr::tbl(DB, "tbl_Locations") %>%
+  tbl_Locations_extra <- dplyr::tbl(conn, "tbl_Locations") %>%
     dplyr::select(Location_ID, Site_ID, Community, Sampling_Frame, Zone, Management_Unit)
 
   # . . 3. tbl_Plot----
@@ -167,11 +167,11 @@ ReadFTPC <- function(conn) {
   #Plots (e.g. Plot numbers, Plot type (Fixed vs. Rotational, Plot coordinates))
 
   #Short
-  tbl_Plot_short <- dplyr::tbl(DB, "tbl_Plot") %>%
+  tbl_Plot_short <- dplyr::tbl(conn, "tbl_Plot") %>%
     dplyr::select(Plot_ID, Location_ID, Plot_Number, Plot_Type)
 
   #Extra
-  tbl_Plot_extra <- dplyr::tbl(DB, "tbl_Plot") %>%
+  tbl_Plot_extra <- dplyr::tbl(conn, "tbl_Plot") %>%
     dplyr::select(Plot_ID, Location_ID, Plot_Number, Azimuth_Plot,
            Start_Lat, Start_Long, Center_Lat, Center_Long, End_Lat, End_Long,
            GCS, GCS_Datum, Lat_Dir, Long_Dir, Plot_Notes)
@@ -182,11 +182,11 @@ ReadFTPC <- function(conn) {
   #Events (e.g. The date the plot was sampled, QA/QC records)
 
   #Short
-  tbl_Events_short <- dplyr::tbl(DB, "tbl_Events") %>%
+  tbl_Events_short <- dplyr::tbl(conn, "tbl_Events") %>%
     dplyr::select(Event_ID, Plot_ID, Start_Date, QA_Plot)
 
   #Extra
-  tbl_Events_extra <- dplyr::tbl(DB, "tbl_Events") %>%
+  tbl_Events_extra <- dplyr::tbl(conn, "tbl_Events") %>%
     dplyr::select(Event_ID, Plot_ID, Start_Date, Images, Max_veg_ht,
            Entered_date, Updated_date, Verified, Verified_by, Verified_date,
            Certified, Certified_by, Certified_date, Completion_time,
@@ -245,11 +245,11 @@ ReadFTPC <- function(conn) {
   # . . 1. tlu_Species----
 
   #Short
-  tlu_Species_short <- dplyr::tbl(DB, "tlu_Species") %>%
+  tlu_Species_short <- dplyr::tbl(conn, "tlu_Species") %>%
     dplyr::select(Species_ID, Scientific_name, Code, Life_form)
 
   #Extra
-  tlu_Species_extra <- dplyr::tbl(DB, "tlu_Species") %>%
+  tlu_Species_extra <- dplyr::tbl(conn, "tlu_Species") %>%
     dplyr::select(Species_ID, Code, Taxonomic_Order, Taxonomic_Family, Genus, Species,
            Subdivision, Authority, Synonym, Authority_Source, Citation,
            Common_name, Life_cycle, Complete, Update_date, Update_by,
@@ -258,11 +258,11 @@ ReadFTPC <- function(conn) {
   # . . 2. xref_Park_Species_Nativity----
 
   #Short
-  xref_Park_Species_Nativity_short <- dplyr::tbl(DB, "xref_Park_Species_Nativity") %>%
+  xref_Park_Species_Nativity_short <- dplyr::tbl(conn, "xref_Park_Species_Nativity") %>%
     dplyr::select(Species_ID, Park, Nativity)
 
   #Extra
-  xref_Park_Species_Nativity_extra <- dplyr::tbl(DB, "xref_Park_Species_Nativity") %>%
+  xref_Park_Species_Nativity_extra <- dplyr::tbl(conn, "xref_Park_Species_Nativity") %>%
     dplyr::select(Species_ID, Park, Life_form, Nativity, Park_common_name,
            Distribution, Conservation_Status)
 
@@ -281,7 +281,7 @@ ReadFTPC <- function(conn) {
 
   # . . 1. tbl_Lg_Woody_Individual----
   # Large Trees & Large Tree Ferns (>10 cm DBH)
-  tbl_Lg_Woody_Individual <- dplyr::tbl(DB, "tbl_Lg_Woody_Individual") %>%
+  tbl_Lg_Woody_Individual <- dplyr::tbl(conn, "tbl_Lg_Woody_Individual") %>%
     dplyr::select(Large_Woody_ID, Event_ID, Species_ID, Quad, Status, Height,
                   Height_Dead, Boles, DBH, DBH_Other = DBH_Basal, Vigor,
                   Fruit_Flower, Rooting, Foliar, Caudex_Length,
@@ -289,7 +289,7 @@ ReadFTPC <- function(conn) {
 
   # . . . . tbl_Multiple_Boles----
   # Sub-table - Bole DBH for trees that have multiple boles.
-  tbl_Multiple_Boles <- dplyr::tbl(DB, "tbl_Multiple_Boles") %>%
+  tbl_Multiple_Boles <- dplyr::tbl(conn, "tbl_Multiple_Boles") %>%
     dplyr::select(Large_Woody_ID, DBH_Bole = DBH, Status_Bole = Status)
 
   # . . . . LgTrees ----
@@ -297,14 +297,14 @@ ReadFTPC <- function(conn) {
     dplyr::right_join(tbl_Lg_Woody_Individual, by = "Event_ID") %>%
     dplyr::left_join(tbl_Multiple_Boles, by = "Large_Woody_ID") %>%
     dplyr::left_join(Species, by = c("Species_ID", "Unit_Code" = "Park")) %>%
-    dplyr::select(-Large_Woody_ID, -Event_ID, -Species_ID) %>%
-    dplyr::collect()
+    dplyr::select(-Large_Woody_ID, -Event_ID, -Species_ID) #%>%
+    # dplyr::collect()
 
 
   # . . 2. tbl_Tree_Canopy_Height----
   # Height of canopy, sub-canopy, and emergent trees
 
-  tbl_Tree_Canopy_Height <- dplyr::tbl(DB, "tbl_Tree_Canopy_Height") %>%
+  tbl_Tree_Canopy_Height <- dplyr::tbl(conn, "tbl_Tree_Canopy_Height") %>%
     dplyr::select(Event_ID, Species_ID, Quad, Status, Top, Base, Base_ht,
                   Distance, Height, Method, DBH, Comments)
   # . . . . Canopy ----
@@ -319,7 +319,7 @@ ReadFTPC <- function(conn) {
 
   # . . 3. tbl_Presence----
   # List of species present within plot
-  tbl_Presence <- dplyr::tbl(DB, "tbl_Presence") %>%
+  tbl_Presence <- dplyr::tbl(conn, "tbl_Presence") %>%
     dplyr::select(Event_ID, Species_ID, Fruit_Flower, Dead,
                   Outside_Plot, cf, Comments)
   # . . . . Presence ----
@@ -335,7 +335,7 @@ ReadFTPC <- function(conn) {
 
   # . . 4. tbl_Sm_Woody_Tally----
   # Vines, seedlings, shrubs, small trees, and small tree ferns.
-  tbl_Sm_Woody_Tally <- dplyr::tbl(DB, "tbl_Sm_Woody_Tally") %>%
+  tbl_Sm_Woody_Tally <- dplyr::tbl(conn, "tbl_Sm_Woody_Tally") %>%
     dplyr::select(Event_ID, Species_ID, Transect, DBH, Status,
                   Foliar, Rooting, Count, Comments)
   # . . . . SmWoody ----
@@ -352,13 +352,13 @@ ReadFTPC <- function(conn) {
   # . . 5. tbl_Understory_Cover----
   # point-intercept cover of  species and substrate
   # two stratum: 1)low [0-1m] 2) high [1-2m]
-  UnderstoryCover <- dplyr::tbl(DB, "tbl_Understory_Cover") %>%
+  UnderstoryCover <- dplyr::tbl(conn, "tbl_Understory_Cover") %>%
     dplyr::select(Event_ID, Point_ID, Point, Substrate)
   # . . . . xref_Understory_Low----
-  UnderstoryLow <- dplyr::tbl(DB, "xref_Understory_Low") %>%
+  UnderstoryLow <- dplyr::tbl(conn, "xref_Understory_Low") %>%
     dplyr::select(Point_ID, Species_ID, Dead)
   # . . . . xref_Understory_High----
-  UnderstoryHigh <- dplyr::tbl(DB, "xref_Understory_High") %>%
+  UnderstoryHigh <- dplyr::tbl(conn, "xref_Understory_High") %>%
     dplyr::select(Point_ID, Species_ID, Dead)
 
   UnderstoryLow <- dplyr::inner_join(UnderstoryCover, UnderstoryLow, by = "Point_ID") %>%
@@ -369,14 +369,15 @@ ReadFTPC <- function(conn) {
   UnderstoryCover <- dplyr::union_all(UnderstoryLow, UnderstoryHigh)
 
   # . . . . Understory ----
-  Understory <- Events %>%
-    dplyr::right_join(UnderstoryCover, by = "Event_ID") %>%
-    filter(Unit_Code == "AMME") %>%#'* Temporary filter ...doesn't seem to help*
+  # Understory <- Events %>%
+  #   dplyr::right_join(UnderstoryCover, by = "Event_ID") %>%
+  #   dplyr::left_join(Species, by = c("Species_ID", "Unit_Code" = "Park")) %>%
+  #   dplyr::select(-Event_ID, -Species_ID)
+
+  Understory <- UnderstoryCover %>%
+    dplyr::inner_join(Events, by = "Event_ID") %>%
     dplyr::left_join(Species, by = c("Species_ID", "Unit_Code" = "Park")) %>%
-    dplyr::select(-Event_ID, -Species_ID) %>%
-    dplyr::collect()
-
-
+    dplyr::select(-Event_ID, -Species_ID)
 
   # . . 6. tbl_Woody_Debris----
   # Dead, downed wood and tree fern logs
@@ -409,7 +410,7 @@ ReadFTPC <- function(conn) {
     Canopy = Canopy,
     Presence = Presence,
     SmWoody = SmWoody,
-    # Understory = Understory,
+    Understory = Understory,
     Debris = Debris
   )
 
