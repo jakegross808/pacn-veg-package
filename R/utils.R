@@ -17,6 +17,34 @@ get_data <- function(data_name) {
   return(data)
 }
 
+#' Clear cached data
+#'
+#' @param silent Silence feedback message?
+#'
+#' @return `TRUE` if cache was cleared, `FALSE` if no cache found
+#' @export
+#'
+ClearPACNVegCache <- function(silent = FALSE) {
+  cache_path <- normalizePath(paste0(rappdirs::user_cache_dir(appname = "pacnvegetation"), "/pacnveg_cache_data.rds"), mustWork = FALSE)
+  cache_expiration_path <- normalizePath(paste0(rappdirs::user_cache_dir(appname = "pacnvegetation"), "/pacnveg_cache_expiration.rds"), mustWork = FALSE)
+  cache_lastrefreshed_path <- normalizePath(paste0(rappdirs::user_cache_dir(appname = "pacnvegetation"), "/pacnveg_cache_lastrefreshed.rds"), mustWork = FALSE)
+  cache_exists <- file.exists(cache_path)
+
+  if (cache_exists) {
+    unlink(cache_path)
+    unlink(cache_expiration_path)
+    unlink(cache_lastrefreshed_path)
+    if (!silent) {
+      message(paste("Cache cleared"))
+    }
+    return(TRUE)
+  } else {
+    message("No cache found")
+    return(FALSE)
+  }
+
+}
+
 #' Load raw data into package environment
 #' @description Run this function before you do anything else.
 #'
@@ -133,9 +161,13 @@ LoadPACNVeg <- function(ftpc_params = "pacn", eips_paths, data_path, data_source
 
     if (is_zip) {
       temp_dir <- tempdir()
-      unzip(data_path, overwrite = TRUE, exdir = temp_dir, junkpaths = TRUE)
-      data <- ReadCSV(temp_dir)
-      unlink(temp_dir, recursive = TRUE)
+      # Use this trycatch so that even if there's an error unzipping or reading, the temp dir will be deleted
+      tryCatch({
+        unzip(data_path, overwrite = TRUE, exdir = temp_dir, junkpaths = TRUE)
+        data <- ReadCSV(temp_dir)
+        },
+        finally = unlink(temp_dir, recursive = TRUE)
+      )
     } else {
       data <- ReadCSV(data_path)
     }
