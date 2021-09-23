@@ -621,3 +621,35 @@ WritePACNVeg <- function(dest.folder, create.folders = FALSE, overwrite = FALSE,
   )
   message("Done writing to CSV")
 }
+
+#' Test for dataframe equivalence
+#'
+#' @param result Actual data frame
+#' @param expected Expected data frame
+#' @param ignore_col_order Ignore order of columns in dataframe? Defaults to FALSE.
+#' @param ignore_row_order Ignore order of rows in dataframe? Defaults to TRUE.
+#'
+#' @return If test passes, nothing. If it fails, description of failure.
+#'
+#' @export
+#'
+expect_dataframe_equal <- function(result, expected, ignore_col_order = FALSE, ignore_row_order = TRUE) {
+  # Check for same columns
+  cols_match <- ifelse(ignore_col_order,
+                       all(names(result) %in% names(expected)) & all(names(expected) %in% names(result)),
+                       names(result) == names(expected))
+
+  # Rearrange columns to match if ignoring column order
+  if (cols_match & ignore_col_order) {
+    result <- dplyr::select(result, names(expected))
+  }
+  # Rearrange row order to match if ignoring row order
+  if (ignore_row_order) {
+    result <- dplyr::arrange_at(result, names(result))
+    expected <- dplyr::arrange_at(expected, names(expected))
+  }
+  # Compare dataframes
+  test_result <- all.equal(result, expected, check.attributes = FALSE, use.names = TRUE, check.names = TRUE)
+
+  return(testthat::expect_true(test_result, label = test_result))
+}
