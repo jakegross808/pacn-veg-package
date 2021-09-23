@@ -120,7 +120,7 @@ LoadPACNVeg <- function(ftpc_params = "pacn", eips_paths, data_path, data_source
       }
 
       ftpc_data <- ReadFTPC(ftpc_conn)
-      DBI::dbDisconnect(conn)
+      DBI::dbDisconnect(ftpc_conn)
       eips_data <- ReadEIPS(eips_paths)
 
       data <- c(ftpc_data, eips_data)
@@ -175,6 +175,14 @@ LoadPACNVeg <- function(ftpc_params = "pacn", eips_paths, data_path, data_source
   } else {
     stop("data_source type is invalid. It should be set to either 'db' or 'file'.")
   }
+
+  # Tidy up the data
+  data <- lapply(data, function(df) {
+    df %>%
+      dplyr::mutate_if(is.character, trimws, whitespace = "[\\h\\v]") %>%  # Trim leading and trailing whitespace
+      dplyr::mutate_if(is.character, dplyr::na_if, "") %>%  # Replace empty strings with NA
+      dplyr::mutate_if(is.character, stringr::str_replace_all, pattern = "[\\v]+", replacement = ";  ")  # Replace newlines with semicolons - reading certain newlines into R can cause problems
+  })
 
   # Actually load the data into an environment for the package to use
   tbl_names <- names(data)
@@ -493,6 +501,7 @@ GetColSpec <- function() {
                                     Verified_date = readr::col_datetime(time_format),
                                     Certified = readr::col_logical(),
                                     Certified_date = readr::col_datetime(time_format),
+                                    Completion_time = readr::col_double(),
                                     .default = readr::col_character()),
     Events_extra_xy = readr::cols(Start_Date = readr::col_datetime(time_format),
                                   Plot_Number = readr::col_integer(),
@@ -575,7 +584,8 @@ ReadCSV <- function(data_path) {
   col.spec <- GetColSpec()
   data <- lapply(names(col.spec), function(data_name){
     file_path <- file.path(data_path, paste0(data_name, ".csv"))
-    readr::read_csv(file = file_path, col_types = col.spec[[data_name]])
+    df <- readr::read_csv(file = file_path, col_types = col.spec[[data_name]])
+    return(df)
   })
 
   names(data) <- names(col.spec)
@@ -607,19 +617,27 @@ WritePACNVeg <- function(dest.folder, create.folders = FALSE, overwrite = FALSE,
   data <- FilterPACNVeg()
   dest.folder <- normalizePath(dest.folder, mustWork = FALSE)
   col.spec <- GetColSpec()
+  file.paths <- file.path(dest.folder, paste0(names(col.spec), ".csv"))
 
-  if (!dir.exists(dest.folder)) {
+  if (!dir.exists(dest.folder) & create.folders) {
     dir.create(dest.folder)
+  } else {
+    stop("Destination folder does not exist. To create it automatically, set create.folders to TRUE.")
+  }
+
+  if (!overwrite & any(file.exists(file.paths))) {
+    stop("Saving data in the folder provided would overwrite existing data. To automatically overwrite existing data, set overwrite to TRUE.")
   }
 
   invisible(
     lapply(names(col.spec), function(data_name) {
-    full_path <- file.path(dest.folder, paste0(data_name, ".csv"))
-    message(paste("Writing", full_path))
-    data.table::fwrite(data[[data_name]] %>% dplyr::collect(), full_path)
-  })
+      full_path <- file.path(dest.folder, paste0(data_name, ".csv"))
+      message(paste("Writing", full_path))
+      readr::write_csv(data[[data_name]], full_path, na = "", append = FALSE, col_names = TRUE)
+    })
   )
   message("Done writing to CSV")
+
 }
 
 #' Test for dataframe equivalence
