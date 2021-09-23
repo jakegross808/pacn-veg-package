@@ -3,5 +3,6 @@
 export(ClearPACNVegCache)
 export(LoadPACNVeg)
 export(WritePACNVeg)
+export(expect_dataframe_equal)
 importFrom(magrittr,"%<>%")
 importFrom(magrittr,"%>%")
