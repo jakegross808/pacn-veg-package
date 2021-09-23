@@ -32,13 +32,13 @@ LoadPACNVeg(
 \item an .Rdata file
 }}
 
-\item{data_source}{Either "db" (fetch data from databases or cache) or "file" (fetch data from csv, zip, or rds file).}
+\item{data_source}{Either "db" (fetch data from databases or cache) or "file" (fetch data from folder or zip archive of csv's).}
 
 \item{cache}{Should the data be cached locally to avoid reading from the databases every time?}
 
 \item{expire_interval_days}{Amount of time (in days) before the cache expires and has to be refreshed from the Access db. Defaults to 7 days. Ignored if \code{ftpc_conn} and \code{eips_paths} are \code{NULL}.}
 
-\item{force_refresh}{Refresh the cache from the databases even if it's not expired?}
+\item{force_refresh}{Refresh the cache from the databases even if it's not expired? Ignored if \code{cache == FALSE}.}
 }
 \value{
 Invisibly return a list containing all raw data
