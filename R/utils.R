@@ -354,30 +354,26 @@ ReadFTPC <- function(conn) {
   # two stratum: 1)low [0-1m] 2) high [1-2m]
   UnderstoryCover <- dplyr::tbl(conn, "tbl_Understory_Cover") %>%
     dplyr::select(Event_ID, Point_ID, Point, Substrate)
+
   # . . . . xref_Understory_Low----
   UnderstoryLow <- dplyr::tbl(conn, "xref_Understory_Low") %>%
-    dplyr::select(Point_ID, Species_ID, Dead)
+    dplyr::select(Event_ID, Point_ID, Species_ID, Dead) %>%
+    dplyr::mutate(Stratum = "Low")
+
   # . . . . xref_Understory_High----
   UnderstoryHigh <- dplyr::tbl(conn, "xref_Understory_High") %>%
-    dplyr::select(Point_ID, Species_ID, Dead)
-
-  UnderstoryLow <- dplyr::inner_join(UnderstoryCover, UnderstoryLow, by = "Point_ID") %>%
-    dplyr::mutate(Stratum = "Low")
-  UnderstoryHigh <- dplyr::inner_join(UnderstoryCover, UnderstoryHigh, by = "Point_ID") %>%
+    dplyr::select(Event_ID, Point_ID, Species_ID, Dead) %>%
     dplyr::mutate(Stratum = "High")
 
-  UnderstoryCover <- dplyr::union_all(UnderstoryLow, UnderstoryHigh)
+  UnderstorySpecies <- dplyr::union_all(UnderstoryLow, UnderstoryHigh)
 
-  # . . . . Understory ----
-  # Understory <- Events %>%
-  #   dplyr::right_join(UnderstoryCover, by = "Event_ID") %>%
-  #   dplyr::left_join(Species, by = c("Species_ID", "Unit_Code" = "Park")) %>%
-  #   dplyr::select(-Event_ID, -Species_ID)
-
-  Understory <- UnderstoryCover %>%
-    dplyr::inner_join(Events, by = "Event_ID") %>%
+  Understory <- Events %>%
+    dplyr::right_join(UnderstoryCover, by = "Event_ID") %>%
+    dplyr::left_join(UnderstorySpecies, by = c("Event_ID", "Point_ID")) %>%
     dplyr::left_join(Species, by = c("Species_ID", "Unit_Code" = "Park")) %>%
-    dplyr::select(-Event_ID, -Species_ID)
+    dplyr::select(-Event_ID, -Species_ID, -Point_ID) %>%
+    dplyr::collect()
+
 
   # . . 6. tbl_Woody_Debris----
   # Dead, downed wood and tree fern logs
