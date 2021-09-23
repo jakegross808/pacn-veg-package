@@ -2,8 +2,18 @@
 
 pkg_globals <- new.env(parent = emptyenv())
 
-get_data <- function(data_type) {
-  data <- get(data_type, pkg_globals)
+# Load data from global package environment
+get_data <- function(data_name) {
+  if (!missing(data_name)) {
+    if (!(data_name %in% names(GetColSpec()))) {
+      stop("Invalid data table name. Use names(pacnvegetation:::GetColSpec()) to see valid options for data_name.")
+    }
+    data <- get(data_name, pkg_globals)
+  } else {
+    data <- lapply(names(GetColSpec()), get, pkg_globals)
+    names(data) <- names(GetColSpec())
+  }
+
   return(data)
 }
 
@@ -20,10 +30,10 @@ get_data <- function(data_type) {
 #' * a folder containing the data in csv format
 #' * a .zip file containing the data in csv format
 #' * an .Rdata file
-#' @param data_source Either "db" (fetch data from databases or cache) or "file" (fetch data from csv, zip, or rds file).
+#' @param data_source Either "db" (fetch data from databases or cache) or "file" (fetch data from folder or zip archive of csv's).
 #' @param cache Should the data be cached locally to avoid reading from the databases every time?
 #' @param expire_interval_days Amount of time (in days) before the cache expires and has to be refreshed from the Access db. Defaults to 7 days. Ignored if `ftpc_conn` and `eips_paths` are `NULL`.
-#' @param force_refresh Refresh the cache from the databases even if it's not expired?
+#' @param force_refresh Refresh the cache from the databases even if it's not expired? Ignored if `cache == FALSE`.
 #'
 #' @return Invisibly return a list containing all raw data
 #' @export
@@ -59,17 +69,16 @@ LoadPACNVeg <- function(ftpc_params = "pacn", eips_paths, data_path, data_source
                                      readRDS(cache_expiration_path) > Sys.time())
 
     # If cache = TRUE and isn't expired, read data from there, otherwise load from databases
-    if (cache & cache_valid) {
-      cache_last_refreshed <- readRDS(cache_lastrefreshed_path)
-      cat("Loading data from local cache\n", "Data last read from database on ", cache_last_refreshed)
+    if (cache & cache_valid & !force_refresh) {
+      message(paste0("Loading data from local cache\n", "Data last read from database on ", format(readRDS(cache_lastrefreshed_path), "%m/%d/%y")))
       data <- readRDS(cache_path)
     } else {
       # Verify that Access db(s) exist
-      if (!(all(grepl(".*\\.mdb$", eips_paths)) && all(file.exists(eips_paths)))) {
-        stop("Path(s) to EIPS Access database(s) are invalid")
-      }
+      # if (!(all(grepl(".*\\.mdb$", eips_paths)) && all(file.exists(eips_paths)))) {
+      #   stop("Path(s) to EIPS Access database(s) are invalid")
+      # }
 
-      # If FTPC params provided as cav, read it and store in a list
+      # If FTPC params provided as csv, read it and store in a list
       if (length(ftpc_params) == 1 && grepl(".*\\.csv$", ftpc_params)) {
         ftpc_params <- readr::read_csv(ftpc_params, col_types = readr::cols(.default = readr::col_character()))
         ftpc_params <- as.list(ftpc_params)
@@ -83,18 +92,23 @@ LoadPACNVeg <- function(ftpc_params = "pacn", eips_paths, data_path, data_source
       }
 
       ftpc_data <- ReadFTPC(ftpc_conn)
-      # DBI::dbDisconnect(ftpc_conn)
+      DBI::dbDisconnect(conn)
       eips_data <- ReadEIPS(eips_paths)
 
       data <- c(ftpc_data, eips_data)
 
       if (cache) {
+        # Create cache folder if it doesn't exist yet
+        if (!dir.exists(dirname(cache_path))) {
+          dir.create(dirname(cache_path), recursive = TRUE)
+        }
         # Save data and expiration date to cache
         refreshed <- Sys.time()
         expiration <- refreshed + lubridate::days(expire_interval_days)
         saveRDS(data, file = cache_path)
         saveRDS(expiration, file = cache_expiration_path)
         saveRDS(refreshed, file = cache_lastrefreshed_path)
+        message(paste0("Saved data to local cache\n", "Cache expires ", format(expiration, "%m/%d/%y")))
       }
     }
   # End read from cache or database
@@ -102,23 +116,30 @@ LoadPACNVeg <- function(ftpc_params = "pacn", eips_paths, data_path, data_source
   } else if (data_source == "file") {
     # Standardize data path
     data_path <- ifelse(missing(data_path), NA, normalizePath(data_path, mustWork = FALSE))
-    # Figure out whether data path points to rds, folder of csv's, or zip
-    is_rds <- !is.na(data_path) & grepl("*.\\.rds$", data_path, ignore.case = TRUE)  # Is the data a .rds file?
+    # Figure out whether data path points to folder of csv's or zip
     is_zip <- !is.na(data_path) & grepl("*.\\.zip$", data_path, ignore.case = TRUE)  # Is the data in a .zip file?
-    is_csv <- !is.na(data_path) & dir.exists(data_path)  # Is the data in a folder?
+    if(is_zip) {
+      file_list <- basename(unzip(data_path, list = TRUE)$Name)
+    } else {
+      file_list <- list.files(data_path)
+    }
+    expected_files <- paste0(names(GetColSpec()), ".csv")
+
+    if (!all(expected_files %in% file_list)) {
+      missing_files <- setdiff(expected_files, file_list)
+      missing_files <- paste(missing_files, collapse = "\n")
+      stop(paste0("The folder provided is missing required data. Missing files:\n", missing_files))
+    }
 
     if (is_zip) {
       temp_dir <- tempdir()
-      zip::unzip(exdir = temp_dir)
+      unzip(data_path, overwrite = TRUE, exdir = temp_dir, junkpaths = TRUE)
       data <- ReadCSV(temp_dir)
       unlink(temp_dir, recursive = TRUE)
-    } else if (is_csv) {
-      data <- ReadCSV(data_path)
-    } else if (is_rds) {
-      data <- readRDS(data_path)
     } else {
-      stop("data_path does not point to valid data")
+      data <- ReadCSV(data_path)
     }
+
   } else {
     stop("data_source type is invalid. It should be set to either 'db' or 'file'.")
   }
@@ -297,8 +318,8 @@ ReadFTPC <- function(conn) {
     dplyr::right_join(tbl_Lg_Woody_Individual, by = "Event_ID") %>%
     dplyr::left_join(tbl_Multiple_Boles, by = "Large_Woody_ID") %>%
     dplyr::left_join(Species, by = c("Species_ID", "Unit_Code" = "Park")) %>%
-    dplyr::select(-Large_Woody_ID, -Event_ID, -Species_ID) #%>%
-    # dplyr::collect()
+    dplyr::select(-Large_Woody_ID, -Event_ID, -Species_ID) %>%
+    dplyr::collect()
 
 
   # . . 2. tbl_Tree_Canopy_Height----
@@ -425,6 +446,92 @@ ReadEIPS <- function(db_paths) {
   return(data)
 }
 
+#' Get column specifications
+#'
+#' @return A list of column specifications for each table of data.
+#'
+GetColSpec <- function() {
+  time_format <- "%Y-%m-%dT%H:%M:%SZ"
+  col.spec <- list(
+    Events_extra_QAQC = readr::cols(Start_Date = readr::col_datetime(time_format),
+                                    Plot_Number = readr::col_integer(),
+                                    Entered_date = readr::col_datetime(time_format),
+                                    Updated_date = readr::col_datetime(time_format),
+                                    Verified = readr::col_logical(),
+                                    Verified_date = readr::col_datetime(time_format),
+                                    Certified = readr::col_logical(),
+                                    Certified_date = readr::col_datetime(time_format),
+                                    .default = readr::col_character()),
+    Events_extra_xy = readr::cols(Start_Date = readr::col_datetime(time_format),
+                                  Plot_Number = readr::col_integer(),
+                                  Azimuth_Plot = readr::col_integer(),
+                                  Start_Lat = readr::col_double(),
+                                  Start_Long = readr::col_double(),
+                                  Center_Lat = readr::col_double(),
+                                  Center_Long = readr::col_double(),
+                                  End_Lat = readr::col_double(),
+                                  End_Long = readr::col_double(),
+                                  .default = readr::col_character()),
+    Events_extra_other = readr::cols(Start_Date = readr::col_datetime(time_format),
+                                     Plot_Number = readr::col_integer(),
+                                     Max_veg_ht = readr::col_double(),
+                                     Images = readr::col_logical(),
+                                     .default = readr::col_character()),
+    Species_extra = readr::cols(Complete = readr::col_logical(),
+                                Update_date = readr::col_datetime(time_format),
+                                .default = readr::col_character()),
+    LgTrees = readr::cols(Start_Date = readr::col_datetime(time_format),
+                          Plot_Number = readr::col_integer(),
+                          QA_Plot = readr::col_logical(),
+                          Height = readr::col_double(),
+                          Height_Dead = readr::col_double(),
+                          Boles = readr::col_integer(),
+                          DBH = readr::col_double(),
+                          DBH_Other = readr::col_double(),
+                          Fruit_Flower = readr::col_logical(),
+                          Caudex_Length = readr::col_double(),
+                          Shrublike_Growth = readr::col_logical(),
+                          Resprouts = readr::col_logical(),
+                          DBH_Bole = readr::col_double(),
+                          .default = readr::col_character()),
+    Canopy = readr::cols(Start_Date = readr::col_datetime(time_format),
+                         Plot_Number = readr::col_integer(),
+                         QA_Plot = readr::col_logical(),
+                         Top = readr::col_integer(),
+                         Base = readr::col_integer(),
+                         Base_ht = readr::col_double(),
+                         Distance = readr::col_double(),
+                         Height = readr::col_double(),
+                         DBH = readr::col_double(),
+                         .default = readr::col_character()),
+    Presence = readr::cols(Start_Date = readr::col_datetime(time_format),
+                           Plot_Number = readr::col_integer(),
+                           QA_Plot = readr::col_logical(),
+                           Fruit_Flower = readr::col_logical(),
+                           Dead = readr::col_logical(),
+                           Outside_Plot = readr::col_logical(),
+                           cf = readr::col_logical(),
+                           .default = readr::col_character()),
+    SmWoody = readr::cols(Start_Date = readr::col_datetime(time_format),
+                          Plot_Number = readr::col_integer(),
+                          QA_Plot = readr::col_logical(),
+                          Count = readr::col_integer(),
+                          .default = readr::col_character()),
+    Understory = readr::cols(Start_Date = readr::col_datetime(time_format),
+                             Plot_Number = readr::col_integer(),
+                             QA_Plot = readr::col_logical(),
+                             Point = readr::col_integer(),
+                             Dead = readr::col_logical(),
+                             .default = readr::col_character()),
+    Debris = readr::cols(Start_Date = readr::col_datetime(time_format),
+                         Plot_Number = readr::col_integer(),
+                         QA_Plot = readr::col_logical(),
+                         Diameter = readr::col_double(),
+                         .default = readr::col_character()))
+
+  return(col.spec)
+}
+
 #' Read data from a folder of csv files
 #'
 #' @param data_path A path to a folder containing the data in csv format
@@ -432,30 +539,53 @@ ReadEIPS <- function(db_paths) {
 #' @return A list of tibbles
 #'
 ReadCSV <- function(data_path) {
-  data <- list()
+  data_path <- normalizePath(data_path)
+  col.spec <- GetColSpec()
+  data <- lapply(names(col.spec), function(data_name){
+    file_path <- file.path(data_path, paste0(data_name, ".csv"))
+    readr::read_csv(file = file_path, col_types = col.spec[[data_name]])
+  })
+
+  names(data) <- names(col.spec)
+  return(data)
+}
+
+FilterPACNVeg <- function(data_name, park, sample_frame, community, plot, plot_type, is_qa_plot, quad, transect, species_code, sci_name, nativity, live_dead, certified, verified) {
+  data <- get_data(data_name)
+
 
   return(data)
 }
 
-WritePACNVeg <- function(path, data) {
-  if (!dir.exists(path)) {
-    dir.create(path)
+#' Save PACN vegetation data as a set of .csv files
+#'
+#' @param dest.folder The folder in which to save the .csv files.
+#' @param create.folders Should \code{dest.folder} be created automatically if it doesn't exist? Defaults to \code{FALSE}.
+#' @param overwrite Should existing data be automatically overwritten? Defaults to \code{FALSE}.
+#'
+#' @return None.
+#' @export
+#'
+#' @examples
+#' \dontrun{
+#' LoadPACNVeg("pacnveg", "path/to/access.mdb")
+#' WritePACNVeg("folder/for/csv/data", create.folders = TRUE)
+#' }
+WritePACNVeg <- function(dest.folder, create.folders = FALSE, overwrite = FALSE, park, sample_frame, community, certified, verified, is_qa_plot) {
+  data <- FilterPACNVeg()
+  dest.folder <- normalizePath(dest.folder, mustWork = FALSE)
+  col.spec <- GetColSpec()
+
+  if (!dir.exists(dest.folder)) {
+    dir.create(dest.folder)
   }
 
-  lapply(names(data), function(d) {
-    if (d == "Understory") {
-      chunks <- data[[d]] %>%
-        dplyr::distinct(Unit_Code, Sampling_Frame) %>% dplyr::collect()
-      for (i in 1:nrow(chunks)) {
-        park <- chunks[[i, "Unit_Code"]]
-        sframe <- chunks[[i, "Sampling_Frame"]]
-        message(paste0("Writing sample frame ", sframe, " at ", park, " to csv\n"))
-        data.table::fwrite(data[[d]] %>% dplyr::filter(Unit_Code == park, Sampling_Frame == sframe) %>% dplyr::collect(),
-                           file.path(path, paste0(d, ".csv")), append = (i > 1))
-      }
-    } else {
-      data.table::fwrite(data[[d]] %>% dplyr::collect(), file.path(path, paste0(d, ".csv")))
-    }
-
+  invisible(
+    lapply(names(col.spec), function(data_name) {
+    full_path <- file.path(dest.folder, paste0(data_name, ".csv"))
+    message(paste("Writing", full_path))
+    data.table::fwrite(data[[data_name]] %>% dplyr::collect(), full_path)
   })
+  )
+  message("Done writing to CSV")
 }
