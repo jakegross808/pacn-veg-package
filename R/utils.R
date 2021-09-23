@@ -88,7 +88,7 @@ LoadPACNVeg <- function(ftpc_params = "pacn", eips_paths, data_path, data_source
   ## Read from cache or database
   if (data_source == "db") {
     # Standardize path names, create path to cache, check whether cache exists
-    eips_paths <- normalizePath(eips_paths, mustWork = FALSE)
+    # eips_paths <- normalizePath(eips_paths, mustWork = FALSE)
     cache_path <- normalizePath(paste0(rappdirs::user_cache_dir(appname = "pacnvegetation"), "/pacnveg_cache_data.rds"), mustWork = FALSE)
     cache_expiration_path <- normalizePath(paste0(rappdirs::user_cache_dir(appname = "pacnvegetation"), "/pacnveg_cache_expiration.rds"), mustWork = FALSE)
     cache_lastrefreshed_path <- normalizePath(paste0(rappdirs::user_cache_dir(appname = "pacnvegetation"), "/pacnveg_cache_lastrefreshed.rds"), mustWork = FALSE)
