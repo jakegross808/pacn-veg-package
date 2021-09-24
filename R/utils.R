@@ -181,6 +181,7 @@ LoadPACNVeg <- function(ftpc_params = "pacn", eips_paths, data_path, data_source
     df %>%
       dplyr::mutate_if(is.character, trimws, whitespace = "[\\h\\v]") %>%  # Trim leading and trailing whitespace
       dplyr::mutate_if(is.character, dplyr::na_if, "") %>%  # Replace empty strings with NA
+      dplyr::mutate_if(is.character, dplyr::na_if, "NA") %>%  # Replace "NA" strings with NA
       dplyr::mutate_if(is.character, stringr::str_replace_all, pattern = "[\\v]+", replacement = ";  ")  # Replace newlines with semicolons - reading certain newlines into R can cause problems
   })
 
