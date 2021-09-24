@@ -1,9 +1,9 @@
 context("Reading from database and csv")
 
 # Load data from db, skip this test if no db connection
-tryCatch(db <- LoadPACNVeg("pacnveg"),
+tryCatch(db <- LoadPACNVeg("pacnveg", cache = FALSE),
          error = function(e) {
-           if (message(e) %like% "Could not open a connection to SQL Server") {
+           if (grepl(".*Could not open a connection to SQL Server.*", e$message)) {
              skip("No database connection")
            } else {e}
          })
@@ -24,7 +24,7 @@ for (d.name in data.names) {
   test_that(paste0(d.name, ".csv matches data read from database"), {
     db <- db[[d.name]]
     csv <- csv[[d.name]]
-    expect_dataframe_equal(db, csv)
+    expect_dataframe_equal(csv, db)
   })
 }
 
