@@ -88,7 +88,7 @@ LoadPACNVeg <- function(ftpc_params = "pacn", eips_paths, data_path, data_source
   ## Read from cache or database
   if (data_source == "db") {
     # Standardize path names, create path to cache, check whether cache exists
-    # eips_paths <- normalizePath(eips_paths, mustWork = FALSE)
+    eips_paths <- normalizePath(eips_paths, mustWork = FALSE)
     cache_path <- normalizePath(paste0(rappdirs::user_cache_dir(appname = "pacnvegetation"), "/pacnveg_cache_data.rds"), mustWork = FALSE)
     cache_expiration_path <- normalizePath(paste0(rappdirs::user_cache_dir(appname = "pacnvegetation"), "/pacnveg_cache_expiration.rds"), mustWork = FALSE)
     cache_lastrefreshed_path <- normalizePath(paste0(rappdirs::user_cache_dir(appname = "pacnvegetation"), "/pacnveg_cache_lastrefreshed.rds"), mustWork = FALSE)
@@ -102,9 +102,9 @@ LoadPACNVeg <- function(ftpc_params = "pacn", eips_paths, data_path, data_source
       data <- readRDS(cache_path)
     } else {
       # Verify that Access db(s) exist
-      # if (!(all(grepl(".*\\.mdb$", eips_paths)) && all(file.exists(eips_paths)))) {
-      #   stop("Path(s) to EIPS Access database(s) are invalid")
-      # }
+      if (!(all(grepl(".*\\.mdb$", eips_paths)) && all(file.exists(eips_paths)))) {
+        stop("Path(s) to EIPS Access database(s) are invalid")
+      }
 
       # If FTPC params provided as csv, read it and store in a list
       if (length(ftpc_params) == 1 && grepl(".*\\.csv$", ftpc_params)) {
@@ -482,7 +482,140 @@ ReadFTPC <- function(conn) {
 #' @return A list of tibbles
 #'
 ReadEIPS <- function(db_paths) {
-  data <- list()
+  conn_strings <- paste0("Driver={Microsoft Access Driver (*.mdb, *.accdb)};DBQ=", db_paths)
+
+  Events_extra_QAQC_EIPS <- tibble::tibble()
+  Events_extra_xy_EIPS <- tibble::tibble()
+  Events_extra_other_EIPS <- tibble::tibble()
+  Species_extra_EIPS <- tibble::tibble()
+  EIPS_data <- tibble::tibble()
+
+  for (conn_string in conn_strings) {
+    conn <- DBI::dbConnect(odbc::odbc(), .connection_string = conn_string)
+    #Sites (e.g. Park Codes)
+    #Short
+    tbl_Sites_short <- dplyr::tbl(conn, "tbl_Sites") %>%
+      dplyr::select(Site_ID, Unit_Code)
+    #Extra
+    tbl_Sites_extra <- dplyr::tbl(conn, "tbl_Sites") %>%
+      dplyr::select(Site_ID, Unit_Code, Site_Name)
+
+    #Locations (e.g. Sampling Frame)
+    #Short
+    tbl_Locations_short <- dplyr::tbl(conn, "tbl_Locations") %>%
+      dplyr::select(Location_ID, Site_ID, Community = Plant_Community, Sampling_Frame)
+    #Extra
+    tbl_Locations_extra <- dplyr::tbl(conn, "tbl_Locations") %>%
+      dplyr::select(Location_ID, Site_ID, Community = Plant_Community, Sampling_Frame, Zone, Management_Unit)
+
+    # Transects
+    tbl_Transects_short <- dplyr::tbl(conn, "tbl_Transects") %>%
+      dplyr::select(Transect_ID, Location_ID, Transect_Number, Transect_Type)
+    tbl_Transects_extra <- dplyr::tbl(conn, "tbl_Transects") %>%
+      dplyr::select(Transect_ID, Location_ID, Transect_Type, Transect_Number, Azimuth_Transect = Azimuth, Lat = Latitude, Lat_Dir = Latitude_Dir, Long = Longitude, Long_Dir = Longitude_Dir, GCS, Transect_Notes)
+
+    # Events (e.g. The date the plot was sampled, QA/QC records)
+    # Short
+    Events <- dplyr::tbl(conn, "tbl_Events") %>%
+      dplyr::select(Event_ID, Transect_ID, Start_Date) %>%
+      dplyr::left_join(tbl_Transects_short, by = "Transect_ID") %>%
+      dplyr::left_join(tbl_Locations_short, by = "Location_ID") %>%
+      dplyr::left_join(tbl_Sites_short, by = "Site_ID") %>%
+      dplyr::select(Start_Date, Unit_Code, Community, Sampling_Frame, Transect_Type, Transect_Number, Event_ID)
+    # Extra
+    Events_extra <-  dplyr::tbl(conn, "tbl_Events") %>%
+      dplyr::left_join(tbl_Transects_extra, by = "Transect_ID") %>%
+      dplyr::left_join(tbl_Locations_extra, by = "Location_ID") %>%
+      #Move long text columns to end because of SQL driver error:
+      dplyr::relocate(Event_Notes, .after = last_col()) %>%
+      dplyr::relocate(Transect_Notes, .after = last_col()) %>%
+      dplyr::left_join(tbl_Sites_extra, by = "Site_ID") %>%
+      #Move long text columns to end because of SQL driver error:
+      dplyr::relocate(Event_Notes, .after = last_col()) %>%
+      dplyr::relocate(Transect_Notes, .after = last_col()) %>%
+      dplyr::select(Event_ID, Transect_ID, Start_Date, Unit_Code, Sampling_Frame, Zone, Management_Unit,
+                    Transect_Number, Site_Name, Transect_Type, Transect_Number, Azimuth_Transect, Lat, Long,
+                    GCS, Lat_Dir, Long_Dir, Entered_Date, Updated_Date, Verified, Verified_By, Verified_Date,
+                    Certified, Certified_By, Certified_Date, Transect_Notes, Event_Notes)
+    # Events_extra_QAQC
+    Events_extra_QAQC_new <- Events_extra %>%
+      dplyr::select(Start_Date, Unit_Code, Sampling_Frame, Transect_Type, Transect_Number,
+                    Entered_Date, Updated_Date, Verified, Verified_By, Verified_Date,
+                    Certified, Certified_By, Certified_Date, Transect_Notes, Event_Notes) %>%
+      dplyr::collect()
+
+    # Events_extra_xy
+    Events_extra_xy_new <- Events_extra %>%
+      dplyr::select(Start_Date, Unit_Code, Sampling_Frame, Transect_Number, Azimuth_Transect, Lat, Long, GCS, Lat_Dir, Long_Dir) %>%
+      dplyr::collect()
+
+    # Events_extra_other
+    Events_extra_other_new <- Events_extra %>%
+      dplyr::select(Start_Date, Unit_Code, Sampling_Frame, Zone, Management_Unit,
+                    Transect_Number, Site_Name) %>%
+      dplyr::collect()
+
+    # Species w/nativity
+
+    # Nativity - Short
+    xref_Park_Species_Nativity_short <- dplyr::tbl(conn, "xref_Park_Species_Nativity") %>%
+      dplyr::select(Species_ID, Park, Nativity = Nativeness)
+
+    # Nativity - Extra
+    xref_Park_Species_Nativity_extra <- dplyr::tbl(conn, "xref_Park_Species_Nativity") %>%
+      dplyr::select(Species_ID, Park, Life_form, Nativity = Nativeness, Park_common_name,
+                    Distribution, Conservation_status)
+
+    # Species
+    Species <- dplyr::tbl(conn, "tlu_Species") %>%
+      dplyr::select(Species_ID, Scientific_name, Code, Life_form) %>%
+      dplyr::right_join(xref_Park_Species_Nativity_short, by = "Species_ID")
+
+    # Species_extra
+    Species_extra_new <- dplyr::tbl(conn, "tlu_Species") %>%
+      dplyr::select(Species_ID, Scientific_name, Code, Taxonomic_Order, Taxonomic_Family, Genus, Species,
+                    Subdivision, Authority, Synonym, Authority_Source, Citation,
+                    Common_name, Life_cycle, Complete, Update_date, Update_by,
+                    Update_comments) %>%
+      dplyr::right_join(xref_Park_Species_Nativity_extra, by = "Species_ID") %>%
+      dplyr::collect() %>%
+      dplyr::rename(Scientific_Name = Scientific_name, Life_Form = Life_form,
+                    Park_Common_Name = Park_common_name, Conservation_Status = Conservation_status,
+                    Common_Name = Common_name, Life_Cycle = Life_cycle, Update_Date = Update_date,
+                    Update_By = Update_by, Update_Comments = Update_comments)
+
+    # EIPS data
+    xref_Cover_Class_Species <- dplyr::tbl(conn, "xref_Cover_Class_Species") %>%
+      dplyr::select(Segment_ID, Event_ID, Species_ID, Cover_class, Dead)
+    tbl_Segments <- dplyr::tbl(conn, "tbl_Segments") %>%
+      dplyr::select(Segment_ID, Event_ID, No_Data, Segment_Notes)
+
+    EIPS_data_new <- Events %>%
+      dplyr::right_join(tbl_Segments, by = "Event_ID") %>%
+      dplyr::left_join(xref_Cover_Class_Species, by = c("Segment_ID", "Event_ID")) %>%
+      dplyr::left_join(Species, by = "Species_ID") %>%
+      dplyr::select(Unit_Code, Community, Sampling_Frame, Start_Date, Transect_Number, Transect_Type, Species_ID, Cover_class, Dead, Code, Scientific_name, Life_form, Nativity) %>%
+      dplyr::collect() %>%
+      dplyr::rename(Cover_Class = Cover_class, Scientific_Name = Scientific_name, Life_Form = Life_form)
+
+    Events_extra_QAQC_EIPS <- unique(rbind(Events_extra_QAQC_EIPS, Events_extra_QAQC_new))
+    Events_extra_xy_EIPS <- unique(rbind(Events_extra_xy_EIPS, Events_extra_xy_new))
+    Events_extra_other_EIPS <- unique(rbind(Events_extra_other_EIPS, Events_extra_other_new))
+    Species_extra_EIPS <- unique(rbind(Species_extra_EIPS, Species_extra_new))
+    EIPS_data <- unique(rbind(EIPS_data, EIPS_data_new))
+
+    DBI::dbDisconnect(conn)
+  } # End for loop
+
+  data <- list(Events_extra_QAQC_EIPS = Events_extra_QAQC_EIPS,
+               Events_extra_xy_EIPS = Events_extra_xy_EIPS,
+               Events_extra_other_EIPS = Events_extra_other_EIPS,
+               Species_extra_EIPS = Species_extra_EIPS,
+               EIPS_data = EIPS_data)
+
+  data <- lapply(data, function(df) {
+    dplyr::mutate_if(df, is.character, iconv, "CP1252", "UTF-8")  # Convert to UTF-8 encoding
+  })
 
   return(data)
 }
@@ -569,7 +702,29 @@ GetColSpec <- function() {
                          Plot_Number = readr::col_integer(),
                          QA_Plot = readr::col_logical(),
                          Diameter = readr::col_double(),
-                         .default = readr::col_character()))
+                         .default = readr::col_character()),
+    Events_extra_QAQC_EIPS = readr::cols(Start_Date = readr::col_datetime(time_format),
+                                         Entered_Date = readr::col_datetime(time_format),
+                                         Updated_Date = readr::col_datetime(time_format),
+                                         Verified = readr::col_logical(),
+                                         Verified_Date = readr::col_datetime(time_format),
+                                         Certified = readr::col_logical(),
+                                         Certified_Date = readr::col_datetime(time_format),
+                                         .default = readr::col_character()),
+    Events_extra_xy_EIPS = readr::cols(Start_Date = readr::col_datetime(time_format),
+                                       Azimuth_Transect = readr::col_integer(),
+                                       Lat = readr::col_double(),
+                                       Long = readr::col_double(),
+                                       .default = readr::col_character()),
+    Events_extra_other_EIPS = readr::cols(Start_Date = readr::col_datetime(time_format),
+                                          .default = readr::col_character()),
+    Species_extra_EIPS = readr::cols(Complete = readr::col_logical(),
+                                     Update_Date = readr::col_datetime(),
+                                     .default = readr::col_character()),
+    EIPS_data = readr::cols(Start_Date = readr::col_datetime(time_format),
+                            Dead = readr::col_logical(),
+                            .default = readr::col_character())
+  )
 
   return(col.spec)
 }
