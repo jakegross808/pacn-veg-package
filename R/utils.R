@@ -791,10 +791,11 @@ FilterPACNVeg <- function(data_name, park, sample_frame, community, plot_type, i
 
   filter_cols <- all_filter_cols[!is.na(all_filter_cols)]
 
-  if (is.list(data)) {
+  if (!is.data.frame(data)) {  # Note: a data frame/tibble is a list, but a list is not a data frame/tibble!
     data_names <- names(data)
     data <- lapply(names(data), function(data_name){
-      FilterOne(data[[data_name]], data_name, filter_cols = filter_cols, case_sensitive = case_sensitive, silent = silent)
+      df <- FilterOne(data[[data_name]], data_name, filter_cols = filter_cols, case_sensitive = case_sensitive, silent = silent)
+      return(df)
     })
     names(data) <- data_names
   } else {
@@ -834,8 +835,9 @@ FilterOne <- function(data, data_name, filter_cols, case_sensitive, silent) {
       }
     }
   }
-  if (!silent) {
-    message(paste("Filtered", data_name, "on columns:", paste(cols_filtered, collapse = ", ")))
+  if (!silent & length(filter_cols) > 0) {
+    col_list <- paste(cols_filtered, collapse = ", ")
+    message(paste("Filtered", data_name, "on columns:", ifelse(col_list != "", col_list, "[none]")))
   }
 
   return(data)
