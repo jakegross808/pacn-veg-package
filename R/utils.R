@@ -249,9 +249,9 @@ ReadFTPC <- function(conn) {
 
   #Extra
   tbl_Events_extra <- dplyr::tbl(conn, "tbl_Events") %>%
-    dplyr::select(Event_ID, Plot_ID, Start_Date, Images, Max_veg_ht,
-           Entered_date, Updated_date, Verified, Verified_by, Verified_date,
-           Certified, Certified_by, Certified_date, Completion_time,
+    dplyr::select(Event_ID, Plot_ID, Start_Date, Images, Max_Veg_Ht = Max_veg_ht,
+           Entered_Date = Entered_date, Updated_Date = Updated_date, Verified, Verified_By = Verified_by, Verified_Date = Verified_date,
+           Certified, Certified_By = Certified_by, Certified_Date = Certified_date, Completion_Time = Completion_time,
            Event_Notes, QA_notes)
 
 
@@ -283,8 +283,8 @@ ReadFTPC <- function(conn) {
   # . . Events_extra_QAQC
   Events_extra_QAQC <- Events_extra %>%
     dplyr::select(Start_Date, Unit_Code, Sampling_Frame, Plot_Number,
-           Entered_date, Updated_date, Verified, Verified_by, Verified_date,
-           Certified, Certified_by, Certified_date, Completion_time,
+           Entered_Date, Updated_Date, Verified, Verified_By, Verified_Date,
+           Certified, Certified_By, Certified_Date, Completion_Time,
            Event_Notes, Plot_Notes, QA_notes) %>%
     dplyr::collect()
 
@@ -298,7 +298,7 @@ ReadFTPC <- function(conn) {
   # . . Events_extra_other
   Events_extra_other <- Events_extra %>%
     dplyr::select(Start_Date, Unit_Code, Sampling_Frame, Zone, Management_Unit,
-                  Plot_Number, Max_veg_ht, Site_Name, Images) %>%
+                  Plot_Number, Max_Veg_Ht, Site_Name, Images) %>%
     dplyr::collect()
 
 
@@ -308,14 +308,14 @@ ReadFTPC <- function(conn) {
 
   #Short
   tlu_Species_short <- dplyr::tbl(conn, "tlu_Species") %>%
-    dplyr::select(Species_ID, Scientific_name, Code, Life_form)
+    dplyr::select(Species_ID, Scientific_Name = Scientific_name, Code, Life_Form = Life_form)
 
   #Extra
   tlu_Species_extra <- dplyr::tbl(conn, "tlu_Species") %>%
-    dplyr::select(Species_ID, Code, Taxonomic_Order, Taxonomic_Family, Genus, Species,
+    dplyr::select(Species_ID, Scientific_Name = Scientific_name, Code, Taxonomic_Order, Taxonomic_Family, Genus, Species,
            Subdivision, Authority, Synonym, Authority_Source, Citation,
-           Common_name, Life_cycle, Complete, Update_date, Update_by,
-           Update_comments)
+           Common_Name = Common_name, Life_Cycle = Life_cycle, Complete, Update_Date = Update_date, Update_By = Update_by,
+           Update_Comments = Update_comments)
 
   # . . 2. xref_Park_Species_Nativity----
 
@@ -325,7 +325,7 @@ ReadFTPC <- function(conn) {
 
   #Extra
   xref_Park_Species_Nativity_extra <- dplyr::tbl(conn, "xref_Park_Species_Nativity") %>%
-    dplyr::select(Species_ID, Park, Life_form, Nativity, Park_common_name,
+    dplyr::select(Species_ID, Park, Life_Form = Life_form, Nativity, Park_Common_Name = Park_common_name,
            Distribution, Conservation_Status)
 
   # . . . . **join** Species & Nativity-------------------------------------------------
@@ -367,7 +367,7 @@ ReadFTPC <- function(conn) {
   # Height of canopy, sub-canopy, and emergent trees
 
   tbl_Tree_Canopy_Height <- dplyr::tbl(conn, "tbl_Tree_Canopy_Height") %>%
-    dplyr::select(Event_ID, Species_ID, Quad, Status, Top, Base, Base_ht,
+    dplyr::select(Event_ID, Species_ID, Quad, Status, Top, Base, Base_Ht = Base_ht,
                   Distance, Height, Method, DBH, Comments)
   # . . . . Canopy ----
   Canopy <- Events %>%
@@ -447,7 +447,7 @@ ReadFTPC <- function(conn) {
   # Subtable - Additional information on debris type (wood/tree fern), diameter,
   # and decay class
   tbl_Debris_Species <- dplyr::tbl(conn, "tbl_Debris_Species") %>%
-    dplyr::select(Woody_Debris_ID, Debris_type, Diameter, Decay_Class, Comments)
+    dplyr::select(Woody_Debris_ID, Debris_Type = Debris_type, Diameter, Decay_Class, Comments)
 
   # . . . . Debris ----
   Debris <- Events %>%
@@ -629,13 +629,13 @@ GetColSpec <- function() {
   col.spec <- list(
     Events_extra_QAQC = readr::cols(Start_Date = readr::col_datetime(time_format),
                                     Plot_Number = readr::col_integer(),
-                                    Entered_date = readr::col_datetime(time_format),
-                                    Updated_date = readr::col_datetime(time_format),
+                                    Entered_Date = readr::col_datetime(time_format),
+                                    Updated_Date = readr::col_datetime(time_format),
                                     Verified = readr::col_logical(),
-                                    Verified_date = readr::col_datetime(time_format),
+                                    Verified_Date = readr::col_datetime(time_format),
                                     Certified = readr::col_logical(),
-                                    Certified_date = readr::col_datetime(time_format),
-                                    Completion_time = readr::col_double(),
+                                    Certified_Date = readr::col_datetime(time_format),
+                                    Completion_Time = readr::col_double(),
                                     .default = readr::col_character()),
     Events_extra_xy = readr::cols(Start_Date = readr::col_datetime(time_format),
                                   Plot_Number = readr::col_integer(),
@@ -649,11 +649,11 @@ GetColSpec <- function() {
                                   .default = readr::col_character()),
     Events_extra_other = readr::cols(Start_Date = readr::col_datetime(time_format),
                                      Plot_Number = readr::col_integer(),
-                                     Max_veg_ht = readr::col_double(),
+                                     Max_Veg_Ht = readr::col_double(),
                                      Images = readr::col_logical(),
                                      .default = readr::col_character()),
     Species_extra = readr::cols(Complete = readr::col_logical(),
-                                Update_date = readr::col_datetime(time_format),
+                                Update_Date = readr::col_datetime(time_format),
                                 .default = readr::col_character()),
     LgTrees = readr::cols(Start_Date = readr::col_datetime(time_format),
                           Plot_Number = readr::col_integer(),
@@ -674,7 +674,7 @@ GetColSpec <- function() {
                          QA_Plot = readr::col_logical(),
                          Top = readr::col_integer(),
                          Base = readr::col_integer(),
-                         Base_ht = readr::col_double(),
+                         Base_Ht = readr::col_double(),
                          Distance = readr::col_double(),
                          Height = readr::col_double(),
                          DBH = readr::col_double(),
