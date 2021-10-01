@@ -22,6 +22,18 @@ WritePACNVeg(
 \item{create.folders}{Should \code{dest.folder} be created automatically if it doesn't exist? Defaults to \code{FALSE}.}
 
 \item{overwrite}{Should existing data be automatically overwritten? Defaults to \code{FALSE}.}
+
+\item{park}{Four letter unit code of park(s)}
+
+\item{sample_frame}{Name of sample frame}
+
+\item{community}{Name of plant community}
+
+\item{certified}{Whether data are certified (TRUE/FALSE)}
+
+\item{verified}{Whether data are verified (TRUE/FALSE)}
+
+\item{is_qa_plot}{Whether the plots are QA plots or not (TRUE/FALSE)}
 }
 \value{
 None.
