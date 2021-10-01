@@ -748,9 +748,95 @@ ReadCSV <- function(data_path) {
   return(data)
 }
 
-FilterPACNVeg <- function(data_name, park, sample_frame, community, plot, plot_type, is_qa_plot, quad, transect, species_code, sci_name, nativity, live_dead, certified, verified) {
+#' Filter PACN data
+#'
+#' @inheritParams FilterOne
+#' @param park Four letter unit code of park(s)
+#' @param sample_frame Name of sample frame
+#' @param community Name of plant community
+#' @param plot_type Type of plot (fixed vs. rotational)
+#' @param is_qa_plot Whether the plots are QA plots or not (TRUE/FALSE)
+#' @param transect_type Type of transect (fixed vs. rotational)
+#' @param species_code 6 letter species code
+#' @param sci_name Scientific name
+#' @param nativity Whether species are native (TRUE/FALSE)
+#' @param certified Whether data are certified (TRUE/FALSE)
+#' @param verified Whether data are verified (TRUE/FALSE)
+#'
+#' @return A tibble (if data_name is provided) or a list of tibbles (if data_name is omitted)
+#' @export
+#'
+#' @examples
+#' \dontrun{
+#' all_hawaii_data <- FilterPACNVeg(park = c("KALA", "KAHO", "HAVO", "HALE"))
+#' all_certified_data <- FilterPACNVeg(certified = TRUE)
+#' native_kaho_understory <- FilterPACNVeg("Understory", park = "KAHO", nativity = "Native")
+#' }
+FilterPACNVeg <- function(data_name, park, sample_frame, community, plot_type, is_qa_plot, transect_type, species_code, sci_name, nativity, certified, verified, case_sensitive = FALSE, silent = FALSE) {
   data <- get_data(data_name)
 
+  all_filter_cols <- c(Unit_Code = ifelse(missing(park), NA, park),
+                   Park = ifelse(missing(park), NA, park),
+                   Sampling_Frame = ifelse(missing(sample_frame), NA, sample_frame),
+                   Community = ifelse(missing(community), NA, community),
+                   Plot_Type = ifelse(missing(plot_type), NA, plot_type),
+                   QA_Plot = ifelse(missing(is_qa_plot), NA, is_qa_plot),
+                   Transect_Type = ifelse(missing(transect_type), NA, transect_type),
+                   Code = ifelse(missing(species_code), NA, species_code),
+                   Scientific_Name = ifelse(missing(sci_name), NA, sci_name),
+                   Nativity = ifelse(missing(nativity), NA, nativity),
+                   Certified = ifelse(missing(certified), NA, certified),
+                   Verified = ifelse(missing(verified), NA, verified)
+                   )
+
+  filter_cols <- all_filter_cols[!is.na(all_filter_cols)]
+
+  if (is.list(data)) {
+    data_names <- names(data)
+    data <- lapply(names(data), function(data_name){
+      FilterOne(data[[data_name]], data_name, filter_cols = filter_cols, case_sensitive = case_sensitive, silent = silent)
+    })
+    names(data) <- data_names
+  } else {
+    data <- FilterOne(data, data_name, filter_cols, case_sensitive = case_sensitive, silent)
+  }
+
+  return(data)
+}
+
+#' Filter one dataframe
+#' @description Helper function for FilterPACNVeg, not to be used outside that function
+#'
+#' @param data A tibble of PACN data
+#' @param data_name The name of the data table (see `names(GetColSpec())` for valid options)
+#' @param filter_cols Named vector where names are column names and values are values to filter on. This is created in the FilterPACNVeg function.
+#' @param case_sensitive Should non-numeric filters be treated as case-sensitive?
+#' @param silent Suppress informational messages?
+#'
+#' @return A tibble of filtered data
+#'
+FilterOne <- function(data, data_name, filter_cols, case_sensitive, silent) {
+  # Iterate through each column to be filtered and filter the dataset on the value provided
+  # Note: the !!as.symbol(col) syntax takes a character string (the column name) and causes it to be evaluated as a data variable that references a dataframe column
+  cols_filtered <- c()
+  for (col in names(filter_cols)) {
+    if (col %in% names(data)) {  # Only filter if the column is present in the dataframe
+      cols_filtered <- c(cols_filtered, col)  # Use this to keep track of which columns were actually filtered
+      filter_value <- filter_cols[col]  # Value(s) to filter on
+      if (is.character(data[[col]]) & !case_sensitive) {
+        data <- dplyr::filter(data, tolower(!!as.symbol(col)) == tolower(filter_value))  # Case-insensitive filtering
+      } else {
+        data <- dplyr::filter(data, !!as.symbol(col) == filter_value)  # Case-sensitive and non-character filtering
+      }
+      if (nrow(data) == 0) {  # Stop filtering if we end up with an empty dataframe
+        warning("There are no data that match all of the filters provided.")
+        break
+      }
+    }
+  }
+  if (!silent) {
+    message(paste("Filtered", data_name, "on columns:", paste(cols_filtered, collapse = ", ")))
+  }
 
   return(data)
 }
