@@ -861,10 +861,12 @@ WritePACNVeg <- function(dest.folder, create.folders = FALSE, overwrite = FALSE,
   col.spec <- GetColSpec()
   file.paths <- file.path(dest.folder, paste0(names(col.spec), ".csv"))
 
-  if (!dir.exists(dest.folder) & create.folders) {
-    dir.create(dest.folder)
-  } else {
-    stop("Destination folder does not exist. To create it automatically, set create.folders to TRUE.")
+  if (!dir.exists(dest.folder)) {
+    if (create.folders) {
+      dir.create(dest.folder)
+    } else {
+      stop("Destination folder does not exist. To create it automatically, set create.folders to TRUE.")
+    }
   }
 
   if (!overwrite & any(file.exists(file.paths))) {
