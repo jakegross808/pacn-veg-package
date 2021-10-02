@@ -596,7 +596,7 @@ ReadEIPS <- function(db_paths) {
       dplyr::left_join(tlu_Segment_Points, by = "Segment_ID") %>%
       dplyr::left_join(xref_Cover_Class_Species, by = c("Segment_ID", "Event_ID")) %>%
       dplyr::left_join(Species, by = "Species_ID") %>%
-      dplyr::select(Unit_Code, Community, Sampling_Frame, Start_Date, Transect_Number, Transect_Type, Sort_Order, Species_ID, Cover_class, Dead, Code, Scientific_name, Life_form, Nativity) %>%
+      dplyr::select(Unit_Code, Community, Sampling_Frame, Start_Date, Transect_Number, Transect_Type, Segment = Sort_Order, Species_ID, Cover_class, Dead, Code, Scientific_name, Life_form, Nativity) %>%
       dplyr::collect() %>%
       dplyr::rename(Cover_Class = Cover_class, Scientific_Name = Scientific_name, Life_Form = Life_form)
 
