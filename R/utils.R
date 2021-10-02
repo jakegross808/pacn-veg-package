@@ -589,12 +589,14 @@ ReadEIPS <- function(db_paths) {
       dplyr::select(Segment_ID, Event_ID, Species_ID, Cover_class, Dead)
     tbl_Segments <- dplyr::tbl(conn, "tbl_Segments") %>%
       dplyr::select(Segment_ID, Event_ID, No_Data, Segment_Notes)
+    tlu_Segment_Points <- dplyr::tbl(conn, "tlu_Segment_Points")
 
     EIPS_data_new <- Events %>%
       dplyr::right_join(tbl_Segments, by = "Event_ID") %>%
+      dplyr::left_join(tlu_Segment_Points, by = "Segment_ID") %>%
       dplyr::left_join(xref_Cover_Class_Species, by = c("Segment_ID", "Event_ID")) %>%
       dplyr::left_join(Species, by = "Species_ID") %>%
-      dplyr::select(Unit_Code, Community, Sampling_Frame, Start_Date, Transect_Number, Transect_Type, Species_ID, Cover_class, Dead, Code, Scientific_name, Life_form, Nativity) %>%
+      dplyr::select(Unit_Code, Community, Sampling_Frame, Start_Date, Transect_Number, Transect_Type, Sort_Order, Species_ID, Cover_class, Dead, Code, Scientific_name, Life_form, Nativity) %>%
       dplyr::collect() %>%
       dplyr::rename(Cover_Class = Cover_class, Scientific_Name = Scientific_name, Life_Form = Life_form)
 
