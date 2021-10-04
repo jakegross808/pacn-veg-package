@@ -2,10 +2,11 @@ context("Reading from database and csv")
 
 # Load data from db, skip this test if no db connection
 tryCatch(db <- LoadPACNVeg(ftpc_params = "pacnveg",
-                           eips_paths = paste0("../../scratchpad/", c("2021_established_invasives_1_20210129.mdb",
+                           eips_paths = paste0("dbs/", c("2021_established_invasives_1_20210129.mdb",
                                                                 "2021_established_invasives_2_20210129.mdb",
                                                                 "established_invasives_BE_master_20210818.mdb")),
-                           cache = FALSE),
+                           cache = FALSE
+                           ),
          error = function(e) {
            if (grepl(".*Could not open a connection to SQL Server.*", e$message)) {
              skip("No database connection")
@@ -123,4 +124,160 @@ test_that("EIPS_data column names are correct", {
   expected <- c('Unit_Code', 'Community', 'Sampling_Frame', 'Start_Date', 'Transect_Number', 'Transect_Type', 'Species_ID', 'Cover_Class', 'Dead', 'Code', 'Scientific_Name', 'Life_Form', 'Nativity')
   actual <- names(FilterPACNVeg("EIPS_data"))
   expect_equal(actual, expected)
+})
+
+test_that("FilterPACNVeg filters on park", {
+  actual <- FilterPACNVeg(park = "AMME")
+  actual <- sapply(actual, function(df) {
+    if ("Unit_Code" %in% names(df) & nrow(df) > 0) {
+      unique(df$Unit_Code)
+    } else if ("Park" %in% names(df) & nrow(df) > 0) {
+      unique(df$Park)
+    } else {
+      NA
+    }
+    })
+  actual <- unique(actual[!is.na(actual)])
+
+  expect_equal(actual, "AMME")
+})
+
+test_that("FilterPACNVeg filters on community", {
+  actual <- FilterPACNVeg(community = "Coastal")
+  actual <- sapply(actual, function(df) {
+    if ("Community" %in% names(df) & nrow(df) > 0) {
+      unique(df$Community)
+    } else {
+      NA
+    }
+  })
+  actual <- unique(actual[!is.na(actual)])
+
+  expect_equal(actual, "Coastal")
+})
+
+test_that("FilterPACNVeg filters on sampling frame", {
+  actual <- FilterPACNVeg(sample_frame = "Kaloko-Honokohau")
+  actual <- sapply(actual, function(df) {
+    if ("Sampling_Frame" %in% names(df) & nrow(df) > 0) {
+      unique(df$Sampling_Frame)
+    } else {
+      NA
+    }
+  })
+  actual <- unique(actual[!is.na(actual)])
+
+  expect_equal(actual, "Kaloko-Honokohau")
+})
+
+test_that("FilterPACNVeg filters on plot type", {
+  actual <- FilterPACNVeg(plot_type = "Rotational")
+  actual <- sapply(actual, function(df) {
+    if ("Plot_Type" %in% names(df) & nrow(df) > 0) {
+      unique(df$Plot_Type)
+    } else {
+      NA
+    }
+  })
+  actual <- unique(actual[!is.na(actual)])
+
+  expect_equal(actual, "Rotational")
+})
+
+test_that("FilterPACNVeg filters on QA plots", {
+  actual <- FilterPACNVeg(is_qa_plot = TRUE)
+  actual <- sapply(actual, function(df) {
+    if ("QA_Plot" %in% names(df) & nrow(df) > 0) {
+      unique(df$QA_Plot)
+    } else {
+      NA
+    }
+  })
+  actual <- unique(actual[!is.na(actual)])
+
+  expect_equal(actual, TRUE)
+})
+
+test_that("FilterPACNVeg filters on transect type", {
+  actual <- FilterPACNVeg(transect_type = "Fixed")
+  actual <- sapply(actual, function(df) {
+    if ("Transect_Type" %in% names(df) & nrow(df) > 0) {
+      unique(df$Transect_Type)
+    } else {
+      NA
+    }
+  })
+  actual <- unique(actual[!is.na(actual)])
+
+  expect_equal(actual, "Fixed")
+})
+
+test_that("FilterPACNVeg filters on species code", {
+  actual <- FilterPACNVeg(species_code = "GERHOM")
+  actual <- sapply(actual, function(df) {
+    if ("Code" %in% names(df) & nrow(df) > 0) {
+      unique(df$Code)
+    } else {
+      NA
+    }
+  })
+  actual <- unique(actual[!is.na(actual)])
+
+  expect_equal(actual, "GERHOM")
+})
+
+test_that("FilterPACNVeg filters on species code", {
+  actual <- FilterPACNVeg(sci_name = "Passiflora edulis")
+  actual <- sapply(actual, function(df) {
+    if ("Scientific_Name" %in% names(df) & nrow(df) > 0) {
+      unique(df$Scientific_Name)
+    } else {
+      NA
+    }
+  })
+  actual <- unique(actual[!is.na(actual)])
+
+  expect_equal(actual, "Passiflora edulis")
+})
+
+test_that("FilterPACNVeg filters on species code", {
+  actual <- FilterPACNVeg(nativity = "Native")
+  actual <- sapply(actual, function(df) {
+    if ("Nativity" %in% names(df) & nrow(df) > 0) {
+      unique(df$Nativity)
+    } else {
+      NA
+    }
+  })
+  actual <- unique(actual[!is.na(actual)])
+
+  expect_equal(actual, "Native")
+})
+
+test_that("FilterPACNVeg filters on certification status", {
+  actual <- FilterPACNVeg(certified = TRUE)
+  actual <- sapply(actual, function(df) {
+    if ("Certified" %in% names(df) & nrow(df) > 0) {
+      unique(df$Certified)
+    } else {
+      NA
+    }
+  })
+  actual <- unique(actual[!is.na(actual)])
+
+  expect_equal(actual, TRUE)
+})
+
+test_that("FilterPACNVeg filters on verification status", {
+  actual <- FilterPACNVeg(verified = TRUE)
+  actual <- sapply(actual, function(df) {
+    if ("Verified" %in% names(df) & nrow(df) > 0) {
+      unique(df$Verified)
+    } else {
+      NA
+    }
+  })
+  actual <- unique(actual[!is.na(actual)])
+
+  expect_equal(actual, TRUE)
 })
