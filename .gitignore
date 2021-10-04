@@ -38,3 +38,11 @@ vignettes/*.pdf
 # R Environment Variables
 .Renviron
 .Rproj.user
+
+# CSV data files
+*.csv
+*.zip
+
+# Folders for temporary scripts and data
+/scratchpad
+tests/testthat/dbs
