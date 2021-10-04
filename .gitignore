@@ -43,5 +43,6 @@ vignettes/*.pdf
 *.csv
 *.zip
 
-# Folder for temporary scripts and data
+# Folders for temporary scripts and data
 /scratchpad
+tests/testthat/dbs

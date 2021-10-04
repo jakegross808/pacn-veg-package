@@ -847,6 +847,7 @@ FilterOne <- function(data, data_name, filter_cols, case_sensitive, silent) {
 
 #' Save PACN vegetation data as a set of .csv files
 #'
+#' @inheritParams FilterPACNVeg
 #' @param dest.folder The folder in which to save the .csv files.
 #' @param create.folders Should \code{dest.folder} be created automatically if it doesn't exist? Defaults to \code{FALSE}.
 #' @param overwrite Should existing data be automatically overwritten? Defaults to \code{FALSE}.
