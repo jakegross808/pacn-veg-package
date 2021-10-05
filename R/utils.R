@@ -270,8 +270,8 @@ ReadFTPC <- function(conn) {
     dplyr::left_join(tbl_Plot_short, by = "Plot_ID") %>%
     dplyr::left_join(tbl_Locations_short, by = "Location_ID") %>%
     dplyr::left_join(tbl_Sites_short, by = "Site_ID") %>%
-    dplyr::select(Year, Cycle, Unit_Code, Community, Sampling_Frame, Plot_Type,
-           Plot_Number, QA_Plot, Event_ID)
+    dplyr::select(Unit_Code, Community, Sampling_Frame, Year, Cycle, Plot_Type, Plot_Number,
+           QA_Plot, Event_ID)
 
 
   # . . . . Events_extra ----
@@ -290,7 +290,7 @@ ReadFTPC <- function(conn) {
 
   # . . Events_extra_QAQC
   Events_extra_QAQC <- Events_extra %>%
-    dplyr::select(Start_Date, Year, Cycle, Unit_Code, Sampling_Frame, Plot_Number,
+    dplyr::select(Unit_Code, Sampling_Frame, Start_Date, Year, Cycle, Plot_Number,
            Entered_Date, Updated_Date, Verified, Verified_By, Verified_Date,
            Certified, Certified_By, Certified_Date, Completion_Time,
            Event_Notes, Plot_Notes, QA_notes) %>%
@@ -298,14 +298,14 @@ ReadFTPC <- function(conn) {
 
   # . . Events_extra_xy
   Events_extra_xy <- Events_extra %>%
-    dplyr::select(Year, Cycle, Unit_Code, Sampling_Frame, Plot_Number,
+    dplyr::select(Unit_Code, Sampling_Frame, Year, Cycle, Plot_Number,
            Azimuth_Plot, Start_Lat, Start_Long, Center_Lat, Center_Long,
            End_Lat, End_Long, GCS, GCS_Datum, Lat_Dir, Long_Dir) %>%
     dplyr::collect()
 
   # . . Events_extra_other
   Events_extra_other <- Events_extra %>%
-    dplyr::select(Year, Cycle, Unit_Code, Sampling_Frame, Zone, Management_Unit,
+    dplyr::select(Unit_Code, Sampling_Frame, Year, Cycle, Zone, Management_Unit,
                   Plot_Number, Max_Veg_Ht, Site_Name, Images) %>%
     dplyr::collect()
 
@@ -525,11 +525,11 @@ ReadEIPS <- function(db_paths) {
     # Events (e.g. The date the plot was sampled, QA/QC records)
     # Extra
     Events_extra <-  dplyr::tbl(conn, "tbl_Events") %>%
-      # add "Year" (year sampled) and "S_Cycle" (sample cycle)
+      # add "Year" (year sampled) and "Cycle" (sample cycle)
       dplyr::mutate(Year = YEAR(Start_Date)) %>%
-      dplyr::mutate(S_Cycle = ifelse(Year <= 2014, 1, NA)) %>%
-      dplyr::mutate(S_Cycle = ifelse(is.na(S_Cycle) & Year >= 2015 & Year <= 2020, 2, S_Cycle)) %>%
-      dplyr::mutate(S_Cycle = ifelse(is.na(S_Cycle) & Year >= 2021, 3, S_Cycle)) %>%
+      dplyr::mutate(Cycle = ifelse(Year <= 2014, 1,
+                                     ifelse(Year >= 2015 & Year <= 2020, 2,
+                                            ifelse(Year >= 2021, 3, NA)))) %>%
       dplyr::left_join(tbl_Transects_extra, by = "Transect_ID") %>%
       dplyr::left_join(tbl_Locations_extra, by = "Location_ID") %>%
       #Move long text columns to end because of SQL driver error:
@@ -539,29 +539,29 @@ ReadEIPS <- function(db_paths) {
       #Move long text columns to end because of SQL driver error:
       dplyr::relocate(Event_Notes, .after = last_col()) %>%
       dplyr::relocate(Transect_Notes, .after = last_col()) %>%
-      dplyr::select(Event_ID, Transect_ID, Year, S_Cycle, Unit_Code, Community, Sampling_Frame, Zone, Management_Unit,
+      dplyr::select(Event_ID, Transect_ID, Unit_Code, Community, Sampling_Frame, Start_Date, Year, Cycle, Zone, Management_Unit,
                     Transect_Number, Site_Name, Transect_Type, Transect_Number, Azimuth_Transect, Lat, Long,
                     GCS, Lat_Dir, Long_Dir, Entered_Date, Updated_Date, Verified, Verified_By, Verified_Date,
                     Certified, Certified_By, Certified_Date, Transect_Notes, Event_Notes) #-Start_Date
     # Short
     Events <- Events_extra %>%
-      dplyr::select(Event_ID, Transect_ID, Year, S_Cycle, Unit_Code, Community, Sampling_Frame, Transect_Type, Transect_Number)
+      dplyr::select(Event_ID, Transect_ID, Unit_Code, Community, Sampling_Frame, Year, Cycle, Transect_Type, Transect_Number)
 
     # Events_extra_QAQC
     Events_extra_QAQC_new <- Events_extra %>%
-      dplyr::select(Year, S_Cycle, Unit_Code, Sampling_Frame, Transect_Type, Transect_Number,
+      dplyr::select(Unit_Code, Sampling_Frame, Start_Date, Year, Cycle, Transect_Type, Transect_Number,
                     Entered_Date, Updated_Date, Verified, Verified_By, Verified_Date,
                     Certified, Certified_By, Certified_Date, Transect_Notes, Event_Notes) %>% #-Start_date
       dplyr::collect()
 
     # Events_extra_xy
     Events_extra_xy_new <- Events_extra %>%
-      dplyr::select(Year, S_Cycle, Unit_Code, Sampling_Frame, Transect_Number, Azimuth_Transect, Lat, Long, GCS, Lat_Dir, Long_Dir) %>%
+      dplyr::select(Unit_Code, Sampling_Frame, Year, Cycle, Transect_Number, Azimuth_Transect, Lat, Long, GCS, Lat_Dir, Long_Dir) %>%
       dplyr::collect()
 
     # Events_extra_other
     Events_extra_other_new <- Events_extra %>%
-      dplyr::select(Year, S_Cycle, Unit_Code, Sampling_Frame, Zone, Management_Unit,
+      dplyr::select(Unit_Code, Sampling_Frame, Year, Cycle, Zone, Management_Unit,
                     Transect_Number, Site_Name) %>%
       dplyr::collect()
 
@@ -606,7 +606,7 @@ ReadEIPS <- function(db_paths) {
       dplyr::left_join(tlu_Segment_Points, by = "Segment_ID") %>%
       dplyr::left_join(xref_Cover_Class_Species, by = c("Segment_ID", "Event_ID")) %>%
       dplyr::left_join(Species, by = "Species_ID") %>%
-      dplyr::select(Unit_Code, Community, Sampling_Frame, Start_Date, Transect_Number, Transect_Type, Segment = Sort_Order, Species_ID, Cover_class, Dead, Code, Scientific_name, Life_form, Nativity) %>%
+      dplyr::select(Unit_Code, Community, Sampling_Frame, Year, Cycle, Transect_Type, Transect_Number, Segment = Sort_Order, Species_ID, Cover_class, Dead, Code, Scientific_name, Life_form, Nativity) %>%
       dplyr::collect() %>%
       dplyr::rename(Cover_Class = Cover_class, Scientific_Name = Scientific_name, Life_Form = Life_form)
 
@@ -749,6 +749,7 @@ GetColSpec <- function() {
                                      .default = readr::col_character()),
     EIPS_data = readr::cols(Year = readr::col_integer(),
                             Cycle = readr::col_integer(),
+                            Segment = readr::col_integer(),
                             Dead = readr::col_logical(),
                             .default = readr::col_character())
   )
