@@ -951,7 +951,7 @@ expect_dataframe_equal <- function(result, expected, ignore_col_order = FALSE, i
 
 #' Remove data from plots with no revisits
 #'
-#' @param data A tibble/dataframe with columns Unit_Code, Sampling_Frame, Plot_Number, and Start_Date
+#' @param data A tibble/dataframe with columns Unit_Code, Sampling_Frame, Plot_Number, and Cycle
 #'
 #' @return The input data with  single-visit data removed
 #' @export
@@ -963,7 +963,7 @@ expect_dataframe_equal <- function(result, expected, ignore_col_order = FALSE, i
 #' }
 RemoveSingleVisits <- function(data) {
   dup_visits <- data %>%
-    dplyr::select(Unit_Code, Sampling_Frame, Plot_Number, Start_Date) %>%
+    dplyr::select(Unit_Code, Sampling_Frame, Plot_Number, Cycle) %>%
     unique() %>%
     dplyr::group_by(Unit_Code, Sampling_Frame, Plot_Number) %>%
     dplyr::summarize(Plot_Count = n(), .groups = "keep") %>%
