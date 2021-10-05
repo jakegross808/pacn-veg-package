@@ -7,7 +7,7 @@
 RemoveSingleVisits(data)
 }
 \arguments{
-\item{data}{A tibble/dataframe with columns Unit_Code, Sampling_Frame, Plot_Number, and Start_Date}
+\item{data}{A tibble/dataframe with columns Unit_Code, Sampling_Frame, Plot_Number, and Cycle}
 }
 \value{
 The input data with  single-visit data removed
