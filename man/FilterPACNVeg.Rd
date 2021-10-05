@@ -9,6 +9,8 @@ FilterPACNVeg(
   park,
   sample_frame,
   community,
+  year,
+  cycle,
   plot_type,
   is_qa_plot,
   transect_type,
