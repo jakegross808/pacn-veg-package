@@ -918,3 +918,31 @@ expect_dataframe_equal <- function(result, expected, ignore_col_order = FALSE, i
 
   return(testthat::expect_true(test_result, label = test_result))
 }
+
+#' Remove data from plots with no revisits
+#'
+#' @param data A tibble/dataframe with columns Unit_Code, Sampling_Frame, Plot_Number, and Start_Date
+#'
+#' @return The input data with  single-visit data removed
+#' @export
+#'
+#' @examples
+#' \dontrun{
+#' data <- FilterPACNVeg("Understory")
+#' data_with_revisits <- RemoveSingleVisits(data)
+#' }
+RemoveSingleVisits <- function(data) {
+  dup_visits <- data %>%
+    dplyr::select(Unit_Code, Sampling_Frame, Plot_Number, Start_Date) %>%
+    unique() %>%
+    dplyr::group_by(Unit_Code, Sampling_Frame, Plot_Number) %>%
+    dplyr::summarize(Plot_Count = n(), .groups = "keep") %>%
+    dplyr::arrange(Unit_Code, Sampling_Frame, Plot_Number) %>%
+    dplyr::filter(Plot_Count > 1) %>%
+    dplyr::select(-Plot_Count)
+
+  data <- data %>%
+    dplyr::inner_join(dup_visits, by = c("Unit_Code", "Sampling_Frame", "Plot_Number"))
+
+  return(data)
+}
