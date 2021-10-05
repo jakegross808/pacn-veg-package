@@ -249,10 +249,14 @@ ReadFTPC <- function(conn) {
                   Certified, Certified_By = Certified_by, Certified_Date = Certified_date, Completion_Time = Completion_time,
                   Event_Notes, QA_notes) %>%
     # add "Year" (year sampled) and "Cycle" (sample cycle)
-    dplyr::mutate(Year = lubridate::year(Start_Date)) %>%
-    dplyr::mutate(Cycle = dplyr::case_when(Year <= 2014 ~ "1",
-                             Year >= 2015 & Year <= 2020 ~ "2",
-                             Year >= 2021 ~ "3"))
+    dplyr::mutate(Year = YEAR(Start_Date)) %>%
+    #supposedly SQL does not have translation for case_when so must use "ifelse" ??
+    dplyr::mutate(Cycle = ifelse(Year <= 2014, 1, NA)) %>%
+    dplyr::mutate(Cycle = ifelse(is.na(Cycle) & Year >= 2015 & Year <= 2020, 2, Cycle)) %>%
+    dplyr::mutate(Cycle = ifelse(is.na(Cycle) & Year >= 2021, 3, Cycle))
+    #dplyr::mutate(Cycle = dplyr::case_when(Year <= 2014 ~ "1",
+    #                         Year >= 2015 & Year <= 2020 ~ "2",
+    #                         Year >= 2021 ~ "3"))
 
   #Short
   tbl_Events_short <- tbl_Events %>%
@@ -521,11 +525,11 @@ ReadEIPS <- function(db_paths) {
     # Events (e.g. The date the plot was sampled, QA/QC records)
     # Extra
     Events_extra <-  dplyr::tbl(conn, "tbl_Events") %>%
-      # add "Year" (year sampled) and "Cycle" (sample cycle)
-      dplyr::mutate(Year = lubridate::year(Start_Date)) %>%
-      dplyr::mutate(Cycle = dplyr::case_when(Year <= 2014 ~ "1",
-                               Year >= 2015 & S_Year <= 2020 ~ "2",
-                               Year >= 2021 ~ "3")) %>%
+      # add "Year" (year sampled) and "S_Cycle" (sample cycle)
+      dplyr::mutate(Year = YEAR(Start_Date)) %>%
+      dplyr::mutate(S_Cycle = ifelse(Year <= 2014, 1, NA)) %>%
+      dplyr::mutate(S_Cycle = ifelse(is.na(S_Cycle) & Year >= 2015 & Year <= 2020, 2, S_Cycle)) %>%
+      dplyr::mutate(S_Cycle = ifelse(is.na(S_Cycle) & Year >= 2021, 3, S_Cycle)) %>%
       dplyr::left_join(tbl_Transects_extra, by = "Transect_ID") %>%
       dplyr::left_join(tbl_Locations_extra, by = "Location_ID") %>%
       #Move long text columns to end because of SQL driver error:
@@ -535,29 +539,29 @@ ReadEIPS <- function(db_paths) {
       #Move long text columns to end because of SQL driver error:
       dplyr::relocate(Event_Notes, .after = last_col()) %>%
       dplyr::relocate(Transect_Notes, .after = last_col()) %>%
-      dplyr::select(Event_ID, Transect_ID, Start_Date, Unit_Code, Sampling_Frame, Zone, Management_Unit,
+      dplyr::select(Event_ID, Transect_ID, Year, S_Cycle, Unit_Code, Community, Sampling_Frame, Zone, Management_Unit,
                     Transect_Number, Site_Name, Transect_Type, Transect_Number, Azimuth_Transect, Lat, Long,
                     GCS, Lat_Dir, Long_Dir, Entered_Date, Updated_Date, Verified, Verified_By, Verified_Date,
-                    Certified, Certified_By, Certified_Date, Transect_Notes, Event_Notes)
+                    Certified, Certified_By, Certified_Date, Transect_Notes, Event_Notes) #-Start_Date
     # Short
     Events <- Events_extra %>%
-      dplyr::select(Event_ID, Transect_ID, Year, Cycle, Unit_Code, Community, Sampling_Frame, Transect_Type, Transect_Number, Event_ID)
+      dplyr::select(Event_ID, Transect_ID, Year, S_Cycle, Unit_Code, Community, Sampling_Frame, Transect_Type, Transect_Number)
 
     # Events_extra_QAQC
     Events_extra_QAQC_new <- Events_extra %>%
-      dplyr::select(Start_Date, Year, Cycle, Unit_Code, Sampling_Frame, Transect_Type, Transect_Number,
+      dplyr::select(Year, S_Cycle, Unit_Code, Sampling_Frame, Transect_Type, Transect_Number,
                     Entered_Date, Updated_Date, Verified, Verified_By, Verified_Date,
-                    Certified, Certified_By, Certified_Date, Transect_Notes, Event_Notes) %>%
+                    Certified, Certified_By, Certified_Date, Transect_Notes, Event_Notes) %>% #-Start_date
       dplyr::collect()
 
     # Events_extra_xy
     Events_extra_xy_new <- Events_extra %>%
-      dplyr::select(Year, Cycle, Unit_Code, Sampling_Frame, Transect_Number, Azimuth_Transect, Lat, Long, GCS, Lat_Dir, Long_Dir) %>%
+      dplyr::select(Year, S_Cycle, Unit_Code, Sampling_Frame, Transect_Number, Azimuth_Transect, Lat, Long, GCS, Lat_Dir, Long_Dir) %>%
       dplyr::collect()
 
     # Events_extra_other
     Events_extra_other_new <- Events_extra %>%
-      dplyr::select(Year, Cycle, Unit_Code, Sampling_Frame, Zone, Management_Unit,
+      dplyr::select(Year, S_Cycle, Unit_Code, Sampling_Frame, Zone, Management_Unit,
                     Transect_Number, Site_Name) %>%
       dplyr::collect()
 
