@@ -13,15 +13,31 @@ output:
     includes:
         before_body:
           - header.html
+params:
+  protocol: "EIPS" #!expr c("EIPS", "FTPC")
+  park: !expr NA
+  sample_frame: !expr NA
+  cycle: !expr NA
+  plot_type: !expr NA
+  is_qa_plot: !expr NA
+  transect_type: !expr NA
+  certified: !expr NA
+  verified: !expr NA
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+# Load packages
+library(dplyr)
+library(magrittr)
 library(pacnvegetation)
-LoadPACNVeg(ftpc_params = "pacnveg",
-            eips_paths = paste0(here::here("tests", "testthat", "dbs", c("2021_established_invasives_1_20210129.mdb",
+# Change this to point to your EIPS database(s)
+access_dbs <- here::here("tests", "testthat", "dbs", c("2021_established_invasives_1_20210129.mdb",
                                            "2021_established_invasives_2_20210129.mdb",
-                                           "established_invasives_BE_master_20210818.mdb"))))
+                                           "established_invasives_BE_master_20210818.mdb"))
+# Load the data
+LoadPACNVeg(ftpc_params = "pacnveg",
+            eips_paths = access_dbs)
 ```
 
 ## Mapping
