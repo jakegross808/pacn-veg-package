@@ -11,7 +11,12 @@
 #' MapPACNVeg(protocol = "FTPC")
 #' MapPACNVeg(park = "AMME")
 #' }
-MapPACNVeg <- function(protocol = c("FTPC", "EIPS"), park, sample_frame, cycle, plot_type, is_qa_plot, transect_type, certified, verified) {
+MapPACNVeg <- function(protocol = c("FTPC", "EIPS"), crosstalk = FALSE, crosstalk_group, park, sample_frame, cycle, plot_type, is_qa_plot, transect_type, certified, verified) {
+
+  if (!all(toupper(protocol) %in% c("FTPC", "EIPS"))) {
+    stop("Invalid protocol selection. Protocol must be 'FTPC', 'EIPS', or c('FTPC', 'EIPS')")
+  }
+
   # Make NPS map Attribution
   NPSAttrib <-
     htmltools::HTML(
