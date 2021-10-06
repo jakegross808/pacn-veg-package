@@ -3,6 +3,7 @@
 export(ClearPACNVegCache)
 export(FilterPACNVeg)
 export(LoadPACNVeg)
+export(MapPACNVeg)
 export(RemoveSingleVisits)
 export(WritePACNVeg)
 export(expect_dataframe_equal)

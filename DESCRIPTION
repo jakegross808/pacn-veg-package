@@ -27,5 +27,7 @@ Imports:
     odbc,
     readr,
     stringr,
-    tibble
+    tibble,
+    here,
+    leaflet
 Language: en-US
