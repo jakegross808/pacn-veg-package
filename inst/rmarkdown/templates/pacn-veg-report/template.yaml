@@ -1,0 +1,4 @@
+name: PACN Veg Report
+description: >
+   HTML report for PACN veg data with examples of interactive maps, tables and plots
+create_dir: FALSE
