@@ -823,6 +823,8 @@ ReadCSV <- function(data_path) {
 
 #' Filter PACN data
 #'
+#' @details All filters are optional. To ignore a filter, omit it or set it to NA.
+#'
 #' @inheritParams FilterOne
 #' @param park Four letter unit code of park(s)
 #' @param sample_frame Name of sample frame

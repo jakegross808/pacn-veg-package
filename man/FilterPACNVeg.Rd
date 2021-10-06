@@ -58,6 +58,9 @@ A tibble (if data_name is provided) or a list of tibbles (if data_name is omitte
 \description{
 Filter PACN data
 }
+\details{
+All filters are optional. To ignore a filter, omit it or set it to NA.
+}
 \examples{
 \dontrun{
 all_hawaii_data <- FilterPACNVeg(park = c("KALA", "KAHO", "HAVO", "HALE"))
