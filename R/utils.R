@@ -8,10 +8,26 @@ get_data <- function(data_name) {
     if (!(data_name %in% names(GetColSpec()))) {
       stop("Invalid data table name. Use names(pacnvegetation:::GetColSpec()) to see valid options for data_name.")
     }
-    data <- get(data_name, pkg_globals)
+    tryCatch({data <- get(data_name, pkg_globals)},
+             error = function(e) {
+               if (grepl(".*object.* not found.*", e$message, ignore.case = TRUE)) {
+                 stop(paste0("Could not find data. Did you remember to call LoadPACNVeg?\n\tOriginal error: ", e$message))
+               }
+               else {e}
+             })
   } else {
-    data <- lapply(names(GetColSpec()), get, pkg_globals)
-    names(data) <- names(GetColSpec())
+    tryCatch({
+      data <- lapply(names(GetColSpec()), get, pkg_globals)
+      names(data) <- names(GetColSpec())
+    },
+    error = function(e) {
+      if (grepl(".*object.* not found.*", e$message, ignore.case = TRUE)) {
+        stop(paste0("Could not find data. Did you remember to call LoadPACNVeg?\n\tOriginal error: ", e$message))
+      }
+      else {e}
+    }
+    )
+
   }
 
   return(data)
