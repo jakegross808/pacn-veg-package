@@ -46,12 +46,13 @@ UnderNativityCoverTotal <- function(combine_strata = FALSE, park, sample_frame, 
 
   # Calculate Total Native & Nonnative Cover by stratum
   Nat_Cov <- raw_data %>%
-    dplyr::group_by(Unit_Code, Community, Sampling_Frame, Year, Cycle, Plot_Number, Point, Stratum, Nativity) %>%
-    dplyr::summarise(Hits_All_Nat = dplyr::n(), .groups = 'drop')  %>%
-    # Don't count record if point had no hits: (e.g. Point is NA )
-    dplyr::mutate(Hits_All_Nat = replace(Hits_All_Nat, is.na(Nativity), 0)) %>%
-    # group by plot (i.e. remove Point from grouping variable)
-    dplyr::group_by(Cycle, Unit_Code, Sampling_Frame, Plot_Number, Stratum, Nativity) %>%
+    # Drop point records if point had no hits: (drop if 'Code == NA')
+    tidyr::drop_na(Code)  %>%
+    dplyr::group_by(Unit_Code, Sampling_Frame, Year, Cycle, Plot_Number, Point, Stratum, Nativity) %>%
+    # Count Species at each cover point (for Native & Non-native within each Strata):
+    dplyr::summarise(Hits_All_Nat = dplyr::n())  %>%
+    # group by plot (remove Point from grouping variable)
+    dplyr::group_by(Unit_Code, Sampling_Frame, Year, Cycle, Plot_Number, Stratum, Nativity) %>%
     #Total hits at each point for each strata for entire plot
     # (can be > 300 points or >100% because more than one native species can be present per point)
     dplyr::summarise(tot_pct_cov = (sum(Hits_All_Nat)) / 300 * 100, .groups = 'drop')
