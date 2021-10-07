@@ -14,7 +14,7 @@ output:
         before_body:
           - header.html
 params:
-  protocol: "EIPS" #!expr c("EIPS", "FTPC")
+  protocol: !expr c("EIPS", "FTPC")
   park: !expr NA
   sample_frame: !expr NA
   cycle: !expr NA
@@ -30,18 +30,30 @@ knitr::opts_chunk$set(echo = TRUE)
 # Load packages
 library(dplyr)
 library(magrittr)
+library(crosstalk)
 library(pacnvegetation)
 # Change this to point to your EIPS database(s)
 access_dbs <- here::here("tests", "testthat", "dbs", c("2021_established_invasives_1_20210129.mdb",
                                            "2021_established_invasives_2_20210129.mdb",
                                            "established_invasives_BE_master_20210818.mdb"))
 # Load the data
-LoadPACNVeg(ftpc_params = "pacnveg",
-            eips_paths = access_dbs)
+LoadPACNVeg(ftpc_params = "pacnveg", eips_paths = access_dbs)
 ```
 
 ## Mapping
 
-```{r map_plots, echo=FALSE}
-MapPACNVeg()
+Scroll to zoom in and out.
+
+```{r map_plots, echo=FALSE, message=FALSE}
+loc_data <- PlotAndTransectLocations(protocol = params$protocol, crosstalk = TRUE, crosstalk_group = "map", park = params$park, sample_frame = params$sample_frame, cycle = params$cycle, plot_type = params$plot_type, is_qa_plot = params$is_qa_plot, transect_type = params$transect_type, certified = params$certified, verified = params$verified)
+
+bscols(widths = c(3,NA),
+       list(
+         filter_select("protocol", "Protocol", loc_data, ~Protocol),
+         filter_select("park", "Parks", loc_data, ~Unit_Code),
+         filter_select("sampling_frame", "Sampling Frame", loc_data, ~Sampling_Frame)
+       ),
+       MapPACNVeg(protocol = params$protocol, crosstalk = TRUE, crosstalk_group = "map", park = params$park, sample_frame = params$sample_frame, cycle = params$cycle, plot_type = params$plot_type, is_qa_plot = params$is_qa_plot, transect_type = params$transect_type, certified = params$certified, verified = params$verified)
+)
+# reactable::reactable(loc_data, selection = "multiple", onClick = "select", minRows = 10)
 ```

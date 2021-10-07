@@ -1,7 +1,50 @@
-#' Map PACN vegetation plots and transects
+#' Get locations of FTPC plots and EIPS transects for mapping.
 #'
 #' @param protocol Character vector indicating whether to include FTPC plots, EIPS transects, or both
 #' @inheritParams FilterPACNVeg
+#'
+#' @return A tibble with one row per location and columns Protocol, Unit_Code, Sampling_Frame, Sample_Unit_Number, Lat, Long, Cycles, Years
+#' @export
+#'
+#' @examples
+#' \dontrun{
+#' all_locs <- PlotAndTransectLocations()
+#' eips_transects <- PlotAndTransectLocations("EIPS")
+#' }
+PlotAndTransectLocations <- function(protocol = c("FTPC", "EIPS"), crosstalk = FALSE, crosstalk_group = "map", park, sample_frame, cycle, plot_type, is_qa_plot, transect_type, certified, verified) {
+  if (!all(toupper(protocol) %in% c("FTPC", "EIPS"))) {
+    stop("Invalid protocol selection. Protocol must be 'FTPC', 'EIPS', or c('FTPC', 'EIPS')")
+  }
+
+  ftpc_pts <- FilterPACNVeg("Events_extra_xy", park, sample_frame, cycle, plot_type, is_qa_plot, certified, verified) %>%
+    dplyr::mutate(Protocol = "FTPC", Sample_Unit = "Plot") %>%
+    dplyr::rename(Sample_Unit_Number = Plot_Number, Lat = Start_Lat, Long = Start_Long) %>%
+    dplyr::select(Protocol, Unit_Code, Sampling_Frame, Sample_Unit, Sample_Unit_Number, Lat, Long, Year, Cycle)
+
+  eips_pts <- FilterPACNVeg("Events_extra_xy_EIPS", park, sample_frame, cycle, transect_type, certified, verified) %>%
+    dplyr::mutate(Protocol = "EIPS", Sample_Unit = "Transect") %>%
+    dplyr::rename(Sample_Unit_Number = Transect_Number) %>%
+    dplyr::select(Protocol, Unit_Code, Sampling_Frame, Sample_Unit, Sample_Unit_Number, Lat, Long, Year, Cycle)
+
+  all_pts <- rbind(ftpc_pts, eips_pts) %>%
+    dplyr::filter(Protocol %in% toupper(protocol)) %>%
+    dplyr::group_by(Protocol, Unit_Code, Sampling_Frame, Sample_Unit, Sample_Unit_Number, Lat, Long) %>%
+    dplyr::arrange(Protocol, Unit_Code, Sampling_Frame, Sample_Unit_Number, Year, Cycle) %>%
+    dplyr::summarise(Cycles = paste(Cycle, collapse = ", "),
+                     Years = paste(Year, collapse = ", ")) %>%
+    dplyr::ungroup()
+
+  if (crosstalk) {
+    all_pts <- crosstalk::SharedData$new(all_pts, group = crosstalk_group)
+  }
+
+  return(all_pts)
+}
+
+
+#' Map PACN vegetation plots and transects
+#'
+#' @inheritParams PlotAndTransectLocations
 #'
 #' @return
 #' @export
@@ -11,11 +54,8 @@
 #' MapPACNVeg(protocol = "FTPC")
 #' MapPACNVeg(park = "AMME")
 #' }
-MapPACNVeg <- function(protocol = c("FTPC", "EIPS"), crosstalk = FALSE, crosstalk_group, park, sample_frame, cycle, plot_type, is_qa_plot, transect_type, certified, verified) {
-
-  if (!all(toupper(protocol) %in% c("FTPC", "EIPS"))) {
-    stop("Invalid protocol selection. Protocol must be 'FTPC', 'EIPS', or c('FTPC', 'EIPS')")
-  }
+MapPACNVeg <- function(protocol = c("FTPC", "EIPS"), crosstalk = FALSE, crosstalk_group = "map", park, sample_frame, cycle, plot_type, is_qa_plot, transect_type, certified, verified) {
+  pts <- PlotAndTransectLocations(protocol, crosstalk, crosstalk_group, park, sample_frame, cycle, plot_type, is_qa_plot, transect_type, certified, verified)
 
   # Make NPS map Attribution
   NPSAttrib <-
@@ -33,55 +73,44 @@ MapPACNVeg <- function(protocol = c("FTPC", "EIPS"), crosstalk = FALSE, crosstal
   NPSslate = "https://atlas-stg.geoplatform.gov/styles/v1/atlas-user/ck5cpvc2e0avf01p9zaw4co8o/tiles/256/{z}/{x}/{y}@2x?access_token=pk.eyJ1IjoiYXRsYXMtdXNlciIsImEiOiJjazFmdGx2bjQwMDAwMG5wZmYwbmJwbmE2In0.lWXK2UexpXuyVitesLdwUg"
   NPSlight = "https://atlas-stg.geoplatform.gov/styles/v1/atlas-user/ck5cpia2u0auf01p9vbugvcpv/tiles/256/{z}/{x}/{y}@2x?access_token=pk.eyJ1IjoiYXRsYXMtdXNlciIsImEiOiJjazFmdGx2bjQwMDAwMG5wZmYwbmJwbmE2In0.lWXK2UexpXuyVitesLdwUg"
 
-  map <- leaflet::leaflet() %>%
+  getColor <- function(data) {
+    sapply(data$Protocol, function(protocol){
+      if(protocol == "EIPS") {
+        "#C56C39"
+      } else if (protocol == "FTPC") {
+        "#56903A"
+      }
+    }) %>% unname()
+  }
+
+  if (crosstalk) {
+    pts_data <- pts$data()
+  } else {
+    pts_data <- pts
+  }
+  icons <- leaflet::awesomeIcons(icon = "leaf",
+                                 library = "fa",
+                                 markerColor = "white",
+                                 iconColor = getColor(pts_data),
+                                 squareMarker = TRUE)
+
+  map <- leaflet::leaflet(pts) %>%
     leaflet::addTiles(group = "Basic", urlTemplate = NPSbasic, attribution = NPSAttrib) %>%
     leaflet::addTiles(group = "Imagery", urlTemplate = NPSimagery, attribution = NPSAttrib) %>%
     leaflet::addTiles(group = "Slate", urlTemplate = NPSslate, attribution = NPSAttrib) %>%
     leaflet::addTiles(group = "Light", urlTemplate = NPSlight, attribution = NPSAttrib) %>%
     leaflet::addLayersControl(baseGroups = c("Basic", "Imagery", "Slate", "Light"),
                               overlayGroups = protocol,
-                              options=leaflet::layersControlOptions(collapsed = TRUE))
-  ftpc_icons <- leaflet::awesomeIcons(icon = "leaf", library = "fa", markerColor = "white", iconColor ="#56903A", squareMarker = TRUE)
-  eips_icons <- leaflet::awesomeIcons(icon = "leaf", library = "fa", markerColor = "white", iconColor ="#C56C39", squareMarker = TRUE)
-
-  if ("FTPC" %in% toupper(protocol)) {
-    ftpc_pts <- FilterPACNVeg("Events_extra_xy", park, sample_frame, cycle, plot_type, is_qa_plot, certified, verified) %>%
-      dplyr::group_by(Unit_Code, Sampling_Frame, Plot_Number, Start_Lat, Start_Long) %>%
-      dplyr::arrange(Unit_Code, Sampling_Frame, Plot_Number, Year, Cycle) %>%
-      dplyr::summarise(Cycles = paste(Cycle, collapse = ", "),
-                       Years = paste(Year, collapse = ", ")) %>%
-      dplyr::ungroup()
-    map <- map %>%
-      leaflet::addAwesomeMarkers(data = ftpc_pts,
-                          lng = ~Start_Long,
-                          lat = ~Start_Lat,
-                          icon = ftpc_icons,
-                          label = ~Plot_Number,
-                          group = "FTPC",
-                          popup = ~paste0("<strong>FTPC Plot:</strong> ", Plot_Number,
-                                          "<br><strong>Sampling Frame:</strong> ", Sampling_Frame,
-                                          "<br><strong>Cycle:</strong> ", Cycles,
-                                          "<br><strong>Year:</strong> ", Years))
-  }
-  if ("EIPS" %in% toupper(protocol)) {
-    eips_pts <- FilterPACNVeg("Events_extra_xy_EIPS", park, sample_frame, cycle, transect_type, certified, verified) %>%
-      dplyr::group_by(Unit_Code, Sampling_Frame, Transect_Number, Lat, Long) %>%
-      dplyr::arrange(Unit_Code, Sampling_Frame, Transect_Number, Year, Cycle) %>%
-      dplyr::summarise(Cycles = paste(Cycle, collapse = ", "),
-                       Years = paste(Year, collapse = ", ")) %>%
-      dplyr::ungroup()
-    map <- map %>%
-      leaflet::addAwesomeMarkers(data = eips_pts,
-                          lng = ~Long,
-                          lat = ~Lat,
-                          icon = eips_icons,
-                          label = ~Transect_Number,
-                          group = "EIPS",
-                          popup = ~paste0("<strong>EIPS Transect:</strong> ", Transect_Number,
-                                          "<br><strong>Sampling Frame:</strong> ", Sampling_Frame,
-                                          "<br><strong>Cycle:</strong> ", Cycles,
-                                          "<br><strong>Year:</strong> ", Years))
-  }
+                              options=leaflet::layersControlOptions(collapsed = TRUE)) %>%
+    leaflet::addAwesomeMarkers(lng = ~Long,
+                               lat = ~Lat,
+                               icon = icons,
+                               label = ~Sample_Unit_Number,
+                               group = ~Protocol,
+                               popup = ~paste0("<strong>EIPS ", Sample_Unit, ":</strong> ", Sample_Unit_Number,
+                                               "<br><strong>Sampling Frame:</strong> ", Sampling_Frame,
+                                               "<br><strong>Cycle:</strong> ", Cycles,
+                                               "<br><strong>Year:</strong> ", Years))
 
   map %<>% leaflet::addScaleBar(position = "bottomleft")
 
