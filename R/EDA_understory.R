@@ -46,27 +46,34 @@ UnderNativityCoverTotal <- function(combine_strata = FALSE, paired_change = FALS
 
   # Calculate Total Native & Nonnative Cover by stratum
   Nat_Cov <- raw_data %>%
-    # Drop point records if point had no hits: (drop if 'Code == NA')
+    ## Drop point records if point had no hits: (drop if 'Code == NA')
     tidyr::drop_na(Code)  %>%
-    dplyr::group_by(Unit_Code, Sampling_Frame, Year, Cycle, Plot_Type, Plot_Number, Point, Stratum, Nativity) %>%
     # Count Species at each cover point (for Native & Non-native within each Strata):
-    dplyr::summarise(Hits_All_Nat = dplyr::n())  %>%
-    # group by plot (remove Point from grouping variable)
-    dplyr::group_by(Unit_Code, Sampling_Frame, Year, Cycle, Plot_Type, Plot_Number, Stratum, Nativity) %>%
-    #Total hits at each point for each strata for entire plot
-    # (can be > 300 points or >100% because more than one native species can be present per point)
-    dplyr::summarise(tot_pct_cov = (sum(Hits_All_Nat)) / 300 * 100, .groups = 'drop')
+    dplyr::group_by(Unit_Code, Sampling_Frame, Plot_Type, Plot_Number, Point, Stratum, Nativity, Year, Cycle) %>%
+    dplyr::summarise(Hits_All_Nat = dplyr::n(), .groups = 'drop')  %>%
+    # group hits by plot (remove Point from grouping variable)
+    dplyr::group_by(Unit_Code, Sampling_Frame, Plot_Type, Plot_Number, Stratum, Nativity, Year, Cycle) %>%
+    # Total hits at each point for each strata for entire plot
+    #   (can be > 300 points or >100% because more than one native species can be present per point)
+    dplyr::summarise(tot_pct_cov = (sum(Hits_All_Nat)) / 300 * 100, .groups = 'drop') %>%
+    # Insert "0" for cover if category does not exsist (for example no hits for non-natives in High Stratum)
+    tidyr::complete(tidyr::nesting(Unit_Code, Sampling_Frame, Plot_Type, Plot_Number, Year, Cycle), Stratum, Nativity,
+                    fill = list(tot_pct_cov = 0)) %>%
+    # Arrange table so that difference in cover between cycles can be calculated easily (example - cycle 1 value for
+    #   cover is followed by cycle 2 value for cover).
+    dplyr::group_by(Unit_Code, Sampling_Frame, Plot_Type, Plot_Number, Stratum, Nativity) %>%
+    dplyr::arrange(Cycle, .by_group = TRUE) %>%
+    dplyr::ungroup()
 
   if (paired_change == TRUE) {
     paired_plots <- RemoveSingleVisits(raw_data)
     p <- paired_plots$Plot_Number
     Nat_Cov <- Nat_Cov %>%
+      # remove plots that were only sampled once (this removes all rotationals and possibly some fixed plots if only sampled once)
       dplyr::filter(Plot_Number %in% p) %>%
-      #group_by("Unit_Code", "Sampling_Frame","Plot_Number","Nativity") %>%
-      tidyr::complete(tidyr::nesting(S_Cycle, Unit_Code, Sampling_Frame, Plot_Number, Strata, Nativity),
-               tidyr::fill = list(tot_pct_cov = 0)) %>%
-      pivot_wider(names_from = S_Cycle, values_from = tot_pct_cov) %>%
-      mutate(tot_pct_cov_chg = round(`2` - `1`, 2))
+      dplyr::group_by(Unit_Code, Sampling_Frame, Plot_Type, Plot_Number, Stratum, Nativity) %>%
+      # Calculate the change in cover per cycle
+      dplyr::mutate(chg_per_cycle = tot_pct_cov - dplyr::lag(tot_pct_cov, order_by = Cycle))
 
   }
 

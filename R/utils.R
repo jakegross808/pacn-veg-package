@@ -995,7 +995,7 @@ RemoveSingleVisits <- function(data) {
     dplyr::select(Unit_Code, Sampling_Frame, Plot_Number, Cycle) %>%
     unique() %>%
     dplyr::group_by(Unit_Code, Sampling_Frame, Plot_Number) %>%
-    dplyr::summarize(Plot_Count = n(), .groups = "keep") %>%
+    dplyr::summarize(Plot_Count = dplyr::n(), .groups = "keep") %>%
     dplyr::arrange(Unit_Code, Sampling_Frame, Plot_Number) %>%
     dplyr::filter(Plot_Count > 1) %>%
     dplyr::select(-Plot_Count)
