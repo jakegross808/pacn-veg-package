@@ -31,3 +31,4 @@ Imports:
     here,
     leaflet
 Language: en-US
+Config/testthat/edition: 3
