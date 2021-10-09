@@ -6,7 +6,8 @@
 <!-- badges: start -->
 <!-- badges: end -->
 
-The goal of pacnvegetation is to …
+The goal of pacnvegetation is to provide easy-to-use functions for
+working with PACN vegetation data.
 
 ## Installation
 
@@ -18,35 +19,48 @@ You can install the development version from
 devtools::install_github("jakegross808/pacn-veg-package")
 ```
 
-## Example
+## Getting started
 
-This is a basic example which shows you how to solve a common problem:
+This package is designed to invisibly load the raw data into memory so
+that the user doesn’t have to keep track of it. To do this, you must
+call `LoadPACNVeg` any time you call `library(pacnvegetation)`. The
+package handles the rest! `LoadPACNVeg` invisibly returns a list
+containing all the raw data if you need it for testing purposes.
+
+By default, `LoadPACNVeg` will cache the data on your local hard drive
+for 7 days so that you don’t have to pull the data over the network
+every time. Expect it to take a couple minutes to load data from the
+databases. Loading cached data should only take a few seconds though.
 
 ``` r
 library(pacnvegetation)
-## basic example code
+# Change this to point to your EIPS database(s)
+access_dbs <- c("path/to/eips_database_1.mdb", "path/to/eips_database_2.mdb", "path/to/eips_database_master.mdb")
+# Load the data
+LoadPACNVeg(ftpc_params = "pacnveg", eips_paths = access_dbs)
 ```
 
-What is special about using `README.Rmd` instead of just `README.md`?
-You can include R chunks like so:
+## Available functions
 
-``` r
-summary(cars)
-#>      speed           dist       
-#>  Min.   : 4.0   Min.   :  2.00  
-#>  1st Qu.:12.0   1st Qu.: 26.00  
-#>  Median :15.0   Median : 36.00  
-#>  Mean   :15.4   Mean   : 42.98  
-#>  3rd Qu.:19.0   3rd Qu.: 56.00  
-#>  Max.   :25.0   Max.   :120.00
-```
+For more details, see the documentation.
 
-You’ll still need to render `README.Rmd` regularly, to keep `README.md`
-up-to-date.
+-   **LoadPACNVeg**: Load the raw data into memory (see above).
+-   **WritePACNVeg**: Write data to csv. Provides options to filter data
+    if desired.
+-   **PlotAndTransectLocations**: Lat/long coordinates of each plot and
+    transect.
+-   **MapPACNVeg**: Map plot and/or transect locations.
+-   **UnderNativityCoverTotal**: Calculate understory % cover by
+    nativity.
+-   **ClearPACNVegCache**: Clear the data from the cache used by
+    LoadPACNVeg. Typically not needed but useful if you need to free up
+    hard drive space.
+-   **FilterPACNVeg**: You can use this to retrieve and optionally
+    filter the raw data. Useful for troubleshooting and preliminary data
+    exploration, but this function is primarily used within other
+    package functions.
 
-You can also embed plots, for example:
+## Reporting bugs and requesting new features
 
-<img src="man/figures/README-pressure-1.png" width="100%" />
-
-In that case, don’t forget to commit and push the resulting figure
-files, so they display on GitHub!
+Bugs and feature requests can be added as issues here:
+<https://github.com/jakegross808/pacn-veg-package/issues>
