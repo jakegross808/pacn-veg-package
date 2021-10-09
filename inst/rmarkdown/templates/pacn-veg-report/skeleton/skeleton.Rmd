@@ -32,6 +32,13 @@ library(dplyr)
 library(magrittr)
 library(crosstalk)
 library(pacnvegetation)
+library(kableExtra)
+library(DT)
+library(reactable)
+library(stringr)
+library(plotly)
+library(ggplot2)
+
 # Change this to point to your EIPS database(s)
 access_dbs <- here::here("tests", "testthat", "dbs", c("2021_established_invasives_1_20210129.mdb",
                                            "2021_established_invasives_2_20210129.mdb",
@@ -56,4 +63,161 @@ bscols(widths = c(3,NA),
        MapPACNVeg(protocol = params$protocol, crosstalk = TRUE, crosstalk_group = "map", park = params$park, sample_frame = params$sample_frame, cycle = params$cycle, plot_type = params$plot_type, is_qa_plot = params$is_qa_plot, transect_type = params$transect_type, certified = params$certified, verified = params$verified)
 )
 # reactable::reactable(loc_data, selection = "multiple", onClick = "select", minRows = 10)
+```
+
+## Table options
+
+```{r table-setup, echo=FALSE, message=FALSE}
+cover_by_nativity <- UnderNativityCoverTotal()  # Get data
+names(cover_by_nativity) <- gsub("_", " ", names(cover_by_nativity)) %>% str_to_title()  # Make column names nicer for display
+```
+
+
+### kable
+
+Simple and (I think) 508 compliant. This document uses kable by default when printing dataframes. 
+
+Documentation: https://cran.r-project.org/web/packages/kableExtra/vignettes/awesome_table_in_html.html
+
+```{r kable, echo=FALSE, message=FALSE}
+cover_by_nativity %>%
+  kbl(digits = 1) %>%
+  kable_styling(bootstrap_options = c("striped", "condensed")) %>%
+  scroll_box(height = "300px")
+```
+
+### DT
+
+Works with crosstalk, very customizable. Allows for copy/print/export buttons. You can search and sort as well. Tends to be smarter about automatic column widths than reactable. 
+
+Documentation: https://rstudio.github.io/DT/
+
+```{r dt, echo=FALSE, message=FALSE}
+cover_by_nativity_dt <- cover_by_nativity %>%
+  mutate(`Tot Pct Cov` = round(`Tot Pct Cov`, 2)) %>%
+  SharedData$new()  # Make a crosstalk-compatible data frame
+
+bscols(widths = c(3, 3, 3, 3),
+       filter_select("park", "Park", cover_by_nativity_dt, ~`Unit Code`),
+       filter_select("sample_frame", "Sampling Frame", cover_by_nativity_dt, ~`Sampling Frame`),
+       filter_select("nativity", "Nativity", cover_by_nativity_dt, ~Nativity),
+       filter_slider("pct_cov", "Total % Cover", cover_by_nativity_dt, ~`Tot Pct Cov`, step = 1, round = TRUE))
+
+cover_by_nativity_dt %>%
+  datatable(extensions = 'Buttons',
+            options = list(
+              paging = TRUE,
+              searching = TRUE,
+              fixedColumns = TRUE,
+              autoWidth = TRUE,
+              ordering = TRUE,
+              dom = 'Bltip',  # See https://datatables.net/reference/option/dom for options here. Anything before the 't' goes at the top of the table; anything after goes at the bottom.
+              buttons = c('copy', 'print', 'csv', 'excel', 'pdf')
+            ))
+```
+
+### reactable
+
+Also works with crosstalk, also very customizable. Has some features that DT doesn't, like nested tables and collapsible rows. 
+
+See https://glin.github.io/reactable/articles/examples.html for lots more examples including conditional row styling.
+
+```{r reactable, echo=FALSE, message=FALSE}
+cover_by_nativity_reactable <- cover_by_nativity %>%
+  mutate(`Tot Pct Cov` = round(`Tot Pct Cov`, 2)) %>%
+  SharedData$new()  # Make a crosstalk-compatible data frame
+
+bscols(widths = c(3, 3, 3, 3),
+       filter_select("park", "Park", cover_by_nativity_reactable, ~`Unit Code`),
+       filter_select("sample_frame", "Sampling Frame", cover_by_nativity_reactable, ~`Sampling Frame`),
+       filter_select("nativity", "Nativity", cover_by_nativity_reactable, ~Nativity),
+       filter_slider("pct_cov", "Total % Cover", cover_by_nativity_reactable, ~`Tot Pct Cov`, step = 1, round = TRUE))
+
+cover_by_nativity_reactable %>%
+  reactable(showPageSizeOptions = TRUE,
+            pageSizeOptions = c(5, 10, 25),
+            # minWidth is in px, but if you use very small numbers it'll effectively just set the ratio of column widths and you don't have to worry about picking reasonable widths in px.
+            columns = list(
+              `Unit Code` = colDef(minWidth = 3),  
+              `Sampling Frame` = colDef(minWidth = 5),
+              Year = colDef(minWidth = 3),
+              Cycle = colDef(minWidth = 3),
+              `Plot Type` = colDef(minWidth = 4),
+              `Plot Number` = colDef(minWidth = 4),
+              Stratum = colDef(minWidth = 5),
+              Nativity = colDef(minWidth = 5),
+              `Tot Pct Cov` = colDef(minWidth = 3)
+            )
+  )
+```
+
+## Plots
+
+`plotly` is great for interactive plots and it is crosstalk compatible. You can also wrap a `ggplot` object in a call to `plotly::ggplotly` (this works well for simple plots but you may need to do some tweaking to get more complex plots to work well). 
+
+Documentation: https://plotly.com/r/
+
+```{r plotly, echo=FALSE, message=FALSE, warning=FALSE}
+cover_by_nativity_combined <- UnderNativityCoverTotal(combine_strata = TRUE) %>% # Get data
+  mutate(Cycle = as.factor(Cycle))
+cover_by_nativity_plotly <- cover_by_nativity_combined %>%
+  SharedData$new()
+
+bscols(widths = c(3, NA),
+       list(
+         filter_select("sample_frame", "Sampling Frame", cover_by_nativity_plotly, ~Sampling_Frame),
+         filter_select("nativity", "Nativity", cover_by_nativity_plotly, ~Nativity),
+         filter_select("plot_number", "Plot", cover_by_nativity_plotly, ~Plot_Number)
+       ),
+       plot_ly(cover_by_nativity_plotly,
+               x = ~Unit_Code,
+               y = ~tot_pct_cov,
+               color = ~Cycle,
+               type = "box",
+               boxpoints = "all",
+               jitter = 0.2,
+               pointpos = 0,
+               marker = list(opacity = 0.3)) %>%
+         layout(boxmode = "group",
+                xaxis = list(title = "Park"),
+                yaxis = list(title = "Total % Cover"),
+                legend=list(title=list(text='<b> Cycle </b>'),
+                            y = 0.5))
+)
+
+
+```
+
+Although ggplot isn't interactive, it is highly customizable and widely used. There are also many extensions to ggplot that provide additional functionality: https://exts.ggplot2.tidyverse.org/gallery/
+
+This code was poached from https://www.cedricscherer.com/2021/06/06/visualizing-distributions-with-raincloud-plots-and-how-to-create-them-with-ggplot2/
+
+Documentation: https://ggplot2.tidyverse.org/
+
+```{r ggplot, echo=FALSE, message=FALSE, warning=FALSE, fig.height=15}
+cover_by_nativity_combined %>%
+  dplyr::filter(Nativity != "Unknown") %>%
+  ggplot(aes(x = Cycle, y = tot_pct_cov, group = Cycle)) + 
+  ggdist::stat_halfeye(
+    adjust = .5, 
+    width = .6, 
+    .width = 0, 
+    justification = -.3, 
+    point_colour = NA) + 
+  geom_boxplot(
+    width = .25,
+    outlier.shape = NA
+  ) +
+  geom_point(
+    aes(color = Unit_Code),
+    size = 1,
+    alpha = .2,
+    position = position_jitter(
+      seed = 1, width = .07
+    )
+  ) +
+  ylab("Total % Cover") +
+  guides(color = "none") +
+  facet_grid(rows = vars(Unit_Code), cols = vars(Nativity)) +
+  theme_minimal()
 ```
