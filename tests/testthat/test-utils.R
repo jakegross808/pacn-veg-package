@@ -281,3 +281,15 @@ test_that("FilterPACNVeg filters on verification status", {
 
   expect_equal(actual, TRUE)
 })
+
+test_that("RemoveSingleVisits removes data from plots with no revisits",{
+  data <- FilterPACNVeg("Understory")
+  result <- RemoveSingleVisits(data)
+  visit_count <- result %>%
+    dplyr::select(Unit_Code, Community, Sampling_Frame, Year, Cycle, Plot_Number) %>%
+    unique() %>%
+    dplyr::group_by(Unit_Code, Community, Sampling_Frame, Plot_Number) %>%
+    dplyr::summarise(plot_count = n())
+
+  expect_true(all(visit_count$plot_count > 1))
+})
