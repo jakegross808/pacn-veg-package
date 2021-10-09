@@ -21,9 +21,15 @@ MapPACNVeg(
 \arguments{
 \item{protocol}{Character vector indicating whether to include FTPC plots, EIPS transects, or both}
 
+\item{crosstalk}{If \code{TRUE}, returns a SharedData object for use with the \code{crosstalk} package. Otherwise, returns a normal tibble.}
+
+\item{crosstalk_group}{If \code{crosstalk == TRUE}, the crosstalk group name to use. Ignored if \code{crosstalk == FALSE}.}
+
 \item{park}{Four letter unit code of park(s)}
 
 \item{sample_frame}{Name of sample frame}
+
+\item{cycle}{Monitoring cycle}
 
 \item{plot_type}{Type of plot (fixed vs. rotational)}
 
@@ -36,7 +42,7 @@ MapPACNVeg(
 \item{verified}{Whether data are verified (TRUE/FALSE)}
 }
 \value{
-
+A leaflet map
 }
 \description{
 Map PACN vegetation plots and transects

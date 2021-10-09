@@ -6,6 +6,7 @@
 \usage{
 UnderNativityCoverTotal(
   combine_strata = FALSE,
+  paired_change = FALSE,
   park,
   sample_frame,
   community,
@@ -22,6 +23,10 @@ UnderNativityCoverTotal(
 
 \item{community}{Name of plant community}
 
+\item{year}{Monitoring year}
+
+\item{cycle}{Monitoring cycle}
+
 \item{plot_type}{Type of plot (fixed vs. rotational)}
 
 \item{silent}{Suppress informational messages?}
@@ -37,4 +42,5 @@ Calculate Total Native & Nonnative Cover in Understory
 data <- FilterPACNVeg("Understory")
 Native_Cover_Summary_table <- UnderNativityCoverTotal(data)
 }
+*Dead Still present in Understory Data*
 }

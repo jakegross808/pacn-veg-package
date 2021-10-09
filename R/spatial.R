@@ -1,6 +1,8 @@
 #' Get locations of FTPC plots and EIPS transects for mapping.
 #'
 #' @param protocol Character vector indicating whether to include FTPC plots, EIPS transects, or both
+#' @param crosstalk If `TRUE`, returns a SharedData object for use with the `crosstalk` package. Otherwise, returns a normal tibble.
+#' @param crosstalk_group If `crosstalk == TRUE`, the crosstalk group name to use. Ignored if `crosstalk == FALSE`.
 #' @inheritParams FilterPACNVeg
 #'
 #' @return A tibble with one row per location and columns Protocol, Unit_Code, Sampling_Frame, Sample_Unit_Number, Lat, Long, Cycles, Years
@@ -46,7 +48,7 @@ PlotAndTransectLocations <- function(protocol = c("FTPC", "EIPS"), crosstalk = F
 #'
 #' @inheritParams PlotAndTransectLocations
 #'
-#' @return
+#' @return A leaflet map
 #' @export
 #'
 #' @examples

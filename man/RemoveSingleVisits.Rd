@@ -15,9 +15,3 @@ The input data with  single-visit data removed
 \description{
 Remove data from plots with no revisits
 }
-\examples{
-\dontrun{
-data <- FilterPACNVeg("Understory")
-data_with_revisits <- RemoveSingleVisits(data)
-}
-}

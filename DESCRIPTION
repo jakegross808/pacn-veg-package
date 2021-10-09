@@ -29,6 +29,12 @@ Imports:
     stringr,
     tibble,
     here,
-    leaflet
+    leaflet,
+    crosstalk,
+    ggplot2,
+    ggrepel,
+    htmltools,
+    scales,
+    tidyr
 Language: en-US
 Config/testthat/edition: 3

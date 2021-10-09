@@ -829,6 +829,8 @@ ReadCSV <- function(data_path) {
 #' @param park Four letter unit code of park(s)
 #' @param sample_frame Name of sample frame
 #' @param community Name of plant community
+#' @param year Monitoring year
+#' @param cycle Monitoring cycle
 #' @param plot_type Type of plot (fixed vs. rotational)
 #' @param is_qa_plot Whether the plots are QA plots or not (TRUE/FALSE)
 #' @param transect_type Type of transect (fixed vs. rotational)

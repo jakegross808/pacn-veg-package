@@ -32,6 +32,10 @@ FilterPACNVeg(
 
 \item{community}{Name of plant community}
 
+\item{year}{Monitoring year}
+
+\item{cycle}{Monitoring cycle}
+
 \item{plot_type}{Type of plot (fixed vs. rotational)}
 
 \item{is_qa_plot}{Whether the plots are QA plots or not (TRUE/FALSE)}

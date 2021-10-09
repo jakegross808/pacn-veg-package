@@ -2,11 +2,12 @@
 
 export(ClearPACNVegCache)
 export(FilterPACNVeg)
+export(FormatPlot)
 export(LoadPACNVeg)
 export(MapPACNVeg)
 export(PlotAndTransectLocations)
-export(RemoveSingleVisits)
 export(UnderCombineStrata)
+export(UnderNatCovTotal)
 export(UnderNativityCoverTotal)
 export(WritePACNVeg)
 export(expect_dataframe_equal)
