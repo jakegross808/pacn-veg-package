@@ -829,7 +829,7 @@ ReadCSV <- function(data_path) {
 #' all_certified_data <- FilterPACNVeg(certified = TRUE)
 #' native_kaho_understory <- FilterPACNVeg("Understory", park = "KAHO", nativity = "Native")
 #' }
-FilterPACNVeg <- function(data_name, park, sample_frame, community, year, cycle, plot_type, is_qa_plot, transect_type, species_code, sci_name, nativity, certified, verified, case_sensitive = FALSE, silent = FALSE) {
+FilterPACNVeg <- function(data_name, park, sample_frame, community, year, cycle, plot_type, is_qa_plot = FALSE, transect_type, species_code, sci_name, nativity, certified, verified, case_sensitive = FALSE, silent = FALSE) {
   data <- get_data(data_name)
 
   all_filter_cols <- c(Unit_Code = ifelse(missing(park), NA, park),
@@ -917,8 +917,8 @@ FilterOne <- function(data, data_name, filter_cols, case_sensitive, silent) {
 #' LoadPACNVeg("pacnveg", "path/to/access.mdb")
 #' WritePACNVeg("folder/for/csv/data", create.folders = TRUE)
 #' }
-WritePACNVeg <- function(dest.folder, create.folders = FALSE, overwrite = FALSE, park, sample_frame, community, certified, verified, is_qa_plot) {
-  data <- FilterPACNVeg()
+WritePACNVeg <- function(dest.folder, create.folders = FALSE, overwrite = FALSE, park, sample_frame, community, certified, verified, is_qa_plot = FALSE) {
+  data <- FilterPACNVeg(park = park, sample_frame = sample_frame, community = community, certified = certified, verified = verified, is_qa_plot = is_qa_plot)
   dest.folder <- normalizePath(dest.folder, mustWork = FALSE)
   col.spec <- GetColSpec()
   file.paths <- file.path(dest.folder, paste0(names(col.spec), ".csv"))

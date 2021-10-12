@@ -37,7 +37,7 @@ UnderCombineStrata <- function(data) {
 #' data <- FilterPACNVeg("Understory")
 #' Native_Cover_Summary_table <- UnderNativityCoverTotal(data)
 #' }
-UnderNativityCoverTotal <- function(combine_strata = FALSE, paired_change = FALSE, park, sample_frame, community, year, cycle, plot_type, silent = FALSE) {
+UnderNativityCover <- function(combine_strata = FALSE, paired_change = FALSE, park, sample_frame, community, year, cycle, plot_type, silent = FALSE) {
 
   raw_data <- FilterPACNVeg("Understory", park, sample_frame, community, year, cycle, plot_type, is_qa_plot = FALSE, silent = silent)
   if (combine_strata == TRUE) {
@@ -46,7 +46,7 @@ UnderNativityCoverTotal <- function(combine_strata = FALSE, paired_change = FALS
 
   # Calculate Total Native & Nonnative Cover by stratum
   Nat_Cov <- raw_data %>%
-    #'*Dead Still present in Understory Data*
+    ## Dead Still present in Understory Data!!  - change default filter settings? Or remove entirely from database
     dplyr::filter(Dead==FALSE)  %>%
     ## Drop point records if point had no hits: (drop if 'Code == NA')
     tidyr::drop_na(Code)  %>%
@@ -94,10 +94,10 @@ UnderNativityCoverTotal <- function(combine_strata = FALSE, paired_change = FALS
 #' @examples
 #' \dontrun{
 #'
-#' Native_v_Nonnative_Plot <- UnderNativityCoverTotal.plot.(UnderNativityCoverTotal())
+#' Native_v_Nonnative_Plot <- UnderNativityCover.plot.nat_v_non(UnderNativityCover())
 #' }
 
-UnderNatCovTotal <- function(data, sample_cycle) {
+UnderNativityCover.plot.nat_v_non <- function(data, sample_cycle) {
 
   unks <- data %>%
     dplyr::filter(Nativity=="Unknown")
