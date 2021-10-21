@@ -97,7 +97,9 @@ UnderNativityCover <- function(combine_strata = FALSE, paired_change = FALSE, pa
 #' Native_v_Nonnative_Plot <- UnderNativityCover.plot.nat_v_non(UnderNativityCover())
 #' }
 
-UnderNativityCover.plot.nat_v_non <- function(data, sample_cycle) {
+UnderNativityCover.plot.nat_v_non <- function(combine_strata = FALSE, paired_change = FALSE, park, sample_frame, community, year, cycle, plot_type, silent = FALSE) {
+
+  data <- UnderNativityCover(combine_strata = combine_strata, paired_change = paired_change, park, sample_frame, community, year, cycle, plot_type, silent = silent)
 
   unks <- data %>%
     dplyr::filter(Nativity=="Unknown")
@@ -149,7 +151,7 @@ UnderNativityCover.plot.nat_v_non <- function(data, sample_cycle) {
           -100, -100, 0, 0))
   datapoly <- merge(values, positions, by = c("id"))
 
-  ggplot2::ggplot(data = datapoly,
+  plot.nat_v_non <- ggplot2::ggplot(data = datapoly,
                   mapping = ggplot2::aes(x = x, y = y)) +
     ggplot2::geom_polygon(ggplot2::aes(fill = value)) + # cannot do alpha w/coord_cartesian???
     ggplot2::scale_fill_manual(values = quad_c) +
@@ -168,4 +170,6 @@ UnderNativityCover.plot.nat_v_non <- function(data, sample_cycle) {
     ggplot2::scale_y_continuous(breaks = scales::breaks_pretty(n = 10)) +
     ggplot2::coord_cartesian(xlim = c(-toplot.max, toplot.max), ylim = c(-toplot.max, toplot.max)) +
     ggplot2::facet_wrap(~Stratum + Sampling_Frame)
+
+  return(plot.nat_v_non)
   }
