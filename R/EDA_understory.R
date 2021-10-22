@@ -40,6 +40,7 @@ UnderCombineStrata <- function(data) {
 UnderNativityCover <- function(combine_strata = FALSE, paired_change = FALSE, park, sample_frame, community, year, cycle, plot_type, silent = FALSE) {
 
   raw_data <- FilterPACNVeg("Understory", park, sample_frame, community, year, cycle, plot_type, is_qa_plot = FALSE, silent = silent)
+
   if (combine_strata == TRUE) {
     raw_data <- UnderCombineStrata(raw_data)
   }
@@ -86,7 +87,7 @@ UnderNativityCover <- function(combine_strata = FALSE, paired_change = FALSE, pa
 
 #' Native V. Non-native Cover Plot for Understory data
 #'
-#' @param data An Understory tibble/dataframe with Native and Non-native Cover
+#' @inheritParams UnderNativityCover
 #'
 #' @return Nat-v-Non Plot comparing Native and Non-native Cover (or Change in Cover)
 #' @export
@@ -94,12 +95,14 @@ UnderNativityCover <- function(combine_strata = FALSE, paired_change = FALSE, pa
 #' @examples
 #' \dontrun{
 #'
-#' Native_v_Nonnative_Plot <- UnderNativityCover.plot.nat_v_non(UnderNativityCover())
+#' Native_v_Nonnative_Plot <- UnderNativityCover.plot.nat_v_non(sample_frame = "Haleakala", sample_cycle = 2, paired_change = TRUE)
 #' }
 
-UnderNativityCover.plot.nat_v_non <- function(combine_strata = FALSE, paired_change = FALSE, park, sample_frame, community, year, cycle, plot_type, silent = FALSE) {
+UnderNativityCover.plot.nat_v_non <- function(combine_strata = FALSE, paired_change = FALSE, park, sample_frame, community, year, cycle, plot_type, silent = FALSE, sample_cycle) {
 
-  data <- UnderNativityCover(combine_strata = combine_strata, paired_change = paired_change, park, sample_frame, community, year, cycle, plot_type, silent = silent)
+  data <- UnderNativityCover(combine_strata = combine_strata, paired_change = paired_change,
+                             park = park, sample_frame = sample_frame, community = community, year = year, cycle = cycle,
+                             plot_type = plot_type, silent = silent)
 
   unks <- data %>%
     dplyr::filter(Nativity=="Unknown")

@@ -12,7 +12,7 @@ FilterPACNVeg(
   year,
   cycle,
   plot_type,
-  is_qa_plot,
+  is_qa_plot = FALSE,
   transect_type,
   species_code,
   sci_name,

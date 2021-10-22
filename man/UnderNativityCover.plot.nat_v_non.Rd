@@ -4,10 +4,29 @@
 \alias{UnderNativityCover.plot.nat_v_non}
 \title{Native V. Non-native Cover Plot for Understory data}
 \usage{
-UnderNativityCover.plot.nat_v_non(data, sample_cycle)
+UnderNativityCover.plot.nat_v_non(
+  combine_strata = FALSE,
+  paired_change = FALSE,
+  sample_cycle,
+  park,
+  sample_frame,
+  community,
+  year,
+  cycle,
+  plot_type,
+  silent = FALSE
+)
 }
 \arguments{
-\item{data}{An Understory tibble/dataframe with Native and Non-native Cover}
+\item{park}{Four letter unit code of park(s)}
+
+\item{sample_frame}{Name of sample frame}
+
+\item{community}{Name of plant community}
+
+\item{plot_type}{Type of plot (fixed vs. rotational)}
+
+\item{silent}{Suppress informational messages?}
 }
 \value{
 Nat-v-Non Plot comparing Native and Non-native Cover (or Change in Cover)
@@ -18,6 +37,6 @@ Native V. Non-native Cover Plot for Understory data
 \examples{
 \dontrun{
 
-Native_v_Nonnative_Plot <- UnderNativityCover.plot.nat_v_non(UnderNativityCover())
+Native_v_Nonnative_Plot <- UnderNativityCover.plot.nat_v_non()
 }
 }
