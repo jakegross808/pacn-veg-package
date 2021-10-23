@@ -5,9 +5,10 @@
 \title{Native V. Non-native Cover Plot for Understory data}
 \usage{
 UnderNativityCover.plot.nat_v_non(
+  sample_cycle,
+  cover.stat,
   combine_strata = FALSE,
   paired_change = FALSE,
-  sample_cycle,
   park,
   sample_frame,
   community,
@@ -37,6 +38,6 @@ Native V. Non-native Cover Plot for Understory data
 \examples{
 \dontrun{
 
-Native_v_Nonnative_Plot <- UnderNativityCover.plot.nat_v_non()
+Native_v_Nonnative_Plot <- UnderNativityCover.plot.nat_v_non(sample_frame = "Haleakala", sample_cycle = 2, paired_change = TRUE)
 }
 }
