@@ -269,7 +269,7 @@ ReadFTPC <- function(conn) {
     #supposedly SQL does not have translation for case_when so must use "ifelse" ??
     dplyr::mutate(Cycle = ifelse(Year <= 2014, 1, NA)) %>%
     dplyr::mutate(Cycle = ifelse(is.na(Cycle) & Year >= 2015 & Year <= 2020, 2, Cycle)) %>%
-    dplyr::mutate(Cycle = ifelse(is.na(Cycle) & Year >= 2021, 3, Cycle))
+    dplyr::mutate(Cycle = ifelse(is.na(Cycle) & Year >= 2021 & Year <= 2027, 3, Cycle))
     #dplyr::mutate(Cycle = dplyr::case_when(Year <= 2014 ~ "1",
     #                         Year >= 2015 & Year <= 2020 ~ "2",
     #                         Year >= 2021 ~ "3"))
