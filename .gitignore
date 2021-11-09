@@ -34,7 +34,16 @@ vignettes/*.pdf
 # Temporary files created by R markdown
 *.utf8.md
 *.knit.md
+skeleton.html
 
 # R Environment Variables
 .Renviron
 .Rproj.user
+
+# CSV data files
+*.csv
+*.zip
+
+# Folders for temporary scripts and data
+/scratchpad
+tests/testthat/dbs
