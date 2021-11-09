@@ -1,0 +1,104 @@
+---
+title: "Vegetation Monitoring at Haleakala National Park: Subalpine Shrubland Plant Community 2012 and 2017"
+author: "Pacific Island Network"
+date: "9/10/2021"
+output: 
+  html_document:
+    toc: true
+    toc_float: true
+    fig_caption: true
+    df_print: kable
+    theme: journal
+    css: journalnps.min.css
+    includes:
+        before_body:
+          - header.html
+params:
+  protocol: !expr c("EIPS", "FTPC")
+  park: !expr NA
+  sample_frame: !expr NA
+  cycle: !expr NA
+  plot_type: !expr NA
+  is_qa_plot: !expr NA
+  transect_type: !expr NA
+  certified: !expr NA
+  verified: !expr NA
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+
+```
+
+```{r packages, include=FALSE}
+#library(tidyverse)
+library(leaflet)
+library(pacnvegetation)
+```
+
+```{r load data, include=FALSE}
+# Change this to point to your EIPS database(s)
+access_dbs <- c("C:/Users/JJGross/OneDrive - DOI/Documents/Certification_Local/Databases/EIPS/established_invasives_BE_master_20210818.mdb",
+            "C:/Users/JJGross/OneDrive - DOI/Documents/Certification_Local/Databases/EIPS/2021_established_invasives_1_20210129.mdb",
+            "C:/Users/JJGross/OneDrive - DOI/Documents/Certification_Local/Databases/EIPS/2021_established_invasives_2_20210129.mdb")
+# Load the data
+LoadPACNVeg(ftpc_params = "pacnveg", eips_paths = access_dbs)
+```
+
+
+## Background
+
+The Pacific Island Inventory and Monitoring Network (PACN) monitors subalpine shrubland plant communities occurring along the slopes of Haleakala and Mauna Loa in Hawaii. This brief focuses on the Haleakala sampling frame which includes 4460 ha and consists of generally vegetated sites above 1980 m encompassing Haleakala summit, the park visitor center, headquarters, and several hiking trails open to the public (Figure 1).
+
+```{r sampling map, echo=FALSE, message=FALSE, warning=FALSE}
+MapPACNVeg(sample_frame = "Haleakala")
+```
+
+## Methods
+
+15 fixed plots and ?? fixed transects were monitored in 2012 and again in 2017.
+
+-   Understory Cover: Plant species understory cover was sampled within 50 x 20 m plots. Two height layers were recorded: 0-1 m from ground (UNDERSTORY1) and 1-2 m from ground (UNDERSTORY2). Cover data was collected using the pole-intercept method (Ainsworth et al. 2011).
+
+-   Invasive Plant Transects: Additional data on non-native plants were collected using frequency of occurrence along 500 m transects (Ainsworth et al. 2012).
+
+## Results
+
+[Plant Community Composition (2017):]{.ul}
+
+-   Vegetation within the Haleakala subalpine shrubland is generally restricted to the low growing shrub and herb layer. Pole-intercept cover sampling showed the majority of the vegetation occurred below 1 m, within the "UNDERSTORY1" stratum (Figure 2).
+
+-   Native shrubs and non-native grasses were the dominant species cover within the subalpine shrubland community at Haleakalā National Park (Figure 3).
+
+-   
+
+## Summary
+
+## References
+
+| [Ainsworth, A., J. D. Jacobi, R. K. Loh, J. A. Christian,](https://irma.nps.gov/DataStore/DownloadFile/448810)
+| [C. Yanger, and P. Berkowitz. 2012. Established](https://irma.nps.gov/DataStore/DownloadFile/448810)
+| [invasive plant species monitoring protocol: Pacific](https://irma.nps.gov/DataStore/DownloadFile/448810)
+| [Island Network. Natural Resource Report NPS/](https://irma.nps.gov/DataStore/DownloadFile/448810)
+| [PACN/NRR---2012/514. National Park Service, Fort](https://irma.nps.gov/DataStore/DownloadFile/448810)
+| [Collins, Colorado.](https://irma.nps.gov/DataStore/DownloadFile/448810)
+| 
+
+| [Ainsworth, A., Berkowitz, P., Jacobi, J. D., Loh, R.](https://irma.nps.gov/DataStore/DownloadFile/429572)
+| [K., & Kozar, K. 2011. Focal Terrestrial Plant](https://irma.nps.gov/DataStore/DownloadFile/429572)
+| [Communities Monitoring Protocol: Pacific Island](https://irma.nps.gov/DataStore/DownloadFile/429572)
+| [Network. Natural Resource Report](https://irma.nps.gov/DataStore/DownloadFile/429572)
+| [NPS/PACN/NRR---2011/410. National Park Service,](https://irma.nps.gov/DataStore/DownloadFile/429572)
+| [Fort Collins, Colorado.](https://irma.nps.gov/DataStore/DownloadFile/429572)
+
+## More Information
+
+| Ryan Monello, PACN I&M Program Manager
+| ryan_monello\@nps.gov, 808-985-6183
+| 
+| Jacob Gross, Botanist
+| Jacob_Gross\@nps.gov, 808-985-6187
+| 
+| [Vital Signs: Pacific Island Inventory & Monitoring Network](https://www.nps.gov/im/pacn/monitoring.htm)
+| [Reports & Publications (U.S. National Park Service) (nps.gov)](https://www.nps.gov/im/pacn/reports-publications.htm)
