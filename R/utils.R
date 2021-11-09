@@ -243,16 +243,24 @@ ReadFTPC <- function(conn) {
 
   #Events (e.g. The date the plot was sampled, QA/QC records)
 
-  #Short
-  tbl_Events_short <- dplyr::tbl(conn, "tbl_Events") %>%
-    dplyr::select(Event_ID, Plot_ID, Start_Date, QA_Plot)
+  tbl_Events <- dplyr::tbl(conn, "tbl_Events") %>%
+    dplyr::select(Event_ID, Plot_ID, Start_Date, QA_Plot, Images, Max_Veg_Ht = Max_veg_ht,
+                  Entered_Date = Entered_date, Updated_Date = Updated_date, Verified, Verified_By = Verified_by, Verified_Date = Verified_date,
+                  Certified, Certified_By = Certified_by, Certified_Date = Certified_date, Completion_Time = Completion_time,
+                  Event_Notes, QA_notes) %>%
+    # add "Year" (year sampled) and "Cycle" (sample cycle)
+    dplyr::mutate(Year = YEAR(Start_Date)) %>%
+    #supposedly SQL does not have translation for case_when so must use "ifelse" ??
+    dplyr::mutate(Cycle = ifelse(Year <= 2014, 1, NA)) %>%
+    dplyr::mutate(Cycle = ifelse(is.na(Cycle) & Year >= 2015 & Year <= 2020, 2, Cycle)) %>%
+    dplyr::mutate(Cycle = ifelse(is.na(Cycle) & Year >= 2021, 3, Cycle))
+    #dplyr::mutate(Cycle = dplyr::case_when(Year <= 2014 ~ "1",
+    #                         Year >= 2015 & Year <= 2020 ~ "2",
+    #                         Year >= 2021 ~ "3"))
 
-  #Extra
-  tbl_Events_extra <- dplyr::tbl(conn, "tbl_Events") %>%
-    dplyr::select(Event_ID, Plot_ID, Start_Date, Images, Max_Veg_Ht = Max_veg_ht,
-           Entered_Date = Entered_date, Updated_Date = Updated_date, Verified, Verified_By = Verified_by, Verified_Date = Verified_date,
-           Certified, Certified_By = Certified_by, Certified_Date = Certified_date, Completion_Time = Completion_time,
-           Event_Notes, QA_notes)
+  #Short
+  tbl_Events_short <- tbl_Events %>%
+    dplyr::select(Event_ID, Plot_ID, Year, Cycle, QA_Plot, Certified, Verified)
 
 
   # . . . . **join** Spatial & Temp ---------------------------------------------------
@@ -262,12 +270,12 @@ ReadFTPC <- function(conn) {
     dplyr::left_join(tbl_Plot_short, by = "Plot_ID") %>%
     dplyr::left_join(tbl_Locations_short, by = "Location_ID") %>%
     dplyr::left_join(tbl_Sites_short, by = "Site_ID") %>%
-    dplyr::select(Start_Date, Unit_Code, Community, Sampling_Frame, Plot_Type,
-           Plot_Number, QA_Plot, Event_ID)
+    dplyr::select(Unit_Code, Community, Sampling_Frame, Year, Cycle, Plot_Type, Plot_Number,
+           QA_Plot, Certified, Verified, Event_ID)
 
 
   # . . . . Events_extra ----
-  Events_extra <- tbl_Events_extra %>%
+  Events_extra <- tbl_Events %>%
     dplyr::left_join(tbl_Plot_extra, by = "Plot_ID") %>%
     dplyr::left_join(tbl_Locations_extra, by = "Location_ID") %>%
     #Move long text columns to end because of SQL driver error:
@@ -282,7 +290,7 @@ ReadFTPC <- function(conn) {
 
   # . . Events_extra_QAQC
   Events_extra_QAQC <- Events_extra %>%
-    dplyr::select(Start_Date, Unit_Code, Sampling_Frame, Plot_Number,
+    dplyr::select(Unit_Code, Sampling_Frame, Start_Date, Year, Cycle, Plot_Number,
            Entered_Date, Updated_Date, Verified, Verified_By, Verified_Date,
            Certified, Certified_By, Certified_Date, Completion_Time,
            Event_Notes, Plot_Notes, QA_notes) %>%
@@ -290,15 +298,15 @@ ReadFTPC <- function(conn) {
 
   # . . Events_extra_xy
   Events_extra_xy <- Events_extra %>%
-    dplyr::select(Start_Date, Unit_Code, Sampling_Frame, Plot_Number,
+    dplyr::select(Unit_Code, Sampling_Frame, Year, Cycle, Plot_Number,
            Azimuth_Plot, Start_Lat, Start_Long, Center_Lat, Center_Long,
-           End_Lat, End_Long, GCS, GCS_Datum, Lat_Dir, Long_Dir) %>%
+           End_Lat, End_Long, GCS, GCS_Datum, Lat_Dir, Long_Dir, Certified, Verified) %>%
     dplyr::collect()
 
   # . . Events_extra_other
   Events_extra_other <- Events_extra %>%
-    dplyr::select(Start_Date, Unit_Code, Sampling_Frame, Zone, Management_Unit,
-                  Plot_Number, Max_Veg_Ht, Site_Name, Images) %>%
+    dplyr::select(Unit_Code, Sampling_Frame, Year, Cycle, Zone, Management_Unit,
+                  Plot_Number, Max_Veg_Ht, Site_Name, Images, Certified, Verified) %>%
     dplyr::collect()
 
 
@@ -360,7 +368,8 @@ ReadFTPC <- function(conn) {
     dplyr::left_join(tbl_Multiple_Boles, by = "Large_Woody_ID") %>%
     dplyr::left_join(Species, by = c("Species_ID", "Unit_Code" = "Park")) %>%
     dplyr::select(-Large_Woody_ID, -Event_ID, -Species_ID) %>%
-    dplyr::collect()
+    dplyr::collect() %>%
+    dplyr::relocate(Certified, Verified, .after = last_col())
 
 
   # . . 2. tbl_Tree_Canopy_Height----
@@ -376,7 +385,8 @@ ReadFTPC <- function(conn) {
     dplyr::select(-Event_ID, -Species_ID) %>%
     #Move long text columns to end because of SQL driver error:
     dplyr::relocate(Comments, .after = last_col()) %>%
-    dplyr::collect()
+    dplyr::collect() %>%
+    dplyr::relocate(Certified, Verified, .after = last_col())
 
 
   # . . 3. tbl_Presence----
@@ -391,7 +401,8 @@ ReadFTPC <- function(conn) {
     dplyr::select(-Event_ID, -Species_ID) %>%
     #Move long text columns to end because of SQL driver error:
     dplyr::relocate(Comments, .after = last_col()) %>%
-    dplyr::collect()
+    dplyr::collect() %>%
+    dplyr::relocate(Certified, Verified, .after = last_col())
 
 
 
@@ -407,7 +418,8 @@ ReadFTPC <- function(conn) {
     dplyr::select(-Event_ID, -Species_ID) %>%
     #Move long text columns to end because of SQL driver error:
     dplyr::relocate(Comments, .after = last_col()) %>%
-    dplyr::collect()
+    dplyr::collect() %>%
+    dplyr::relocate(Certified, Verified, .after = last_col())
 
 
 
@@ -434,7 +446,8 @@ ReadFTPC <- function(conn) {
     dplyr::left_join(UnderstorySpecies, by = c("Event_ID", "Point_ID")) %>%
     dplyr::left_join(Species, by = c("Species_ID", "Unit_Code" = "Park")) %>%
     dplyr::select(-Event_ID, -Species_ID, -Point_ID) %>%
-    dplyr::collect()
+    dplyr::collect() %>%
+    dplyr::relocate(Certified, Verified, .after = last_col())
 
 
   # . . 6. tbl_Woody_Debris----
@@ -454,7 +467,8 @@ ReadFTPC <- function(conn) {
     dplyr::right_join(tbl_Woody_Debris, by = "Event_ID") %>%
     dplyr::left_join(tbl_Debris_Species, by = "Woody_Debris_ID") %>%
     dplyr::select(-Woody_Debris_ID, -Event_ID) %>%
-    dplyr::collect()
+    dplyr::collect() %>%
+    dplyr::relocate(Certified, Verified, .after = last_col())
 
 
 
@@ -515,15 +529,13 @@ ReadEIPS <- function(db_paths) {
       dplyr::select(Transect_ID, Location_ID, Transect_Type, Transect_Number, Azimuth_Transect = Azimuth, Lat = Latitude, Lat_Dir = Latitude_Dir, Long = Longitude, Long_Dir = Longitude_Dir, GCS, Transect_Notes)
 
     # Events (e.g. The date the plot was sampled, QA/QC records)
-    # Short
-    Events <- dplyr::tbl(conn, "tbl_Events") %>%
-      dplyr::select(Event_ID, Transect_ID, Start_Date) %>%
-      dplyr::left_join(tbl_Transects_short, by = "Transect_ID") %>%
-      dplyr::left_join(tbl_Locations_short, by = "Location_ID") %>%
-      dplyr::left_join(tbl_Sites_short, by = "Site_ID") %>%
-      dplyr::select(Start_Date, Unit_Code, Community, Sampling_Frame, Transect_Type, Transect_Number, Event_ID)
     # Extra
     Events_extra <-  dplyr::tbl(conn, "tbl_Events") %>%
+      # add "Year" (year sampled) and "Cycle" (sample cycle)
+      dplyr::mutate(Year = YEAR(Start_Date)) %>%
+      dplyr::mutate(Cycle = ifelse(Year <= 2014, 1,
+                                     ifelse(Year >= 2015 & Year <= 2020, 2,
+                                            ifelse(Year >= 2021, 3, NA)))) %>%
       dplyr::left_join(tbl_Transects_extra, by = "Transect_ID") %>%
       dplyr::left_join(tbl_Locations_extra, by = "Location_ID") %>%
       #Move long text columns to end because of SQL driver error:
@@ -533,26 +545,30 @@ ReadEIPS <- function(db_paths) {
       #Move long text columns to end because of SQL driver error:
       dplyr::relocate(Event_Notes, .after = last_col()) %>%
       dplyr::relocate(Transect_Notes, .after = last_col()) %>%
-      dplyr::select(Event_ID, Transect_ID, Start_Date, Unit_Code, Sampling_Frame, Zone, Management_Unit,
+      dplyr::select(Event_ID, Transect_ID, Unit_Code, Community, Sampling_Frame, Start_Date, Year, Cycle, Zone, Management_Unit,
                     Transect_Number, Site_Name, Transect_Type, Transect_Number, Azimuth_Transect, Lat, Long,
                     GCS, Lat_Dir, Long_Dir, Entered_Date, Updated_Date, Verified, Verified_By, Verified_Date,
-                    Certified, Certified_By, Certified_Date, Transect_Notes, Event_Notes)
+                    Certified, Certified_By, Certified_Date, Transect_Notes, Event_Notes) #-Start_Date
+    # Short
+    Events <- Events_extra %>%
+      dplyr::select(Event_ID, Transect_ID, Unit_Code, Community, Sampling_Frame, Year, Cycle, Transect_Type, Transect_Number, Certified, Verified)
+
     # Events_extra_QAQC
     Events_extra_QAQC_new <- Events_extra %>%
-      dplyr::select(Start_Date, Unit_Code, Sampling_Frame, Transect_Type, Transect_Number,
+      dplyr::select(Unit_Code, Sampling_Frame, Start_Date, Year, Cycle, Transect_Type, Transect_Number,
                     Entered_Date, Updated_Date, Verified, Verified_By, Verified_Date,
-                    Certified, Certified_By, Certified_Date, Transect_Notes, Event_Notes) %>%
+                    Certified, Certified_By, Certified_Date, Transect_Notes, Event_Notes) %>% #-Start_date
       dplyr::collect()
 
     # Events_extra_xy
     Events_extra_xy_new <- Events_extra %>%
-      dplyr::select(Start_Date, Unit_Code, Sampling_Frame, Transect_Number, Azimuth_Transect, Lat, Long, GCS, Lat_Dir, Long_Dir) %>%
+      dplyr::select(Unit_Code, Sampling_Frame, Year, Cycle, Transect_Number, Azimuth_Transect, Lat, Long, GCS, Lat_Dir, Long_Dir, Certified, Verified) %>%
       dplyr::collect()
 
     # Events_extra_other
     Events_extra_other_new <- Events_extra %>%
-      dplyr::select(Start_Date, Unit_Code, Sampling_Frame, Zone, Management_Unit,
-                    Transect_Number, Site_Name) %>%
+      dplyr::select(Unit_Code, Sampling_Frame, Year, Cycle, Zone, Management_Unit,
+                    Transect_Number, Site_Name, Certified, Verified) %>%
       dplyr::collect()
 
     # Species w/nativity
@@ -589,14 +605,17 @@ ReadEIPS <- function(db_paths) {
       dplyr::select(Segment_ID, Event_ID, Species_ID, Cover_class, Dead)
     tbl_Segments <- dplyr::tbl(conn, "tbl_Segments") %>%
       dplyr::select(Segment_ID, Event_ID, No_Data, Segment_Notes)
+    tlu_Segment_Points <- dplyr::tbl(conn, "tlu_Segment_Points")
 
     EIPS_data_new <- Events %>%
       dplyr::right_join(tbl_Segments, by = "Event_ID") %>%
+      dplyr::left_join(tlu_Segment_Points, by = "Segment_ID") %>%
       dplyr::left_join(xref_Cover_Class_Species, by = c("Segment_ID", "Event_ID")) %>%
-      dplyr::left_join(Species, by = "Species_ID") %>%
-      dplyr::select(Unit_Code, Community, Sampling_Frame, Start_Date, Transect_Number, Transect_Type, Species_ID, Cover_class, Dead, Code, Scientific_name, Life_form, Nativity) %>%
+      dplyr::left_join(Species, by = c("Species_ID", "Unit_Code" = "Park")) %>%
+      dplyr::select(Unit_Code, Community, Sampling_Frame, Year, Cycle, Transect_Type, Transect_Number, Segment = Sort_Order, Species_ID, Cover_class, Dead, Code, Scientific_name, Life_form, Nativity, Certified, Verified) %>%
       dplyr::collect() %>%
-      dplyr::rename(Cover_Class = Cover_class, Scientific_Name = Scientific_name, Life_Form = Life_form)
+      dplyr::rename(Cover_Class = Cover_class, Scientific_Name = Scientific_name, Life_Form = Life_form) %>%
+      dplyr::relocate(Certified, Verified, .after = last_col())
 
     Events_extra_QAQC_EIPS <- unique(rbind(Events_extra_QAQC_EIPS, Events_extra_QAQC_new))
     Events_extra_xy_EIPS <- unique(rbind(Events_extra_xy_EIPS, Events_extra_xy_new))
@@ -628,6 +647,8 @@ GetColSpec <- function() {
   time_format <- "%Y-%m-%dT%H:%M:%SZ"
   col.spec <- list(
     Events_extra_QAQC = readr::cols(Start_Date = readr::col_datetime(time_format),
+                                    Year = readr::col_integer(),
+                                    Cycle = readr::col_integer(),
                                     Plot_Number = readr::col_integer(),
                                     Entered_Date = readr::col_datetime(time_format),
                                     Updated_Date = readr::col_datetime(time_format),
@@ -637,7 +658,8 @@ GetColSpec <- function() {
                                     Certified_Date = readr::col_datetime(time_format),
                                     Completion_Time = readr::col_double(),
                                     .default = readr::col_character()),
-    Events_extra_xy = readr::cols(Start_Date = readr::col_datetime(time_format),
+    Events_extra_xy = readr::cols(Year = readr::col_integer(),
+                                  Cycle = readr::col_integer(),
                                   Plot_Number = readr::col_integer(),
                                   Azimuth_Plot = readr::col_integer(),
                                   Start_Lat = readr::col_double(),
@@ -646,16 +668,22 @@ GetColSpec <- function() {
                                   Center_Long = readr::col_double(),
                                   End_Lat = readr::col_double(),
                                   End_Long = readr::col_double(),
+                                  Certified = readr::col_logical(),
+                                  Verified = readr::col_logical(),
                                   .default = readr::col_character()),
-    Events_extra_other = readr::cols(Start_Date = readr::col_datetime(time_format),
+    Events_extra_other = readr::cols(Year = readr::col_integer(),
+                                     Cycle = readr::col_integer(),
                                      Plot_Number = readr::col_integer(),
                                      Max_Veg_Ht = readr::col_double(),
                                      Images = readr::col_logical(),
+                                     Certified = readr::col_logical(),
+                                     Verified = readr::col_logical(),
                                      .default = readr::col_character()),
     Species_extra = readr::cols(Complete = readr::col_logical(),
                                 Update_Date = readr::col_datetime(time_format),
                                 .default = readr::col_character()),
-    LgTrees = readr::cols(Start_Date = readr::col_datetime(time_format),
+    LgTrees = readr::cols(Year = readr::col_integer(),
+                          Cycle = readr::col_integer(),
                           Plot_Number = readr::col_integer(),
                           QA_Plot = readr::col_logical(),
                           Height = readr::col_double(),
@@ -668,8 +696,11 @@ GetColSpec <- function() {
                           Shrublike_Growth = readr::col_logical(),
                           Resprouts = readr::col_logical(),
                           DBH_Bole = readr::col_double(),
+                          Certified = readr::col_logical(),
+                          Verified = readr::col_logical(),
                           .default = readr::col_character()),
-    Canopy = readr::cols(Start_Date = readr::col_datetime(time_format),
+    Canopy = readr::cols(Year = readr::col_integer(),
+                         Cycle = readr::col_integer(),
                          Plot_Number = readr::col_integer(),
                          QA_Plot = readr::col_logical(),
                          Top = readr::col_integer(),
@@ -678,32 +709,48 @@ GetColSpec <- function() {
                          Distance = readr::col_double(),
                          Height = readr::col_double(),
                          DBH = readr::col_double(),
+                         Certified = readr::col_logical(),
+                         Verified = readr::col_logical(),
                          .default = readr::col_character()),
-    Presence = readr::cols(Start_Date = readr::col_datetime(time_format),
+    Presence = readr::cols(Year = readr::col_integer(),
+                           Cycle = readr::col_integer(),
                            Plot_Number = readr::col_integer(),
                            QA_Plot = readr::col_logical(),
                            Fruit_Flower = readr::col_logical(),
                            Dead = readr::col_logical(),
                            Outside_Plot = readr::col_logical(),
                            cf = readr::col_logical(),
+                           Certified = readr::col_logical(),
+                           Verified = readr::col_logical(),
                            .default = readr::col_character()),
-    SmWoody = readr::cols(Start_Date = readr::col_datetime(time_format),
+    SmWoody = readr::cols(Year = readr::col_integer(),
+                          Cycle = readr::col_integer(),
                           Plot_Number = readr::col_integer(),
                           QA_Plot = readr::col_logical(),
                           Count = readr::col_integer(),
+                          Certified = readr::col_logical(),
+                          Verified = readr::col_logical(),
                           .default = readr::col_character()),
-    Understory = readr::cols(Start_Date = readr::col_datetime(time_format),
+    Understory = readr::cols(Year = readr::col_integer(),
+                             Cycle = readr::col_integer(),
                              Plot_Number = readr::col_integer(),
                              QA_Plot = readr::col_logical(),
                              Point = readr::col_integer(),
                              Dead = readr::col_logical(),
+                             Certified = readr::col_logical(),
+                             Verified = readr::col_logical(),
                              .default = readr::col_character()),
-    Debris = readr::cols(Start_Date = readr::col_datetime(time_format),
+    Debris = readr::cols(Year = readr::col_integer(),
+                         Cycle = readr::col_integer(),
                          Plot_Number = readr::col_integer(),
                          QA_Plot = readr::col_logical(),
                          Diameter = readr::col_double(),
+                         Certified = readr::col_logical(),
+                         Verified = readr::col_logical(),
                          .default = readr::col_character()),
     Events_extra_QAQC_EIPS = readr::cols(Start_Date = readr::col_datetime(time_format),
+                                         Year = readr::col_integer(),
+                                         Cycle = readr::col_integer(),
                                          Entered_Date = readr::col_datetime(time_format),
                                          Updated_Date = readr::col_datetime(time_format),
                                          Verified = readr::col_logical(),
@@ -711,18 +758,28 @@ GetColSpec <- function() {
                                          Certified = readr::col_logical(),
                                          Certified_Date = readr::col_datetime(time_format),
                                          .default = readr::col_character()),
-    Events_extra_xy_EIPS = readr::cols(Start_Date = readr::col_datetime(time_format),
+    Events_extra_xy_EIPS = readr::cols(Year = readr::col_integer(),
+                                       Cycle = readr::col_integer(),
                                        Azimuth_Transect = readr::col_integer(),
                                        Lat = readr::col_double(),
                                        Long = readr::col_double(),
+                                       Certified = readr::col_logical(),
+                                       Verified = readr::col_logical(),
                                        .default = readr::col_character()),
-    Events_extra_other_EIPS = readr::cols(Start_Date = readr::col_datetime(time_format),
+    Events_extra_other_EIPS = readr::cols(Year = readr::col_integer(),
+                                          Cycle = readr::col_integer(),
+                                          Certified = readr::col_logical(),
+                                          Verified = readr::col_logical(),
                                           .default = readr::col_character()),
     Species_extra_EIPS = readr::cols(Complete = readr::col_logical(),
                                      Update_Date = readr::col_datetime(),
                                      .default = readr::col_character()),
-    EIPS_data = readr::cols(Start_Date = readr::col_datetime(time_format),
+    EIPS_data = readr::cols(Year = readr::col_integer(),
+                            Cycle = readr::col_integer(),
+                            Segment = readr::col_integer(),
                             Dead = readr::col_logical(),
+                            Certified = readr::col_logical(),
+                            Verified = readr::col_logical(),
                             .default = readr::col_character())
   )
 
@@ -772,13 +829,15 @@ ReadCSV <- function(data_path) {
 #' all_certified_data <- FilterPACNVeg(certified = TRUE)
 #' native_kaho_understory <- FilterPACNVeg("Understory", park = "KAHO", nativity = "Native")
 #' }
-FilterPACNVeg <- function(data_name, park, sample_frame, community, plot_type, is_qa_plot, transect_type, species_code, sci_name, nativity, certified, verified, case_sensitive = FALSE, silent = FALSE) {
+FilterPACNVeg <- function(data_name, park, sample_frame, community, year, cycle, plot_type, is_qa_plot = FALSE, transect_type, species_code, sci_name, nativity, certified, verified, case_sensitive = FALSE, silent = FALSE) {
   data <- get_data(data_name)
 
   all_filter_cols <- c(Unit_Code = ifelse(missing(park), NA, park),
                    Park = ifelse(missing(park), NA, park),
                    Sampling_Frame = ifelse(missing(sample_frame), NA, sample_frame),
                    Community = ifelse(missing(community), NA, community),
+                   Year = ifelse(missing(year), NA, year),
+                   Cycle = ifelse(missing(cycle), NA, cycle),
                    Plot_Type = ifelse(missing(plot_type), NA, plot_type),
                    QA_Plot = ifelse(missing(is_qa_plot), NA, is_qa_plot),
                    Transect_Type = ifelse(missing(transect_type), NA, transect_type),
@@ -858,8 +917,8 @@ FilterOne <- function(data, data_name, filter_cols, case_sensitive, silent) {
 #' LoadPACNVeg("pacnveg", "path/to/access.mdb")
 #' WritePACNVeg("folder/for/csv/data", create.folders = TRUE)
 #' }
-WritePACNVeg <- function(dest.folder, create.folders = FALSE, overwrite = FALSE, park, sample_frame, community, certified, verified, is_qa_plot) {
-  data <- FilterPACNVeg()
+WritePACNVeg <- function(dest.folder, create.folders = FALSE, overwrite = FALSE, park, sample_frame, community, certified, verified, is_qa_plot = FALSE) {
+  data <- FilterPACNVeg(park = park, sample_frame = sample_frame, community = community, certified = certified, verified = verified, is_qa_plot = is_qa_plot)
   dest.folder <- normalizePath(dest.folder, mustWork = FALSE)
   col.spec <- GetColSpec()
   file.paths <- file.path(dest.folder, paste0(names(col.spec), ".csv"))
@@ -917,4 +976,32 @@ expect_dataframe_equal <- function(result, expected, ignore_col_order = FALSE, i
   test_result <- all.equal(result, expected, check.attributes = FALSE, use.names = TRUE, check.names = TRUE)
 
   return(testthat::expect_true(test_result, label = test_result))
+}
+
+#' Remove data from plots with no revisits
+#'
+#' @param data A tibble/dataframe with columns Unit_Code, Sampling_Frame, Plot_Number, and Cycle
+#'
+#' @return The input data with  single-visit data removed
+#' @export
+#'
+#' @examples
+#' \dontrun{
+#' data <- FilterPACNVeg("Understory")
+#' data_with_revisits <- RemoveSingleVisits(data)
+#' }
+RemoveSingleVisits <- function(data) {
+  dup_visits <- data %>%
+    dplyr::select(Unit_Code, Sampling_Frame, Plot_Number, Cycle) %>%
+    unique() %>%
+    dplyr::group_by(Unit_Code, Sampling_Frame, Plot_Number) %>%
+    dplyr::summarize(Plot_Count = dplyr::n(), .groups = "keep") %>%
+    dplyr::arrange(Unit_Code, Sampling_Frame, Plot_Number) %>%
+    dplyr::filter(Plot_Count > 1) %>%
+    dplyr::select(-Plot_Count)
+
+  data <- data %>%
+    dplyr::inner_join(dup_visits, by = c("Unit_Code", "Sampling_Frame", "Plot_Number"))
+
+  return(data)
 }
