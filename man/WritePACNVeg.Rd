@@ -13,7 +13,7 @@ WritePACNVeg(
   community,
   certified,
   verified,
-  is_qa_plot
+  is_qa_plot = FALSE
 )
 }
 \arguments{
