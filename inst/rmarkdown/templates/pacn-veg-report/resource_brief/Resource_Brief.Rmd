@@ -3,26 +3,27 @@ title: "Vegetation Monitoring at Haleakala National Park: Subalpine Shrubland Pl
 author: "Pacific Island Network"
 date: "9/10/2021"
 output: 
-  html_document:
+  bookdown::html_document2:
     toc: true
     toc_float: true
     fig_caption: true
+    number_sections: false
     df_print: kable
     theme: journal
     css: journalnps.min.css
     includes:
         before_body:
           - header.html
-params:
-  protocol: !expr c("EIPS", "FTPC")
-  park: !expr NA
-  sample_frame: !expr NA
-  cycle: !expr NA
-  plot_type: !expr NA
-  is_qa_plot: !expr NA
-  transect_type: !expr NA
-  certified: !expr NA
-  verified: !expr NA
+#params:
+#  protocol: !expr c("EIPS", "FTPC")
+#  park: !expr NA
+#  sample_frame: !expr NA
+#  cycle: !expr NA
+#  plot_type: !expr NA
+#  is_qa_plot: !expr NA
+#  transect_type: !expr NA
+#  certified: !expr NA
+#  verified: !expr NA
 ---
 
 ```{r setup, include=FALSE}
@@ -33,8 +34,11 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ```{r packages, include=FALSE}
 #library(tidyverse)
+library(kableExtra)
 library(leaflet)
 library(pacnvegetation)
+library(bookdown)
+library(tidyverse)
 ```
 
 ```{r load data, include=FALSE}
@@ -46,51 +50,72 @@ access_dbs <- c("C:/Users/JJGross/OneDrive - DOI/Documents/Certification_Local/D
 LoadPACNVeg(ftpc_params = "pacnveg", eips_paths = access_dbs)
 ```
 
+![alt text here](C:/Users/JJGross/OneDrive - DOI/Documents/Reports/Briefing_Reports/20210430_Haleakala_Subalpine/HALE0946.JPG)
 
 ## Background
 
-The Pacific Island Inventory and Monitoring Network (PACN) monitors subalpine shrubland plant communities occurring along the slopes of Haleakala and Mauna Loa in Hawaii. This brief focuses on the Haleakala sampling frame which includes 4460 ha and consists of generally vegetated sites above 1980 m encompassing Haleakala summit, the park visitor center, headquarters, and several hiking trails open to the public (Figure 1).
+The Pacific Island Inventory and Monitoring Network (PACN) monitors subalpine shrubland plant communities occurring along the slopes of Haleakala and Mauna Loa in Hawaii. This brief focuses on the Haleakala sampling frame which includes 4460 ha and consists of generally vegetated sites above 1980 m encompassing Haleakala summit, the park visitor center, headquarters, and several hiking trails open to the public.
 
-```{r sampling map, echo=FALSE, message=FALSE, warning=FALSE}
+```{r sampling-map, echo=FALSE, fig.cap= "Plots monitored within the Haleakala Subalpine Shrubland Plant Community.", message=FALSE, warning=FALSE}
 MapPACNVeg(sample_frame = "Haleakala")
 ```
 
 ## Methods
 
-15 fixed plots and ?? fixed transects were monitored in 2012 and again in 2017.
+15 fixed plots and 15 fixed transects were monitored in 2012 and again in 2017 
+(Figure \@ref(fig:sampling-map)).
 
--   Understory Cover: Plant species understory cover was sampled within 50 x 20 m plots. Two height layers were recorded: 0-1 m from ground (UNDERSTORY1) and 1-2 m from ground (UNDERSTORY2). Cover data was collected using the pole-intercept method (Ainsworth et al. 2011).
+-   Understory Cover: Plant species understory cover was sampled within 50 x 20 m plots. Two height layers were recorded: 0-1 m from ground (Low) and 1-2 m from ground (High). Cover data was collected using the pole-intercept method (Ainsworth et al. 2011).
 
 -   Invasive Plant Transects: Additional data on non-native plants were collected using frequency of occurrence along 500 m transects (Ainsworth et al. 2012).
+
 
 ## Results
 
 [Plant Community Composition (2017):]{.ul}
 
--   Vegetation within the Haleakala subalpine shrubland is generally restricted to the low growing shrub and herb layer. Pole-intercept cover sampling showed the majority of the vegetation occurred below 1 m, within the "UNDERSTORY1" stratum (Figure 2).
 
--   Native shrubs and non-native grasses were the dominant species cover within the subalpine shrubland community at Haleakalā National Park (Figure 3).
+-   Most fixed plots showed increases in both native and non-native understory cover, with ratios favoring greater increases in non-native cover (Figure \@ref(fig:natvsnon)).
 
--   
+-   Plot #2 showed the greatest increase in non-native percent cover (43), while Plot #10 showed the greatest decrease in native percent cover (-14.3) (Table \@ref(tab:cover-table)).
+
+```{r natvsnon, echo=FALSE, fig.cap= "Change in native vs. non-native cover. Point numbers corrspond to fixed monitoring sites.", message=FALSE, warning=FALSE}
+UnderNativityCover.plot.nat_v_non(cover.stat = "chg_per_cycle", sample_frame = "Haleakala", sample_cycle = 2, paired_change = TRUE, combine_strata = TRUE)
+```
+
+
+```{r cover-table, echo=FALSE, message=FALSE, warning=FALSE}
+cover_by_nativity <- UnderNativityCover(combine_strata = TRUE, 
+                                        sample_frame = "Haleakala", 
+                                        paired_change = TRUE) %>%
+  filter(Cycle == 2) %>%
+  filter(Nativity != "Unknown") %>%
+  ungroup() %>%
+  select(Plot_Number, Nativity, Percent_Cover_Change = chg_per_cycle) %>%
+  arrange(-Percent_Cover_Change)
+names(cover_by_nativity) <- gsub("_", " ", names(cover_by_nativity)) %>% str_to_title()  # Make column names nicer for display
+cover_by_nativity %>%
+  kbl(digits = 1, align = "c",
+      caption = "Change in understory cover per plot.") %>%
+  kable_styling(bootstrap_options = c("striped", "condensed")) %>%
+  scroll_box(height = "300px") 
+```
+
 
 ## Summary
 
+-   Summary text here.
+
+-   Summary text here.
+
+-   Summary text here.
+
+
 ## References
 
-| [Ainsworth, A., J. D. Jacobi, R. K. Loh, J. A. Christian,](https://irma.nps.gov/DataStore/DownloadFile/448810)
-| [C. Yanger, and P. Berkowitz. 2012. Established](https://irma.nps.gov/DataStore/DownloadFile/448810)
-| [invasive plant species monitoring protocol: Pacific](https://irma.nps.gov/DataStore/DownloadFile/448810)
-| [Island Network. Natural Resource Report NPS/](https://irma.nps.gov/DataStore/DownloadFile/448810)
-| [PACN/NRR---2012/514. National Park Service, Fort](https://irma.nps.gov/DataStore/DownloadFile/448810)
-| [Collins, Colorado.](https://irma.nps.gov/DataStore/DownloadFile/448810)
-| 
-
-| [Ainsworth, A., Berkowitz, P., Jacobi, J. D., Loh, R.](https://irma.nps.gov/DataStore/DownloadFile/429572)
-| [K., & Kozar, K. 2011. Focal Terrestrial Plant](https://irma.nps.gov/DataStore/DownloadFile/429572)
-| [Communities Monitoring Protocol: Pacific Island](https://irma.nps.gov/DataStore/DownloadFile/429572)
-| [Network. Natural Resource Report](https://irma.nps.gov/DataStore/DownloadFile/429572)
-| [NPS/PACN/NRR---2011/410. National Park Service,](https://irma.nps.gov/DataStore/DownloadFile/429572)
-| [Fort Collins, Colorado.](https://irma.nps.gov/DataStore/DownloadFile/429572)
+| [Ainsworth, A., J.D. Jacobi, R. K. Loh, J.A. Christian, C. Yanger, and P. Berkowitz. 2012. Established invasive plant species monitoring protocol: Pacific Island Network. Natural Resource Report NPS/ PACN/NRR---2012/514. National Park Service, Fort Collins, Colorado.](https://irma.nps.gov/DataStore/DownloadFile/448810)
+|
+| [Ainsworth, A., Berkowitz, P., Jacobi, J.D., Loh, R.K., & Kozar, K. 2011. Focal Terrestrial Plant Communities Monitoring Protocol: Pacific Island Network. Natural Resource Report NPS/PACN/NRR---2011/410. National Park Service, Fort Collins, Colorado.](https://irma.nps.gov/DataStore/DownloadFile/429572)
 
 ## More Information
 
