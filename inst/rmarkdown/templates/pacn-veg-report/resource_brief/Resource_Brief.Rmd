@@ -50,17 +50,17 @@ access_dbs <- c("C:/Users/JJGross/OneDrive - DOI/Documents/Certification_Local/D
 LoadPACNVeg(ftpc_params = "pacnveg", eips_paths = access_dbs)
 ```
 
-![alt text here](C:/Users/JJGross/OneDrive - DOI/Documents/Reports/Briefing_Reports/20210430_Haleakala_Subalpine/HALE0946.JPG)
+![Vegetation Monitoring within the subalpine shrubland plant community at Haleakala National Park.](C:/Users/JJGross/OneDrive - DOI/Documents/Reports/Briefing_Reports/20210430_Haleakala_Subalpine/HALE0946.JPG)
 
-## Background
+# Background
 
-The Pacific Island Inventory and Monitoring Network (PACN) monitors subalpine shrubland plant communities occurring along the slopes of Haleakala and Mauna Loa in Hawaii. This brief focuses on the Haleakala sampling frame which includes 4460 ha and consists of generally vegetated sites above 1980 m encompassing Haleakala summit, the park visitor center, headquarters, and several hiking trails open to the public.
+The Pacific Island Inventory and Monitoring Network (PACN) monitors subalpine shrubland plant communities occurring along the slopes of Haleakala and Mauna Loa in Hawaii. This brief focuses on the Haleakala section which includes 4460 ha and consists of generally vegetated sites above 1980 m encompassing Haleakala summit, the park visitor center, headquarters, and several hiking trails open to the public.
 
 ```{r sampling-map, echo=FALSE, fig.cap= "Plots monitored within the Haleakala Subalpine Shrubland Plant Community.", message=FALSE, warning=FALSE}
 MapPACNVeg(sample_frame = "Haleakala")
 ```
 
-## Methods
+# Methods
 
 15 fixed plots and 15 fixed transects were monitored in 2012 and again in 2017 
 (Figure \@ref(fig:sampling-map)).
@@ -70,21 +70,68 @@ MapPACNVeg(sample_frame = "Haleakala")
 -   Invasive Plant Transects: Additional data on non-native plants were collected using frequency of occurrence along 500 m transects (Ainsworth et al. 2012).
 
 
-## Results
+# Results
 
-[Plant Community Composition (2017):]{.ul}
+## Understory - Species Composition
 
+-   The majority of plots contain greater native cover compared to non-native cover. However, note the exception of plot #3 (Figure \@ref(fig:tot-cover-graph)).
 
--   Most fixed plots showed increases in both native and non-native understory cover, with ratios favoring greater increases in non-native cover (Figure \@ref(fig:natvsnon)).
+-   Plot #3 has the most non-native cover (144%) and only ~1% native cover (Table \@ref(tab:tot-cover-table)).
 
--   Plot #2 showed the greatest increase in non-native percent cover (43), while Plot #10 showed the greatest decrease in native percent cover (-14.3) (Table \@ref(tab:cover-table)).
-
-```{r natvsnon, echo=FALSE, fig.cap= "Change in native vs. non-native cover. Point numbers corrspond to fixed monitoring sites.", message=FALSE, warning=FALSE}
-UnderNativityCover.plot.nat_v_non(cover.stat = "chg_per_cycle", sample_frame = "Haleakala", sample_cycle = 2, paired_change = TRUE, combine_strata = TRUE)
+```{r tot-cover-composition, echo=FALSE, fig.cap= "Change in native vs. non-native cover. Point numbers corrspond to fixed monitoring sites.", message=FALSE, warning=FALSE}
+UnderNativityCover.plot.nat_v_non(cover.stat = "tot_pct_cov", 
+                                  sample_frame = "Haleakala", 
+                                  sample_cycle = 2, 
+                                  paired_change = TRUE, 
+                                  combine_strata = TRUE)
 ```
 
+## Understory - Total Cover
 
-```{r cover-table, echo=FALSE, message=FALSE, warning=FALSE}
+-   The majority of plots contain greater native cover compared to non-native cover. However, note the exception of plot #3 (Figure \@ref(fig:tot-cover-graph)).
+
+-   Plot #3 has the most non-native cover (144%) and only ~1% native cover (Table \@ref(tab:tot-cover-table)).
+
+```{r tot-cover-graph, echo=FALSE, fig.cap= "Native and non-native understory cover. Point numbers corrspond to fixed monitoring sites.", message=FALSE, warning=FALSE}
+UnderNativityCover.plot.nat_v_non(cover.stat = "tot_pct_cov", 
+                                  sample_frame = "Haleakala", 
+                                  sample_cycle = 2, 
+                                  paired_change = TRUE, 
+                                  combine_strata = TRUE)
+```
+
+```{r tot-cover-table, echo=FALSE, message=FALSE, warning=FALSE}
+cover_by_nativity <- UnderNativityCover(combine_strata = TRUE, 
+                                        sample_frame = "Haleakala", 
+                                        paired_change = FALSE) %>%
+  filter(Cycle == 2) %>%
+  filter(Nativity != "Unknown") %>%
+  ungroup() %>%
+  select(Plot_Number, Nativity, Total_Percent_Cover = tot_pct_cov) %>%
+  arrange(-Total_Percent_Cover)
+names(cover_by_nativity) <- gsub("_", " ", names(cover_by_nativity)) %>% str_to_title()  # Make column names nicer for display
+cover_by_nativity %>%
+  kbl(digits = 1, align = "c",
+      caption = "Total understory cover per plot.") %>%
+  kable_styling(bootstrap_options = c("striped", "condensed")) %>%
+  scroll_box(height = "300px") 
+```
+
+## Understory - Change in Cover
+
+-   Most fixed plots showed increases in both native and non-native understory cover, with ratios favoring greater increases in non-native cover (Figure \@ref(fig:chg-cover-graph)).
+
+-   Plot #2 showed the greatest increase in non-native percent cover (43), while Plot #10 showed the greatest decrease in native percent cover (-14.3) (Table \@ref(tab:chg-cover-table)).
+
+```{r chg-cover-graph, echo=FALSE, fig.cap= "Change in native vs. non-native cover. Point numbers corrspond to fixed monitoring sites.", message=FALSE, warning=FALSE}
+UnderNativityCover.plot.nat_v_non(cover.stat = "chg_per_cycle", 
+                                  sample_frame = "Haleakala", 
+                                  sample_cycle = 2, 
+                                  paired_change = TRUE, 
+                                  combine_strata = TRUE)
+```
+
+```{r chg-cover-table, echo=FALSE, message=FALSE, warning=FALSE}
 cover_by_nativity <- UnderNativityCover(combine_strata = TRUE, 
                                         sample_frame = "Haleakala", 
                                         paired_change = TRUE) %>%
@@ -102,7 +149,7 @@ cover_by_nativity %>%
 ```
 
 
-## Summary
+# Summary
 
 -   Summary text here.
 
@@ -111,7 +158,7 @@ cover_by_nativity %>%
 -   Summary text here.
 
 
-## References
+# References
 
 | [Ainsworth, A., J.D. Jacobi, R. K. Loh, J.A. Christian, C. Yanger, and P. Berkowitz. 2012. Established invasive plant species monitoring protocol: Pacific Island Network. Natural Resource Report NPS/ PACN/NRR---2012/514. National Park Service, Fort Collins, Colorado.](https://irma.nps.gov/DataStore/DownloadFile/448810)
 |
