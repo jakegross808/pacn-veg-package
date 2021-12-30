@@ -171,7 +171,16 @@ cover_by_nativity %>%
   scroll_box(height = "300px") 
 ```
 
-## Understory - Change in Cover
+## Understory - Change in Cover 
+
+### Community Change
+
+```
+# Bar graph summarizing paired-change in cover 
+
+```
+
+### Plot Level Change
 
 -   Most fixed plots showed increases in both native and non-native understory cover, with ratios favoring greater increases in non-native cover (Figure \@ref(fig:chg-cover-graph)).
 
@@ -202,6 +211,38 @@ cover_by_nativity %>%
   scroll_box(height = "300px") 
 ```
 
+## Invasive Plant Transect Data
+
+``` 
+# 1-2 graphs & 1-2 tables 
+
+(not appropriate for all sites - for example, no transects monitored at some sites)
+
+```
+
+## Tree Data
+
+``` 
+# 1-3 graphs & 1-3 tables 
+
+1. Total Native vs. Non-native Basal Area
+2. Change in Native & Non-native Basal Area
+3. Basal Area total & change for a particular species of interest (site specific). 
+
+(not appropriate for all sites - for example, no Trees in Haleakala subalpine) 
+
+```
+## Shrub / Tree-fern / Vine Data
+
+``` 
+# 1-3 graphs & 1-3 tables 
+
+1. Count/ha of Native vs. Non-native 
+2. Change in count/ha of Native & Non-native 
+3. Particular species of interest (site specific). 
+
+
+```
 
 # Summary
 

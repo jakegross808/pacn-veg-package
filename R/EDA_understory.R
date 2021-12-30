@@ -213,4 +213,6 @@ UnderNativityCover.plot.nat_v_non <- function(sample_cycle, cover.stat, combine_
 
     return(plot.nat_v_non)
   }
-  }
+}
+
+
