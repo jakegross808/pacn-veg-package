@@ -56,7 +56,7 @@ LoadPACNVeg(ftpc_params = "pacnveg", eips_paths = access_dbs)
 
 The Pacific Island Inventory and Monitoring Network (PACN) monitors subalpine shrubland plant communities occurring along the slopes of Haleakala and Mauna Loa in Hawaii. This brief focuses on the Haleakala section which includes 4460 ha and consists of generally vegetated sites above 1980 m encompassing Haleakala summit, the park visitor center, headquarters, and several hiking trails open to the public.
 
-```{r sampling-map, echo=FALSE, fig.cap= "Plots monitored within the Haleakala Subalpine Shrubland Plant Community.", message=FALSE, warning=FALSE}
+```{r sampling-map, echo=FALSE, fig.cap= "All community plots and non-native transects monitored within the Haleakala Subalpine Shrubland Plant Community.", message=FALSE, warning=FALSE}
 MapPACNVeg(sample_frame = "Haleakala")
 ```
 
@@ -74,16 +74,70 @@ MapPACNVeg(sample_frame = "Haleakala")
 
 ## Understory - Species Composition
 
--   The majority of plots contain greater native cover compared to non-native cover. However, note the exception of plot #3 (Figure \@ref(fig:tot-cover-graph)).
+-   Species composition within HALE's subalpine shrubland is primary native shrubs and non-native grasses and herbs (Figure \@ref(fig:cover-composition-graph)).
 
--   Plot #3 has the most non-native cover (144%) and only ~1% native cover (Table \@ref(tab:tot-cover-table)).
+-   The native shrub Leptecophylla tameiameiae had the highest average cover at 21.4% and occurred in 29/30 plots, followed by the non-native grass Holcus lanatus at 20.6% occuring in 22/30 plots (Table \@ref(tab:cover-composition-table)).
 
-```{r tot-cover-composition, echo=FALSE, fig.cap= "Change in native vs. non-native cover. Point numbers corrspond to fixed monitoring sites.", message=FALSE, warning=FALSE}
-UnderNativityCover.plot.nat_v_non(cover.stat = "tot_pct_cov", 
-                                  sample_frame = "Haleakala", 
-                                  sample_cycle = 2, 
-                                  paired_change = TRUE, 
-                                  combine_strata = TRUE)
+```{r cover-composition-graph, echo=FALSE, fig.cap= "Average understory species cover across the monitoring area from the most recent monitoring event (2017).", message=FALSE, warning=FALSE}
+und <- FilterPACNVeg("Understory", sample_frame = "Haleakala")
+
+und <- und %>%
+  mutate(Life_Form=replace(Life_Form, Code=="SOPCHR", "Shrub"))
+
+# prep data for treemap
+nativity_colors <- c("Native" = "#1b9e77", "No Veg" = "grey", "Non-Native" = "#d95f02", "Unknown" = "#7570b3")
+
+
+und2 <- UnderCombineStrata(und) %>%
+  filter(Cycle == 2) %>%
+  mutate(across(everything(), replace_na, "No Veg")) %>%
+  group_by(Cycle, Unit_Code, Sampling_Frame, Plot_Number,
+           Nativity, Code, Scientific_Name, Life_Form) %>%
+  summarize(Hits_Sp = n(), .groups = "drop") %>%
+  complete(nesting(Cycle, Unit_Code, Sampling_Frame, Plot_Number),
+           nesting(Nativity, Code, Scientific_Name, Life_Form),
+           fill = list(Hits_Sp = 0)) %>%
+  mutate(Plot_Percent = Hits_Sp/300) %>%
+  group_by(Cycle, Unit_Code, Sampling_Frame,
+           Nativity, Code, Scientific_Name, Life_Form) %>%
+  summarize(n = n(),
+            plots_present = sum(Hits_Sp > 0),
+            Avg_Cover = mean(Plot_Percent),
+            #Median = median(Plot_Percent),
+            Std_Dev = sd(Plot_Percent),
+            .groups = "drop")
+
+library(treemapify)
+
+tree.plot <- ggplot(und2, aes(area = Avg_Cover, subgroup = Nativity,
+                                   subgroup2 = Life_Form, fill = Nativity, label = Code)) +
+  geom_treemap(size = 1) +
+  geom_treemap_subgroup_border(colour = "gray30", size = 5, alpha = 0.5) +
+  geom_treemap_subgroup2_border(colour = "black", size = 3) +
+  geom_treemap_text(fontface = "italic", colour = "white", place = "middle",
+                    grow = F, reflow = T, min.size = 5) +
+  geom_treemap_subgroup2_text(
+    colour = "black",alpha = 1, fontface = "italic",
+    size = 10, place = "bottomright") +
+  scale_fill_manual(values = nativity_colors) +
+  theme(legend.position="bottom", legend.title = element_blank())
+
+tree.plot
+```
+
+```{r cover-composition-table, echo=FALSE, message=FALSE, warning=FALSE}
+avg_cover_table <- und2 %>%
+  select(Code, Scientific_Name, Life_Form, Nativity, plots_present, Avg_Cover, Std_Dev) %>%
+  mutate(Avg_Cover = Avg_Cover*100,
+         Std_Dev = Std_Dev*100) %>%
+  arrange(-Avg_Cover)
+
+names(avg_cover_table) <- gsub("_", " ", names(avg_cover_table)) %>% str_to_title()  # Make column names nicer for display
+avg_cover_table %>%
+  kbl(digits = 1, align = "c",
+      caption = "Average understory species cover.") %>%
+  kable_styling(bootstrap_options = c("striped", "condensed")) %>%
+  scroll_box(height = "300px") 
 ```
 
 ## Understory - Total Cover
@@ -92,11 +146,11 @@ UnderNativityCover.plot.nat_v_non(cover.stat = "tot_pct_cov",
 
 -   Plot #3 has the most non-native cover (144%) and only ~1% native cover (Table \@ref(tab:tot-cover-table)).
 
-```{r tot-cover-graph, echo=FALSE, fig.cap= "Native and non-native understory cover. Point numbers corrspond to fixed monitoring sites.", message=FALSE, warning=FALSE}
+```{r tot-cover-graph, echo=FALSE, fig.cap= "Native and non-native understory cover for the most recent monitoring (2017). Point numbers corrspond to fixed monitoring sites.", message=FALSE, warning=FALSE}
 UnderNativityCover.plot.nat_v_non(cover.stat = "tot_pct_cov", 
                                   sample_frame = "Haleakala", 
                                   sample_cycle = 2, 
-                                  paired_change = TRUE, 
+                                  paired_change = FALSE, 
                                   combine_strata = TRUE)
 ```
 
@@ -123,7 +177,7 @@ cover_by_nativity %>%
 
 -   Plot #2 showed the greatest increase in non-native percent cover (43), while Plot #10 showed the greatest decrease in native percent cover (-14.3) (Table \@ref(tab:chg-cover-table)).
 
-```{r chg-cover-graph, echo=FALSE, fig.cap= "Change in native vs. non-native cover. Point numbers corrspond to fixed monitoring sites.", message=FALSE, warning=FALSE}
+```{r chg-cover-graph, echo=FALSE, fig.cap= "Change in native vs. non-native cover from 2012-2017. Point numbers corrspond to fixed monitoring sites.", message=FALSE, warning=FALSE}
 UnderNativityCover.plot.nat_v_non(cover.stat = "chg_per_cycle", 
                                   sample_frame = "Haleakala", 
                                   sample_cycle = 2, 

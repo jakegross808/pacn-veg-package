@@ -115,13 +115,21 @@ UnderNativityCover.plot.nat_v_non <- function(sample_cycle, cover.stat, combine_
   message(paste0(unks, "% of [Unknown] nativity cover removed."))
 
   # Remove alternate cover.stat so data can pivot
-  cover.stat.options <- c("tot_pct_cov", "chg_per_cycle")
-  remove.cover.stat <- cover.stat.options[!cover.stat.options %in% cover.stat]
+  if (paired_change == TRUE) {
+    cover.stat.options <- c("tot_pct_cov", "chg_per_cycle")
+    remove.cover.stat <- cover.stat.options[!cover.stat.options %in% cover.stat]
 
-  toplot <- data %>%
-    dplyr::filter(Cycle == sample_cycle) %>%
-    dplyr::select(-remove.cover.stat) %>%
-    tidyr::pivot_wider(names_from = Nativity, values_from = cover.stat)
+    toplot <- data %>%
+      dplyr::filter(Cycle == sample_cycle) %>%
+      dplyr::select(-remove.cover.stat) %>%
+      tidyr::pivot_wider(names_from = Nativity, values_from = cover.stat)
+  }
+
+  if (paired_change == FALSE) {
+    toplot <- data %>%
+      dplyr::filter(Cycle == sample_cycle) %>%
+      tidyr::pivot_wider(names_from = Nativity, values_from = cover.stat)
+  }
 
   #Get max value for plotting data
   toplot.max <- toplot %>%
