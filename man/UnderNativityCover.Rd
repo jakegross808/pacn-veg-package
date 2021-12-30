@@ -42,5 +42,4 @@ Calculate Total Native & Nonnative Cover in Understory
 data <- FilterPACNVeg("Understory")
 Native_Cover_Summary_table <- UnderNativityCoverTotal(data)
 }
-*Dead Still present in Understory Data*
 }

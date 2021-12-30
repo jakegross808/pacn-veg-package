@@ -25,6 +25,10 @@ UnderNativityCover.plot.nat_v_non(
 
 \item{community}{Name of plant community}
 
+\item{year}{Monitoring year}
+
+\item{cycle}{Monitoring cycle}
+
 \item{plot_type}{Type of plot (fixed vs. rotational)}
 
 \item{silent}{Suppress informational messages?}

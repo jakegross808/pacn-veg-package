@@ -28,6 +28,7 @@ params:
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 # Load packages
+#library(pacnvegetation)
 library(dplyr)
 library(magrittr)
 library(crosstalk)
@@ -40,9 +41,9 @@ library(plotly)
 library(ggplot2)
 
 # Change this to point to your EIPS database(s)
-access_dbs <- here::here("tests", "testthat", "dbs", c("2021_established_invasives_1_20210129.mdb",
-                                           "2021_established_invasives_2_20210129.mdb",
-                                           "established_invasives_BE_master_20210818.mdb"))
+access_dbs <- c("C:/Users/JJGross/OneDrive - DOI/Documents/Certification_Local/Databases/EIPS/established_invasives_BE_master_20210818.mdb",
+            "C:/Users/JJGross/OneDrive - DOI/Documents/Certification_Local/Databases/EIPS/2021_established_invasives_1_20210129.mdb",
+            "C:/Users/JJGross/OneDrive - DOI/Documents/Certification_Local/Databases/EIPS/2021_established_invasives_2_20210129.mdb")
 # Load the data
 LoadPACNVeg(ftpc_params = "pacnveg", eips_paths = access_dbs)
 ```
@@ -68,7 +69,7 @@ bscols(widths = c(3,NA),
 ## Table options
 
 ```{r table-setup, echo=FALSE, message=FALSE}
-cover_by_nativity <- UnderNativityCoverTotal()  # Get data
+cover_by_nativity <- UnderNativityCover()  # Get data
 names(cover_by_nativity) <- gsub("_", " ", names(cover_by_nativity)) %>% str_to_title()  # Make column names nicer for display
 ```
 
@@ -158,7 +159,7 @@ cover_by_nativity_reactable %>%
 Documentation: https://plotly.com/r/
 
 ```{r plotly, echo=FALSE, message=FALSE, warning=FALSE}
-cover_by_nativity_combined <- UnderNativityCoverTotal(combine_strata = TRUE) %>% # Get data
+cover_by_nativity_combined <- UnderNativityCover(combine_strata = TRUE) %>% # Get data
   mutate(Cycle = as.factor(Cycle))
 cover_by_nativity_plotly <- cover_by_nativity_combined %>%
   SharedData$new()
