@@ -250,7 +250,7 @@ ReadFTPC <- function(conn) {
 
   #Extra
   tbl_Plot_extra <- dplyr::tbl(conn, "tbl_Plot") %>%
-    dplyr::select(Plot_ID, Location_ID, Plot_Number, Azimuth_Plot,
+    dplyr::select(Plot_ID, Location_ID, Plot_Type, Plot_Number, Azimuth_Plot,
            Start_Lat, Start_Long, Center_Lat, Center_Long, End_Lat, End_Long,
            GCS, GCS_Datum, Lat_Dir, Long_Dir, Plot_Notes)
 
@@ -286,7 +286,7 @@ ReadFTPC <- function(conn) {
     dplyr::left_join(tbl_Plot_short, by = "Plot_ID") %>%
     dplyr::left_join(tbl_Locations_short, by = "Location_ID") %>%
     dplyr::left_join(tbl_Sites_short, by = "Site_ID") %>%
-    dplyr::select(Unit_Code, Community, Sampling_Frame, Year, Cycle, Plot_Type, Plot_Number,
+    dplyr::select(Unit_Code, Community, Sampling_Frame, Year, Cycle, Plot_Number,
            QA_Plot, Certified, Verified, Event_ID)
 
 
@@ -306,7 +306,7 @@ ReadFTPC <- function(conn) {
 
   # . . Events_extra_QAQC
   Events_extra_QAQC <- Events_extra %>%
-    dplyr::select(Unit_Code, Sampling_Frame, Start_Date, Year, Cycle, Plot_Number,
+    dplyr::select(Unit_Code, Sampling_Frame, Start_Date, Year, Cycle, Plot_Type, Plot_Number,
            Entered_Date, Updated_Date, Verified, Verified_By, Verified_Date,
            Certified, Certified_By, Certified_Date, Completion_Time,
            Event_Notes, Plot_Notes, QA_notes) %>%
@@ -314,14 +314,14 @@ ReadFTPC <- function(conn) {
 
   # . . Events_extra_xy
   Events_extra_xy <- Events_extra %>%
-    dplyr::select(Unit_Code, Sampling_Frame, Year, Cycle, Plot_Number,
+    dplyr::select(Unit_Code, Sampling_Frame, Year, Cycle, Plot_Type, Plot_Number,
            Azimuth_Plot, Start_Lat, Start_Long, Center_Lat, Center_Long,
            End_Lat, End_Long, GCS, GCS_Datum, Lat_Dir, Long_Dir, Certified, Verified) %>%
     dplyr::collect()
 
   # . . Events_extra_other
   Events_extra_other <- Events_extra %>%
-    dplyr::select(Unit_Code, Sampling_Frame, Year, Cycle, Zone, Management_Unit,
+    dplyr::select(Unit_Code, Sampling_Frame, Year, Cycle, Plot_Type, Zone, Management_Unit,
                   Plot_Number, Max_Veg_Ht, Site_Name, Images, Certified, Verified) %>%
     dplyr::collect()
 
@@ -578,12 +578,12 @@ ReadEIPS <- function(db_paths) {
 
     # Events_extra_xy
     Events_extra_xy_new <- Events_extra %>%
-      dplyr::select(Unit_Code, Sampling_Frame, Year, Cycle, Transect_Number, Azimuth_Transect, Lat, Long, GCS, Lat_Dir, Long_Dir, Certified, Verified) %>%
+      dplyr::select(Unit_Code, Sampling_Frame, Year, Cycle, Transect_Type, Transect_Number, Azimuth_Transect, Lat, Long, GCS, Lat_Dir, Long_Dir, Certified, Verified) %>%
       dplyr::collect()
 
     # Events_extra_other
     Events_extra_other_new <- Events_extra %>%
-      dplyr::select(Unit_Code, Sampling_Frame, Year, Cycle, Zone, Management_Unit,
+      dplyr::select(Unit_Code, Sampling_Frame, Year, Cycle, Transect_Type, Zone, Management_Unit,
                     Transect_Number, Site_Name, Certified, Verified) %>%
       dplyr::collect()
 
