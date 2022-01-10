@@ -591,7 +591,7 @@ ReadEIPS <- function(db_paths) {
     # Image Points
     tbl_images <- dplyr::tbl(conn, "tbl_Image_Points")
     tbl_images_short <- tbl_images %>%
-      dplyr::select(Event_ID, Image_Point, Latitude, Latitude_Dir, Longitude, Longitude_Dir, GCS, GPS_Error) #%>%
+      dplyr::select(Image_Point, Latitude, Latitude_Dir, Longitude, Longitude_Dir, GCS, GPS_Error) #%>%
       #dplyr::collect()
     EIPS_image_pts_new <- Events %>%
       dplyr::right_join(tbl_images_xy_new, by = "Event_ID")
@@ -798,6 +798,15 @@ GetColSpec <- function() {
                                           Certified = readr::col_logical(),
                                           Verified = readr::col_logical(),
                                           .default = readr::col_character()),
+    Events_image_pts = readr::cols(Year = readr::col_integer(),
+                                   Cycle = readr::col_integer(),
+                                   Certified = readr::col_logical(),
+                                   Verified = readr::col_logical(),
+                                   Image_Point = readr::col_integer(),
+                                   Latitude = readr::col_double(),
+                                   Longitude = readr::col_double(),
+                                   GPS_Error = readr::col_double(),
+                                   .default = readr::col_character()),
     Species_extra_EIPS = readr::cols(Complete = readr::col_logical(),
                                      Update_Date = readr::col_datetime(),
                                      .default = readr::col_character()),
