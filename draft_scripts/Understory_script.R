@@ -99,9 +99,10 @@ add.stats2 <- function(.data, ...){
 #   Loading Data  ---- 
 #.......................................................
 
-All_Data <- LoadPACNVeg("pacnveg", c("C:/Users/JJGross/OneDrive - DOI/Documents/Certification_Local/Databases/EIPS/established_invasives_BE_master_20210818.mdb",
+LoadPACNVeg("pacnveg", c("C:/Users/JJGross/OneDrive - DOI/Documents/Certification_Local/Databases/EIPS/established_invasives_BE_master_20210818.mdb",
                          "C:/Users/JJGross/OneDrive - DOI/EIPS_Databases//2021_established_invasives_1_2021_20211208_0844.mdb",
-                         #"C:/Users/JJGross/OneDrive - DOI/Documents/Certification_Local/Databases/EIPS/2021_established_invasives_1_20210129.mdb",
+                         "C:/Users/JJGross/OneDrive - DOI/EIPS_Databases/2019/2019_established_invasives_20211228.mdb",
+                         "C:/Users/JJGross/OneDrive - DOI/EIPS_Databases/2017/2017-2018_established_invasives_20210913.mdb",
                          "C:/Users/JJGross/OneDrive - DOI/EIPS_Databases/2021_established_invasives_2_20210129.mdb"),
             cache = TRUE, force_refresh = FALSE)
 

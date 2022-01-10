@@ -517,6 +517,7 @@ ReadEIPS <- function(db_paths) {
   Events_extra_QAQC_EIPS <- tibble::tibble()
   Events_extra_xy_EIPS <- tibble::tibble()
   Events_extra_other_EIPS <- tibble::tibble()
+  EIPS_image_pts <- tibble::tibble()
   Species_extra_EIPS <- tibble::tibble()
   EIPS_data <- tibble::tibble()
 
@@ -587,6 +588,14 @@ ReadEIPS <- function(db_paths) {
                     Transect_Number, Site_Name, Certified, Verified) %>%
       dplyr::collect()
 
+    # Image Points
+    tbl_images <- dplyr::tbl(conn, "tbl_Image_Points")
+    tbl_images_short <- tbl_images %>%
+      dplyr::select(Event_ID, Image_Point, Latitude, Latitude_Dir, Longitude, Longitude_Dir, GCS, GPS_Error) #%>%
+      #dplyr::collect()
+    EIPS_image_pts_new <- Events %>%
+      dplyr::right_join(tbl_images_xy_new, by = "Event_ID")
+
     # Species w/nativity
 
     # Nativity - Short
@@ -636,6 +645,7 @@ ReadEIPS <- function(db_paths) {
     Events_extra_QAQC_EIPS <- unique(rbind(Events_extra_QAQC_EIPS, Events_extra_QAQC_new))
     Events_extra_xy_EIPS <- unique(rbind(Events_extra_xy_EIPS, Events_extra_xy_new))
     Events_extra_other_EIPS <- unique(rbind(Events_extra_other_EIPS, Events_extra_other_new))
+    EIPS_image_pts <- unique(rbind(EIPS_image_pts, EIPS_image_pts_new))
     Species_extra_EIPS <- unique(rbind(Species_extra_EIPS, Species_extra_new))
     EIPS_data <- unique(rbind(EIPS_data, EIPS_data_new))
 
@@ -645,6 +655,7 @@ ReadEIPS <- function(db_paths) {
   data <- list(Events_extra_QAQC_EIPS = Events_extra_QAQC_EIPS,
                Events_extra_xy_EIPS = Events_extra_xy_EIPS,
                Events_extra_other_EIPS = Events_extra_other_EIPS,
+               EIPS_image_pts = EIPS_image_pts,
                Species_extra_EIPS = Species_extra_EIPS,
                EIPS_data = EIPS_data)
 
