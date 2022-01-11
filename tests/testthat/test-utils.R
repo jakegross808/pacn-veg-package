@@ -3,7 +3,7 @@ dir <- tempdir()
 if (dir.exists(dir)) {
   unlink(dir, recursive = TRUE)
 }
-WritePACNVeg(dir, create.folders = TRUE, overwrite = TRUE)
+WritePACNVeg(dir, create.folders = TRUE, overwrite = TRUE, is_qa_plot = NA)
 
 # Load data from csv
 csv <- LoadPACNVeg(data_path = dir, data_source = "file", cache = FALSE)

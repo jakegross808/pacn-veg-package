@@ -286,7 +286,7 @@ ReadFTPC <- function(conn) {
     dplyr::left_join(tbl_Plot_short, by = "Plot_ID") %>%
     dplyr::left_join(tbl_Locations_short, by = "Location_ID") %>%
     dplyr::left_join(tbl_Sites_short, by = "Site_ID") %>%
-    dplyr::select(Unit_Code, Community, Sampling_Frame, Year, Cycle, Plot_Number,
+    dplyr::select(Unit_Code, Community, Sampling_Frame, Year, Cycle, Plot_Type, Plot_Number,
            QA_Plot, Certified, Verified, Event_ID)
 
 
