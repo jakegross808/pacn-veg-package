@@ -5,7 +5,6 @@
 \title{Native V. Non-native Cover Plot for Understory data}
 \usage{
 UnderNativityCover.plot.nat_v_non(
-  sample_cycle,
   cover.stat,
   combine_strata = FALSE,
   paired_change = FALSE,
@@ -15,10 +14,15 @@ UnderNativityCover.plot.nat_v_non(
   year,
   cycle,
   plot_type,
+  paired_cycle,
   silent = FALSE
 )
 }
 \arguments{
+\item{combine_strata}{If \code{TRUE}, don't split data into high and low strata. Otherwise, keep as is.}
+
+\item{paired_change}{If \code{TRUE}, calculate change in percent cover across two cycles. If \code{cycle} is not specified, it will default to the last cycle.}
+
 \item{park}{Four letter unit code of park(s)}
 
 \item{sample_frame}{Name of sample frame}
@@ -30,6 +34,8 @@ UnderNativityCover.plot.nat_v_non(
 \item{cycle}{Monitoring cycle}
 
 \item{plot_type}{Type of plot (fixed vs. rotational)}
+
+\item{paired_cycle}{Only required if \code{paired_change == TRUE}. The cycle number to compare to when calculating paired change.}
 
 \item{silent}{Suppress informational messages?}
 }
