@@ -28,6 +28,9 @@ UnderCombineStrata <- function(data) {
 #' Calculate Total Native & Nonnative Cover in Understory
 #'
 #' @inheritParams FilterPACNVeg
+#' @param combine_strata If `TRUE`, don't split data into high and low strata. Otherwise, keep as is.
+#' @param paired_change If `TRUE`, calculate change in percent cover across two cycles. If `cycle` is not specified, it will default to the last cycle.
+#' @param paired_cycle Only required if `paired_change == TRUE`. The cycle number to compare to when calculating paired change.
 #'
 #' @return Summary table of total Percent Cover by Nativity
 #' @export
@@ -37,9 +40,26 @@ UnderCombineStrata <- function(data) {
 #' data <- FilterPACNVeg("Understory")
 #' Native_Cover_Summary_table <- UnderNativityCoverTotal(data)
 #' }
-UnderNativityCover <- function(combine_strata = FALSE, paired_change = FALSE, park, sample_frame, community, year, cycle, plot_type, silent = FALSE) {
+UnderNativityCover <- function(combine_strata = FALSE, paired_change = FALSE, park, sample_frame, community, year, cycle, plot_type, paired_cycle = 1, silent = FALSE) {
+  # Make sure paired cycle is length 1 if calculating paired change
+  if (paired_change && length(paired_cycle) != 1) {
+        stop("When paired_change == TRUE, paired_cycle must be a single cycle. Leave it empty to default to the first cycle.")
+  }
+  # Make sure cycle is length 1 if calculating paired change
+  if (paired_change && !missing(cycle)) {
+    if (length(cycle) != 1) {
+      stop("When paired_change == TRUE, you must specify exactly one cycle or leave cycle blank to default to last cycle.")
+    }
+    cycle <- c(cycle, paired_cycle)
+  }
 
+  # Get raw data
   raw_data <- FilterPACNVeg("Understory", park, sample_frame, community, year, cycle, plot_type, is_qa_plot = FALSE, silent = silent)
+
+  # If calculating paired change and no cycle specified, default to the most recent cycle
+  if (paired_change && missing(cycle)) {
+    raw_data %<>% filter(Cycle %in% c(paired_cycle, max(raw_data$Cycle)))
+  }
 
   if (combine_strata == TRUE) {
     raw_data <- UnderCombineStrata(raw_data)
@@ -70,7 +90,7 @@ UnderNativityCover <- function(combine_strata = FALSE, paired_change = FALSE, pa
 
   if (paired_change == TRUE) {
     paired_plots <- RemoveSingleVisits(raw_data)
-    p <- paired_plots$Plot_Number
+    p <- paired_plots$Plot_Number %>% unique()
     Nat_Cov <- Nat_Cov %>%
       # remove plots that were only sampled once (this removes all rotationals and possibly some fixed plots if only sampled once)
       dplyr::filter(Plot_Number %in% p) %>%
@@ -98,11 +118,11 @@ UnderNativityCover <- function(combine_strata = FALSE, paired_change = FALSE, pa
 #' Native_v_Nonnative_Plot <- UnderNativityCover.plot.nat_v_non(sample_frame = "Haleakala", sample_cycle = 2, paired_change = TRUE)
 #' }
 
-UnderNativityCover.plot.nat_v_non <- function(sample_cycle, cover.stat, combine_strata = FALSE, paired_change = FALSE, park, sample_frame, community, year, cycle, plot_type, silent = FALSE) {
+UnderNativityCover.plot.nat_v_non <- function(cover.stat, combine_strata = FALSE, paired_change = FALSE, park, sample_frame, community, year, cycle, plot_type, paired_cycle, silent = FALSE) {
 
   data <- UnderNativityCover(combine_strata = combine_strata, paired_change = paired_change,
                              park = park, sample_frame = sample_frame, community = community, year = year, cycle = cycle,
-                             plot_type = plot_type, silent = silent)
+                             plot_type = plot_type, paired_cycle = paired_cycle, silent = silent)
 
   # Count records with Nativity == Unknown
   unks <- data %>%
@@ -120,14 +140,13 @@ UnderNativityCover.plot.nat_v_non <- function(sample_cycle, cover.stat, combine_
     remove.cover.stat <- cover.stat.options[!cover.stat.options %in% cover.stat]
 
     toplot <- data %>%
-      dplyr::filter(Cycle == sample_cycle) %>%
+      dplyr::filter(Cycle == cycle) %>%
       dplyr::select(-remove.cover.stat) %>%
       tidyr::pivot_wider(names_from = Nativity, values_from = cover.stat)
   }
 
   if (paired_change == FALSE) {
     toplot <- data %>%
-      dplyr::filter(Cycle == sample_cycle) %>%
       tidyr::pivot_wider(names_from = Nativity, values_from = cover.stat)
   }
 

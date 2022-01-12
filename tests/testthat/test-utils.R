@@ -3,7 +3,7 @@ dir <- tempdir()
 if (dir.exists(dir)) {
   unlink(dir, recursive = TRUE)
 }
-WritePACNVeg(dir, create.folders = TRUE, overwrite = TRUE)
+WritePACNVeg(dir, create.folders = TRUE, overwrite = TRUE, is_qa_plot = NA)
 
 # Load data from csv
 csv <- LoadPACNVeg(data_path = dir, data_source = "file", cache = FALSE)
@@ -22,19 +22,19 @@ for (d.name in data.names) {
 unlink(dir, recursive = TRUE)
 
 test_that("Events_extra_QAQC column names are correct", {
-  expected <- c('Unit_Code', 'Sampling_Frame', 'Start_Date', 'Year', 'Cycle', 'Plot_Number', 'Entered_Date', 'Updated_Date', 'Verified', 'Verified_By', 'Verified_Date', 'Certified', 'Certified_By', 'Certified_Date', 'Completion_Time', 'Event_Notes', 'Plot_Notes', 'QA_notes')
+  expected <- c('Unit_Code', 'Sampling_Frame', 'Start_Date', 'Year', 'Cycle', 'Plot_Type', 'Plot_Number', 'Entered_Date', 'Updated_Date', 'Verified', 'Verified_By', 'Verified_Date', 'Certified', 'Certified_By', 'Certified_Date', 'Completion_Time', 'Event_Notes', 'Plot_Notes', 'QA_notes')
   actual <- names(FilterPACNVeg("Events_extra_QAQC"))
   expect_equal(actual, expected)
 })
 
 test_that("Events_extra_xy column names are correct", {
-  expected <- c('Unit_Code', 'Sampling_Frame', 'Year', 'Cycle', 'Plot_Number', 'Azimuth_Plot', 'Start_Lat', 'Start_Long', 'Center_Lat', 'Center_Long', 'End_Lat', 'End_Long', 'GCS', 'GCS_Datum', 'Lat_Dir', 'Long_Dir', 'Certified', 'Verified')
+  expected <- c('Unit_Code', 'Sampling_Frame', 'Year', 'Cycle', 'Plot_Type', 'Plot_Number', 'Azimuth_Plot', 'Start_Lat', 'Start_Long', 'Center_Lat', 'Center_Long', 'End_Lat', 'End_Long', 'GCS', 'GCS_Datum', 'Lat_Dir', 'Long_Dir', 'Certified', 'Verified')
   actual <- names(FilterPACNVeg("Events_extra_xy"))
   expect_equal(actual, expected)
 })
 
 test_that("Events_extra_other column names are correct", {
-  expected <- c('Unit_Code', 'Sampling_Frame', 'Year', 'Cycle', 'Zone', 'Management_Unit', 'Plot_Number', 'Max_Veg_Ht', 'Site_Name', 'Images', 'Certified', 'Verified')
+  expected <- c('Unit_Code', 'Sampling_Frame', 'Year', 'Cycle', 'Plot_Type', 'Zone', 'Management_Unit', 'Plot_Number', 'Max_Veg_Ht', 'Site_Name', 'Images', 'Certified', 'Verified')
   actual <- names(FilterPACNVeg("Events_extra_other"))
   expect_equal(actual, expected)
 })
@@ -88,13 +88,13 @@ test_that("Events_extra_QAQC_EIPS column names are correct", {
 })
 
 test_that("Events_extra_xy_EIPS column names are correct", {
-  expected <- c('Unit_Code', 'Sampling_Frame', 'Year', 'Cycle', 'Transect_Number', 'Azimuth_Transect', 'Lat', 'Long', 'GCS', 'Lat_Dir', 'Long_Dir', 'Certified', 'Verified')
+  expected <- c('Unit_Code', 'Sampling_Frame', 'Year', 'Cycle', 'Transect_Type', 'Transect_Number', 'Azimuth_Transect', 'Lat', 'Long', 'GCS', 'Lat_Dir', 'Long_Dir', 'Certified', 'Verified')
   actual <- names(FilterPACNVeg("Events_extra_xy_EIPS"))
   expect_equal(actual, expected)
 })
 
 test_that("Events_extra_other_EIPS column names are correct", {
-  expected <- c('Unit_Code', 'Sampling_Frame', 'Year', 'Cycle', 'Zone', 'Management_Unit', 'Transect_Number', 'Site_Name', 'Certified', 'Verified')
+  expected <- c('Unit_Code', 'Sampling_Frame', 'Year', 'Cycle', 'Transect_Type', 'Zone', 'Management_Unit', 'Transect_Number', 'Site_Name', 'Certified', 'Verified')
   actual <- names(FilterPACNVeg("Events_extra_other_EIPS"))
   expect_equal(actual, expected)
 })
