@@ -852,20 +852,20 @@ ReadCSV <- function(data_path) {
 FilterPACNVeg <- function(data_name, park, sample_frame, community, year, cycle, plot_type, is_qa_plot = FALSE, transect_type, species_code, sci_name, nativity, certified, verified, case_sensitive = FALSE, silent = FALSE) {
   data <- get_data(data_name)
 
-  all_filter_cols <- c(Unit_Code = ifelse(missing(park), NA, park),
-                   Park = ifelse(missing(park), NA, park),
-                   Sampling_Frame = ifelse(missing(sample_frame), NA, sample_frame),
-                   Community = ifelse(missing(community), NA, community),
-                   Year = ifelse(missing(year), NA, year),
-                   Cycle = ifelse(missing(cycle), NA, cycle),
-                   Plot_Type = ifelse(missing(plot_type), NA, plot_type),
-                   QA_Plot = ifelse(missing(is_qa_plot), NA, is_qa_plot),
-                   Transect_Type = ifelse(missing(transect_type), NA, transect_type),
-                   Code = ifelse(missing(species_code), NA, species_code),
-                   Scientific_Name = ifelse(missing(sci_name), NA, sci_name),
-                   Nativity = ifelse(missing(nativity), NA, nativity),
-                   Certified = ifelse(missing(certified), NA, certified),
-                   Verified = ifelse(missing(verified), NA, verified)
+  all_filter_cols <- list(Unit_Code = ifelse(missing(park), NA, park),
+                   Park = if (missing(park)) {NA} else {park},
+                   Sampling_Frame = if (missing(sample_frame)) {NA} else {sample_frame},
+                   Community = if(missing(community)) {NA} else {community},
+                   Year = if(missing(year)) {NA} else {year},
+                   Cycle = if (missing(cycle)) {NA} else {cycle},
+                   Plot_Type = if (missing(plot_type)) {NA} else {plot_type},
+                   QA_Plot = if (missing(is_qa_plot)) {NA} else {is_qa_plot},
+                   Transect_Type = if (missing(transect_type)) {NA} else {transect_type},
+                   Code = if (missing(species_code)) {NA} else {species_code},
+                   Scientific_Name = if (missing(sci_name)) {NA} else {sci_name},
+                   Nativity = if (missing(nativity)) {NA} else {nativity},
+                   Certified = if (missing(certified)) {NA} else {certified},
+                   Verified = if (missing(verified)) {NA} else {verified}
                    )
 
   filter_cols <- all_filter_cols[!is.na(all_filter_cols)]
@@ -902,11 +902,11 @@ FilterOne <- function(data, data_name, filter_cols, case_sensitive, silent) {
   for (col in names(filter_cols)) {
     if (col %in% names(data)) {  # Only filter if the column is present in the dataframe
       cols_filtered <- c(cols_filtered, col)  # Use this to keep track of which columns were actually filtered
-      filter_value <- filter_cols[col]  # Value(s) to filter on
+      filter_value <- filter_cols[[col]]  # Value(s) to filter on
       if (is.character(data[[col]]) & !case_sensitive) {
-        data <- dplyr::filter(data, tolower(!!as.symbol(col)) == tolower(filter_value))  # Case-insensitive filtering
+        data <- dplyr::filter(data, tolower(!!as.symbol(col)) %in% tolower(filter_value))  # Case-insensitive filtering
       } else {
-        data <- dplyr::filter(data, !!as.symbol(col) == filter_value)  # Case-sensitive and non-character filtering
+        data <- dplyr::filter(data, !!as.symbol(col) %in% filter_value)  # Case-sensitive and non-character filtering
       }
       if (nrow(data) == 0) {  # Stop filtering if we end up with an empty dataframe
         warning("There are no data that match all of the filters provided.")
