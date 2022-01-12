@@ -45,12 +45,10 @@ Cover_test <- function(plant_grouping) {
     #   (can be > 300 points or >100% because more than one 'Hit' can be present per point-strata)
     dplyr::summarise(Cover = (sum(Hits)) / 300 * 100, .groups = 'drop')
 
+  nesting_vars <- c("Unit_Code", "Sampling_Frame", "Plot_Type", "Plot_Number", "Year", "Cycle", "Stratum", new_vars)
   understory4 <- understory3 %>%
     # Insert "0" for cover if category does not exist (for example no hits for non-natives in High Stratum)
-    tidyr::complete(tidyr::nesting(Unit_Code, Sampling_Frame, Plot_Type, Plot_Number, Year, Cycle, Stratum),
-                    #tidyr::nesting(Nativity, Life_Form)) %>% # This works
-                    #tidyr::nesting(Nativity)) %>% # This also works
-                    tidyr::nesting(syms(!!!new_vars))) %>% # This doesn't work
+    tidyr::complete(tidyr::nesting(!!!syms(nesting_vars))) %>% # This should work now!
     # Arrange table so that difference in cover between cycles can be calculated easily (example - cycle 1 value for
     #   cover is followed by cycle 2 value for cover).
     dplyr::group_by(dplyr::across(arrange_vars)) %>%
@@ -61,7 +59,7 @@ Cover_test <- function(plant_grouping) {
 }
 
 
-#To run test use:
+# # To run test use:
 # library(pacnvegetation)
 # library(tidyverse)
 #
