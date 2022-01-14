@@ -234,4 +234,115 @@ UnderNativityCover.plot.nat_v_non <- function(cover.stat, combine_strata = FALSE
   }
 }
 
+#' Summarize Understory Cover Data by Nativity, Life_Form, or Species
+#'
+#' @inheritParams FilterPACNVeg
+#' @param combine_strata If `TRUE`, combine high and low strata into one stratum.
+#' @param paired_change If `TRUE`, calculate change in percent cover. Note that this drops "Rotational" plots and uses "Fixed" plots only.
+#' @param plant_grouping "None" = No Groups, all vegetation (native & non-native) is lumped together,
+#' "Nativity" = Cover values lumped by native and non-native vegetation.
+#' "Life_Form" = Cover values grouped into native and non-native lifeforms (e.g. Trees, Shrubs, Ferns).
+#' "Species" = Cover values for individual plant species.
+#'
+#' @return Summary table of total Percent Cover by grouping or change in total Percent Cover by grouping.
+#' @export
+#'
+#' @examples
+#' \dontrun{
+#' native_and_non-native_cover <- summarize_understory(plant_grouping = "Species")
+#' species_cover_change <- summarize_understory(plant_grouping = "Species", paired_change = TRUE)
+#'
+#' }
 
+summarize_understory <- function(combine_strata = FALSE, plant_grouping, paired_change = FALSE, park, sample_frame, community, year, cycle, plot_type, paired_cycle = 1, silent = FALSE) {
+  if (missing(plant_grouping)) {
+      stop("plant_grouping variable is missing")
+  }
+
+
+  # Get raw data
+  understory <- FilterPACNVeg("Understory", park, sample_frame, community, year, cycle, plot_type, is_qa_plot = FALSE, silent = silent)
+
+  if (combine_strata == TRUE) {
+    understory <- UnderCombineStrata(understory)
+  }
+
+  understory2 <- understory %>%
+    dplyr::mutate(Plot_Number = as.factor(Plot_Number),
+           Stratum = tidyr::replace_na(Stratum, "No_Veg"))
+
+  base_vars <- c("Unit_Code", "Sampling_Frame", "Cycle", "Year",
+                 "Plot_Type", "Plot_Number", "Point", "Stratum")
+
+  if (plant_grouping == "None") {
+    new_vars <- c()
+  }
+
+  if (plant_grouping == "Nativity") {
+    new_vars <- c("Nativity")
+  }
+
+  if (plant_grouping == "Life_Form") {
+    new_vars <- c("Nativity", "Life_Form")
+  }
+
+  if (plant_grouping == "Species") {
+    new_vars <- c("Nativity", "Life_Form", "Code", "Scientific_Name")
+  }
+
+  all_vars <- c(base_vars, new_vars)
+  all_vars_minus_point <- all_vars[all_vars != "Point"]
+
+  understory3 <- understory2 %>%
+    dplyr::group_by(dplyr::across(all_vars)) %>%
+    dplyr::summarise(Hits = dplyr::n(), .groups = 'drop') %>%
+    # group hits by plot (remove Point from grouping variable)
+    dplyr::group_by(dplyr::across(all_vars_minus_point)) %>%
+    # Total hits at each point for each strata for entire plot
+    #   (can be > 300 points or >100% because more than one 'Hit' can be present per point-strata)
+    dplyr::summarise(Cover = (sum(Hits)) / 300 * 100, .groups = 'drop')
+
+
+  if (paired_change == FALSE) {
+    return(understory3)
+
+  }
+
+  if (paired_change == TRUE) {
+
+    understory4 <- understory3 %>%
+      filter(Plot_Type == "Fixed")
+
+    var_nest1 <- c("Unit_Code", "Sampling_Frame", "Cycle", "Year", "Plot_Type", "Plot_Number")
+    var_nest2 <- c("Stratum", new_vars)
+
+    arrange_remove <- c("Cycle", "Year", "Point")
+    arrange_vars <- all_vars[!all_vars %in% arrange_remove]
+
+    max_cycle <- understory4 %>% dplyr::pull(Cycle) %>% max()
+    max_cycle_lable <- rlang::as_label(max_cycle)
+    max_cycle_lable <- paste0("Cycle", max_cycle_lable, "vs1")
+
+
+    understory4 <- understory4 %>%
+      # Insert "0" for cover if category does not exist (for example no hits for non-natives in High Stratum)
+      tidyr::complete(tidyr::nesting(!!!rlang::syms(var_nest1)),
+                      tidyr::nesting(!!!rlang::syms(var_nest2)),
+                      fill = list(Cover = 0)) %>% # This should work now!
+      # Arrange table so that difference in cover between cycles can be calculated easily (example - cycle 1 value for
+      #   cover is followed by cycle 2 value for cover).
+      dplyr::group_by(dplyr::across(arrange_vars)) %>%
+      dplyr::arrange(Cycle, Year, .by_group = TRUE) %>%
+      # Calculate the change in cover per cycle
+      dplyr::mutate(Chg_Prior = Cover - dplyr::lag(Cover, order_by = Cycle)) %>%
+      dplyr::mutate(Years_Prior = Year - dplyr::lag(Year, order_by = Cycle)) %>%
+      dplyr::mutate(Chg_Per_Year = Chg_Prior / Years_Prior) %>%
+      dplyr::mutate(!!max_cycle_lable := Cover - dplyr::lag(Cover, order_by = Cycle,
+                                                            n = max_cycle-1)) %>%
+      dplyr::ungroup()
+
+    return(understory4)
+
+  }
+
+}
