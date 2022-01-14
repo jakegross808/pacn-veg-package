@@ -249,7 +249,7 @@ UnderNativityCover.plot.nat_v_non <- function(cover.stat, combine_strata = FALSE
 #'
 #' @examples
 #' \dontrun{
-#' native_and_non-native_cover <- summarize_understory(plant_grouping = "Species")
+#' native_and_non-native_cover <- summarize_understory(plant_grouping = "Nativity")
 #' species_cover_change <- summarize_understory(plant_grouping = "Species", paired_change = TRUE)
 #'
 #' }
@@ -344,5 +344,57 @@ summarize_understory <- function(combine_strata = FALSE, plant_grouping, paired_
     return(understory4)
 
   }
+
+}
+
+
+#' Add stats to vegetation data
+#'
+#' @inheritParams FilterPACNVeg
+#' @param .data dataset with at least 1 numeric parameter
+#' @param ... grouping variables
+#'
+#' @return datatable and numeric parameter with stats
+#' @export
+#'
+#' @examples
+#' \dontrun{
+#' Cover <- summarize_understory(plant_grouping = "Nativity")
+#' Cover_Stats <- add_stats(.data = Cover, Unit_Code, Sampling_Frame, Cycle, Stratum, Nativity)
+#'
+#' }
+add_stats <- function(.data, ...){
+
+  params <- .data %>%
+    dplyr::select(where(is.numeric)) %>%
+    names()
+
+  print(params)
+
+  stat_table <- tibble::tibble()
+
+  for (param in params) {
+
+    print(param)
+
+    stat_table_param <- .data %>%
+      dplyr::group_by(...) %>%
+      dplyr::summarise(NPLOTS = sum(!is.na(.data[[param]])),
+                MEAN = round(mean(.data[[param]], na.rm = TRUE),3),
+                MED = round(median(.data[[param]], na.rm = TRUE),3),
+                MIN = round(min(.data[[param]], na.rm = TRUE),3),
+                MAX = round(max(.data[[param]], na.rm = TRUE),3),
+                SD = sd(.data[[param]], na.rm = TRUE),
+                ERR = qt(0.975,df=NPLOTS-1)*(SD/sqrt(NPLOTS)),
+                L = MEAN - ERR,
+                R = MEAN + ERR) %>%
+      dplyr::mutate(Parameter = param)
+
+
+
+    stat_table <- dplyr::bind_rows(stat_table, stat_table_param)
+  }
+
+  return(stat_table)
 
 }
