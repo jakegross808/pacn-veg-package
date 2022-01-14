@@ -293,6 +293,9 @@ summarize_understory <- function(combine_strata = FALSE, plant_grouping, paired_
   all_vars <- c(base_vars, new_vars)
   all_vars_minus_point <- all_vars[all_vars != "Point"]
 
+  var_nest1 <- c("Unit_Code", "Sampling_Frame", "Cycle", "Year", "Plot_Type", "Plot_Number")
+  var_nest2 <- c("Stratum", new_vars)
+
   understory3 <- understory2 %>%
     dplyr::group_by(dplyr::across(all_vars)) %>%
     dplyr::summarise(Hits = dplyr::n(), .groups = 'drop') %>%
@@ -300,7 +303,11 @@ summarize_understory <- function(combine_strata = FALSE, plant_grouping, paired_
     dplyr::group_by(dplyr::across(all_vars_minus_point)) %>%
     # Total hits at each point for each strata for entire plot
     #   (can be > 300 points or >100% because more than one 'Hit' can be present per point-strata)
-    dplyr::summarise(Cover = (sum(Hits)) / 300 * 100, .groups = 'drop')
+    dplyr::summarise(Cover = (sum(Hits)) / 300 * 100, .groups = 'drop') %>%
+    # Insert "0" for cover if category does not exist (for example no hits for non-natives in High Stratum)
+    tidyr::complete(tidyr::nesting(!!!rlang::syms(var_nest1)),
+                    tidyr::nesting(!!!rlang::syms(var_nest2)),
+                    fill = list(Cover = 0)) # This should work now!
 
 
   if (paired_change == FALSE) {
@@ -313,9 +320,6 @@ summarize_understory <- function(combine_strata = FALSE, plant_grouping, paired_
     understory4 <- understory3 %>%
       filter(Plot_Type == "Fixed")
 
-    var_nest1 <- c("Unit_Code", "Sampling_Frame", "Cycle", "Year", "Plot_Type", "Plot_Number")
-    var_nest2 <- c("Stratum", new_vars)
-
     arrange_remove <- c("Cycle", "Year", "Point")
     arrange_vars <- all_vars[!all_vars %in% arrange_remove]
 
@@ -325,10 +329,6 @@ summarize_understory <- function(combine_strata = FALSE, plant_grouping, paired_
 
 
     understory4 <- understory4 %>%
-      # Insert "0" for cover if category does not exist (for example no hits for non-natives in High Stratum)
-      tidyr::complete(tidyr::nesting(!!!rlang::syms(var_nest1)),
-                      tidyr::nesting(!!!rlang::syms(var_nest2)),
-                      fill = list(Cover = 0)) %>% # This should work now!
       # Arrange table so that difference in cover between cycles can be calculated easily (example - cycle 1 value for
       #   cover is followed by cycle 2 value for cover).
       dplyr::group_by(dplyr::across(arrange_vars)) %>%
