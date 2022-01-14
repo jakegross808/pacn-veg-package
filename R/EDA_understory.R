@@ -350,7 +350,6 @@ summarize_understory <- function(combine_strata = FALSE, plant_grouping, paired_
 
 #' Add stats to vegetation data
 #'
-#' @inheritParams FilterPACNVeg
 #' @param .data dataset with at least 1 numeric parameter
 #' @param ... grouping variables
 #'
@@ -368,6 +367,12 @@ add_stats <- function(.data, ...){
   params <- .data %>%
     dplyr::select(where(is.numeric)) %>%
     names()
+
+  #if (missing(...)) {
+  #  ... <- .data %>%
+  #    dplyr::select(-params) %>%
+  #    names()
+  #}
 
   print(params)
 
