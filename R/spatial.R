@@ -75,26 +75,38 @@ MapPACNVeg <- function(protocol = c("FTPC", "EIPS"), crosstalk = FALSE, crosstal
   NPSslate = "https://atlas-stg.geoplatform.gov/styles/v1/atlas-user/ck5cpvc2e0avf01p9zaw4co8o/tiles/256/{z}/{x}/{y}@2x?access_token=pk.eyJ1IjoiYXRsYXMtdXNlciIsImEiOiJjazFmdGx2bjQwMDAwMG5wZmYwbmJwbmE2In0.lWXK2UexpXuyVitesLdwUg"
   NPSlight = "https://atlas-stg.geoplatform.gov/styles/v1/atlas-user/ck5cpia2u0auf01p9vbugvcpv/tiles/256/{z}/{x}/{y}@2x?access_token=pk.eyJ1IjoiYXRsYXMtdXNlciIsImEiOiJjazFmdGx2bjQwMDAwMG5wZmYwbmJwbmE2In0.lWXK2UexpXuyVitesLdwUg"
 
-  getColor <- function(data) {
-    sapply(data$Protocol, function(protocol){
-      if(protocol == "EIPS") {
-        "#C56C39"
-      } else if (protocol == "FTPC") {
-        "#56903A"
-      }
-    }) %>% unname()
-  }
-
+  # getColor <- function(data) {
+  #   sapply(data$Protocol, function(protocol){
+  #     if(protocol == "EIPS") {
+  #       "#C56C39"
+  #     } else if (protocol == "FTPC") {
+  #       "#56903A"
+  #     }
+  #   }) %>% unname()
+  # }
+  #
   if (crosstalk) {
     pts_data <- pts$data()
   } else {
     pts_data <- pts
   }
-  icons <- leaflet::awesomeIcons(icon = "leaf",
-                                 library = "fa",
-                                 markerColor = "white",
-                                 iconColor = getColor(pts_data),
-                                 squareMarker = TRUE)
+  # icons <- leaflet::awesomeIcons(icon = "leaf",
+  #                                library = "fa",
+  #                                markerColor = "white",
+  #                                iconColor = getColor(pts_data),
+  #                                squareMarker = TRUE)
+
+  leafIcons <- leaflet::icons(
+    iconUrl = ifelse(pts_data$Protocol == "EIPS",
+                     "https://leafletjs.com/examples/custom-icons/leaf-green.png",
+                     "https://leafletjs.com/examples/custom-icons/leaf-red.png"
+    ),
+    iconWidth = 38, iconHeight = 95,
+    iconAnchorX = 22, iconAnchorY = 94,
+    shadowUrl = "https://leafletjs.com/examples/custom-icons/leaf-shadow.png",
+    shadowWidth = 50, shadowHeight = 64,
+    shadowAnchorX = 4, shadowAnchorY = 62
+  )
 
   map <- leaflet::leaflet(pts) %>%
     leaflet::addTiles(group = "Basic", urlTemplate = NPSbasic, attribution = NPSAttrib) %>%
@@ -104,9 +116,9 @@ MapPACNVeg <- function(protocol = c("FTPC", "EIPS"), crosstalk = FALSE, crosstal
     leaflet::addLayersControl(baseGroups = c("Basic", "Imagery", "Slate", "Light"),
                               overlayGroups = protocol,
                               options=leaflet::layersControlOptions(collapsed = TRUE)) %>%
-    leaflet::addAwesomeMarkers(lng = ~Long,
+    leaflet::addMarkers(lng = ~Long,
                                lat = ~Lat,
-                               icon = icons,
+                               icon = leafIcons,
                                label = ~Sample_Unit_Number,
                                group = ~Protocol,
                                popup = ~paste0("<strong>EIPS ", Sample_Unit, ":</strong> ", Sample_Unit_Number,

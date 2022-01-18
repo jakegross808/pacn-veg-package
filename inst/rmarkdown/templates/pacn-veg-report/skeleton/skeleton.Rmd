@@ -14,6 +14,7 @@ output:
         before_body:
           - header.html
 params:
+  data_folder: !expr ifelse(dir.exists("C:/Users/sewright/OneDrive - DOI/Data Scientist Projects/FY2022/PACN/"), "C:/Users/sewright/OneDrive - DOI/Data Scientist Projects/FY2022/PACN/", "C:/Users/JJGross/OneDrive - DOI/Documents/Certification_Local/Databases/EIPS/")
   protocol: !expr c("EIPS", "FTPC")
   park: !expr NA
   sample_frame: !expr NA
@@ -40,10 +41,11 @@ library(stringr)
 library(plotly)
 library(ggplot2)
 
-# Change this to point to your EIPS database(s)
-access_dbs <- c("C:/Users/JJGross/OneDrive - DOI/Documents/Certification_Local/Databases/EIPS/established_invasives_BE_master_20210818.mdb",
-            "C:/Users/JJGross/OneDrive - DOI/Documents/Certification_Local/Databases/EIPS/2021_established_invasives_1_20210129.mdb",
-            "C:/Users/JJGross/OneDrive - DOI/Documents/Certification_Local/Databases/EIPS/2021_established_invasives_2_20210129.mdb")
+access_dbs <- c("established_invasives_BE_master_20210818.mdb",
+            "2021_established_invasives_1_2021_20211208.mdb",
+            "2021_established_invasives_2_20210129.mdb")
+access_dbs <- here::here(params$data_folder, access_dbs)
+
 # Load the data
 LoadPACNVeg(ftpc_params = "pacnveg", eips_paths = access_dbs)
 ```
