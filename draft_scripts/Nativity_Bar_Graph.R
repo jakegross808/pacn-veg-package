@@ -2,7 +2,6 @@
 library(pacnvegetation)
 library(tidyverse)
 library(patchwork)
-install.packages("patchwork")
 
 
 LoadPACNVeg("pacnveg", c("C:/Users/JJGross/OneDrive - DOI/Documents/Certification_Local/Databases/EIPS/established_invasives_BE_master_20210818.mdb",
@@ -10,9 +9,39 @@ LoadPACNVeg("pacnveg", c("C:/Users/JJGross/OneDrive - DOI/Documents/Certificatio
                          "C:/Users/JJGross/OneDrive - DOI/EIPS_Databases/2021_established_invasives_2_20210129.mdb"),
             cache = TRUE, force_refresh = FALSE)
 
-cover_nativity <- summarize_understory(paired_change = FALSE,
+cover_ <- summarize_understory(paired_change = FALSE,
                                               sample_frame = "Olaa",
-                                              plant_grouping = "Nativity")
+                                              plant_grouping = "None")
+
+cover_nativity <- summarize_understory(paired_change = FALSE,
+                                       sample_frame = "Haleakala",
+                                       plant_grouping = "Nativity")
+
+cover_lifeform <- summarize_understory(paired_change = FALSE,
+                                       sample_frame = "Olaa",
+                                       plant_grouping = "Life_Form")
+
+cover_species <- summarize_understory(paired_change = FALSE,
+                                       sample_frame = "Olaa",
+                                       plant_grouping = "Species")
+
+chg_cover_ <- summarize_understory(paired_change = TRUE,
+                               sample_frame = "Olaa",
+                               plant_grouping = "None")
+
+chg_cover_nativity <- summarize_understory(paired_change = TRUE,
+                                       sample_frame = "Olaa",
+                                       plant_grouping = "Nativity")
+
+chg_cover_lifeform <- summarize_understory(paired_change = TRUE,
+                                       sample_frame = "Olaa",
+                                       plant_grouping = "Life_Form")
+
+chg_cover_species <- summarize_understory(paired_change = TRUE,
+                                      sample_frame = "Olaa",
+                                      plant_grouping = "Species")
+
+
 cover_nativity <- cover_nativity %>%
   group_by(Sampling_Frame, Cycle) %>%
   mutate(Year = min(Year)) %>%
@@ -54,12 +83,9 @@ p2 <- cover_nat_stat %>%
   geom_errorbar(aes(ymin=L, ymax=R), width=.2,
                 position=position_dodge(.9)) +
   labs(y = "Mean % Cover") +
-  facet_grid(Stratum ~ Nativity) +
+  facet_grid(Stratum ~ Nativity, space = "free_y") +
   scale_fill_manual(values = nativity_colors, limits = force) +
   xlab("Year") +
   theme(legend.position="none") +
-  labs(caption = sample_size) +
-  ylim(0, 72) # turn this into dynamic max height based on largest cover error value
-
-p1 + p2 + p1
-
+  labs(caption = sample_size)
+p2
