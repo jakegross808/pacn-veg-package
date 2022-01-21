@@ -20,21 +20,51 @@ PlotAndTransectLocations <- function(protocol = c("FTPC", "EIPS"), crosstalk = F
 
   ftpc_pts <- FilterPACNVeg("Events_extra_xy", park, sample_frame, cycle, plot_type, is_qa_plot, certified, verified) %>%
     dplyr::mutate(Protocol = "FTPC", Sample_Unit = "Plot") %>%
-    dplyr::rename(Sample_Unit_Number = Plot_Number, Lat = Start_Lat, Long = Start_Long) %>%
-    dplyr::select(Protocol, Unit_Code, Sampling_Frame, Sample_Unit, Sample_Unit_Number, Lat, Long, Year, Cycle)
+    dplyr::rename(Sample_Unit_Number = Plot_Number, Sample_Unit_Type = Plot_Type, Lat = Start_Lat, Long = Start_Long) %>%
+    dplyr::select(Protocol, Unit_Code, Sampling_Frame, Sample_Unit, Sample_Unit_Type, Sample_Unit_Number, Lat, Long, Year, Cycle)
 
   eips_pts <- FilterPACNVeg("Events_extra_xy_EIPS", park, sample_frame, cycle, transect_type, certified, verified) %>%
     dplyr::mutate(Protocol = "EIPS", Sample_Unit = "Transect") %>%
-    dplyr::rename(Sample_Unit_Number = Transect_Number) %>%
-    dplyr::select(Protocol, Unit_Code, Sampling_Frame, Sample_Unit, Sample_Unit_Number, Lat, Long, Year, Cycle)
+    dplyr::rename(Sample_Unit_Number = Transect_Number, Sample_Unit_Type = Transect_Type) %>%
+    dplyr::select(Protocol, Unit_Code, Sampling_Frame, Sample_Unit, Sample_Unit_Type, Sample_Unit_Number, Lat, Long, Year, Cycle)
+
+  eips_tsects <- FilterPACNVeg("EIPS_image_pts", park, sample_frame, cycle, transect_type, certified, verified) %>%
+    dplyr::group_by(Unit_Code, Community, Sampling_Frame, Transect_Type, Transect_Number) %>%
+    dplyr::filter(Cycle == max(Cycle), Year == max(Year),
+                  !is.na(Latitude), !is.na(Longitude)) %>%
+    dplyr::ungroup() %>%
+    dplyr::mutate(Image_Point = as.numeric(Image_Point), Protocol = "EIPS", Sample_Unit = "Transect") %>%
+    dplyr::rename(Sample_Unit_Number = Transect_Number, Sample_Unit_Type = Transect_Type) %>%
+    dplyr::arrange(Unit_Code, Community, Sampling_Frame, Year, Cycle, Sample_Unit_Type, Sample_Unit_Number, Image_Point) %>%
+    tidyr::nest(Transect_Line = c(Image_Point, Latitude, Latitude_Dir, Longitude, Longitude_Dir, GCS, GPS_Error)) %>%
+    mutate(Transect_Line = map(Transect_Line, function(df){
+      df <- filter(df, !is.na(Longitude) && !is.na(Latitude))
+      # Convert to SpatialPointsDataFrame
+      coordinates(df) <- c("Longitude", "Latitude")
+      sp::SpatialLines(list(sp::Lines(list(sp::Line(df)), "id")))}
+    ))
+
+  eips_pts <- eips_pts %>%
+    dplyr::group_by(Protocol, Unit_Code, Sampling_Frame, Sample_Unit, Sample_Unit_Type, Sample_Unit_Number, Lat, Long) %>%
+    dplyr::arrange(Protocol, Unit_Code, Sampling_Frame, Sample_Unit_Type, Sample_Unit_Number, Year, Cycle) %>%
+    dplyr::summarise(Tsect_Line_Cycle = max(Cycle),
+                     Tsect_Line_Year = max(Year),
+                     Cycle = paste(Cycle, collapse = ", "),
+                     Year = paste(Year, collapse = ", "),) %>%
+    dplyr::ungroup() %>%
+    dplyr::left_join(eips_tsects, by = c("Protocol", "Unit_Code", "Sampling_Frame", "Sample_Unit", "Sample_Unit_Type", "Sample_Unit_Number", "Tsect_Line_Cycle" = "Cycle", "Tsect_Line_Year" = "Year")) %>%
+    dplyr::select(-Community)
+
+  ftpc_pts <- ftpc_pts %>%
+    dplyr::group_by(Protocol, Unit_Code, Sampling_Frame, Sample_Unit, Sample_Unit_Type, Sample_Unit_Number, Lat, Long) %>%
+    dplyr::arrange(Protocol, Unit_Code, Sampling_Frame, Sample_Unit_Type, Sample_Unit_Number, Year, Cycle) %>%
+    dplyr::summarise(Cycle = paste(Cycle, collapse = ", "),
+                     Year = paste(Year, collapse = ", ")) %>%
+    dplyr::mutate(Tsect_Line_Cycle = NA, Tsect_Line_Year = NA, Transect_Line = NA) %>%
+    dplyr::ungroup()
 
   all_pts <- rbind(ftpc_pts, eips_pts) %>%
-    dplyr::filter(Protocol %in% toupper(protocol)) %>%
-    dplyr::group_by(Protocol, Unit_Code, Sampling_Frame, Sample_Unit, Sample_Unit_Number, Lat, Long) %>%
-    dplyr::arrange(Protocol, Unit_Code, Sampling_Frame, Sample_Unit_Number, Year, Cycle) %>%
-    dplyr::summarise(Cycles = paste(Cycle, collapse = ", "),
-                     Years = paste(Year, collapse = ", ")) %>%
-    dplyr::ungroup()
+    dplyr::filter(Protocol %in% toupper(protocol))
 
   if (crosstalk) {
     all_pts <- crosstalk::SharedData$new(all_pts, group = crosstalk_group)
@@ -75,28 +105,13 @@ MapPACNVeg <- function(protocol = c("FTPC", "EIPS"), crosstalk = FALSE, crosstal
   NPSslate = "https://atlas-stg.geoplatform.gov/styles/v1/atlas-user/ck5cpvc2e0avf01p9zaw4co8o/tiles/256/{z}/{x}/{y}@2x?access_token=pk.eyJ1IjoiYXRsYXMtdXNlciIsImEiOiJjazFmdGx2bjQwMDAwMG5wZmYwbmJwbmE2In0.lWXK2UexpXuyVitesLdwUg"
   NPSlight = "https://atlas-stg.geoplatform.gov/styles/v1/atlas-user/ck5cpia2u0auf01p9vbugvcpv/tiles/256/{z}/{x}/{y}@2x?access_token=pk.eyJ1IjoiYXRsYXMtdXNlciIsImEiOiJjazFmdGx2bjQwMDAwMG5wZmYwbmJwbmE2In0.lWXK2UexpXuyVitesLdwUg"
 
-  # getColor <- function(data) {
-  #   sapply(data$Protocol, function(protocol){
-  #     if(protocol == "EIPS") {
-  #       "#C56C39"
-  #     } else if (protocol == "FTPC") {
-  #       "#56903A"
-  #     }
-  #   }) %>% unname()
-  # }
-  #
   if (crosstalk) {
     pts_data <- pts$data()
   } else {
     pts_data <- pts
   }
-  # icons <- leaflet::awesomeIcons(icon = "leaf",
-  #                                library = "fa",
-  #                                markerColor = "white",
-  #                                iconColor = getColor(pts_data),
-  #                                squareMarker = TRUE)
 
-  leafIcons <- leaflet::icons(
+  customIcons <- leaflet::icons(
     iconUrl = ifelse(pts_data$Protocol == "EIPS",
                      "https://leafletjs.com/examples/custom-icons/leaf-green.png",
                      "https://leafletjs.com/examples/custom-icons/leaf-red.png"
@@ -118,13 +133,13 @@ MapPACNVeg <- function(protocol = c("FTPC", "EIPS"), crosstalk = FALSE, crosstal
                               options=leaflet::layersControlOptions(collapsed = TRUE)) %>%
     leaflet::addMarkers(lng = ~Long,
                                lat = ~Lat,
-                               icon = leafIcons,
+                               icon = customIcons,
                                label = ~Sample_Unit_Number,
                                group = ~Protocol,
                                popup = ~paste0("<strong>EIPS ", Sample_Unit, ":</strong> ", Sample_Unit_Number,
                                                "<br><strong>Sampling Frame:</strong> ", Sampling_Frame,
-                                               "<br><strong>Cycle:</strong> ", Cycles,
-                                               "<br><strong>Year:</strong> ", Years))
+                                               "<br><strong>Cycle:</strong> ", Cycle,
+                                               "<br><strong>Year:</strong> ", Year))
 
   map %<>% leaflet::addScaleBar(position = "bottomleft")
 
