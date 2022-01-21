@@ -491,7 +491,7 @@ plot_understory <- function(combine_strata = FALSE, plant_grouping,
   sample_size
 
   #........BAR YEARLY MEANS
-  plot <- cover_nat_stat %>%
+  plot <- understory_stats %>%
     dplyr::filter(Parameter == "Cover") %>%
     ggplot2::ggplot(ggplot2::aes(x = Year, y = MEAN, fill = Nativity)) +
     ggplot2::geom_col(position = position_dodge()) +
