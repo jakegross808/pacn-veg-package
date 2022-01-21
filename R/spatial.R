@@ -112,16 +112,22 @@ MapPACNVeg <- function(protocol = c("FTPC", "EIPS"), crosstalk = FALSE, crosstal
   }
 
   customIcons <- leaflet::icons(
-    iconUrl = ifelse(pts_data$Protocol == "EIPS",
-                     "https://leafletjs.com/examples/custom-icons/leaf-green.png",
-                     "https://leafletjs.com/examples/custom-icons/leaf-red.png"
+    iconUrl = ifelse(pts_data$Protocol == "FTPC" & pts_data$Sample_Unit_Type == "Fixed",
+                     here::here("inst", "rmarkdown", "FTPC_Fixed_2.png"),
+                     here::here("inst", "rmarkdown", "FTPC_Rotational_2.png")
     ),
-    iconWidth = 38, iconHeight = 95,
-    iconAnchorX = 22, iconAnchorY = 94,
-    shadowUrl = "https://leafletjs.com/examples/custom-icons/leaf-shadow.png",
-    shadowWidth = 50, shadowHeight = 64,
-    shadowAnchorX = 4, shadowAnchorY = 62
+    iconWidth = 20, iconHeight = 20,
+    iconAnchorX = 10, iconAnchorY = 10
   )
+
+  # Set up group labels for layers control
+  grps <- protocol
+  if ("EIPS" %in% protocol) {
+    grps <- c(grps, "EIPS transect #s", "EIPS transect lines")
+  }
+  if ("FTPC" %in% protocol) {
+    grps <- c(grps, "FTPC plot #s")
+  }
 
   map <- leaflet::leaflet(pts) %>%
     leaflet::addTiles(group = "Basic", urlTemplate = NPSbasic, attribution = NPSAttrib) %>%
@@ -129,17 +135,25 @@ MapPACNVeg <- function(protocol = c("FTPC", "EIPS"), crosstalk = FALSE, crosstal
     leaflet::addTiles(group = "Slate", urlTemplate = NPSslate, attribution = NPSAttrib) %>%
     leaflet::addTiles(group = "Light", urlTemplate = NPSlight, attribution = NPSAttrib) %>%
     leaflet::addLayersControl(baseGroups = c("Basic", "Imagery", "Slate", "Light"),
-                              overlayGroups = protocol,
+                              overlayGroups = grps,
                               options=leaflet::layersControlOptions(collapsed = TRUE)) %>%
     leaflet::addMarkers(lng = ~Long,
                                lat = ~Lat,
                                icon = customIcons,
-                               label = ~Sample_Unit_Number,
-                               group = ~Protocol,
-                               popup = ~paste0("<strong>EIPS ", Sample_Unit, ":</strong> ", Sample_Unit_Number,
-                                               "<br><strong>Sampling Frame:</strong> ", Sampling_Frame,
-                                               "<br><strong>Cycle:</strong> ", Cycle,
-                                               "<br><strong>Year:</strong> ", Year))
+                        group = ~Protocol,
+                        label = ~Sample_Unit_Number,
+                        labelOptions = leaflet::labelOptions(noHide = TRUE, opacity = .9, textOnly = TRUE, offset = c(0,0), direction = "center", style = list("color" = "white", "font-weight" = "bold")),
+                        popup = ~paste0("<strong>", Protocol, " ", Sample_Unit, ":</strong> ", Sample_Unit_Number,
+                                        "<br><strong>", Sample_Unit, " Type:</strong> ", Sample_Unit_Type,
+                                        "<br><strong>Sampling Frame:</strong> ", Sampling_Frame,
+                                        "<br><strong>Cycle:</strong> ", Cycle,
+                                        "<br><strong>Year:</strong> ", Year))
+    leaflet::addPolylines(data = pts$Transect_Line, group = "EIPS transect lines")
+    # leaflet::addCircleMarkers(lng = ~Long,
+    #                     lat = ~Lat,
+    #                     stroke = FALSE,
+    #                     fillOpacity = 0,
+    #                     group = ~paste(Protocol, tolower(Sample_Unit), "#s"))
 
   map %<>% leaflet::addScaleBar(position = "bottomleft")
 
