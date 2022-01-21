@@ -421,7 +421,7 @@ add_stats <- function(.data, ...){
 
 plot_understory <- function(combine_strata = FALSE, plant_grouping,
                            paired_change = FALSE, park, sample_frame, community,
-                           year, cycle, plot_type, silent = FALSE) {
+                           year, cycle, plot_type, plot_number, silent = FALSE) {
   if (missing(plant_grouping)) {
     stop("plant_grouping variable is missing")
   }
@@ -449,6 +449,7 @@ plot_understory <- function(combine_strata = FALSE, plant_grouping,
                                      park = park, sample_frame = sample_frame,
                                      community = community, year = year,
                                      cycle = cycle, plot_type = plot_type,
+                                     plot_number = plot_number,
                                      silent = silent)
 
   understory2 <- understory %>%
