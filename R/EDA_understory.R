@@ -254,14 +254,14 @@ UnderNativityCover.plot.nat_v_non <- function(cover.stat, combine_strata = FALSE
 #'
 #' }
 
-summarize_understory <- function(combine_strata = FALSE, plant_grouping, paired_change = FALSE, park, sample_frame, community, year, cycle, plot_type, plot_number, silent = FALSE) {
+summarize_understory <- function(combine_strata = FALSE, plant_grouping, paired_change = FALSE, park, sample_frame, community, year, cycle, plot_type, plot_number, species_code, silent = FALSE) {
   if (missing(plant_grouping)) {
       stop("plant_grouping variable is missing")
   }
 
 
   # Get raw data
-  understory <- FilterPACNVeg("Understory", park, sample_frame, community, year, cycle, plot_type, plot_number, is_qa_plot = FALSE, silent = silent)
+  understory <- FilterPACNVeg("Understory", park, sample_frame, community, year, cycle, plot_type, plot_number, species_code, is_qa_plot = FALSE, silent = silent)
 
   if (combine_strata == TRUE) {
     understory <- UnderCombineStrata(understory)
@@ -421,7 +421,7 @@ add_stats <- function(.data, ...){
 
 plot_understory <- function(combine_strata = FALSE, plant_grouping,
                            paired_change = FALSE, park, sample_frame, community,
-                           year, cycle, plot_type, plot_number, silent = FALSE) {
+                           year, cycle, plot_type, plot_number, species_code, silent = FALSE) {
   if (missing(plant_grouping)) {
     stop("plant_grouping variable is missing")
   }
@@ -450,7 +450,7 @@ plot_understory <- function(combine_strata = FALSE, plant_grouping,
                                      community = community, year = year,
                                      cycle = cycle, plot_type = plot_type,
                                      plot_number = plot_number,
-                                     silent = silent)
+                                     species_code = species_code, silent = silent)
 
   understory2 <- understory %>%
     dplyr::group_by(Sampling_Frame, Cycle) %>%

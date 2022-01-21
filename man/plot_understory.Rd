@@ -14,6 +14,7 @@ plot_understory(
   year,
   cycle,
   plot_type,
+  plot_number,
   silent = FALSE
 )
 }
