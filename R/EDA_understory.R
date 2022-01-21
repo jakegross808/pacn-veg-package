@@ -261,7 +261,7 @@ summarize_understory <- function(combine_strata = FALSE, plant_grouping, paired_
 
 
   # Get raw data
-  understory <- FilterPACNVeg("Understory", park, sample_frame, community, year, cycle, plot_type, plot_number, species_code, is_qa_plot = FALSE, silent = silent)
+  understory <- FilterPACNVeg("Understory", park = park, sample_frame = sample_frame, community = community, year = year, cycle = cycle, plot_type = plot_type, plot_number = plot_number, species_code = species_code, is_qa_plot = FALSE, silent = silent)
 
   if (combine_strata == TRUE) {
     understory <- UnderCombineStrata(understory)
