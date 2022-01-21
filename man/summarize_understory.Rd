@@ -15,6 +15,7 @@ summarize_understory(
   cycle,
   plot_type,
   plot_number,
+  species_code,
   silent = FALSE
 )
 }
@@ -39,6 +40,8 @@ summarize_understory(
 \item{cycle}{Monitoring cycle}
 
 \item{plot_type}{Type of plot (fixed vs. rotational)}
+
+\item{species_code}{6 letter species code}
 
 \item{silent}{Suppress informational messages?}
 }
