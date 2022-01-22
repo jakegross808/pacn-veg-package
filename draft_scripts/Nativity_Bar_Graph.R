@@ -1,7 +1,6 @@
 # To run test use:
 library(pacnvegetation)
 library(tidyverse)
-library(patchwork)
 
 
 LoadPACNVeg("pacnveg", c("C:/Users/JJGross/OneDrive - DOI/Documents/Certification_Local/Databases/EIPS/established_invasives_BE_master_20210818.mdb",
@@ -9,9 +8,20 @@ LoadPACNVeg("pacnveg", c("C:/Users/JJGross/OneDrive - DOI/Documents/Certificatio
                          "C:/Users/JJGross/OneDrive - DOI/EIPS_Databases/2021_established_invasives_2_20210129.mdb"),
             cache = TRUE, force_refresh = FALSE)
 
+
+
+plot_understory(sample_frame = "Puerto Rico",
+                plant_grouping = "Life_Form",
+                combine_strata = TRUE)
+
+look <- summarize_understory(sample_frame = "Puerto Rico",
+                plant_grouping = "Nativity",
+                combine_strata = FALSE)
+
 cover_ <- summarize_understory(paired_change = FALSE,
-                                              sample_frame = "Olaa",
-                                              plant_grouping = "None")
+                               sample_frame = "Olaa",
+                               plant_grouping = "None",
+                               plot_number = 2)
 
 cover_nativity <- summarize_understory(paired_change = FALSE,
                                        sample_frame = "Haleakala",
@@ -65,6 +75,8 @@ nativity_colors <- c("Native" = "#1b9e77", "No_Veg" = "grey", "Non-Native" = "#d
 
 # add stats
 cover_nat_stat <- add_stats(cover_nativity, Unit_Code, Sampling_Frame, Cycle, Year, Stratum, Nativity)
+
+add_stats(cover_nativity, Unit_Code, Sampling_Frame, Cycle, Year, Stratum, !!!rlang::syms("Nativity"))
 
 # sample size calculation for text
 sample_size <- cover_nat_stat %>%
