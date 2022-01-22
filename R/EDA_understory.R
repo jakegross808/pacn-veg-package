@@ -539,17 +539,13 @@ plot_understory <- function(combine_strata = FALSE, plant_grouping,
 #'
 #' }
 
-v_cover_plot_bar_nativity <- function(combine_strata = FALSE, plant_grouping = "Nativity",
+v_cover_plot_bar_nativity <- function(combine_strata = FALSE,
                             paired_change = FALSE, park, sample_frame, community,
                             year, cycle, plot_type, plot_number, filter_Code, silent = FALSE) {
-  if (missing(plant_grouping)) {
-    stop("plant_grouping variable is missing")
-  }
-
 
   # Get raw data
   understory <- summarize_understory(combine_strata = combine_strata,
-                                     plant_grouping = plant_grouping,
+                                     plant_grouping = "Nativity",
                                      paired_change = paired_change,
                                      park = park, sample_frame = sample_frame,
                                      community = community, year = year,
@@ -564,7 +560,7 @@ v_cover_plot_bar_nativity <- function(combine_strata = FALSE, plant_grouping = "
 
 
     unknown_cover <- understory2 %>%
-      dplyr::filter(!!!rlang::sym(plant_grouping) == "Unknown" & Cover > 0)
+      dplyr::filter(Nativity == "Unknown" & Cover > 0)
 
     unk_cover_tot <- unknown_cover %>%
       dplyr::pull(Cover) %>%
@@ -574,8 +570,6 @@ v_cover_plot_bar_nativity <- function(combine_strata = FALSE, plant_grouping = "
       dplyr::filter(Stratum != "No_Veg",
                     Nativity != "Unknown")
     print(paste0(round(unk_cover_tot,2), "% cover of species with unknown Nativity removed"))
-
-  }
 
 
   # Nativity discrete scale Colors:
@@ -605,10 +599,10 @@ v_cover_plot_bar_nativity <- function(combine_strata = FALSE, plant_grouping = "
     ggplot2::geom_errorbar(ggplot2::aes(ymin=L, ymax=R), width=.2,
                            position=position_dodge(.9)) +
     labs(y = "Mean % Cover") +
-    ggplot2::facet_grid(Stratum ~ ., space = "free_y") +
+    ggplot2::facet_grid(Stratum ~ Nativity, space = "free_y") +
     ggplot2::scale_fill_manual(values = nativity_colors, limits = force) +
     ggplot2::xlab("Year") +
-    #ggplot2::theme(legend.position="none") +
+    ggplot2::theme(legend.position="none") +
     ggplot2::labs(caption = sample_size)
 
 

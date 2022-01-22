@@ -9,10 +9,14 @@ LoadPACNVeg("pacnveg", c("C:/Users/JJGross/OneDrive - DOI/Documents/Certificatio
             cache = TRUE, force_refresh = FALSE)
 
 
+v_cover_plot_bar_nativity (sample_frame = "Olaa",
+                combine_strata = FALSE, paired_change = FALSE)
 
-plot_understory(sample_frame = "Puerto Rico",
-                plant_grouping = "Life_Form",
-                combine_strata = TRUE)
+look <- summarize_understory(sample_frame = "Olaa", plant_grouping = "Nativity",
+                           combine_strata = FALSE, paired_change = TRUE)
+# add stats
+look_stat <- add_stats(look, Unit_Code, Sampling_Frame, Cycle, Year, Stratum, Nativity)
+
 
 look <- summarize_understory(sample_frame = "Puerto Rico",
                 plant_grouping = "Nativity",
