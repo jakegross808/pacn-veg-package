@@ -869,7 +869,7 @@ ReadCSV <- function(data_path) {
 #' all_certified_data <- FilterPACNVeg(certified = TRUE)
 #' native_kaho_understory <- FilterPACNVeg("Understory", park = "KAHO", nativity = "Native")
 #' }
-FilterPACNVeg <- function(data_name, park, sample_frame, community, year, cycle, plot_type, is_qa_plot = FALSE, transect_type, species_code, sci_name, nativity, certified, verified, case_sensitive = FALSE, silent = FALSE) {
+FilterPACNVeg <- function(data_name, park, sample_frame, community, year, cycle, plot_type, plot_number, is_qa_plot = FALSE, transect_type, species_code, sci_name, nativity, certified, verified, case_sensitive = FALSE, silent = FALSE) {
   data <- get_data(data_name)
 
   all_filter_cols <- list(Unit_Code = ifelse(missing(park), NA, park),
@@ -879,6 +879,7 @@ FilterPACNVeg <- function(data_name, park, sample_frame, community, year, cycle,
                    Year = if(missing(year)) {NA} else {year},
                    Cycle = if (missing(cycle)) {NA} else {cycle},
                    Plot_Type = if (missing(plot_type)) {NA} else {plot_type},
+                   Plot_Number = if (missing(plot_number)) {NA} else {plot_number},
                    QA_Plot = if (missing(is_qa_plot)) {NA} else {is_qa_plot},
                    Transect_Type = if (missing(transect_type)) {NA} else {transect_type},
                    Code = if (missing(species_code)) {NA} else {species_code},
