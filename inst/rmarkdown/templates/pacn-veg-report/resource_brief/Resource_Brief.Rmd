@@ -38,6 +38,9 @@ library(pacnvegetation)
 library(bookdown)
 library(tidyverse)
 library(here)
+library(plotly)
+library(treemapify)
+library(data.table)
 ```
 
 ```{r load data, include=FALSE}
@@ -130,22 +133,76 @@ und2 <- UnderCombineStrata(und) %>%
             Std_Dev = sd(Plot_Percent),
             .groups = "drop")
 
-library(treemapify)
+# tree.plot <- ggplot(und2, aes(area = Avg_Cover, subgroup = Nativity,
+#                                    subgroup2 = Life_Form, fill = Nativity, label = Code)) +
+#   geom_treemap(size = 1) +
+#   geom_treemap_subgroup_border(colour = "gray30", size = 5, alpha = 0.5) +
+#   geom_treemap_subgroup2_border(colour = "black", size = 3) +
+#   geom_treemap_text(fontface = "italic", colour = "white", place = "middle",
+#                     grow = F, reflow = T, min.size = 5) +
+#   geom_treemap_subgroup2_text(
+#     colour = "black",alpha = 1, fontface = "italic",
+#     size = 10, place = "bottomright") +
+#   scale_fill_manual(values = nativity_colors) +
+#   theme(legend.position="bottom", legend.title = element_blank())
+# tree.plot
 
-tree.plot <- ggplot(und2, aes(area = Avg_Cover, subgroup = Nativity,
-                                   subgroup2 = Life_Form, fill = Nativity, label = Code)) +
-  geom_treemap(size = 1) +
-  geom_treemap_subgroup_border(colour = "gray30", size = 5, alpha = 0.5) +
-  geom_treemap_subgroup2_border(colour = "black", size = 3) +
-  geom_treemap_text(fontface = "italic", colour = "white", place = "middle",
-                    grow = F, reflow = T, min.size = 5) +
-  geom_treemap_subgroup2_text(
-    colour = "black",alpha = 1, fontface = "italic",
-    size = 10, place = "bottomright") +
-  scale_fill_manual(values = nativity_colors) +
-  theme(legend.position="bottom", legend.title = element_blank())
+# function for prepping data for sunburst plot, shamelessly copied from https://stackoverflow.com/a/58481176
+as.sunburstDF <- function(DF, value_column = NULL, add_root = FALSE){
+  colNamesDF <- names(DF)
+  
+  if(is.data.table(DF)){
+    DT <- copy(DF)
+  } else {
+    DT <- data.table(DF, stringsAsFactors = FALSE)
+  }
+  
+  if(add_root){
+    DT[, root := "Total"]  
+  }
+  
+  colNamesDT <- names(DT)
+  hierarchy_columns <- setdiff(colNamesDT, value_column)
+  DT[, (hierarchy_columns) := lapply(.SD, as.factor), .SDcols = hierarchy_columns]
+  
+  if(is.null(value_column) && add_root){
+    setcolorder(DT, c("root", colNamesDF))
+  } else if(!is.null(value_column) && !add_root) {
+    setnames(DT, value_column, "values", skip_absent=TRUE)
+    setcolorder(DT, c(setdiff(colNamesDF, value_column), "values"))
+  } else if(!is.null(value_column) && add_root) {
+    setnames(DT, value_column, "values", skip_absent=TRUE)
+    setcolorder(DT, c("root", setdiff(colNamesDF, value_column), "values"))
+  }
+  
+  hierarchyList <- list()
+  
+  for(i in seq_along(hierarchy_columns)){
+    current_columns <- colNamesDT[1:i]
+    if(is.null(value_column)){
+      currentDT <- unique(DT[, ..current_columns][, values := .N, by = current_columns], by = current_columns)
+    } else {
+      currentDT <- DT[, lapply(.SD, sum, na.rm = TRUE), by=current_columns, .SDcols = "values"]
+    }
+    setnames(currentDT, length(current_columns), "labels")
+    hierarchyList[[i]] <- currentDT
+  }
+  
+  hierarchyDT <- rbindlist(hierarchyList, use.names = TRUE, fill = TRUE)
+  
+  parent_columns <- setdiff(names(hierarchyDT), c("labels", "values", value_column))
+  hierarchyDT[, parents := apply(.SD, 1, function(x){fifelse(all(is.na(x)), yes = NA_character_, no = paste(x[!is.na(x)], sep = ":", collapse = " - "))}), .SDcols = parent_columns]
+  hierarchyDT[, ids := apply(.SD, 1, function(x){paste(x[!is.na(x)], collapse = " - ")}), .SDcols = c("parents", "labels")]
+  hierarchyDT[, c(parent_columns) := NULL]
+  return(hierarchyDT)
+}
 
-tree.plot
+sb <- select(und2, Nativity, Life_Form, Code, Avg_Cover)
+sb <- as.sunburstDF(sb, value_column = "Avg_Cover")
+plot_ly(sb, ids = ~ids, labels = ~labels, parents = ~parents, values = ~values, type = 'sunburst', branchvalues = 'total') %>%
+  plotly::layout(sunburstcolorway = nativity_colors)
+
+sb
 ```
 
 ```{r cover-composition-table, echo=FALSE, message=FALSE, warning=FALSE}
