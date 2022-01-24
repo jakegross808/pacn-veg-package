@@ -41,6 +41,26 @@ library(here)
 library(plotly)
 library(treemapify)
 library(data.table)
+library(DT)
+```
+
+```{r utility_fxns, include=FALSE}
+pacn_dt <- function(data, caption, record_count = TRUE, search = TRUE) {
+  dom <- "t"
+  if (record_count) {
+    dom <- c(dom, "i")
+  }
+  if (search) {
+    dom <- c(dom, "f")
+  }
+  DT::datatable(data,
+                rownames = FALSE,
+                caption = caption,
+                options = list(dom = "tif",
+                               paging = FALSE,
+                               scrollY = "200px",
+                               scrollCollapse = TRUE))
+}
 ```
 
 ```{r load data, include=FALSE}
@@ -128,9 +148,9 @@ und2 <- UnderCombineStrata(und) %>%
            Nativity, Code, Scientific_Name, Life_Form) %>%
   summarize(n = n(),
             plots_present = sum(Hits_Sp > 0),
-            Avg_Cover = mean(Plot_Percent),
+            Avg_Cover = round(mean(Plot_Percent), 3),
             #Median = median(Plot_Percent),
-            Std_Dev = sd(Plot_Percent),
+            Std_Dev = round(sd(Plot_Percent), 3),
             .groups = "drop")
 
 # tree.plot <- ggplot(und2, aes(area = Avg_Cover, subgroup = Nativity,
@@ -213,11 +233,14 @@ avg_cover_table <- und2 %>%
   arrange(-Avg_Cover)
 
 names(avg_cover_table) <- gsub("_", " ", names(avg_cover_table)) %>% str_to_title()  # Make column names nicer for display
-avg_cover_table %>%
-  kbl(digits = 1, align = "c",
-      caption = "Average understory species cover.") %>%
-  kable_styling(bootstrap_options = c("striped", "condensed")) %>%
-  scroll_box(height = "300px") 
+
+pacn_dt(avg_cover_table, "Average understory species cover.")
+
+# avg_cover_table %>%
+#   kbl(digits = 1, align = "c",
+#       caption = "Average understory species cover.") %>%
+#   kable_styling(bootstrap_options = c("striped", "condensed")) %>%
+#   scroll_box(height = "300px") 
 ```
 
 ## Understory - Total Cover
@@ -244,11 +267,13 @@ cover_by_nativity <- UnderNativityCover(combine_strata = TRUE,
   select(Plot_Number, Nativity, Total_Percent_Cover = tot_pct_cov) %>%
   arrange(-Total_Percent_Cover)
 names(cover_by_nativity) <- gsub("_", " ", names(cover_by_nativity)) %>% str_to_title()  # Make column names nicer for display
-cover_by_nativity %>%
-  kbl(digits = 1, align = "c",
-      caption = "Total understory cover per plot.") %>%
-  kable_styling(bootstrap_options = c("striped", "condensed")) %>%
-  scroll_box(height = "300px") 
+
+pacn_dt(cover_by_nativity, "Total understory cover per plot.")
+# cover_by_nativity %>%
+#   kbl(digits = 1, align = "c",
+#       caption = "Total understory cover per plot.") %>%
+#   kable_styling(bootstrap_options = c("striped", "condensed")) %>%
+#   scroll_box(height = "300px") 
 ```
 
 ## Understory - Change in Cover 
@@ -287,11 +312,14 @@ cover_by_nativity <- UnderNativityCover(combine_strata = TRUE,
   select(Plot_Number, Nativity, Percent_Cover_Change = chg_per_cycle) %>%
   arrange(-Percent_Cover_Change)
 names(cover_by_nativity) <- gsub("_", " ", names(cover_by_nativity)) %>% str_to_title()  # Make column names nicer for display
-cover_by_nativity %>%
-  kbl(digits = 1, align = "c",
-      caption = "Change in understory cover per plot.") %>%
-  kable_styling(bootstrap_options = c("striped", "condensed")) %>%
-  scroll_box(height = "300px") 
+
+pacn_dt(cover_by_nativity, "Change in understory cover per plot.")
+
+# cover_by_nativity %>%
+#   kbl(digits = 1, align = "c",
+#       caption = "Change in understory cover per plot.") %>%
+#   kable_styling(bootstrap_options = c("striped", "condensed")) %>%
+#   scroll_box(height = "300px") 
 ```
 
 ## Invasive Plant Transect Data
