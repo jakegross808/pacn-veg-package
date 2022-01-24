@@ -45,7 +45,7 @@ library(DT)
 ```
 
 ```{r utility_fxns, include=FALSE}
-pacn_dt <- function(data, caption, record_count = TRUE, search = TRUE) {
+pacn_dt <- function(data, record_count = TRUE, search = TRUE) {
   dom <- "t"
   if (record_count) {
     dom <- c(dom, "i")
@@ -53,13 +53,17 @@ pacn_dt <- function(data, caption, record_count = TRUE, search = TRUE) {
   if (search) {
     dom <- c(dom, "f")
   }
+  
   DT::datatable(data,
                 rownames = FALSE,
-                caption = caption,
                 options = list(dom = "tif",
                                paging = FALSE,
                                scrollY = "200px",
                                scrollCollapse = TRUE))
+}
+
+add_table_caption <- function(caption) {
+  knitr::kable(tibble::tibble(), caption = caption, table.attr = "style='width:100%;'")
 }
 ```
 
@@ -225,7 +229,7 @@ plot_ly(sb, ids = ~ids, labels = ~labels, parents = ~parents, values = ~values, 
 sb
 ```
 
-```{r cover-composition-table, echo=FALSE, message=FALSE, warning=FALSE}
+```{r cover-composition-table, echo=FALSE, message=FALSE, warning=FALSE, tab.cap="Average understory species cover."}
 avg_cover_table <- und2 %>%
   select(Code, Scientific_Name, Life_Form, Nativity, plots_present, Avg_Cover, Std_Dev) %>%
   mutate(Avg_Cover = Avg_Cover*100,
@@ -234,7 +238,9 @@ avg_cover_table <- und2 %>%
 
 names(avg_cover_table) <- gsub("_", " ", names(avg_cover_table)) %>% str_to_title()  # Make column names nicer for display
 
-pacn_dt(avg_cover_table, "Average understory species cover.")
+add_table_caption("Average understory species cover.")
+pacn_dt(avg_cover_table)
+# cat("<table>",paste0("<caption>", "(\\#tab:avgcover)", " Average understory species cover.", "</caption>"),"</table>", sep ="\n")
 
 # avg_cover_table %>%
 #   kbl(digits = 1, align = "c",
@@ -268,7 +274,8 @@ cover_by_nativity <- UnderNativityCover(combine_strata = TRUE,
   arrange(-Total_Percent_Cover)
 names(cover_by_nativity) <- gsub("_", " ", names(cover_by_nativity)) %>% str_to_title()  # Make column names nicer for display
 
-pacn_dt(cover_by_nativity, "Total understory cover per plot.")
+add_table_caption("Total understory cover per plot.")
+pacn_dt(cover_by_nativity)
 # cover_by_nativity %>%
 #   kbl(digits = 1, align = "c",
 #       caption = "Total understory cover per plot.") %>%
@@ -313,7 +320,8 @@ cover_by_nativity <- UnderNativityCover(combine_strata = TRUE,
   arrange(-Percent_Cover_Change)
 names(cover_by_nativity) <- gsub("_", " ", names(cover_by_nativity)) %>% str_to_title()  # Make column names nicer for display
 
-pacn_dt(cover_by_nativity, "Change in understory cover per plot.")
+add_table_caption("Change in understory cover per plot.")
+pacn_dt(cover_by_nativity)
 
 # cover_by_nativity %>%
 #   kbl(digits = 1, align = "c",
