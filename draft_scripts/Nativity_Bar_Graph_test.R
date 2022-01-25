@@ -3,7 +3,7 @@ plant_grouping <- "Nativity"
 filter_codes <- c()
 
   # Get raw data
-cover <- summarize_understory(sample_frame = "Olaa", plant_grouping = plant_grouping, paired_change = FALSE)
+cover <- summarize_understory(park = "HAVO", plant_grouping = plant_grouping, paired_change = FALSE)
 
 cover2 <- cover %>%
     dplyr::group_by(Sampling_Frame, Cycle) %>%
@@ -31,31 +31,37 @@ nativity_colors <- c("Native" = "#1b9e77",
 
   # add stats
 cover_stats <- add_stats(cover3, Unit_Code, Sampling_Frame,
-                                Cycle, Year, Stratum, !!!rlang::syms(new_vars))
+                                Cycle, Year, Stratum, Nativity)
 
 
-    # sample size calculation for text
+# format sample size for text print out
 sample_size <- cover_stats %>%
-      dplyr::select(Year, NPLOTS) %>%
-      dplyr::distinct() %>%
-      dplyr::mutate(Text = paste0(Year, " [n = ", NPLOTS, "]")) %>%
-      dplyr::pull(Text) %>%
-      paste(collapse = ", ")
-    sample_size
+  dplyr::select(Sampling_Frame, Year, NPLOTS) %>%
+  dplyr::distinct() %>%
+  dplyr::group_by(Sampling_Frame) %>%
+  dplyr::mutate(count_cycles = match(Year, unique(Year))) %>%
+  dplyr::mutate(SF = paste0("; ", Sampling_Frame, ": ")) %>%
+  dplyr::mutate(SF = dplyr::case_when(count_cycles == 1 ~ SF,
+                               TRUE ~ "")) %>%
+  dplyr::mutate(Text = paste0(SF, Year, " [n = ", NPLOTS, "]")) %>%
+  dplyr::pull(Text) %>%
+  paste(collapse = ", ") %>%
+  stringr::str_sub(3) %>%
+  stringr::str_replace_all(", ;", ";")
+sample_size
 
     #........BAR YEARLY MEANS
 plot <- cover_stats %>%
-  dplyr::filter(Code %in% filter_codes) %>%
   dplyr::filter(Parameter == "Cover") %>%
-  ggplot2::ggplot(ggplot2::aes_string(x = plant_grouping, y = "MEAN", fill = "Nativity", alpha = "Year")) +
+  ggplot2::ggplot(ggplot2::aes(x = Year, y = MEAN, fill = Nativity)) +
   ggplot2::geom_col(position = position_dodge()) +
   ggplot2::geom_errorbar(ggplot2::aes(ymin=L, ymax=R), width=.2,
                              position=position_dodge(.9)) +
   labs(y = "Mean % Cover") +
-  ggplot2::facet_grid(Stratum ~ ., space = "free_y") +
+  ggh4x::facet_nested(Stratum ~ Sampling_Frame + Nativity, scales = "free_x") +
   ggplot2::scale_fill_manual(values = nativity_colors, limits = force) +
   ggplot2::xlab("Year") +
-  #ggplot2::theme(legend.position="none") +
+  ggplot2::theme(legend.position="none") +
   ggplot2::labs(caption = sample_size) +
-  theme(axis.text.x = element_text(angle = 90))
+  theme(axis.text.x=element_text(angle = 90, hjust = 0, vjust = 0.5))
 plot

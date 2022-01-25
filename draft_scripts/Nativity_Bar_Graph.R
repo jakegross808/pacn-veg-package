@@ -1,13 +1,45 @@
 # To run test use:
 library(pacnvegetation)
 library(tidyverse)
-
+library(ggh4x)
 
 LoadPACNVeg("pacnveg", c("C:/Users/JJGross/OneDrive - DOI/Documents/Certification_Local/Databases/EIPS/established_invasives_BE_master_20210818.mdb",
                          "C:/Users/JJGross/OneDrive - DOI/EIPS_Databases/2021_established_invasives_1_2021_20211208.mdb",
                          "C:/Users/JJGross/OneDrive - DOI/EIPS_Databases/2021_established_invasives_2_20210129.mdb"),
             cache = TRUE, force_refresh = FALSE)
 
+
+
+
+v_cover_plot_bar_nativity(community = "Subalpine Shrubland")
+
+
+
+
+
+
+
+
+
+
+
+
+
+olaa <- UnderNativityCover(sample_frame = "Olaa")
+table(olaa$Stratum)
+
+olaa_paired_change <- UnderNativityCover(sample_frame = "Olaa", paired_change = TRUE)
+
+olaa_s <- summarize_understory(sample_frame = "Olaa",
+                               paired_change = FALSE,
+                               plant_grouping = "Nativity")
+table(olaa_s$Stratum)
+
+olaa_paired_change_s <- summarize_understory(sample_frame = "Olaa",
+                                             paired_change = TRUE,
+                                             plant_grouping = "Nativity")
+table(olaa_paired_change$Stratum)
+table(olaa_paired_change_s$Stratum)
 
 v_cover_plot_bar_nativity (sample_frame = "Olaa",
                 combine_strata = FALSE, paired_change = FALSE)
