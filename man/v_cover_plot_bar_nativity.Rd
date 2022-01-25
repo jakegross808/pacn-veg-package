@@ -38,14 +38,14 @@ v_cover_plot_bar_nativity(
 \item{silent}{Suppress informational messages?}
 }
 \value{
-graph (gglot) of total Percent Cover by total Percent Cover
+graph (gglot) of total Percent Cover by Nativity
 }
 \description{
 Stats Bar Plot for Understory Cover by Nativity
 }
 \examples{
 \dontrun{
-bar_plot_native_vs_nonnative <- v_cover_plot_bar_nativity(sample_frame = "Olaa")
+subalpine_mean_nativity_cover <- v_cover_plot_bar_nativity(community = "Subalpine Shrubland")
 
 }
 }

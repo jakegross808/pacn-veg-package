@@ -11,12 +11,19 @@ LoadPACNVeg("pacnveg", c("C:/Users/JJGross/OneDrive - DOI/Documents/Certificatio
 
 
 
-v_cover_plot_bar_nativity(community = "Subalpine Shrubland")
+v_cover_plot_bar_nativity(sample_frame = "Haleakala", paired_change = TRUE)
+
+haleakala_nativity <- summarize_understory(sample_frame = "Haleakala",
+                               paired_change = FALSE,
+                               plant_grouping = "Nativity")
+
+haleakala_nativity_paired <- summarize_understory(sample_frame = "Haleakala",
+                                           paired_change = TRUE,
+                                           plant_grouping = "Nativity")
 
 
-
-
-
+haleakala_nativity_paired_stats <- add_stats(haleakala_nativity_paired, Unit_Code, Sampling_Frame,
+                         Cycle, Year, Stratum, Nativity)
 
 
 

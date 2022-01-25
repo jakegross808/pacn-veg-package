@@ -35,7 +35,7 @@ cover_stats <- add_stats(cover3, Unit_Code, Sampling_Frame,
 
 
 # format sample size for text print out
-sample_size <- cover_stats %>%
+sample_size <- haleakala_nativity_paired_stats %>%
   dplyr::select(Sampling_Frame, Year, NPLOTS) %>%
   dplyr::distinct() %>%
   dplyr::group_by(Sampling_Frame) %>%
