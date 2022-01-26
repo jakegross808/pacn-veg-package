@@ -68,7 +68,7 @@ UnderNativityCover <- function(combine_strata = FALSE, paired_change = FALSE, pa
   # Calculate Total Native & Nonnative Cover by stratum
   Nat_Cov <- raw_data %>%
     ## Dead Still present in Understory Data!!  - change default filter settings? Or remove entirely from database
-    dplyr::filter(Dead==FALSE)  %>%
+    #dplyr::filter(Dead==FALSE)  %>%
     ## Drop point records if point had no hits: (drop if 'Code == NA')
     tidyr::drop_na(Code)  %>%
     # Count Species at each cover point (for Native & Non-native within each Strata):

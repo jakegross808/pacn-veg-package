@@ -443,16 +443,23 @@ ReadFTPC <- function(conn) {
   # point-intercept cover of  species and substrate
   # two stratum: 1)low [0-1m] 2) high [1-2m]
   UnderstoryCover <- dplyr::tbl(conn, "tbl_Understory_Cover") %>%
-    dplyr::select(Event_ID, Point_ID, Point, Substrate)
+    dplyr::select(Event_ID, Point_ID, Point, Substrate) %>%
+    dplyr::collect() %>%
 
   # . . . . xref_Understory_Low----
   UnderstoryLow <- dplyr::tbl(conn, "xref_Understory_Low") %>%
     dplyr::select(Event_ID, Point_ID, Species_ID, Dead) %>%
+    dplyr::collect() %>%
+    dplyr::filter(Dead == FALSE) %>%
+    dplyr::select(-Dead) %>%
     dplyr::mutate(Stratum = "Low")
 
   # . . . . xref_Understory_High----
   UnderstoryHigh <- dplyr::tbl(conn, "xref_Understory_High") %>%
     dplyr::select(Event_ID, Point_ID, Species_ID, Dead) %>%
+    dplyr::collect() %>%
+    dplyr::filter(Dead == FALSE) %>%
+    dplyr::select(-Dead) %>%
     dplyr::mutate(Stratum = "High")
 
   UnderstorySpecies <- dplyr::union_all(UnderstoryLow, UnderstoryHigh)
@@ -462,9 +469,6 @@ ReadFTPC <- function(conn) {
     dplyr::left_join(UnderstorySpecies, by = c("Event_ID", "Point_ID")) %>%
     dplyr::left_join(Species, by = c("Species_ID", "Unit_Code" = "Park")) %>%
     dplyr::select(-Event_ID, -Species_ID, -Point_ID) %>%
-    dplyr::collect() %>%
-    dplyr::filter(Dead == FALSE) %>%
-    dplyr::select(-Dead) %>%
     dplyr::relocate(Certified, Verified, .after = last_col())
 
 
