@@ -444,7 +444,7 @@ ReadFTPC <- function(conn) {
   # two stratum: 1)low [0-1m] 2) high [1-2m]
   UnderstoryCover <- dplyr::tbl(conn, "tbl_Understory_Cover") %>%
     dplyr::select(Event_ID, Point_ID, Point, Substrate) %>%
-    dplyr::collect() %>%
+    dplyr::collect()
 
   # . . . . xref_Understory_Low----
   UnderstoryLow <- dplyr::tbl(conn, "xref_Understory_Low") %>%
