@@ -55,3 +55,9 @@ table {
     border-top-style: solid;
     border-top-color: rgb(221, 221, 221);
     border-collapse:collapse;
+}
+
+.pointlabel {
+    color: #ffffff;
+    font-weight: 400;
+}
