@@ -491,7 +491,6 @@ v_cover_plot_bar_nativity <- function(combine_strata = FALSE,
     geom_hline(yintercept = 0) +
     labs(y = paste(label_param, "(Total % Cover)")) +
     #ggh4x package allows nested facets:
-    #ggh4x::facet_nested(Stratum ~ Sampling_Frame + Nativity, scales = "free_x") +
     ggplot2::facet_grid(Stratum ~ SF_no_space + Nativity,
                         labeller = label_parsed,
                         scales = "free_x") +
