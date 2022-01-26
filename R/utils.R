@@ -448,11 +448,15 @@ ReadFTPC <- function(conn) {
   # . . . . xref_Understory_Low----
   UnderstoryLow <- dplyr::tbl(conn, "xref_Understory_Low") %>%
     dplyr::select(Event_ID, Point_ID, Species_ID, Dead) %>%
+    dplyr::filter(Dead == FALSE) %>%
+    dplyr::select(-Dead) %>%
     dplyr::mutate(Stratum = "Low")
 
   # . . . . xref_Understory_High----
   UnderstoryHigh <- dplyr::tbl(conn, "xref_Understory_High") %>%
     dplyr::select(Event_ID, Point_ID, Species_ID, Dead) %>%
+    dplyr::filter(Dead == FALSE) %>%
+    dplyr::select(-Dead) %>%
     dplyr::mutate(Stratum = "High")
 
   UnderstorySpecies <- dplyr::union_all(UnderstoryLow, UnderstoryHigh)
