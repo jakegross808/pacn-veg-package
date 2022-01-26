@@ -1,13 +1,14 @@
 # To run test use:
 library(pacnvegetation)
 library(tidyverse)
-library(ggh4x)
+
 
 LoadPACNVeg("pacnveg", c("C:/Users/JJGross/OneDrive - DOI/Documents/Certification_Local/Databases/EIPS/established_invasives_BE_master_20210818.mdb",
                          "C:/Users/JJGross/OneDrive - DOI/EIPS_Databases/2021_established_invasives_1_2021_20220120.mdb",
                          "C:/Users/JJGross/OneDrive - DOI/EIPS_Databases/2021_established_invasives_2_20210129.mdb"),
             cache = TRUE, force_refresh = FALSE)
 
+look <- FilterPACNVeg("Understory", park = "HAVO", cycle = 2)
 look <- FilterPACNVeg("Understory", sample_frame = "Haleakala", cycle = 2)
 
 chk <- look %>%
@@ -21,7 +22,7 @@ chk <- look %>%
 v_cover_plot_bar_nativity(sample_frame = "Haleakala", paired_change = TRUE, param = "Chg_Prior")
 
 v_cover_plot_bar_nativity(sample_frame = "Haleakala", paired_change = TRUE, param = "Chg_Per_Year")
-v_cover_plot_bar_nativity(sample_frame = "Nahuku / East-Rift", paired_change = TRUE, param = "Chg_Per_Year")
+v_cover_plot_bar_nativity(sample_frame = "Nahuku/East Rift", paired_change = TRUE, param = "Chg_Per_Year")
 
 haleakala_nativity <- summarize_understory(sample_frame = "Haleakala",
                                paired_change = FALSE,
