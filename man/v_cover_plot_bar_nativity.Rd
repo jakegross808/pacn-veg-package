@@ -7,6 +7,7 @@
 v_cover_plot_bar_nativity(
   combine_strata = FALSE,
   paired_change = FALSE,
+  param = "Cover",
   park,
   sample_frame,
   community,

@@ -3,22 +3,16 @@ plant_grouping <- "Nativity"
 filter_codes <- c()
 
   # Get raw data
-cover <- summarize_understory(park = "HAVO", plant_grouping = plant_grouping, paired_change = FALSE)
+cover <- summarize_understory(sample_frame = "Haleakala", plant_grouping = plant_grouping, paired_change = FALSE)
 
-cover2 <- cover %>%
-    dplyr::group_by(Sampling_Frame, Cycle) %>%
-    dplyr::mutate(Year = min(Year)) %>%
-    dplyr::mutate(Year = as.factor(Year)) %>%
-    dplyr::ungroup()
-
-unkcov <- cover2 %>%
+unkcov <- cover %>%
     dplyr::filter(!!rlang::sym(plant_grouping) == "Unknown" & Cover > 0)
 
 unkcov_tot <- unkcov %>%
     dplyr::pull(Cover) %>%
     sum()
 
-cover3 <- cover2 %>%
+cover3 <- cover %>%
     dplyr::filter(Stratum != "No_Veg",
                   !!rlang::sym(plant_grouping) != "Unknown")
 print(paste0(round(unkcov_tot,2), "% cover of species with unknown Nativity removed"))
@@ -52,13 +46,15 @@ sample_size
 
     #........BAR YEARLY MEANS
 plot <- cover_stats %>%
+  #mutate(muli_SF = NA) %>%
   dplyr::filter(Parameter == "Cover") %>%
   ggplot2::ggplot(ggplot2::aes(x = Year, y = MEAN, fill = Nativity)) +
   ggplot2::geom_col(position = position_dodge()) +
   ggplot2::geom_errorbar(ggplot2::aes(ymin=L, ymax=R), width=.2,
                              position=position_dodge(.9)) +
   labs(y = "Mean % Cover") +
-  ggh4x::facet_nested(Stratum ~ Sampling_Frame + Nativity, scales = "free_x") +
+  #ggh4x::facet_nested(Stratum ~ Sampling_Frame + Nativity, scales = "free_x") +
+  ggplot2::facet_grid(Stratum ~ Sampling_Frame + Nativity, labeller = label_parsed) +
   ggplot2::scale_fill_manual(values = nativity_colors, limits = force) +
   ggplot2::xlab("Year") +
   ggplot2::theme(legend.position="none") +

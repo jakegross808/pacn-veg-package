@@ -268,6 +268,10 @@ summarize_understory <- function(combine_strata = FALSE, plant_grouping, paired_
   }
 
   understory2 <- understory %>%
+    dplyr::group_by(Sampling_Frame, Cycle) %>%
+    dplyr::mutate(Year = min(Year)) %>%
+    dplyr::mutate(Year = as.factor(Year)) %>%
+    dplyr::ungroup() %>%
     dplyr::mutate(Plot_Number = as.factor(Plot_Number),
            Stratum = tidyr::replace_na(Stratum, "No_Veg"))
 
@@ -334,7 +338,9 @@ summarize_understory <- function(combine_strata = FALSE, plant_grouping, paired_
       dplyr::arrange(Cycle, Year, .by_group = TRUE) %>%
       # Calculate the change in cover per cycle
       dplyr::mutate(Chg_Prior = Cover - dplyr::lag(Cover, order_by = Cycle)) %>%
+      dplyr::mutate(Year = as.numeric(as.character(Year))) %>%
       dplyr::mutate(Years_Prior = Year - dplyr::lag(Year, order_by = Cycle)) %>%
+      dplyr::mutate(Year = as.factor(Year)) %>%
       dplyr::mutate(Chg_Per_Year = Chg_Prior / Years_Prior) %>%
       dplyr::mutate(!!max_cycle_lable := Cover - dplyr::lag(Cover, order_by = Cycle,
                                                             n = max_cycle-1)) %>%
@@ -418,24 +424,17 @@ add_stats <- function(.data, ...){
 #' }
 
 v_cover_plot_bar_nativity <- function(combine_strata = FALSE,
-                            paired_change = FALSE, park, sample_frame, community,
+                            paired_change = FALSE, param = "Cover", park, sample_frame, community,
                             year, cycle, plot_type, plot_number, filter_Code, silent = FALSE) {
 
   # Get raw data
-  understory <- summarize_understory(combine_strata = combine_strata,
+  understory2 <- summarize_understory(combine_strata = combine_strata,
                                      plant_grouping = "Nativity",
                                      paired_change = paired_change,
                                      park = park, sample_frame = sample_frame,
                                      community = community, year = year,
                                      cycle = cycle, plot_type = plot_type,
                                      plot_number = plot_number, silent = silent)
-
-  understory2 <- understory %>%
-    dplyr::group_by(Sampling_Frame, Cycle) %>%
-    dplyr::mutate(Year = min(Year)) %>%
-    dplyr::mutate(Year = as.factor(Year)) %>%
-    dplyr::ungroup()
-
 
     unknown_cover <- understory2 %>%
       dplyr::filter(Nativity == "Unknown" & Cover > 0)
@@ -462,6 +461,8 @@ v_cover_plot_bar_nativity <- function(combine_strata = FALSE,
 
   # sample size calculation for text (output is on graph caption)
   sample_size <- understory_stats %>%
+    dplyr::filter(NPLOTS != 0) %>%
+    dplyr::filter(Parameter == param) %>%
     dplyr::select(Sampling_Frame, Year, NPLOTS) %>%
     dplyr::distinct() %>%
     dplyr::group_by(Sampling_Frame) %>%
@@ -477,15 +478,23 @@ v_cover_plot_bar_nativity <- function(combine_strata = FALSE,
   sample_size
 
   #........BAR YEARLY MEANS
+  label_param <- stringr::str_replace_all(param, "_", " ")
+
   plot <- understory_stats %>%
-    dplyr::filter(Parameter == "Cover") %>%
+    dplyr::mutate(SF_no_space = stringr::str_replace_all(Sampling_Frame, " ", "_")) %>%
+    dplyr::filter(NPLOTS != 0) %>%
+    dplyr::filter(Parameter == param) %>%
     ggplot2::ggplot(ggplot2::aes(x = Year, y = MEAN, fill = Nativity)) +
     ggplot2::geom_col(position = position_dodge()) +
     ggplot2::geom_errorbar(ggplot2::aes(ymin=L, ymax=R), width=.2,
                            position=position_dodge(.9)) +
-    labs(y = "Mean % Cover") +
+    geom_hline(yintercept = 0) +
+    labs(y = paste(label_param, "(Total % Cover)")) +
     #ggh4x package allows nested facets:
-    ggh4x::facet_nested(Stratum ~ Sampling_Frame + Nativity, scales = "free_x") +
+    #ggh4x::facet_nested(Stratum ~ Sampling_Frame + Nativity, scales = "free_x") +
+    ggplot2::facet_grid(Stratum ~ SF_no_space + Nativity,
+                        labeller = label_parsed,
+                        scales = "free_x") +
     ggplot2::scale_fill_manual(values = nativity_colors, limits = force) +
     ggplot2::xlab("Year") +
     ggplot2::theme(legend.position="none") +
