@@ -465,9 +465,9 @@ ReadFTPC <- function(conn) {
     dplyr::right_join(UnderstoryCover, by = "Event_ID") %>%
     dplyr::left_join(UnderstorySpecies, by = c("Event_ID", "Point_ID")) %>%
     dplyr::left_join(Species, by = c("Species_ID", "Unit_Code" = "Park")) %>%
-    dplyr::collect() %>%
     dplyr::select(-Event_ID, -Species_ID, -Point_ID) %>%
-    dplyr::relocate(Certified, Verified, .after = last_col())
+    dplyr::relocate(Certified, Verified, .after = last_col()) %>%
+    dplyr::collect()
 
 
   # . . 6. tbl_Woody_Debris----
