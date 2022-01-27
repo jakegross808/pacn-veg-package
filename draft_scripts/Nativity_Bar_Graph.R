@@ -1,13 +1,81 @@
 # To run test use:
 library(pacnvegetation)
 library(tidyverse)
+library(tidytext)
 
 
 LoadPACNVeg("pacnveg", c("C:/Users/JJGross/OneDrive - DOI/Documents/Certification_Local/Databases/EIPS/established_invasives_BE_master_20210818.mdb",
-                         "C:/Users/JJGross/OneDrive - DOI/EIPS_Databases/2021_established_invasives_1_2021_20211208.mdb",
+                         "C:/Users/JJGross/OneDrive - DOI/EIPS_Databases/2021_established_invasives_1_2021_20220120.mdb",
                          "C:/Users/JJGross/OneDrive - DOI/EIPS_Databases/2021_established_invasives_2_20210129.mdb"),
             cache = TRUE, force_refresh = FALSE)
 
+look <- FilterPACNVeg("Understory", park = "HAVO", cycle = 2)
+look <- FilterPACNVeg("Understory", sample_frame = "Haleakala", cycle = 2)
+
+chk <- look %>%
+  #filter(Plot_Number == 10) %>%
+  filter(Stratum == "Low") %>%
+  group_by(Sampling_Frame, Cycle, Dead, Scientific_Name, Code, Nativity) %>%
+  summarise(hits = n())
+
+
+
+v_cover_plot_bar_nativity(sample_frame = "Haleakala", paired_change = TRUE, param = "Chg_Prior")
+
+v_cover_plot_bar_nativity(sample_frame = "Haleakala", paired_change = TRUE, param = "Chg_Per_Year")
+v_cover_plot_bar_nativity(sample_frame = "Nahuku/East Rift", paired_change = TRUE, param = "Chg_Per_Year")
+
+haleakala_nativity <- summarize_understory(sample_frame = "Haleakala",
+                               paired_change = FALSE,
+                               plant_grouping = "Nativity")
+
+haleakala_nativity_paired <- summarize_understory(sample_frame = "Haleakala",
+                                           paired_change = TRUE,
+                                           plant_grouping = "Nativity")
+p <- haleakala_nativity_paired %>%
+  filter(Nativity != "Unknown") %>%
+  filter(Cycle == 2) %>%
+  #mutate(direction = case_when(Chg_Prior > 0 ~ "Pos",
+  #                             Chg_Prior < 0 ~ "Neg" )) %>%
+  ggplot(aes(x = tidytext::reorder_within(Plot_Number, -Chg_Prior, list(Nativity, Stratum)), y = Chg_Prior, fill = Nativity)) +
+  geom_col(position = position_dodge()) +
+  scale_x_reordered() +
+  facet_wrap(Stratum ~ Nativity, scales = "free_x") +
+  #ggplot2::facet_grid(Stratum ~ Sampling_Frame + Nativity,
+  #                    labeller = label_parsed,
+  #                    scales = "free_x") +
+  ggplot2::scale_fill_manual(values = nativity_colors, limits = force) +
+  #scale_fill_manual(values = c("#CC0000", "#009900")) +
+  xlab("Plot Number") + ylab("Change in Total % Cover") +
+  theme(legend.position = "none")
+p
+
+
+haleakala_nativity_paired_stats <- add_stats(haleakala_nativity_paired, Unit_Code, Sampling_Frame,
+                         Cycle, Year, Stratum, Nativity)
+
+
+
+
+
+
+
+
+olaa <- UnderNativityCover(sample_frame = "Olaa")
+table(olaa$Stratum)
+
+olaa_paired_change <- UnderNativityCover(sample_frame = "Olaa", paired_change = TRUE)
+
+olaa_s <- summarize_understory(sample_frame = "Olaa",
+                               paired_change = FALSE,
+                               plant_grouping = "Nativity")
+table(olaa_s$Stratum)
+
+olaa_paired_change_s <- summarize_understory(sample_frame = "Olaa",
+                                             paired_change = TRUE,
+                                             plant_grouping = "Nativity")
+table(olaa_paired_change$Stratum)
+table(olaa_paired_change_s$Stratum)
 
 v_cover_plot_bar_nativity (sample_frame = "Olaa",
                 combine_strata = FALSE, paired_change = FALSE)

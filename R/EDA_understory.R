@@ -70,7 +70,7 @@ UnderNativityCover <- function(combine_strata = FALSE, paired_change = FALSE, rm
   # Calculate Total Native & Nonnative Cover by stratum
   Nat_Cov <- raw_data %>%
     ## Dead Still present in Understory Data!!  - change default filter settings? Or remove entirely from database
-    dplyr::filter(Dead==FALSE)  %>%
+    #dplyr::filter(Dead==FALSE)  %>%
     ## Drop point records if point had no hits: (drop if 'Code == NA')
     tidyr::drop_na(Code)  %>%
     # Count Species at each cover point (for Native & Non-native within each Strata):
@@ -286,6 +286,10 @@ summarize_understory <- function(combine_strata = FALSE, plant_grouping, paired_
   }
 
   understory2 <- understory %>%
+    dplyr::group_by(Sampling_Frame, Cycle) %>%
+    dplyr::mutate(Year = min(Year)) %>%
+    dplyr::mutate(Year = as.factor(Year)) %>%
+    dplyr::ungroup() %>%
     dplyr::mutate(Plot_Number = as.factor(Plot_Number),
            Stratum = tidyr::replace_na(Stratum, "No_Veg"))
 
@@ -329,11 +333,10 @@ summarize_understory <- function(combine_strata = FALSE, plant_grouping, paired_
 
 
   if (paired_change == FALSE) {
+
     return(understory3)
 
   }
-
-  if (paired_change == TRUE) {
 
     understory4 <- understory3 %>%
       filter(Plot_Type == "Fixed")
@@ -353,7 +356,9 @@ summarize_understory <- function(combine_strata = FALSE, plant_grouping, paired_
       dplyr::arrange(Cycle, Year, .by_group = TRUE) %>%
       # Calculate the change in cover per cycle
       dplyr::mutate(Chg_Prior = Cover - dplyr::lag(Cover, order_by = Cycle)) %>%
+      dplyr::mutate(Year = as.numeric(as.character(Year))) %>%
       dplyr::mutate(Years_Prior = Year - dplyr::lag(Year, order_by = Cycle)) %>%
+      dplyr::mutate(Year = as.factor(Year)) %>%
       dplyr::mutate(Chg_Per_Year = Chg_Prior / Years_Prior) %>%
       dplyr::mutate(!!max_cycle_lable := Cover - dplyr::lag(Cover, order_by = Cycle,
                                                             n = max_cycle-1)) %>%
@@ -361,7 +366,7 @@ summarize_understory <- function(combine_strata = FALSE, plant_grouping, paired_
 
     return(understory4)
 
-  }
+
 
 }
 
@@ -423,159 +428,31 @@ add_stats <- function(.data, ...){
 }
 
 
-#' Plot Understory Cover by Nativity, Life_Form, or Species
-#'
-#' @inheritParams summarize_understory
-#'
-#' @return graph (gglot) of total Percent Cover by grouping or change in total Percent Cover by grouping.
-#' @export
-#'
-#' @examples
-#' \dontrun{
-#' bar_plot_native_vs_nonnative <- plot_understory(plant_grouping = "Nativity")
-#' bar_plot_spp_cover_chg <- plot_understory(plant_grouping = "Species", paired_change = TRUE)
-#'
-#' }
-
-plot_understory <- function(combine_strata = FALSE, plant_grouping,
-                           paired_change = FALSE, park, sample_frame, community,
-                           year, cycle, plot_type, plot_number, filter_Code, silent = FALSE) {
-  if (missing(plant_grouping)) {
-    stop("plant_grouping variable is missing")
-  }
-
-
-  # Get raw data
-  understory <- summarize_understory(combine_strata = combine_strata,
-                                     plant_grouping = plant_grouping,
-                                     paired_change = paired_change,
-                                     park = park, sample_frame = sample_frame,
-                                     community = community, year = year,
-                                     cycle = cycle, plot_type = plot_type,
-                                     plot_number = plot_number, silent = silent)
-
-  understory2 <- understory %>%
-    dplyr::group_by(Sampling_Frame, Cycle) %>%
-    dplyr::mutate(Year = min(Year)) %>%
-    dplyr::mutate(Year = as.factor(Year)) %>%
-    dplyr::ungroup()
-
-  if (plant_grouping == "None") {
-    x_var <- "Year"
-    fill_var <- "Year"
-    understory3 <- understory2
-  }
-
-  if (plant_grouping == "Nativity") {
-    x_var <- "Nativity"
-    fill_var <- "Nativity"
-
-    unknown_cover <- understory2 %>%
-      dplyr::filter(!!!rlang::sym(plant_grouping) == "Unknown" & Cover > 0)
-
-    unk_cover_tot <- unknown_cover %>%
-      dplyr::pull(Cover) %>%
-      sum()
-
-    understory3 <- understory2 %>%
-      dplyr::filter(Stratum != "No_Veg",
-                    Nativity != "Unknown")
-    print(paste0(round(unk_cover_tot,2), "% cover of species with unknown Nativity removed"))
-
-  }
-
-  if (plant_grouping == "Life_Form") {
-    x_var <- "Life_Form"
-    fill_var <- "Nativity"
-    understory3 <- understory2
-  }
-
-  if (plant_grouping == "Species") {
-    x_var <- "Code"
-    fill_var <- "Nativity"
-    understory3 <- understory2
-  }
-
-
-  # Nativity discrete scale Colors:
-  nativity_colors <- c("Native" = "#1b9e77",
-                       "No_Veg" = "grey",
-                       "Non-Native" = "#d95f02",
-                       "Unknown" = "#7570b3")
-
-  # add stats
-  understory_stats <- add_stats(understory3, Unit_Code, Sampling_Frame,
-                                Cycle, Year, Stratum, !!!rlang::syms(new_vars))
-
-  # apply species Code filter if passed as argument
-  if (missing(filter_Code)) {
-    understory_stats_filter <- understory_stats
-  } else
-  {understory_stats_filter <- understory_stats %>%
-    dplyr::filter(Code %in% filter_Code)}
-
-
-  # sample size calculation for text
-  sample_size <- understory_stats_filter %>%
-    dplyr::select(Year, NPLOTS) %>%
-    dplyr::distinct() %>%
-    dplyr::mutate(Text = paste0(Year, " [n = ", NPLOTS, "]")) %>%
-    dplyr::pull(Text) %>%
-    paste(collapse = ", ")
-  sample_size
-
-  #........BAR YEARLY MEANS
-  plot <- understory_stats_filter %>%
-    dplyr::filter(Parameter == "Cover") %>%
-    ggplot2::ggplot(ggplot2::aes_string(x = x_var, y = "MEAN", fill = fill_var, alpha = "Year")) +
-    ggplot2::geom_col(position = position_dodge()) +
-    ggplot2::geom_errorbar(ggplot2::aes(ymin=L, ymax=R), width=.2,
-                  position=position_dodge(.9)) +
-    labs(y = "Mean % Cover") +
-    ggplot2::facet_grid(Stratum ~ ., space = "free_y") +
-    ggplot2::scale_fill_manual(values = nativity_colors, limits = force) +
-    ggplot2::xlab("Year") +
-    #ggplot2::theme(legend.position="none") +
-    ggplot2::labs(caption = sample_size) +
-    theme(axis.text.x = element_text(angle = 90))
-
-
-  return(plot)
-
-}
-
 #' Stats Bar Plot for Understory Cover by Nativity
 #'
 #' @inheritParams summarize_understory
 #'
-#' @return graph (gglot) of total Percent Cover by total Percent Cover
+#' @return graph (gglot) of total Percent Cover by Nativity
 #' @export
 #'
 #' @examples
 #' \dontrun{
-#' bar_plot_native_vs_nonnative <- v_cover_plot_bar_nativity(sample_frame = "Olaa")
+#' subalpine_mean_nativity_cover <- v_cover_plot_bar_nativity(community = "Subalpine Shrubland")
 #'
 #' }
 
 v_cover_plot_bar_nativity <- function(combine_strata = FALSE,
-                            paired_change = FALSE, park, sample_frame, community,
+                            paired_change = FALSE, param = "Cover", park, sample_frame, community,
                             year, cycle, plot_type, plot_number, filter_Code, silent = FALSE) {
 
   # Get raw data
-  understory <- summarize_understory(combine_strata = combine_strata,
+  understory2 <- summarize_understory(combine_strata = combine_strata,
                                      plant_grouping = "Nativity",
                                      paired_change = paired_change,
                                      park = park, sample_frame = sample_frame,
                                      community = community, year = year,
                                      cycle = cycle, plot_type = plot_type,
                                      plot_number = plot_number, silent = silent)
-
-  understory2 <- understory %>%
-    dplyr::group_by(Sampling_Frame, Cycle) %>%
-    dplyr::mutate(Year = min(Year)) %>%
-    dplyr::mutate(Year = as.factor(Year)) %>%
-    dplyr::ungroup()
-
 
     unknown_cover <- understory2 %>%
       dplyr::filter(Nativity == "Unknown" & Cover > 0)
@@ -600,28 +477,46 @@ v_cover_plot_bar_nativity <- function(combine_strata = FALSE,
   understory_stats <- add_stats(understory3, Unit_Code, Sampling_Frame,
                                 Cycle, Year, Stratum, Nativity)
 
-  # sample size calculation for text
+  # sample size calculation for text (output is on graph caption)
   sample_size <- understory_stats %>%
-    dplyr::select(Year, NPLOTS) %>%
+    dplyr::filter(NPLOTS != 0) %>%
+    dplyr::filter(Parameter == param) %>%
+    dplyr::select(Sampling_Frame, Year, NPLOTS) %>%
     dplyr::distinct() %>%
-    dplyr::mutate(Text = paste0(Year, " [n = ", NPLOTS, "]")) %>%
+    dplyr::group_by(Sampling_Frame) %>%
+    dplyr::mutate(count_cycles = match(Year, unique(Year))) %>%
+    dplyr::mutate(SF = paste0("; ", Sampling_Frame, ": ")) %>%
+    dplyr::mutate(SF = dplyr::case_when(count_cycles == 1 ~ SF,
+                                        TRUE ~ "")) %>%
+    dplyr::mutate(Text = paste0(SF, Year, " [n = ", NPLOTS, "]")) %>%
     dplyr::pull(Text) %>%
-    paste(collapse = ", ")
+    paste(collapse = ", ") %>%
+    stringr::str_sub(3) %>%
+    stringr::str_replace_all(", ;", ";")
   sample_size
 
   #........BAR YEARLY MEANS
+  label_param <- stringr::str_replace_all(param, "_", " ")
+
   plot <- understory_stats %>%
-    dplyr::filter(Parameter == "Cover") %>%
+    dplyr::mutate(SF_no_space = stringr::str_replace_all(Sampling_Frame, " ", "_")) %>%
+    dplyr::filter(NPLOTS != 0) %>%
+    dplyr::filter(Parameter == param) %>%
     ggplot2::ggplot(ggplot2::aes(x = Year, y = MEAN, fill = Nativity)) +
     ggplot2::geom_col(position = position_dodge()) +
     ggplot2::geom_errorbar(ggplot2::aes(ymin=L, ymax=R), width=.2,
                            position=position_dodge(.9)) +
-    labs(y = "Mean % Cover") +
-    ggplot2::facet_grid(Stratum ~ Nativity, space = "free_y") +
+    geom_hline(yintercept = 0) +
+    labs(y = paste(label_param, "(Total % Cover)")) +
+    #ggh4x package allows nested facets:
+    ggplot2::facet_grid(Stratum ~ SF_no_space + Nativity,
+                        labeller = label_parsed,
+                        scales = "free_x") +
     ggplot2::scale_fill_manual(values = nativity_colors, limits = force) +
     ggplot2::xlab("Year") +
     ggplot2::theme(legend.position="none") +
-    ggplot2::labs(caption = sample_size)
+    ggplot2::labs(caption = sample_size) +
+    theme(axis.text.x=element_text(angle = 90, hjust = 0, vjust = 0.5))
 
 
   return(plot)
