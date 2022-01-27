@@ -169,3 +169,141 @@ MapPACNVeg <- function(protocol = c("FTPC", "EIPS"), crosstalk = FALSE, crosstal
 
   return(map)
 }
+
+#' Map change in vegetation cover
+#'
+#' @inheritParams PlotAndTransectLocations
+#'
+#' @return A leaflet map
+#' @export
+#'
+#' @examples
+#' \dontrun{
+#' MapPACNVeg(protocol = "FTPC")
+#' MapPACNVeg(park = "AMME")
+#' }
+MapCoverChange <- function(crosstalk = FALSE, crosstalk_group = "cover", combine_strata = TRUE, park, sample_frame, community, year, cycle = 2, plot_type, paired_cycle = 1, is_qa_plot, certified, verified, silent = TRUE) {
+
+  if (missing(cycle)) {
+    stop("cycle is required")
+  }
+  if (length(cycle) > 1) {
+    stop("cycle must be length 1")
+  }
+
+  pts <- PlotAndTransectLocations(protocol = "FTPC", crosstalk = FALSE, crosstalk_group = crosstalk_group, park = park, sample_frame = sample_frame, cycle = cycle, plot_type = "fixed", is_qa_plot = is_qa_plot, certified = certified, verified = verified) %>%
+    dplyr::mutate(Cycle = as.integer(Cycle),
+                  Year = as.integer(Year),
+                  Sample_Unit_Number = as.integer(Sample_Unit_Number)) %>%
+    dplyr::rename(Plot_Type = Sample_Unit_Type,
+                  Plot_Number = Sample_Unit_Number) %>%
+    dplyr::select(Unit_Code, Sampling_Frame, Plot_Type, Plot_Number, Year, Cycle, Lat, Long)
+  cover_data <- UnderNativityCover(combine_strata = combine_strata, paired_change = TRUE, crosstalk = FALSE, park = park, sample_frame = sample_frame, community = community, year = year, cycle = cycle,
+                              plot_type = plot_type, paired_cycle = paired_cycle, silent = silent)
+
+  # Combine cover and location data
+  cover_data <- dplyr::left_join(cover_data, pts, by = c("Unit_Code", "Sampling_Frame", "Plot_Type", "Plot_Number", "Year", "Cycle")) %>%
+    dplyr::mutate(All_Cover_Change = Native_Cover_Change_pct - NonNative_Cover_Change_pct)
+
+  # Enable crosstalk if specified
+  if (crosstalk) {
+    cover_data <- dplyr::mutate(cover_data, key = paste0(Unit_Code, Sampling_Frame, Plot_Type, Plot_Number, Year, Cycle))
+    cover <- crosstalk::SharedData$new(cover_data, group = crosstalk_group, key = key)
+  }
+
+  # Set up color palette and icons
+  max_abs_chg <- max(abs(cover_data$All_Cover_Change), na.rm = TRUE)
+
+  pal <- leaflet::colorNumeric(palette = c("#d11141", "#f3dc35", "#00b159"), domain = c(-max_abs_chg, max_abs_chg))  # Do the domain this way so that color ramp will be centered at 0
+  custom_icons <- pchIcons(pch = rep(22, nrow(cover_data)),
+                           width = 30,
+                           height = 30,
+                           bg =colorspace::darken(pal(cover_data$All_Cover_Change)),
+                           col = pal(cover_data$All_Cover_Change), 0.3)
+  iconwidth <- 25
+  iconheight <- 25
+
+  # Make NPS map Attribution
+  NPSAttrib <-
+    htmltools::HTML(
+      "<a href='https://www.nps.gov/npmap/disclaimer/'>Disclaimer</a> |
+      &copy; <a href='http://mapbox.com/about/maps' target='_blank'>Mapbox</a>
+      &copy; <a href='http://openstreetmap.org/copyright' target='_blank'>OpenStreetMap</a> contributors |
+      <a class='improve-park-tiles'
+      href='http://insidemaps.nps.gov/places/editor/#background=mapbox-satellite&map=4/-95.97656/39.02772&overlays=park-tiles-overlay'
+      target='_blank'>Improve Park Tiles</a>"
+    )
+
+  # NPS park tiles URLs
+  NPSbasic = "https://atlas-stg.geoplatform.gov/styles/v1/atlas-user/ck58pyquo009v01p99xebegr9/tiles/256/{z}/{x}/{y}@2x?access_token=pk.eyJ1IjoiYXRsYXMtdXNlciIsImEiOiJjazFmdGx2bjQwMDAwMG5wZmYwbmJwbmE2In0.lWXK2UexpXuyVitesLdwUg"
+  NPSimagery = "https://atlas-stg.geoplatform.gov/styles/v1/atlas-user/ck72fwp2642dv07o7tbqinvz4/tiles/256/{z}/{x}/{y}@2x?access_token=pk.eyJ1IjoiYXRsYXMtdXNlciIsImEiOiJjazFmdGx2bjQwMDAwMG5wZmYwbmJwbmE2In0.lWXK2UexpXuyVitesLdwUg"
+  NPSslate = "https://atlas-stg.geoplatform.gov/styles/v1/atlas-user/ck5cpvc2e0avf01p9zaw4co8o/tiles/256/{z}/{x}/{y}@2x?access_token=pk.eyJ1IjoiYXRsYXMtdXNlciIsImEiOiJjazFmdGx2bjQwMDAwMG5wZmYwbmJwbmE2In0.lWXK2UexpXuyVitesLdwUg"
+  NPSlight = "https://atlas-stg.geoplatform.gov/styles/v1/atlas-user/ck5cpia2u0auf01p9vbugvcpv/tiles/256/{z}/{x}/{y}@2x?access_token=pk.eyJ1IjoiYXRsYXMtdXNlciIsImEiOiJjazFmdGx2bjQwMDAwMG5wZmYwbmJwbmE2In0.lWXK2UexpXuyVitesLdwUg"
+
+  map <- leaflet::leaflet(cover) %>%
+    leaflet::addTiles(group = "Basic", urlTemplate = NPSbasic, attribution = NPSAttrib) %>%
+    leaflet::addTiles(group = "Imagery", urlTemplate = NPSimagery, attribution = NPSAttrib) %>%
+    leaflet::addTiles(group = "Slate", urlTemplate = NPSslate, attribution = NPSAttrib) %>%
+    leaflet::addTiles(group = "Light", urlTemplate = NPSlight, attribution = NPSAttrib) %>%
+    leaflet::addLayersControl(baseGroups = c("Basic", "Imagery", "Slate", "Light"),
+                              options=leaflet::layersControlOptions(collapsed = TRUE)) %>%
+    leaflet::addMarkers(lng = ~Long,
+                        lat = ~Lat,
+                        icon = ~leaflet::icons(iconUrl = custom_icons,
+                                               iconWidth = iconwidth,
+                                               iconHeight = iconheight),
+                        label = ~Plot_Number,
+                        labelOptions = leaflet::labelOptions(noHide = TRUE, opacity = .9, textOnly = TRUE, offset = c(0,0), direction = "center", style = list("color" = "white", "font-weight" = "bold")),
+                        popup = ~paste0("<br><strong>Non-native cover change:</strong> ", NonNative_Cover_Change_pct,
+                                        "<br><strong>Native cover change:</strong> ", Native_Cover_Change_pct,
+                                        "<br><strong>Sampling Frame:</strong> ", Sampling_Frame,
+                                        "<br><strong>Cycle:</strong> ", Cycle,
+                                        "<br><strong>Year:</strong> ", Year))
+
+  map %<>% leaflet::addScaleBar(position = "bottomleft")
+
+  return(map)
+}
+
+# this is modified from
+# https://github.com/rstudio/leaflet/blob/master/inst/examples/icons.R#L24
+#' Generate png icons for use in Leaflet
+#'
+#' @param pch Plot character code ([full list here](http://www.sthda.com/english/wiki/r-plot-pch-symbols-the-different-point-shapes-available-in-r))
+#' @param width Width of character
+#' @param height Height of character
+#' @param bg Background color
+#' @param col Color
+#' @param ... Additional arguments to [graphics::points()]
+#'
+#' @return Filename(s) of icon(s)
+pchIcons <- function(pch = 1, width = 30, height = 30, bg = "transparent", col = "black", lwd = 3, ...) {
+  n = length(pch)
+  files = character(n)
+  # create a sequence of png images
+  for (i in seq_len(n)) {
+    f = filename(pch[i], col[i], bg[i])
+    if (!file.exists(f)) {
+      grDevices::png(f, width = width, height = height, bg = "transparent")
+      graphics::par(mar = c(0, 0, 0, 0))
+      graphics::plot.new()
+      graphics::points(.5, .5, pch = pch[i], col = col[i], bg = bg[i], cex = min(width, height) / 8, lwd = lwd, ...)
+      grDevices::dev.off()
+    }
+    files[i] = f
+  }
+
+  return(files)
+}
+
+
+#' Generate filename for icon generated by [pchIcons()]
+#' @description Helper function for [pchIcons()] and [build_legend()]
+#' @inheritParams pchIcons
+#' @return Filename and path
+#'
+filename <- function(pch, col, bg) {
+  icon_dir <- normalizePath(rappdirs::user_cache_dir(appname = "pacnvegetation"), winslash = "/", mustWork = FALSE)
+  path <- paste0(icon_dir, '/', pch, '_', bg, "_", col, '.png')
+  return(path)
+}
