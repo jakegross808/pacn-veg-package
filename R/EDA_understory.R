@@ -336,10 +336,10 @@ summarize_understory <- function(combine_strata = FALSE, plant_grouping, paired_
 
     return(understory3)
 
-  }
+  } else {
 
     understory4 <- understory3 %>%
-      filter(Plot_Type == "Fixed")
+      dplyr::filter(Plot_Type == "Fixed")
 
     arrange_remove <- c("Cycle", "Year", "Point")
     arrange_vars <- all_vars[!all_vars %in% arrange_remove]
@@ -366,7 +366,7 @@ summarize_understory <- function(combine_strata = FALSE, plant_grouping, paired_
 
     return(understory4)
 
-
+  }
 
 }
 
@@ -397,13 +397,13 @@ add_stats <- function(.data, ...){
   #    names()
   #}
 
-  print(params)
+  message(params)
 
   stat_table <- tibble::tibble()
 
   for (param in params) {
 
-    print(param)
+    #print(param)
 
     stat_table_param <- .data %>%
       dplyr::group_by(...) %>%
@@ -464,7 +464,7 @@ v_cover_plot_bar_nativity <- function(combine_strata = FALSE,
     understory3 <- understory2 %>%
       dplyr::filter(Stratum != "No_Veg",
                     Nativity != "Unknown")
-    print(paste0(round(unk_cover_tot,2), "% cover of species with unknown Nativity removed"))
+    message(paste0(round(unk_cover_tot,2), "% cover of species with unknown Nativity removed"))
 
 
   # Nativity discrete scale Colors:
@@ -503,20 +503,20 @@ v_cover_plot_bar_nativity <- function(combine_strata = FALSE,
     dplyr::filter(NPLOTS != 0) %>%
     dplyr::filter(Parameter == param) %>%
     ggplot2::ggplot(ggplot2::aes(x = Year, y = MEAN, fill = Nativity)) +
-    ggplot2::geom_col(position = position_dodge()) +
+    ggplot2::geom_col(position = ggplot2::position_dodge()) +
     ggplot2::geom_errorbar(ggplot2::aes(ymin=L, ymax=R), width=.2,
-                           position=position_dodge(.9)) +
-    geom_hline(yintercept = 0) +
-    labs(y = paste(label_param, "(Total % Cover)")) +
+                           position=ggplot2::position_dodge(.9)) +
+    ggplot2::geom_hline(yintercept = 0) +
+    ggplot2::labs(y = paste(label_param, "(Total % Cover)")) +
     #ggh4x package allows nested facets:
     ggplot2::facet_grid(Stratum ~ SF_no_space + Nativity,
-                        labeller = label_parsed,
+                        labeller = ggplot2::label_parsed,
                         scales = "free_x") +
     ggplot2::scale_fill_manual(values = nativity_colors, limits = force) +
     ggplot2::xlab("Year") +
     ggplot2::theme(legend.position="none") +
     ggplot2::labs(caption = sample_size) +
-    theme(axis.text.x=element_text(angle = 90, hjust = 0, vjust = 0.5))
+    ggplot2::theme(axis.text.x=ggplot2::element_text(angle = 90, hjust = 0, vjust = 0.5))
 
 
   return(plot)

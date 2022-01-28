@@ -7,7 +7,7 @@ library(tidytext)
 LoadPACNVeg("pacnveg", c("C:/Users/JJGross/OneDrive - DOI/Documents/Certification_Local/Databases/EIPS/established_invasives_BE_master_20210818.mdb",
                          "C:/Users/JJGross/OneDrive - DOI/EIPS_Databases/2021_established_invasives_1_2021_20220120.mdb",
                          "C:/Users/JJGross/OneDrive - DOI/EIPS_Databases/2021_established_invasives_2_20210129.mdb"),
-            cache = TRUE, force_refresh = TRUE)
+            cache = TRUE, force_refresh = FALSE)
 
 haleakala_nativity_paired <- summarize_understory(sample_frame = "Haleakala",
                                            paired_change = TRUE,
