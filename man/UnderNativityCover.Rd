@@ -7,6 +7,9 @@
 UnderNativityCover(
   combine_strata = FALSE,
   paired_change = FALSE,
+  rm_unk_natv = TRUE,
+  crosstalk = FALSE,
+  crosstalk_group = "cover",
   park,
   sample_frame,
   community,
@@ -21,6 +24,8 @@ UnderNativityCover(
 \item{combine_strata}{If \code{TRUE}, don't split data into high and low strata. Otherwise, keep as is.}
 
 \item{paired_change}{If \code{TRUE}, calculate change in percent cover across two cycles. If \code{cycle} is not specified, it will default to the last cycle.}
+
+\item{rm_unk_natv}{Remove}
 
 \item{park}{Four letter unit code of park(s)}
 

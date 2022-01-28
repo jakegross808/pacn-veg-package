@@ -5,9 +5,10 @@
 \title{Native V. Non-native Cover Plot for Understory data}
 \usage{
 UnderNativityCover.plot.nat_v_non(
-  cover.stat,
   combine_strata = FALSE,
   paired_change = FALSE,
+  crosstalk = FALSE,
+  crosstalk_group = "cover",
   park,
   sample_frame,
   community,
@@ -15,7 +16,8 @@ UnderNativityCover.plot.nat_v_non(
   cycle,
   plot_type,
   paired_cycle,
-  silent = FALSE
+  silent = FALSE,
+  data_table = NA
 )
 }
 \arguments{

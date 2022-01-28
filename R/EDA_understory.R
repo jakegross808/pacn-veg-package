@@ -31,6 +31,7 @@ UnderCombineStrata <- function(data) {
 #' @param combine_strata If `TRUE`, don't split data into high and low strata. Otherwise, keep as is.
 #' @param paired_change If `TRUE`, calculate change in percent cover across two cycles. If `cycle` is not specified, it will default to the last cycle.
 #' @param paired_cycle Only required if `paired_change == TRUE`. The cycle number to compare to when calculating paired change.
+#' @param rm_unk_natv Remove
 #'
 #' @return Summary table of total Percent Cover by Nativity
 #' @export
@@ -40,7 +41,7 @@ UnderCombineStrata <- function(data) {
 #' data <- FilterPACNVeg("Understory")
 #' Native_Cover_Summary_table <- UnderNativityCoverTotal(data)
 #' }
-UnderNativityCover <- function(combine_strata = FALSE, paired_change = FALSE, park, sample_frame, community, year, cycle, plot_type, paired_cycle = 1, silent = FALSE) {
+UnderNativityCover <- function(combine_strata = FALSE, paired_change = FALSE, rm_unk_natv = TRUE, crosstalk = FALSE, crosstalk_group = "cover", park, sample_frame, community, year, cycle, plot_type, paired_cycle = 1, silent = FALSE) {
   # Make sure paired cycle is length 1 if calculating paired change
   if (paired_change && length(paired_cycle) != 1) {
         stop("When paired_change == TRUE, paired_cycle must be a single cycle. Leave it empty to default to the first cycle.")
@@ -54,11 +55,12 @@ UnderNativityCover <- function(combine_strata = FALSE, paired_change = FALSE, pa
   }
 
   # Get raw data
-  raw_data <- FilterPACNVeg("Understory", park, sample_frame, community, year, cycle, plot_type, is_qa_plot = FALSE, silent = silent)
+  raw_data <- FilterPACNVeg(data_name = "Understory", park = park, sample_frame = sample_frame, community = community, year = year, cycle = cycle, plot_type = plot_type, is_qa_plot = FALSE, silent = silent)
 
   # If calculating paired change and no cycle specified, default to the most recent cycle
   if (paired_change && missing(cycle)) {
-    raw_data %<>% filter(Cycle %in% c(paired_cycle, max(raw_data$Cycle)))
+    cycle <- max(raw_data$Cycle)
+    raw_data %<>% filter(Cycle %in% c(paired_cycle, cycle))
   }
 
   if (combine_strata == TRUE) {
@@ -79,6 +81,8 @@ UnderNativityCover <- function(combine_strata = FALSE, paired_change = FALSE, pa
     # Total hits at each point for each strata for entire plot
     #   (can be > 300 points or >100% because more than one native species can be present per point)
     dplyr::summarise(tot_pct_cov = (sum(Hits_All_Nat)) / 300 * 100, .groups = 'drop') %>%
+    # Round total pct cover to a reasonable number of digits
+    dplyr::mutate(tot_pct_cov = round(tot_pct_cov, 1)) %>%
     # Insert "0" for cover if category does not exsist (for example no hits for non-natives in High Stratum)
     tidyr::complete(tidyr::nesting(Unit_Code, Sampling_Frame, Plot_Type, Plot_Number, Year, Cycle), Stratum, Nativity,
                     fill = list(tot_pct_cov = 0)) %>%
@@ -88,16 +92,47 @@ UnderNativityCover <- function(combine_strata = FALSE, paired_change = FALSE, pa
     dplyr::arrange(Cycle, .by_group = TRUE) %>%
     dplyr::ungroup()
 
+  if (rm_unk_natv == TRUE) {
+    # Count records with Nativity == Unknown
+    unks <- Nat_Cov %>%
+      dplyr::filter(Nativity=="Unknown")
+    unks <- sum(unks$tot_pct_cov, na.rm = T)
+    # Remove unknowns
+    Nat_Cov <- Nat_Cov %>%
+      dplyr::filter(Nativity != "Unknown")
+    # Statement of unknowns removed
+    message(paste0(unks, "% of [Unknown] nativity cover removed."))
+  }
+
+  # Remove alternate cover.stat so data can pivot
   if (paired_change == TRUE) {
+    # cover.stat.options <- c("tot_pct_cov", "chg_per_cycle")
+    # remove.cover.stat <- cover.stat.options[!cover.stat.options %in% cover.stat]
     paired_plots <- RemoveSingleVisits(raw_data)
     p <- paired_plots$Plot_Number %>% unique()
-    Nat_Cov <- Nat_Cov %>%
+    Nat_Cov <- test <- Nat_Cov %>%
       # remove plots that were only sampled once (this removes all rotationals and possibly some fixed plots if only sampled once)
       dplyr::filter(Plot_Number %in% p) %>%
       dplyr::group_by(Unit_Code, Sampling_Frame, Plot_Type, Plot_Number, Stratum, Nativity) %>%
       # Calculate the change in cover per cycle
-      dplyr::mutate(chg_per_cycle = tot_pct_cov - dplyr::lag(tot_pct_cov, order_by = Cycle))
+      dplyr::mutate(chg_per_cycle = tot_pct_cov - dplyr::lag(tot_pct_cov, order_by = Cycle)) %>%
+      dplyr::filter(Cycle == max(cycle)) %>%
+      dplyr::select(-tot_pct_cov) %>%
+      dplyr::mutate(Nativity = paste0(gsub("-", "", Nativity), "_Cover_Change_pct")) %>%
+      tidyr::pivot_wider(names_from = Nativity, values_from = chg_per_cycle)
+  }
 
+  if (paired_change == FALSE) {
+    Nat_Cov <- Nat_Cov %>%
+      dplyr::mutate(Nativity = paste0(gsub("-", "", Nativity), "_Cover_Total_pct")) %>%
+      tidyr::pivot_wider(names_from = Nativity, values_from = tot_pct_cov)
+  }
+
+  Nat_Cov <- ungroup(Nat_Cov)
+
+  if (crosstalk) {
+    Nat_Cov <- dplyr::mutate(Nat_Cov, key = paste0(Unit_Code, Sampling_Frame, Plot_Type, Plot_Number, Year, Cycle))
+    Nat_Cov <- crosstalk::SharedData$new(Nat_Cov, group = crosstalk_group, key = "key")
   }
 
   return(Nat_Cov)
@@ -118,57 +153,39 @@ UnderNativityCover <- function(combine_strata = FALSE, paired_change = FALSE, pa
 #' Native_v_Nonnative_Plot <- UnderNativityCover.plot.nat_v_non(sample_frame = "Haleakala", sample_cycle = 2, paired_change = TRUE)
 #' }
 
-UnderNativityCover.plot.nat_v_non <- function(cover.stat, combine_strata = FALSE, paired_change = FALSE, park, sample_frame, community, year, cycle, plot_type, paired_cycle, silent = FALSE) {
+UnderNativityCover.plot.nat_v_non <- function(combine_strata = FALSE, paired_change = FALSE, crosstalk = FALSE, crosstalk_group = "cover", park, sample_frame, community, year, cycle, plot_type, paired_cycle, silent = FALSE, data_table = NA) {
 
-  data <- UnderNativityCover(combine_strata = combine_strata, paired_change = paired_change,
-                             park = park, sample_frame = sample_frame, community = community, year = year, cycle = cycle,
-                             plot_type = plot_type, paired_cycle = paired_cycle, silent = silent)
-
-  # Count records with Nativity == Unknown
-  unks <- data %>%
-    dplyr::filter(Nativity=="Unknown")
-  unks <- sum(unks$tot_pct_cov, na.rm = T)
-  # Remove unknowns
-  data <- data %>%
-    dplyr::filter(Nativity != "Unknown")
-  # Statement of unknowns removed
-  message(paste0(unks, "% of [Unknown] nativity cover removed."))
-
-  # Remove alternate cover.stat so data can pivot
-  if (paired_change == TRUE) {
-    cover.stat.options <- c("tot_pct_cov", "chg_per_cycle")
-    remove.cover.stat <- cover.stat.options[!cover.stat.options %in% cover.stat]
-
-    toplot <- data %>%
-      dplyr::filter(Cycle == cycle) %>%
-      dplyr::select(-remove.cover.stat) %>%
-      tidyr::pivot_wider(names_from = Nativity, values_from = cover.stat)
+  if (!is.na(data_table)) {
+    data_table <- data_table
+  } else {
+    data <- UnderNativityCover(combine_strata = combine_strata, paired_change = paired_change, crosstalk = crosstalk, crosstalk_group = crosstalk_group,
+                               park = park, sample_frame = sample_frame, community = community, year = year, cycle = cycle,
+                               plot_type = plot_type, paired_cycle = paired_cycle, silent = silent)
   }
 
-  if (paired_change == FALSE) {
-    toplot <- data %>%
-      tidyr::pivot_wider(names_from = Nativity, values_from = cover.stat)
-  }
+  if (crosstalk) {
+    data_table <- data$data()
+  } else {data_table <- data}
 
   #Get max value for plotting data
-  toplot.max <- toplot %>%
+  toplot.max <- data_table %>%
     dplyr::ungroup() %>%
-    dplyr::select(Native, `Non-Native`)
+    dplyr::select(dplyr::starts_with(c("Native", "NonNative")))
   toplot.max <- max(c(abs(max(toplot.max, na.rm = TRUE)), abs(min(toplot.max, na.rm = TRUE))))
 
-  if (cover.stat == "tot_pct_cov") {
+  if (!paired_change) {
     d <- expand.grid(x=0:(toplot.max + 5), y=0:(toplot.max + 5))
 
     plot.nat_v_non <- ggplot2::ggplot(d, ggplot2::aes(x,y)) +
       ggplot2::geom_tile(ggplot2::aes(fill = atan(y/x), alpha=(0.15))) +
       ggplot2::scale_fill_gradient(high="red", low="green") +
       ggplot2::theme(legend.position="none") +
-      ggplot2::geom_point(data = toplot,
-                          mapping = ggplot2::aes(x = Native, y = `Non-Native`),
+      ggplot2::geom_point(data = data_table,
+                          mapping = ggplot2::aes(x = Native_Cover_Total_pct, y = NonNative_Cover_Total_pct),
                           color = "black",
                           size = 2) +
-      ggrepel::geom_text_repel(data = toplot,
-                               mapping = ggplot2::aes(x = Native, y = `Non-Native`, label = Plot_Number),
+      ggrepel::geom_text_repel(data = data_table,
+                               mapping = ggplot2::aes(x = Native_Cover_Total_pct, y = NonNative_Cover_Total_pct, label = Plot_Number),
                                min.segment.length = 0, seed = 42, box.padding = 0.5) +
       ggplot2::ylab("Total Non-Native Cover") +
       ggplot2::xlab("Total Native Cover") +
@@ -176,11 +193,9 @@ UnderNativityCover.plot.nat_v_non <- function(cover.stat, combine_strata = FALSE
       ggplot2::scale_y_continuous(breaks = scales::breaks_pretty(n = 10)) +
       ggplot2::coord_cartesian(xlim = c(0,toplot.max), ylim = c(0,toplot.max)) +
       ggplot2::facet_wrap(~Stratum + Sampling_Frame)
-
-    return(plot.nat_v_non)
   }
 
-  if (cover.stat == "chg_per_cycle") {
+  if (paired_change) {
     ids <- factor(c("1.1", "2.1", "1.2", "2.2", "1.3"))
 
     values <- data.frame(
@@ -214,12 +229,12 @@ UnderNativityCover.plot.nat_v_non <- function(cover.stat, combine_strata = FALSE
                                       mapping = ggplot2::aes(x = x, y = y)) +
       ggplot2::geom_polygon(ggplot2::aes(fill = value)) + # cannot do alpha w/coord_cartesian???
       ggplot2::scale_fill_manual(values = quad_c) +
-      ggplot2::geom_point(data = toplot,
-                          mapping = ggplot2::aes(x = Native, y = `Non-Native`),
+      ggplot2::geom_point(data = data_table,
+                          mapping = ggplot2::aes(x = Native_Cover_Change_pct, y = NonNative_Cover_Change_pct),
                           color = "black",
                           size = 2) +
-      ggrepel::geom_text_repel(data = toplot,
-                               mapping = ggplot2::aes(x = Native, y = `Non-Native`, label = Plot_Number),
+      ggrepel::geom_text_repel(data = data_table,
+                               mapping = ggplot2::aes(x = Native_Cover_Change_pct, y = NonNative_Cover_Change_pct, label = Plot_Number),
                                min.segment.length = 0, seed = 42, box.padding = 0.5) +
       ggplot2::ylab("Change in Non-Native Cover") +
       ggplot2::xlab("Change in Native Cover") +
@@ -229,9 +244,12 @@ UnderNativityCover.plot.nat_v_non <- function(cover.stat, combine_strata = FALSE
       ggplot2::scale_y_continuous(breaks = scales::breaks_pretty(n = 10)) +
       ggplot2::coord_cartesian(xlim = c(-toplot.max, toplot.max), ylim = c(-toplot.max, toplot.max)) +
       ggplot2::facet_wrap(~Stratum + Sampling_Frame)
-
-    return(plot.nat_v_non)
   }
+
+  if (crosstalk) {
+    return(plotly::ggplotly(plot.nat_v_non))
+  }
+  return(plot.nat_v_non)
 }
 
 #' Summarize Understory Cover Data by Nativity, Life_Form, or Species
