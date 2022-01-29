@@ -24,7 +24,10 @@ v_cover_plot_bar_nativity(sample_frame = "Haleakala", paired_change = FALSE, par
 
 
 v_cover_plot_bar_nativity(sample_frame = "Haleakala", paired_change = TRUE, param = "Chg_Per_Year")
+
 v_cover_plot_bar_nativity(sample_frame = "Nahuku/East Rift", paired_change = TRUE, param = "Chg_Per_Year")
+
+
 
 haleakala_nativity <- summarize_understory(sample_frame = "Haleakala",
                                paired_change = FALSE,
