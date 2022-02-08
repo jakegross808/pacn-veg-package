@@ -183,10 +183,7 @@ UnderNativityCover.plot.nat_v_non <- function(combine_strata = FALSE, paired_cha
   # Total cover plots
   if (!paired_change) {
     if (interactive) {
-      # Plot total cover in plotly
-      # This is not being done in a separate function (like the ggplot version) because it breaks crosstalk and I haven't figured out why
-      plot.nat_v_non <- totalCover_ggplot(data, max_lim) %>%
-        plotly::ggplotly()
+      plot.nat_v_non <- totalCover_plotly(data, toplot.max)  # Plot total cover in plotly
     } else {
       plot.nat_v_non <- totalCover_ggplot(data, toplot.max)  # Plot total cover in ggplot
     }
@@ -195,12 +192,7 @@ UnderNativityCover.plot.nat_v_non <- function(combine_strata = FALSE, paired_cha
   # Paired change plots
   if (paired_change) {
     if (interactive) {
-      # Plot paired change in plotly
-      # This is not being done in a separate function (like the ggplot version) because it breaks crosstalk and I haven't figured out why
-      plot.nat_v_non <- plotly::plot_ly(data,
-                                        x = ~ Native_Cover_Change_pct,
-                                        y = ~ NonNative_Cover_Change_pct) %>%
-        plotly::highlight(on = "plotly_hover")
+      plot.nat_v_non <- changeInCover_plotly(data, toplot.max)  # Plot paired change in plotly
     } else {
       plot.nat_v_non <- changeInCover_ggplot(data, toplot.max)  # Plot paired change in ggplot
     }
@@ -235,6 +227,19 @@ totalCover_ggplot <- function(data, max_lim) {
     ggplot2::scale_y_continuous(breaks = scales::breaks_pretty(n = 10)) +
     ggplot2::coord_cartesian(xlim = c(0,max_lim), ylim = c(0,max_lim)) +
     ggplot2::facet_wrap(~Stratum + Sampling_Frame)
+}
+
+#' Helper function for plotting total cover in plotly
+#'
+#' @param data Data to plot
+#' @param max_lim maximum value in data
+#'
+#' @return html widget
+totalCover_plotly <- function(data, max_lim) {
+  plt <- totalCover_ggplot(data, max_lim) %>%
+    plotly::ggplotly()
+
+  return(plt)
 }
 
 #' Helper function for plotting cover change in ggplot
@@ -292,6 +297,20 @@ changeInCover_ggplot <- function(data, max_lim) {
     ggplot2::scale_y_continuous(breaks = scales::breaks_pretty(n = 10)) +
     ggplot2::coord_cartesian(xlim = c(-max_lim, max_lim), ylim = c(-max_lim, max_lim)) +
     ggplot2::facet_wrap(~Stratum + Sampling_Frame)
+}
+
+#' Helper function for plotting change in cover in plotly
+#'
+#' @param data Data to plot
+#' @param max_lim maximum value in data
+#'
+#' @return html widget
+changeInCover_plotly <- function(data, max_lim) {
+  plt <- plotly::plot_ly(data = data,
+                         x = ~ Native_Cover_Change_pct,
+                         y = ~ NonNative_Cover_Change_pct) %>%
+    plotly::highlight(on = "plotly_hover")
+  return(plt)
 }
 
 #' Summarize Understory Cover Data by Nativity, Life_Form, or Species
