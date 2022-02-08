@@ -298,10 +298,6 @@ pacn_dt(cover_by_nativity)
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE}
 grp <- "cov_change"
-dat <- UnderNativityCover(paired_change = TRUE, sample_frame = params$sample_frame, cycle = max(cycles), paired_cycle = min(cycles),
-                          combine_strata = TRUE,
-                          crosstalk = TRUE,
-                          crosstalk_group = grp)
 
 plt <- UnderNativityCover.plot.nat_v_non(sample_frame = params$sample_frame, 
                                   cycle = max(cycles), 
@@ -310,8 +306,7 @@ plt <- UnderNativityCover.plot.nat_v_non(sample_frame = params$sample_frame,
                                   combine_strata = TRUE,
                                   crosstalk = TRUE,
                                   crosstalk_group = grp,
-                                  interactive = TRUE,
-                                  data_table = dat)
+                                  interactive = TRUE)
 
 map <- MapCoverChange(crosstalk = TRUE, crosstalk_group = grp, sample_frame = params$sample_frame, cycle = max(cycles), paired_cycle = min(cycles))
 

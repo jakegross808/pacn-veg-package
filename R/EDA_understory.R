@@ -161,13 +161,16 @@ UnderNativityCover.plot.nat_v_non <- function(combine_strata = FALSE, paired_cha
   if (!missing(data_table)) {
     data <- data_table  # Allow a custom data table to be passed in
   } else {
-    data <- UnderNativityCover(combine_strata = combine_strata, paired_change = paired_change, crosstalk = crosstalk, crosstalk_group = crosstalk_group,
+    data <- UnderNativityCover(combine_strata = combine_strata, paired_change = paired_change, crosstalk = FALSE,
                                park = park, sample_frame = sample_frame, community = community, year = year, cycle = cycle,
                                plot_type = plot_type, paired_cycle = paired_cycle, silent = silent)
   }
 
   # If data is a crosstalk object, extract just the data so we can work with it
+
   if (interactive && crosstalk) {
+    data <- dplyr::mutate(data, key = paste0(Unit_Code, Sampling_Frame, Plot_Type, Plot_Number, Year, Cycle))
+    data <- crosstalk::SharedData$new(data, group = crosstalk_group, key = ~key)
     data_table <- data$data()
   } else {data_table <- data}
 
