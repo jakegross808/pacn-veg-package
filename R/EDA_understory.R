@@ -128,11 +128,11 @@ UnderNativityCover <- function(combine_strata = FALSE, paired_change = FALSE, rm
       tidyr::pivot_wider(names_from = Nativity, values_from = tot_pct_cov)
   }
 
-  Nat_Cov <- ungroup(Nat_Cov)
+  Nat_Cov <- dplyr::ungroup(Nat_Cov)
 
   if (crosstalk) {
     Nat_Cov <- dplyr::mutate(Nat_Cov, key = paste0(Unit_Code, Sampling_Frame, Plot_Type, Plot_Number, Year, Cycle))
-    Nat_Cov <- crosstalk::SharedData$new(Nat_Cov, group = crosstalk_group, key = "key")
+    Nat_Cov <- crosstalk::SharedData$new(Nat_Cov, group = crosstalk_group, key = ~key)
   }
 
   return(Nat_Cov)
@@ -153,103 +153,161 @@ UnderNativityCover <- function(combine_strata = FALSE, paired_change = FALSE, rm
 #' Native_v_Nonnative_Plot <- UnderNativityCover.plot.nat_v_non(sample_frame = "Haleakala", sample_cycle = 2, paired_change = TRUE)
 #' }
 
-UnderNativityCover.plot.nat_v_non <- function(combine_strata = FALSE, paired_change = FALSE, crosstalk = FALSE, crosstalk_group = "cover", park, sample_frame, community, year, cycle, plot_type, paired_cycle, silent = FALSE, data_table = NA) {
+UnderNativityCover.plot.nat_v_non <- function(combine_strata = FALSE, paired_change = FALSE, crosstalk = FALSE, crosstalk_group = "cover", interactive = FALSE, park, sample_frame, community, year, cycle, plot_type, paired_cycle, silent = FALSE, data_table) {
+  if (crosstalk && !interactive) {
+    stop("Crosstalk only works with interactive plots. Change `crosstalk` to FALSE or change `interactive` to TRUE.")
+  }
 
-  if (!is.na(data_table)) {
-    data_table <- data_table
+  if (!missing(data_table)) {
+    data <- data_table  # Allow a custom data table to be passed in
   } else {
     data <- UnderNativityCover(combine_strata = combine_strata, paired_change = paired_change, crosstalk = crosstalk, crosstalk_group = crosstalk_group,
                                park = park, sample_frame = sample_frame, community = community, year = year, cycle = cycle,
                                plot_type = plot_type, paired_cycle = paired_cycle, silent = silent)
   }
 
-  if (crosstalk) {
+  # If data is a crosstalk object, extract just the data so we can work with it
+  if (interactive && crosstalk) {
     data_table <- data$data()
   } else {data_table <- data}
 
-  #Get max value for plotting data
+  # Get max value for plotting data
   toplot.max <- data_table %>%
     dplyr::ungroup() %>%
     dplyr::select(dplyr::starts_with(c("Native", "NonNative")))
   toplot.max <- max(c(abs(max(toplot.max, na.rm = TRUE)), abs(min(toplot.max, na.rm = TRUE))))
 
+  # Total cover plots
   if (!paired_change) {
-    d <- expand.grid(x=0:(toplot.max + 5), y=0:(toplot.max + 5))
-
-    plot.nat_v_non <- ggplot2::ggplot(d, ggplot2::aes(x,y)) +
-      ggplot2::geom_tile(ggplot2::aes(fill = atan(y/x), alpha=(0.15))) +
-      ggplot2::scale_fill_gradient(high="red", low="green") +
-      ggplot2::theme(legend.position="none") +
-      ggplot2::geom_point(data = data_table,
-                          mapping = ggplot2::aes(x = Native_Cover_Total_pct, y = NonNative_Cover_Total_pct),
-                          color = "black",
-                          size = 2) +
-      ggrepel::geom_text_repel(data = data_table,
-                               mapping = ggplot2::aes(x = Native_Cover_Total_pct, y = NonNative_Cover_Total_pct, label = Plot_Number),
-                               min.segment.length = 0, seed = 42, box.padding = 0.5) +
-      ggplot2::ylab("Total Non-Native Cover") +
-      ggplot2::xlab("Total Native Cover") +
-      ggplot2::scale_x_continuous(breaks = scales::breaks_pretty(n = 10)) +
-      ggplot2::scale_y_continuous(breaks = scales::breaks_pretty(n = 10)) +
-      ggplot2::coord_cartesian(xlim = c(0,toplot.max), ylim = c(0,toplot.max)) +
-      ggplot2::facet_wrap(~Stratum + Sampling_Frame)
+    if (interactive) {
+      plot.nat_v_non <- totalCover_plotly(data, toplot.max)  # Plot total cover in plotly
+    } else {
+      plot.nat_v_non <- totalCover_ggplot(data, toplot.max)  # Plot total cover in ggplot
+    }
   }
 
+  # Paired change plots
   if (paired_change) {
-    ids <- factor(c("1.1", "2.1", "1.2", "2.2", "1.3"))
-
-    values <- data.frame(
-      id = ids,
-      value = c("1 Native (-)\nNon-native (-)\n",
-                "2 Native (-)\nNon-native (+)\n",
-                "3 Native (+)\nNon-native (++)\n",
-                "4 Native (++)\nNon-native (+)\n",
-                "5 Native (++)\nNon-native (-)\n"))
-
-    #Create a custom color scale
-    quad_c <- c("#cccccc","#d11141","#f37735","#C8E52A","#00b159")
-
-    positions <- data.frame(
-      id = rep(ids, each = 4),
-      x = c(-100, 0, 0, -100,
-            -100, -100, 0, 0,
-            #-100, 0, 0, 0,
-            0, 0, 0, 100,
-            0, 0, 100, 100,
-            0, 100, 100, 0),
-      y = c(-100, -100, 0, 0,
-            0, 100, 100, 0,
-            #-100, 0, 0, -100,
-            0, 0, 100, 100,
-            0, 0, 0, 100,
-            -100, -100, 0, 0))
-    datapoly <- merge(values, positions, by = c("id"))
-
-    plot.nat_v_non <- ggplot2::ggplot(data = datapoly,
-                                      mapping = ggplot2::aes(x = x, y = y)) +
-      ggplot2::geom_polygon(ggplot2::aes(fill = value)) + # cannot do alpha w/coord_cartesian???
-      ggplot2::scale_fill_manual(values = quad_c) +
-      ggplot2::geom_point(data = data_table,
-                          mapping = ggplot2::aes(x = Native_Cover_Change_pct, y = NonNative_Cover_Change_pct),
-                          color = "black",
-                          size = 2) +
-      ggrepel::geom_text_repel(data = data_table,
-                               mapping = ggplot2::aes(x = Native_Cover_Change_pct, y = NonNative_Cover_Change_pct, label = Plot_Number),
-                               min.segment.length = 0, seed = 42, box.padding = 0.5) +
-      ggplot2::ylab("Change in Non-Native Cover") +
-      ggplot2::xlab("Change in Native Cover") +
-      ggplot2::geom_vline(xintercept = 0) +
-      ggplot2::geom_hline(yintercept = 0) +
-      ggplot2::scale_x_continuous(breaks = scales::breaks_pretty(n = 10)) +
-      ggplot2::scale_y_continuous(breaks = scales::breaks_pretty(n = 10)) +
-      ggplot2::coord_cartesian(xlim = c(-toplot.max, toplot.max), ylim = c(-toplot.max, toplot.max)) +
-      ggplot2::facet_wrap(~Stratum + Sampling_Frame)
+    if (interactive) {
+      plot.nat_v_non <- changeInCover_plotly(data, toplot.max)  # Plot paired change in plotly
+    } else {
+      plot.nat_v_non <- changeInCover_ggplot(data, toplot.max)  # Plot paired change in ggplot
+    }
   }
 
-  if (crosstalk) {
-    return(plotly::ggplotly(plot.nat_v_non))
-  }
   return(plot.nat_v_non)
+}
+
+#' Helper function for plotting total cover in ggplot
+#'
+#' @param data Data to plot
+#' @param max_lim maximum value in data
+#'
+#' @return ggplot object
+totalCover_ggplot <- function(data, max_lim) {
+  d <- expand.grid(x=0:(max_lim + 5), y=0:(max_lim + 5))
+
+  plot.nat_v_non <- ggplot2::ggplot(d, ggplot2::aes(x,y)) +
+    ggplot2::geom_tile(ggplot2::aes(fill = atan(y/x), alpha=(0.15))) +
+    ggplot2::scale_fill_gradient(high="red", low="green") +
+    ggplot2::theme(legend.position="none") +
+    ggplot2::geom_point(data = data,
+                        mapping = ggplot2::aes(x = Native_Cover_Total_pct, y = NonNative_Cover_Total_pct),
+                        color = "black",
+                        size = 2) +
+    ggrepel::geom_text_repel(data = data,
+                             mapping = ggplot2::aes(x = Native_Cover_Total_pct, y = NonNative_Cover_Total_pct, label = Plot_Number),
+                             min.segment.length = 0, seed = 42, box.padding = 0.5) +
+    ggplot2::ylab("Total Non-Native Cover") +
+    ggplot2::xlab("Total Native Cover") +
+    ggplot2::scale_x_continuous(breaks = scales::breaks_pretty(n = 10)) +
+    ggplot2::scale_y_continuous(breaks = scales::breaks_pretty(n = 10)) +
+    ggplot2::coord_cartesian(xlim = c(0,max_lim), ylim = c(0,max_lim)) +
+    ggplot2::facet_wrap(~Stratum + Sampling_Frame)
+}
+
+#' Helper function for plotting total cover in plotly
+#'
+#' @param data Data to plot
+#' @param max_lim maximum value in data
+#'
+#' @return html widget
+totalCover_plotly <- function(data, max_lim) {
+  plt <- totalCover_ggplot(data, max_lim) %>%
+    plotly::ggplotly()
+
+  return(plt)
+}
+
+#' Helper function for plotting cover change in ggplot
+#'
+#' @param data Data to plot
+#' @param max_lim maximum value in data
+#'
+#' @return ggplot object
+changeInCover_ggplot <- function(data, max_lim) {
+  ids <- factor(c("1.1", "2.1", "1.2", "2.2", "1.3"))
+
+  values <- data.frame(
+    id = ids,
+    value = c("1 Native (-)\nNon-native (-)\n",
+              "2 Native (-)\nNon-native (+)\n",
+              "3 Native (+)\nNon-native (++)\n",
+              "4 Native (++)\nNon-native (+)\n",
+              "5 Native (++)\nNon-native (-)\n"))
+
+  #Create a custom color scale
+  quad_c <- c("#cccccc","#d11141","#f37735","#C8E52A","#00b159")
+
+  positions <- data.frame(
+    id = rep(ids, each = 4),
+    x = c(-100, 0, 0, -100,
+          -100, -100, 0, 0,
+          #-100, 0, 0, 0,
+          0, 0, 0, 100,
+          0, 0, 100, 100,
+          0, 100, 100, 0),
+    y = c(-100, -100, 0, 0,
+          0, 100, 100, 0,
+          #-100, 0, 0, -100,
+          0, 0, 100, 100,
+          0, 0, 0, 100,
+          -100, -100, 0, 0))
+  datapoly <- merge(values, positions, by = c("id"))
+
+  plot.nat_v_non <- ggplot2::ggplot(data = datapoly,
+                                    mapping = ggplot2::aes(x = x, y = y)) +
+    ggplot2::geom_polygon(ggplot2::aes(fill = value)) + # cannot do alpha w/coord_cartesian???
+    ggplot2::scale_fill_manual(values = quad_c) +
+    ggplot2::geom_point(data = data,
+                        mapping = ggplot2::aes(x = Native_Cover_Change_pct, y = NonNative_Cover_Change_pct),
+                        color = "black",
+                        size = 2) +
+    ggrepel::geom_text_repel(data = data,
+                             mapping = ggplot2::aes(x = Native_Cover_Change_pct, y = NonNative_Cover_Change_pct, label = Plot_Number),
+                             min.segment.length = 0, seed = 42, box.padding = 0.5) +
+    ggplot2::ylab("Change in Non-Native Cover") +
+    ggplot2::xlab("Change in Native Cover") +
+    ggplot2::geom_vline(xintercept = 0) +
+    ggplot2::geom_hline(yintercept = 0) +
+    ggplot2::scale_x_continuous(breaks = scales::breaks_pretty(n = 10)) +
+    ggplot2::scale_y_continuous(breaks = scales::breaks_pretty(n = 10)) +
+    ggplot2::coord_cartesian(xlim = c(-max_lim, max_lim), ylim = c(-max_lim, max_lim)) +
+    ggplot2::facet_wrap(~Stratum + Sampling_Frame)
+}
+
+#' Helper function for plotting change in cover in plotly
+#'
+#' @param data Data to plot
+#' @param max_lim maximum value in data
+#'
+#' @return html widget
+changeInCover_plotly <- function(data, max_lim) {
+  plt <- plotly::plot_ly(data = data,
+                         x = ~ Native_Cover_Change_pct,
+                         y = ~ NonNative_Cover_Change_pct) %>%
+    plotly::highlight(on = "plotly_hover")
+  return(plt)
 }
 
 #' Summarize Understory Cover Data by Nativity, Life_Form, or Species

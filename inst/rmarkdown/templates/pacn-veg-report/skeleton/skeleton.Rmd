@@ -97,14 +97,13 @@ Documentation: https://rstudio.github.io/DT/
 
 ```{r dt, echo=FALSE, message=FALSE}
 cover_by_nativity_dt <- cover_by_nativity %>%
-  mutate(`Tot Pct Cov` = round(`Tot Pct Cov`, 2)) %>%
   SharedData$new()  # Make a crosstalk-compatible data frame
 
 bscols(widths = c(3, 3, 3, 3),
        filter_select("park", "Park", cover_by_nativity_dt, ~`Unit Code`),
        filter_select("sample_frame", "Sampling Frame", cover_by_nativity_dt, ~`Sampling Frame`),
-       filter_select("nativity", "Nativity", cover_by_nativity_dt, ~Nativity),
-       filter_slider("pct_cov", "Total % Cover", cover_by_nativity_dt, ~`Tot Pct Cov`, step = 1, round = TRUE))
+       filter_slider("pct_cov_non", "Total Non-native % Cover", cover_by_nativity_dt, ~`Nonnative Cover Total Pct`, step = 1, round = TRUE),
+       filter_slider("pct_cov_nat", "Total Native % Cover", cover_by_nativity_dt, ~`Native Cover Total Pct`, step = 1, round = TRUE))
 
 cover_by_nativity_dt %>%
   datatable(extensions = 'Buttons',
@@ -127,14 +126,14 @@ See https://glin.github.io/reactable/articles/examples.html for lots more exampl
 
 ```{r reactable, echo=FALSE, message=FALSE}
 cover_by_nativity_reactable <- cover_by_nativity %>%
-  mutate(`Tot Pct Cov` = round(`Tot Pct Cov`, 2)) %>%
+  # mutate(`Tot Pct Cov` = round(`Tot Pct Cov`, 2)) %>%
   SharedData$new()  # Make a crosstalk-compatible data frame
 
 bscols(widths = c(3, 3, 3, 3),
-       filter_select("park", "Park", cover_by_nativity_reactable, ~`Unit Code`),
-       filter_select("sample_frame", "Sampling Frame", cover_by_nativity_reactable, ~`Sampling Frame`),
-       filter_select("nativity", "Nativity", cover_by_nativity_reactable, ~Nativity),
-       filter_slider("pct_cov", "Total % Cover", cover_by_nativity_reactable, ~`Tot Pct Cov`, step = 1, round = TRUE))
+       filter_select("park", "Park", cover_by_nativity_dt, ~`Unit Code`),
+       filter_select("sample_frame", "Sampling Frame", cover_by_nativity_dt, ~`Sampling Frame`),
+       filter_slider("pct_cov_non", "Total Non-native % Cover", cover_by_nativity_dt, ~`Nonnative Cover Total Pct`, step = 1, round = TRUE),
+       filter_slider("pct_cov_nat", "Total Native % Cover", cover_by_nativity_dt, ~`Native Cover Total Pct`, step = 1, round = TRUE))
 
 cover_by_nativity_reactable %>%
   reactable(showPageSizeOptions = TRUE,
@@ -148,8 +147,8 @@ cover_by_nativity_reactable %>%
               `Plot Type` = colDef(minWidth = 4),
               `Plot Number` = colDef(minWidth = 4),
               Stratum = colDef(minWidth = 5),
-              Nativity = colDef(minWidth = 5),
-              `Tot Pct Cov` = colDef(minWidth = 3)
+              `Native Cover Total Pct` = colDef(minWidth = 5),
+              `Nonnative Cover Total Pct` = colDef(minWidth = 5)
             )
   )
 ```
@@ -169,12 +168,11 @@ cover_by_nativity_plotly <- cover_by_nativity_combined %>%
 bscols(widths = c(3, NA),
        list(
          filter_select("sample_frame", "Sampling Frame", cover_by_nativity_plotly, ~Sampling_Frame),
-         filter_select("nativity", "Nativity", cover_by_nativity_plotly, ~Nativity),
          filter_select("plot_number", "Plot", cover_by_nativity_plotly, ~Plot_Number)
        ),
        plot_ly(cover_by_nativity_plotly,
                x = ~Unit_Code,
-               y = ~tot_pct_cov,
+               y = ~NonNative_Cover_Total_pct,
                color = ~Cycle,
                type = "box",
                boxpoints = "all",
@@ -183,11 +181,10 @@ bscols(widths = c(3, NA),
                marker = list(opacity = 0.3)) %>%
          layout(boxmode = "group",
                 xaxis = list(title = "Park"),
-                yaxis = list(title = "Total % Cover"),
+                yaxis = list(title = "Total % Non-Native Cover"),
                 legend=list(title=list(text='<b> Cycle </b>'),
                             y = 0.5))
 )
-
 
 ```
 
@@ -199,8 +196,8 @@ Documentation: https://ggplot2.tidyverse.org/
 
 ```{r ggplot, echo=FALSE, message=FALSE, warning=FALSE, fig.height=15}
 cover_by_nativity_combined %>%
-  dplyr::filter(Nativity != "Unknown") %>%
-  ggplot(aes(x = Cycle, y = tot_pct_cov, group = Cycle)) + 
+  # dplyr::filter(Nativity != "Unknown") %>%
+  ggplot(aes(x = Cycle, y = NonNative_Cover_Total_pct, group = Cycle)) + 
   ggdist::stat_halfeye(
     adjust = .5, 
     width = .6, 
@@ -219,8 +216,8 @@ cover_by_nativity_combined %>%
       seed = 1, width = .07
     )
   ) +
-  ylab("Total % Cover") +
+  ylab("Total Non-Native % Cover") +
   guides(color = "none") +
-  facet_grid(rows = vars(Unit_Code), cols = vars(Nativity)) +
+  facet_grid(rows = vars(Unit_Code), cols = vars(Cycle)) +
   theme_minimal()
 ```

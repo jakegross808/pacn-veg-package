@@ -30,6 +30,12 @@ params:
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
+```{css caption-hack, echo=FALSE, eval=TRUE}
+div#plot-level-change p.caption {
+  margin-top: -40px !important;
+}
+```
+
 ```{r packages, include=FALSE}
 #library(tidyverse)
 library(kableExtra)
@@ -42,6 +48,8 @@ library(plotly)
 library(treemapify)
 library(data.table)
 library(DT)
+library(crosstalk)
+library(htmltools)
 ```
 
 ```{r utility_fxns, include=FALSE}
@@ -58,6 +66,7 @@ pacn_dt <- function(data, record_count = TRUE, search = TRUE, ...) {
   
   DT::datatable(data,
                 rownames = FALSE,
+                selection = "multiple",
                 options = list(dom = "tif",
                                paging = FALSE,
                                scrollY = "200px",
@@ -214,7 +223,7 @@ und2 <- UnderCombineStrata(und) %>%
 sb <- select(und2, Nativity, Life_Form, Code, Avg_Cover)
 sb <- as.sunburstDF(sb, value_column = "Avg_Cover")
 plot_ly(sb, ids = ~ids, labels = ~labels, parents = ~parents, values = ~values, type = 'sunburst', branchvalues = 'total') %>%
-  plotly::layout(sunburstcolorway = nativity_colors)
+  plotly::layout(colorway = nativity_colors)
 
 sb
 ```
@@ -286,42 +295,32 @@ pacn_dt(cover_by_nativity)
 
 -   Plot #2 showed the greatest increase in non-native percent cover (43), while Plot #10 showed the greatest decrease in native percent cover (-14.3) (Table \@ref(tab:chg-cover-table)).
 
-```{r chg-cover-graph, echo=FALSE, fig.cap= paste0("Change in native vs. non-native cover from ", years[length(years)-1], "-", max(years), ". Point numbers correspond to fixed monitoring sites."), message=FALSE, warning=FALSE}
-UnderNativityCover.plot.nat_v_non(sample_frame = params$sample_frame, 
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+grp <- "cov_change"
+dat <- UnderNativityCover(paired_change = TRUE, sample_frame = params$sample_frame, cycle = max(cycles), paired_cycle = min(cycles),
+                          combine_strata = TRUE,
+                          crosstalk = TRUE,
+                          crosstalk_group = grp)
+
+plt <- UnderNativityCover.plot.nat_v_non(sample_frame = params$sample_frame, 
                                   cycle = max(cycles), 
                                   paired_cycle = min(cycles),
                                   paired_change = TRUE,
                                   combine_strata = TRUE,
-                                  crosstalk = TRUE)
-```
-```{r chg-cover-map, echo=FALSE, message=FALSE, warning=FALSE, fig.cap= "Map of change in native and non-native percent cover."}
-MapCoverChange(crosstalk = TRUE, sample_frame = params$sample_frame, cycle = max(cycles), paired_cycle = min(cycles))
+                                  crosstalk = TRUE,
+                                  crosstalk_group = grp,
+                                  interactive = TRUE,
+                                  data_table = dat)
+
+map <- MapCoverChange(crosstalk = TRUE, crosstalk_group = grp, sample_frame = params$sample_frame, cycle = max(cycles), paired_cycle = min(cycles))
+
+bscols(plt, map)
 ```
 
-```{r chg-cover-table, echo=FALSE, message=FALSE, warning=FALSE}
-# cover_by_nativity <- UnderNativityCover(combine_strata = TRUE, rm_unk_natv = TRUE,
-#                                         sample_frame = params$sample_frame,
-#                                         cycle = max(cycles),
-#                                         paired_cycle = min(cycles),
-#                                         paired_change = TRUE,
-#                                         crosstalk = TRUE)
-# #   select(Plot_Number, Native_Cover_Percent_Change = Native_Cover_Change_pct, Non_Native_Cover_Percent_Change = NonNative_Cover_Change_pct) %>%
-# #   arrange(-Non_Native_Cover_Percent_Change)
-# # names(cover_by_nativity) <- gsub("_", " ", names(cover_by_nativity)) %>% str_to_title()  # Make column names nicer for display
-# 
-# # cover_by_nativity <- mutate(cover_by_nativity, key = ) <- crosstalk::SharedData$new(cover_by_nativity, group = "cover", key = "Plot_Number")
-# col_indices <- 1:ncol(cover_by_nativity$data())
-# cols_to_keep <- c("Plot_Number", "Native_Cover_Change_pct", "NonNative_Cover_Change_pct")
-# keep <- match(cols_to_keep, names(cover_by_nativity$data()))
-# remove <- col_indices[!col_indices %in% keep]
-# add_table_caption("Change in understory cover per plot.")
-# pacn_dt(cover_by_nativity, record_count = TRUE, search = TRUE, columnDefs = list(list(visible = FALSE, targets = remove)))
-
-# cover_by_nativity %>%
-#   kbl(digits = 1, align = "c",
-#       caption = "Change in understory cover per plot.") %>%
-#   kable_styling(bootstrap_options = c("striped", "condensed")) %>%
-#   scroll_box(height = "300px") 
+```{r chg-cover-graph, echo=FALSE, fig.cap= paste0("Change in native vs. non-native cover from ", years[length(years)-1], "-", max(years), ". Point numbers correspond to fixed monitoring sites."), message=FALSE, warning=FALSE, out.height="0px", class.output="dummy-fig"}
+# Dumb hack to get fig caption to show below plot + map
+knitr::include_graphics(here("inst", "rmarkdown", "dummy_fig.PNG"))
 ```
 
 ## Invasive Plant Transect Data

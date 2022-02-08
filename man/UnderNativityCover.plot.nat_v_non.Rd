@@ -9,6 +9,7 @@ UnderNativityCover.plot.nat_v_non(
   paired_change = FALSE,
   crosstalk = FALSE,
   crosstalk_group = "cover",
+  interactive = FALSE,
   park,
   sample_frame,
   community,
@@ -17,7 +18,7 @@ UnderNativityCover.plot.nat_v_non(
   plot_type,
   paired_cycle,
   silent = FALSE,
-  data_table = NA
+  data_table
 )
 }
 \arguments{
