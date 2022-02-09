@@ -107,8 +107,6 @@ MapPACNVeg <- function(protocol = c("FTPC", "EIPS"), crosstalk = FALSE, crosstal
     tsect_lines <- sp::SpatialLinesDataFrame(tsect_lines, tsect_lines_df, match.ID = TRUE)
   }
 
-
-
   # Make NPS map Attribution
   NPSAttrib <-
     htmltools::HTML(
@@ -203,7 +201,11 @@ MapCoverChange <- function(crosstalk = FALSE, crosstalk_group = "cover", combine
 
   # Combine cover and location data
   cover_data <- dplyr::left_join(cover_data, pts, by = c("Unit_Code", "Sampling_Frame", "Plot_Type", "Plot_Number", "Year", "Cycle")) %>%
-    dplyr::mutate(All_Cover_Change = Native_Cover_Change_pct - NonNative_Cover_Change_pct)
+    dplyr::mutate(color = dplyr::case_when(NonNative_Cover_Change_pct <= 0 & Native_Cover_Change_pct <= 0 ~ "#cccccc",
+                                           NonNative_Cover_Change_pct > 0 & Native_Cover_Change_pct <= 0 ~ "#C8E52A",
+                                           NonNative_Cover_Change_pct > 0 & Native_Cover_Change_pct > 0 & NonNative_Cover_Change_pct > Native_Cover_Change_pct ~ "#d11141",
+                                           NonNative_Cover_Change_pct > 0 & Native_Cover_Change_pct > 0 & NonNative_Cover_Change_pct < Native_Cover_Change_pct ~ "#00b159",
+                                           NonNative_Cover_Change_pct <= 0 & Native_Cover_Change_pct > 0 ~ "#f37735"))
 
   # Enable crosstalk if specified
   if (crosstalk) {
@@ -211,15 +213,12 @@ MapCoverChange <- function(crosstalk = FALSE, crosstalk_group = "cover", combine
     cover <- crosstalk::SharedData$new(cover_data, group = crosstalk_group, key = ~key)
   }
 
-  # Set up color palette and icons
-  max_abs_chg <- max(abs(cover_data$All_Cover_Change), na.rm = TRUE)
-
-  pal <- leaflet::colorNumeric(palette = c("#d11141", "#f3dc35", "#00b159"), domain = c(-max_abs_chg, max_abs_chg))  # Do the domain this way so that color ramp will be centered at 0
+  # Set up icons
   custom_icons <- pchIcons(pch = rep(22, nrow(cover_data)),
                            width = 30,
                            height = 30,
-                           bg =colorspace::darken(pal(cover_data$All_Cover_Change)),
-                           col = pal(cover_data$All_Cover_Change), 0.3)
+                           bg = colorspace::darken(cover_data$color),
+                           col = cover_data$color, 0.3)
   iconwidth <- 25
   iconheight <- 25
 

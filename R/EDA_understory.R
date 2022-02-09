@@ -306,10 +306,66 @@ changeInCover_ggplot <- function(data, max_lim) {
 #'
 #' @return html widget
 changeInCover_plotly <- function(data, max_lim) {
-  plt <- plotly::plot_ly(data = data,
-                         x = ~ Native_Cover_Change_pct,
-                         y = ~ NonNative_Cover_Change_pct) %>%
-    plotly::highlight(on = "plotly_hover")
+  lims <- c(-(1.1 * max_lim), 1.1 * max_lim)  # Expand the x and y lims a little so that points don't end up on the very edge of the plot
+
+  ids <- factor(c("1.1", "2.1", "1.2", "2.2", "1.3"))
+
+  values <- data.frame(
+    id = ids,
+    value = c("1 Native (-)\nNon-native (-)\n",
+              "2 Native (-)\nNon-native (+)\n",
+              "3 Native (+)\nNon-native (++)\n",
+              "4 Native (++)\nNon-native (+)\n",
+              "5 Native (++)\nNon-native (-)\n"))
+
+  #Create a custom color scale
+  quad_c <- data.frame(id = ids,
+                       color = c("#cccccc", "#C8E52A", "#d11141", "#00b159", "#f37735"))
+
+  positions <- data.frame(
+    id = rep(ids, each = 4),
+    x = c(-100, 0, 0, -100,
+          -100, -100, 0, 0,
+          #-100, 0, 0, 0,
+          0, 0, 0, 100,
+          0, 0, 100, 100,
+          0, 100, 100, 0),
+    y = c(-100, -100, 0, 0,
+          0, 100, 100, 0,
+          #-100, 0, 0, -100,
+          0, 0, 100, 100,
+          0, 0, 0, 100,
+          -100, -100, 0, 0))
+  datapoly <- merge(values, positions, by = c("id"))
+  datapoly <- merge(datapoly, quad_c, by = c("id")) %>%
+    dplyr::group_by(value)
+  plt <- plotly::plot_ly() %>%
+    plotly::add_polygons(data = datapoly,
+                         x = ~x,
+                         y = ~y,
+                         hoverinfo='skip',
+                         color = ~value,
+                         colors = ~color,
+                         inherit = FALSE,
+                         type = "contour") %>%
+    plotly::add_trace(data = data,
+                      x = ~ Native_Cover_Change_pct,
+                      y = ~ NonNative_Cover_Change_pct,
+                      hoverinfo = "text",
+                      type = "scatter",
+                      mode = "markers",
+                      showlegend = FALSE,
+                      marker = list(color = "#212121"),
+                      text = ~paste('</br> Plot: ', Plot_Number,
+                                    '</br> Non-native change: ', round(NonNative_Cover_Change_pct, 1),
+                                    '</br> Native change: ', round(Native_Cover_Change_pct, 1))) %>%
+    # plotly::add_text(data = data,
+    #                  x = ~ Native_Cover_Change_pct,
+    #                  y = ~ NonNative_Cover_Change_pct,text = ~Plot_Number, textposition = "top right") %>%
+    plotly::highlight(on = "plotly_hover") %>%
+    plotly::layout(xaxis = list(title = "Non-native cover change", range = lims),
+                   yaxis = list(title = "Native cover change", range = lims),
+                   showlegend = FALSE)
   return(plt)
 }
 
