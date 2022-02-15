@@ -147,6 +147,9 @@ MapPACNVeg <- function(protocol = c("FTPC", "EIPS"), crosstalk = FALSE, crosstal
     leaflet::addLayersControl(baseGroups = c("Basic", "Imagery", "Slate", "Light"),
                               overlayGroups = grps,
                               options=leaflet::layersControlOptions(collapsed = TRUE)) %>%
+    leaflet.esri::addEsriFeatureLayer(url = "https://services1.arcgis.com/fBc8EJBxQRMcHlei/arcgis/rest/services/PACN_DBO_VEG_sampling_frames_ply/FeatureServer/0",
+                                      useServiceSymbology = TRUE,
+                                      labelProperty = "Sampling_Frame") %>%
     leaflet::addMarkers(lng = ~Long,
                                lat = ~Lat,
                                icon = customIcons,

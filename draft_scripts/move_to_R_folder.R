@@ -12,6 +12,14 @@ LoadPACNVeg("pacnveg", c("C:/Users/JJGross/OneDrive - DOI/Documents/Certificatio
 haleakala_nativity_paired <- summarize_understory(sample_frame = "Haleakala",
                                            paired_change = TRUE,
                                            plant_grouping = "Nativity")
+
+# Nativity discrete scale Colors:
+nativity_colors <- c("Native" = "#1b9e77",
+                     "No_Veg" = "grey",
+                     "Non-Native" = "#d95f02",
+                     "Unknown" = "#7570b3")
+
+
 p <- haleakala_nativity_paired %>%
   filter(Nativity != "Unknown") %>%
   filter(Cycle == 2) %>%
