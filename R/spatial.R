@@ -100,14 +100,12 @@ MapPACNVeg <- function(protocol = c("FTPC", "EIPS"), crosstalk = FALSE, crosstal
 
   if ("EIPS" %in% protocol) {
     tsect_lines_df <- pts_data %>%
-      dplyr::filter(!is.na(Transect_Line), !map_lgl(Transect_Line, is.null)) %>%
+      dplyr::filter(!is.na(Transect_Line), !purrr::map_lgl(Transect_Line, is.null)) %>%
       tibble::rowid_to_column(var = "id")
     tsect_lines <- apply(tsect_lines_df, 1, function(df) {return(sp::Lines(df$Transect_Line, df$id))})
     tsect_lines <- sp::SpatialLines(tsect_lines)
     tsect_lines <- sp::SpatialLinesDataFrame(tsect_lines, tsect_lines_df, match.ID = TRUE)
   }
-
-
 
   # Make NPS map Attribution
   NPSAttrib <-
@@ -206,23 +204,24 @@ MapCoverChange <- function(crosstalk = FALSE, crosstalk_group = "cover", combine
 
   # Combine cover and location data
   cover_data <- dplyr::left_join(cover_data, pts, by = c("Unit_Code", "Sampling_Frame", "Plot_Type", "Plot_Number", "Year", "Cycle")) %>%
-    dplyr::mutate(All_Cover_Change = Native_Cover_Change_pct - NonNative_Cover_Change_pct)
+    dplyr::mutate(color = dplyr::case_when(NonNative_Cover_Change_pct <= 0 & Native_Cover_Change_pct <= 0 ~ "#cccccc",
+                                           NonNative_Cover_Change_pct > 0 & Native_Cover_Change_pct <= 0 ~ "#C8E52A",
+                                           NonNative_Cover_Change_pct > 0 & Native_Cover_Change_pct > 0 & NonNative_Cover_Change_pct > Native_Cover_Change_pct ~ "#d11141",
+                                           NonNative_Cover_Change_pct > 0 & Native_Cover_Change_pct > 0 & NonNative_Cover_Change_pct < Native_Cover_Change_pct ~ "#00b159",
+                                           NonNative_Cover_Change_pct <= 0 & Native_Cover_Change_pct > 0 ~ "#f37735"))
 
   # Enable crosstalk if specified
   if (crosstalk) {
     cover_data <- dplyr::mutate(cover_data, key = paste0(Unit_Code, Sampling_Frame, Plot_Type, Plot_Number, Year, Cycle))
-    cover <- crosstalk::SharedData$new(cover_data, group = crosstalk_group, key = key)
+    cover <- crosstalk::SharedData$new(cover_data, group = crosstalk_group, key = ~key)
   }
 
-  # Set up color palette and icons
-  max_abs_chg <- max(abs(cover_data$All_Cover_Change), na.rm = TRUE)
-
-  pal <- leaflet::colorNumeric(palette = c("#d11141", "#f3dc35", "#00b159"), domain = c(-max_abs_chg, max_abs_chg))  # Do the domain this way so that color ramp will be centered at 0
+  # Set up icons
   custom_icons <- pchIcons(pch = rep(22, nrow(cover_data)),
                            width = 30,
                            height = 30,
-                           bg =colorspace::darken(pal(cover_data$All_Cover_Change)),
-                           col = pal(cover_data$All_Cover_Change), 0.3)
+                           bg = colorspace::darken(cover_data$color),
+                           col = cover_data$color, 0.3)
   iconwidth <- 25
   iconheight <- 25
 
@@ -250,18 +249,19 @@ MapCoverChange <- function(crosstalk = FALSE, crosstalk_group = "cover", combine
     leaflet::addTiles(group = "Light", urlTemplate = NPSlight, attribution = NPSAttrib) %>%
     leaflet::addLayersControl(baseGroups = c("Basic", "Imagery", "Slate", "Light"),
                               options=leaflet::layersControlOptions(collapsed = TRUE)) %>%
-    leaflet::addMarkers(lng = ~Long,
-                        lat = ~Lat,
+    leaflet::addMarkers(lng = ~cover_data$Long,
+                        lat = ~cover_data$Lat,
                         icon = ~leaflet::icons(iconUrl = custom_icons,
                                                iconWidth = iconwidth,
                                                iconHeight = iconheight),
-                        label = ~Plot_Number,
+                        label = ~cover_data$Plot_Number,
+                        # layerId = ~cover_data$key,
                         labelOptions = leaflet::labelOptions(noHide = TRUE, opacity = .9, textOnly = TRUE, offset = c(0,0), direction = "center", style = list("color" = "white", "font-weight" = "bold")),
-                        popup = ~paste0("<br><strong>Non-native cover change:</strong> ", NonNative_Cover_Change_pct,
-                                        "<br><strong>Native cover change:</strong> ", Native_Cover_Change_pct,
-                                        "<br><strong>Sampling Frame:</strong> ", Sampling_Frame,
-                                        "<br><strong>Cycle:</strong> ", Cycle,
-                                        "<br><strong>Year:</strong> ", Year))
+                        popup = ~paste0("<br><strong>Non-native cover change:</strong> ", cover_data$NonNative_Cover_Change_pct,
+                                        "<br><strong>Native cover change:</strong> ", cover_data$Native_Cover_Change_pct,
+                                        "<br><strong>Sampling Frame:</strong> ", cover_data$Sampling_Frame,
+                                        "<br><strong>Cycle:</strong> ", cover_data$Cycle,
+                                        "<br><strong>Year:</strong> ", cover_data$Year))
 
   map %<>% leaflet::addScaleBar(position = "bottomleft")
 
