@@ -9,6 +9,8 @@ LoadPACNVeg("pacnveg", c("C:/Users/JJGross/OneDrive - DOI/Documents/Certificatio
                          "C:/Users/JJGross/OneDrive - DOI/EIPS_Databases/2021_established_invasives_2_20210129.mdb"),
             cache = TRUE, force_refresh = FALSE)
 
+MapPACNVeg(protocol = "FTPC", park = "WAPA")
+
 look <- FilterPACNVeg("Understory", park = "HAVO", cycle = 2)
 look <- FilterPACNVeg("Understory", sample_frame = "Haleakala", cycle = 2)
 
