@@ -363,8 +363,8 @@ changeInCover_plotly <- function(data, max_lim) {
     #                  x = ~ Native_Cover_Change_pct,
     #                  y = ~ NonNative_Cover_Change_pct,text = ~Plot_Number, textposition = "top right") %>%
     plotly::highlight(on = "plotly_hover") %>%
-    plotly::layout(xaxis = list(title = "Non-native cover change", range = lims),
-                   yaxis = list(title = "Native cover change", range = lims),
+    plotly::layout(xaxis = list(title = "Native cover change", range = lims),
+                   yaxis = list(title = "Non-native cover change", range = lims),
                    showlegend = FALSE)
   return(plt)
 }

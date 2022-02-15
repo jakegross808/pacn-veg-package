@@ -205,10 +205,10 @@ MapCoverChange <- function(crosstalk = FALSE, crosstalk_group = "cover", combine
   # Combine cover and location data
   cover_data <- dplyr::left_join(cover_data, pts, by = c("Unit_Code", "Sampling_Frame", "Plot_Type", "Plot_Number", "Year", "Cycle")) %>%
     dplyr::mutate(color = dplyr::case_when(NonNative_Cover_Change_pct <= 0 & Native_Cover_Change_pct <= 0 ~ "#cccccc",
-                                           NonNative_Cover_Change_pct > 0 & Native_Cover_Change_pct <= 0 ~ "#C8E52A",
-                                           NonNative_Cover_Change_pct > 0 & Native_Cover_Change_pct > 0 & NonNative_Cover_Change_pct > Native_Cover_Change_pct ~ "#d11141",
-                                           NonNative_Cover_Change_pct > 0 & Native_Cover_Change_pct > 0 & NonNative_Cover_Change_pct < Native_Cover_Change_pct ~ "#00b159",
-                                           NonNative_Cover_Change_pct <= 0 & Native_Cover_Change_pct > 0 ~ "#f37735"))
+                                           NonNative_Cover_Change_pct > 0 & Native_Cover_Change_pct <= 0 ~ "#d11141",#red"
+                                           NonNative_Cover_Change_pct > 0 & Native_Cover_Change_pct > 0 & NonNative_Cover_Change_pct > Native_Cover_Change_pct ~ "#f37735",#orange
+                                           NonNative_Cover_Change_pct > 0 & Native_Cover_Change_pct > 0 & NonNative_Cover_Change_pct < Native_Cover_Change_pct ~ "#C8E52A",#yellow
+                                           NonNative_Cover_Change_pct <= 0 & Native_Cover_Change_pct > 0 ~ "#00b159"))#green
 
   # Enable crosstalk if specified
   if (crosstalk) {
