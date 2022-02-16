@@ -328,8 +328,8 @@ MapPACNVeg2 <- function(protocol = c("FTPC", "EIPS"), crosstalk = FALSE, crossta
   pts <- PlotAndTransectLocations(protocol = protocol, crosstalk = crosstalk, crosstalk_group = crosstalk_group, park = park, sample_frame = sample_frame, cycle = cycle, plot_type = plot_type, is_qa_plot = is_qa_plot, transect_type = transect_type, certified = certified, verified = verified)
 
   pts <- pts %>%
-    dplyr::mutate(symb_color = dplyr::case_when(Sample_Unit_Type == "Fixed" ~ "#0075e2",#blue
-                                           Sample_Unit_Type == "Rotational" ~ "#d11141")) %>% #red
+    dplyr::mutate(symb_color = dplyr::case_when(Sample_Unit_Type == "Fixed" ~ "#0000FF",#blue
+                                           Sample_Unit_Type == "Rotational" ~ "#FF0000")) %>% #red
     dplyr::mutate(map_symb = dplyr::case_when(Sample_Unit == "Plot" ~ 22,#square
                                               Sample_Unit == "Transect" ~ 21)) %>% #circle
     dplyr::mutate(symb_w = dplyr::case_when(Sample_Unit == "Plot" ~ 30,#larger
@@ -412,7 +412,7 @@ MapPACNVeg2 <- function(protocol = c("FTPC", "EIPS"), crosstalk = FALSE, crossta
   # Add EIPS transect lines
   if ("EIPS" %in% protocol) {
     map <- leaflet::addPolylines(map, data = tsect_lines,
-                                 group = "EIPS transects", color = symb_color, opacity = 0.8)
+                                 group = "EIPS transects", color = tsect_lines@data[["symb_color"]], opacity = 0.8)
   }
 
   map %<>% leaflet::addScaleBar(position = "bottomleft")
