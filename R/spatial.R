@@ -328,10 +328,15 @@ MapPACNVeg2 <- function(protocol = c("FTPC", "EIPS"), crosstalk = FALSE, crossta
   pts <- PlotAndTransectLocations(protocol = protocol, crosstalk = crosstalk, crosstalk_group = crosstalk_group, park = park, sample_frame = sample_frame, cycle = cycle, plot_type = plot_type, is_qa_plot = is_qa_plot, transect_type = transect_type, certified = certified, verified = verified)
 
   pts <- pts %>%
-    dplyr::mutate(color = dplyr::case_when(Sample_Unit_Type == "Fixed" ~ "#0000FF",#blue
-                                           Sample_Unit_Type == "Rotational" ~ "#FF0000")) %>% #red
+    dplyr::mutate(symb_color = dplyr::case_when(Sample_Unit_Type == "Fixed" ~ "#0075e2",#blue
+                                           Sample_Unit_Type == "Rotational" ~ "#d11141")) %>% #red
     dplyr::mutate(map_symb = dplyr::case_when(Sample_Unit == "Plot" ~ 22,#square
-                                              Sample_Unit == "Transect" ~ 23))#circle
+                                              Sample_Unit == "Transect" ~ 21)) %>% #circle
+    dplyr::mutate(symb_w = dplyr::case_when(Sample_Unit == "Plot" ~ 30,#larger
+                                              Sample_Unit == "Transect" ~ 20)) %>% #smaller
+    dplyr::mutate(symb_h = dplyr::case_when(Sample_Unit == "Plot" ~ 30,#larger
+                                              Sample_Unit == "Transect" ~ 20))#smaller
+
 
   # If pts is a crosstalk object, extract just the data for functions that need a regular tibble/dataframe
   if (crosstalk) {
@@ -366,21 +371,12 @@ MapPACNVeg2 <- function(protocol = c("FTPC", "EIPS"), crosstalk = FALSE, crossta
   NPSslate = "https://atlas-stg.geoplatform.gov/styles/v1/atlas-user/ck5cpvc2e0avf01p9zaw4co8o/tiles/256/{z}/{x}/{y}@2x?access_token=pk.eyJ1IjoiYXRsYXMtdXNlciIsImEiOiJjazFmdGx2bjQwMDAwMG5wZmYwbmJwbmE2In0.lWXK2UexpXuyVitesLdwUg"
   NPSlight = "https://atlas-stg.geoplatform.gov/styles/v1/atlas-user/ck5cpia2u0auf01p9vbugvcpv/tiles/256/{z}/{x}/{y}@2x?access_token=pk.eyJ1IjoiYXRsYXMtdXNlciIsImEiOiJjazFmdGx2bjQwMDAwMG5wZmYwbmJwbmE2In0.lWXK2UexpXuyVitesLdwUg"
 
-  # Set up custom icons
-  #icon_filename <- paste0(pts_data$Protocol, "_", pts_data$Sample_Unit_Type, ".png")
-  #customIcons <- leaflet::icons(iconUrl = here::here("inst", "rmarkdown", icon_filename),
-  #                              iconWidth = 20, iconHeight = 20,
-  #                              iconAnchorX = 10, iconAnchorY = 10
-  #)
-
   # Set up icons
   custom_icons <- pchIcons(pch = pts$map_symb,
-                           width = 30,
-                           height = 30,
-                           bg = colorspace::darken(pts$color),
-                           col = pts$color, 0.3)
-  iconwidth <- 25
-  iconheight <- 25
+                           width = pts$symb_w,
+                           height = pts$symb_h,
+                           bg = colorspace::darken(pts$symb_color),
+                           col = pts$symb_color, 0.3)
 
   # Set up group labels for layers control
   grps <- paste(protocol, "points")
@@ -402,8 +398,8 @@ MapPACNVeg2 <- function(protocol = c("FTPC", "EIPS"), crosstalk = FALSE, crossta
     leaflet::addMarkers(lng = ~Long,
                         lat = ~Lat,
                         icon = ~leaflet::icons(iconUrl = custom_icons,
-                                               iconWidth = iconwidth,
-                                               iconHeight = iconheight),
+                                               iconWidth = symb_w,
+                                               iconHeight = symb_h),
                         group = ~paste(Protocol, "points"),
                         label = ~Sample_Unit_Number,
                         labelOptions = leaflet::labelOptions(noHide = TRUE, opacity = .9, textOnly = TRUE, offset = c(0,0), direction = "center", style = list("color" = "white", "font-weight" = "bold")),
@@ -416,7 +412,7 @@ MapPACNVeg2 <- function(protocol = c("FTPC", "EIPS"), crosstalk = FALSE, crossta
   # Add EIPS transect lines
   if ("EIPS" %in% protocol) {
     map <- leaflet::addPolylines(map, data = tsect_lines,
-                                 group = "EIPS transects", color = "#c56c39", opacity = 0.8)
+                                 group = "EIPS transects", color = symb_color, opacity = 0.8)
   }
 
   map %<>% leaflet::addScaleBar(position = "bottomleft")
