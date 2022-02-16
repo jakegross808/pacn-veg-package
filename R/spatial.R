@@ -412,7 +412,7 @@ MapPACNVeg2 <- function(protocol = c("FTPC", "EIPS"), crosstalk = FALSE, crossta
   # Add EIPS transect lines
   if ("EIPS" %in% protocol) {
     map <- leaflet::addPolylines(map, data = tsect_lines,
-                                 group = "EIPS transects", color = tsect_lines@data[["symb_color"]], opacity = 0.8)
+                                 group = "EIPS transects", color = tsect_lines@data$symb_color, opacity = 0.8)
   }
 
   map %<>% leaflet::addScaleBar(position = "bottomleft")
