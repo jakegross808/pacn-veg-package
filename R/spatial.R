@@ -327,13 +327,17 @@ filename <- function(pch, col, bg) {
 MapPACNVeg2 <- function(protocol = c("FTPC", "EIPS"), crosstalk = FALSE, crosstalk_group = "map", park, sample_frame, cycle, plot_type, is_qa_plot, transect_type, certified, verified) {
   pts <- PlotAndTransectLocations(protocol = protocol, crosstalk = crosstalk, crosstalk_group = crosstalk_group, park = park, sample_frame = sample_frame, cycle = cycle, plot_type = plot_type, is_qa_plot = is_qa_plot, transect_type = transect_type, certified = certified, verified = verified)
 
+  pts <- pts %>%
+    dplyr::mutate(color = dplyr::case_when(Sample_Unit_Type == "Fixed" ~ "#0000FF",#blue
+                                           Sample_Unit_Type == "Rotational" ~ "#FF0000")) %>% #red
+    dplyr::mutate(map_symb = dplyr::case_when(Sample_Unit == "Plot" ~ 22,#square
+                                              Sample_Unit == "Transect" ~ 23))#circle
+
   # If pts is a crosstalk object, extract just the data for functions that need a regular tibble/dataframe
   if (crosstalk) {
     pts_data <- pts$data()
   } else {
-    pts_data <- pts %>%
-      dplyr::mutate(color = dplyr::case_when(Sample_Unit_Type == "Fixed" ~ "#0000FF",#blue
-                                             Sample_Unit_Type == "Rotational" ~ "#FF0000"))#red
+    pts_data <- pts
   }
 
   if ("EIPS" %in% protocol) {
@@ -370,11 +374,11 @@ MapPACNVeg2 <- function(protocol = c("FTPC", "EIPS"), crosstalk = FALSE, crossta
   #)
 
   # Set up icons
-  custom_icons <- pchIcons(pch = rep(22, nrow(cover_data)),
+  custom_icons <- pchIcons(pch = pts$map_symb,
                            width = 30,
                            height = 30,
-                           bg = colorspace::darken(cover_data$color),
-                           col = cover_data$color, 0.3)
+                           bg = colorspace::darken(pts$color),
+                           col = pts$color, 0.3)
   iconwidth <- 25
   iconheight <- 25
 
@@ -397,7 +401,9 @@ MapPACNVeg2 <- function(protocol = c("FTPC", "EIPS"), crosstalk = FALSE, crossta
                                       labelProperty = "Sampling_Frame") %>%
     leaflet::addMarkers(lng = ~Long,
                         lat = ~Lat,
-                        icon = customIcons,
+                        icon = ~leaflet::icons(iconUrl = custom_icons,
+                                               iconWidth = iconwidth,
+                                               iconHeight = iconheight),
                         group = ~paste(Protocol, "points"),
                         label = ~Sample_Unit_Number,
                         labelOptions = leaflet::labelOptions(noHide = TRUE, opacity = .9, textOnly = TRUE, offset = c(0,0), direction = "center", style = list("color" = "white", "font-weight" = "bold")),
