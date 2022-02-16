@@ -332,11 +332,8 @@ MapPACNVeg2 <- function(protocol = c("FTPC", "EIPS"), crosstalk = FALSE, crossta
     pts_data <- pts$data()
   } else {
     pts_data <- pts %>%
-      dplyr::mutate(color = dplyr::case_when(NonNative_Cover_Change_pct <= 0 & Native_Cover_Change_pct <= 0 ~ "#cccccc",#gray
-                                             NonNative_Cover_Change_pct > 0 & Native_Cover_Change_pct <= 0 ~ "#d11141",#red
-                                             NonNative_Cover_Change_pct > 0 & Native_Cover_Change_pct > 0 & NonNative_Cover_Change_pct > Native_Cover_Change_pct ~ "#f37735",#orange
-                                             NonNative_Cover_Change_pct > 0 & Native_Cover_Change_pct > 0 & NonNative_Cover_Change_pct < Native_Cover_Change_pct ~ "#C8E52A",#yellow
-                                             NonNative_Cover_Change_pct <= 0 & Native_Cover_Change_pct > 0 ~ "#00b159"))#green
+      dplyr::mutate(color = dplyr::case_when(Sample_Unit_Type == "Fixed" ~ "#0000FF",#blue
+                                             Sample_Unit_Type == "Rotational" ~ "#FF0000"))#red
   }
 
   if ("EIPS" %in% protocol) {
@@ -366,11 +363,20 @@ MapPACNVeg2 <- function(protocol = c("FTPC", "EIPS"), crosstalk = FALSE, crossta
   NPSlight = "https://atlas-stg.geoplatform.gov/styles/v1/atlas-user/ck5cpia2u0auf01p9vbugvcpv/tiles/256/{z}/{x}/{y}@2x?access_token=pk.eyJ1IjoiYXRsYXMtdXNlciIsImEiOiJjazFmdGx2bjQwMDAwMG5wZmYwbmJwbmE2In0.lWXK2UexpXuyVitesLdwUg"
 
   # Set up custom icons
-  icon_filename <- paste0(pts_data$Protocol, "_", pts_data$Sample_Unit_Type, ".png")
-  customIcons <- leaflet::icons(iconUrl = here::here("inst", "rmarkdown", icon_filename),
-                                iconWidth = 20, iconHeight = 20,
-                                iconAnchorX = 10, iconAnchorY = 10
-  )
+  #icon_filename <- paste0(pts_data$Protocol, "_", pts_data$Sample_Unit_Type, ".png")
+  #customIcons <- leaflet::icons(iconUrl = here::here("inst", "rmarkdown", icon_filename),
+  #                              iconWidth = 20, iconHeight = 20,
+  #                              iconAnchorX = 10, iconAnchorY = 10
+  #)
+
+  # Set up icons
+  custom_icons <- pchIcons(pch = rep(22, nrow(cover_data)),
+                           width = 30,
+                           height = 30,
+                           bg = colorspace::darken(cover_data$color),
+                           col = cover_data$color, 0.3)
+  iconwidth <- 25
+  iconheight <- 25
 
   # Set up group labels for layers control
   grps <- paste(protocol, "points")
