@@ -9,7 +9,24 @@ LoadPACNVeg("pacnveg", c("C:/Users/JJGross/OneDrive - DOI/Documents/Certificatio
                          "C:/Users/JJGross/OneDrive - DOI/EIPS_Databases/2021_established_invasives_2_20210129.mdb"),
             cache = TRUE, force_refresh = FALSE)
 
-MapPACNVeg(protocol = "FTPC", park = "WAPA")
+MapPACNVeg2(sample_frame = "Haleakala")
+
+
+
+MapCoverChange(sample_frame = "Haleakala", cycle = 2)
+
+
+pacnvegetation:::pchIcons(pch = rep(22, nrow(cover_data)),
+         width = 30,
+         height = 30,
+         bg = colorspace::darken(cover_data$color),
+         col = cover_data$color, 0.3)
+
+MapCoverChange(combine_strata = TRUE, park = "WAPA", cycle = 2, paired_cycle = 1)
+
+look <- summarize_understory(combine_strata = TRUE, plant_grouping = "Nativity", paired_change = TRUE, sample_frame = "Olaa")
+look_old <- UnderNativityCover(combine_strata = TRUE, paired_change = TRUE, sample_frame = "Olaa", cycle = 3)
+
 
 look <- FilterPACNVeg("Understory", park = "HAVO", cycle = 2)
 look <- FilterPACNVeg("Understory", sample_frame = "Haleakala", cycle = 2)
