@@ -237,14 +237,14 @@ totalCover_ggplot <- function(data, max_lim) {
 #' @return html widget
 totalCover_plotly <- function(data, max_lim) {
   data <- data %>%
-    mutate(nat_ratio = dplyr::case_when(Native_Cover_Total_pct > NonNative_Cover_Total_pct ~ Native_Cover_Total_pct/(Native_Cover_Total_pct+NonNative_Cover_Total_pct),
+    dplyr::mutate(nat_ratio = dplyr::case_when(Native_Cover_Total_pct > NonNative_Cover_Total_pct ~ Native_Cover_Total_pct/(Native_Cover_Total_pct+NonNative_Cover_Total_pct),
                                         Native_Cover_Total_pct < NonNative_Cover_Total_pct ~ NonNative_Cover_Total_pct/(NonNative_Cover_Total_pct+Native_Cover_Total_pct)*-1,
                                         TRUE ~ 0)) %>%
-    mutate(tot_cover = Native_Cover_Total_pct + NonNative_Cover_Total_pct)
+    dplyr::mutate(tot_cover = Native_Cover_Total_pct + NonNative_Cover_Total_pct)
 
-  pal <- colorRampPalette(c("red", "orange", "orange", "yellow", "yellow", "green"))(length(unique(tot_data_noCT_ratio$nat_ratio)))
+  pal <- grDevices::colorRampPalette(c("red", "orange", "orange", "yellow", "yellow", "green"))(length(unique(tot_data_noCT_ratio$nat_ratio)))
 
-  plt <- plot_ly(data = tot_data_noCT_ratio,
+  plt <- plotly::plot_ly(data = tot_data_noCT_ratio,
           x = ~ Native_Cover_Total_pct,
           y = ~ NonNative_Cover_Total_pct,
           color = ~ nat_ratio,
