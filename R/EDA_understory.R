@@ -242,18 +242,18 @@ totalCover_plotly <- function(data, max_lim) {
                                         TRUE ~ 0)) %>%
     mutate(tot_cover = Native_Cover_Total_pct + NonNative_Cover_Total_pct)
 
-  breaks <- c(-1, -0.5, 0, 0.5, 1)
+  pal <- colorRampPalette(c("red", "orange", "orange", "yellow", "yellow", "green"))(length(unique(tot_data_noCT_ratio$nat_ratio)))
 
-  plt <- ggplot(tot_data_noCT_ratio, aes(x = Native_Cover_Total_pct, y = NonNative_Cover_Total_pct, color = nat_ratio, size = tot_cover,
-                                         text=sprintf("Plot: %s<br>Year: %s", Plot_Number, Year))) +  # Set up text for plotly hover info
-    geom_point() +
-    geom_abline(intercept = 0,slope=1,color="blue") +
-    scale_color_gradientn(colours = c("red", "yellow", "green"), limits = c(-1,1),
-                          values = scales::rescale(c(-1, -0.5, 0.7, 1))) +
-    theme_bw()
-
-  plt <- plt %>%
-    plotly::ggplotly(tooltip= c("text"))
+  plt <- plot_ly(data = tot_data_noCT_ratio,
+          x = ~ Native_Cover_Total_pct,
+          y = ~ NonNative_Cover_Total_pct,
+          color = ~ nat_ratio,
+          colors = pal,
+          size = ~ tot_cover,
+          type = "scatter",
+          mode = "markers",
+          marker = list(line = list(color = "black"),
+                        width = 2))
 
   return(plt)
 }
