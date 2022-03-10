@@ -164,6 +164,12 @@ UnderNativityCover.plot.nat_v_non <- function(combine_strata = FALSE, paired_cha
     data <- UnderNativityCover(combine_strata = combine_strata, paired_change = paired_change, crosstalk = FALSE,
                                park = park, sample_frame = sample_frame, community = community, year = year, cycle = cycle,
                                plot_type = plot_type, paired_cycle = paired_cycle, silent = silent)
+
+    data <- data %>%
+      dplyr::mutate(nat_ratio = dplyr::case_when(Native_Cover_Total_pct > NonNative_Cover_Total_pct ~ Native_Cover_Total_pct/(Native_Cover_Total_pct+NonNative_Cover_Total_pct),
+                                                 Native_Cover_Total_pct < NonNative_Cover_Total_pct ~ NonNative_Cover_Total_pct/(NonNative_Cover_Total_pct+Native_Cover_Total_pct)*-1,
+                                                 TRUE ~ 0)) %>%
+      dplyr::mutate(tot_cover = Native_Cover_Total_pct + NonNative_Cover_Total_pct)
   }
 
   # If data is a crosstalk object, extract just the data so we can work with it
@@ -236,15 +242,10 @@ totalCover_ggplot <- function(data, max_lim) {
 #'
 #' @return html widget
 totalCover_plotly <- function(data, max_lim) {
-  data <- data %>%
-    dplyr::mutate(nat_ratio = dplyr::case_when(Native_Cover_Total_pct > NonNative_Cover_Total_pct ~ Native_Cover_Total_pct/(Native_Cover_Total_pct+NonNative_Cover_Total_pct),
-                                        Native_Cover_Total_pct < NonNative_Cover_Total_pct ~ NonNative_Cover_Total_pct/(NonNative_Cover_Total_pct+Native_Cover_Total_pct)*-1,
-                                        TRUE ~ 0)) %>%
-    dplyr::mutate(tot_cover = Native_Cover_Total_pct + NonNative_Cover_Total_pct)
 
-  pal <- grDevices::colorRampPalette(c("red", "orange", "orange", "yellow", "yellow", "green"))(length(unique(tot_data_noCT_ratio$nat_ratio)))
+  pal <- grDevices::colorRampPalette(c("red", "orange", "orange", "yellow", "yellow", "green"))(length(unique(data$nat_ratio)))
 
-  plt <- plotly::plot_ly(data = tot_data_noCT_ratio,
+  plt <- plotly::plot_ly(data = data,
           x = ~ Native_Cover_Total_pct,
           y = ~ NonNative_Cover_Total_pct,
           color = ~ nat_ratio,
