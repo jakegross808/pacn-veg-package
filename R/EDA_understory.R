@@ -260,7 +260,7 @@ totalCover_plotly <- function(data, max_lim) {
   pal <- grDevices::colorRampPalette(c("red", "orange", "yellow", "green"))(length(unique(nat_ratio_cols)))
 
   plt <- plotly::plot_ly(colors = pal) %>%
-    plotly::add_segments(x = 0, xend = 144, y = 0, yend = 144,
+    plotly::add_segments(x = 0, xend = max_lim, y = 0, yend = max_lim,
                          showlegend = TRUE,
                          name = "1:1",
                          line = list(color = "gray")) %>%
@@ -276,10 +276,10 @@ totalCover_plotly <- function(data, max_lim) {
                                       '</br> Non-native cover: ', round(NonNative_Cover_Total_pct, 1)),
                         showlegend = TRUE,
                         name = "Plot") %>%
-    plotly::highlight(on = "plotly_hover") %>%
+    #plotly::highlight(on = "plotly_hover") %>%
     plotly::layout(xaxis = list(title = "Native cover"), #, range = lims
                    yaxis = list(title = "Non-native cover")) %>% #, range = lims
-    plotly::colorbar(title = "% Native", limits = c(0,max_lim))
+    plotly::colorbar(title = "% Native", limits = c(0,100))
 
   return(plt)
 }
