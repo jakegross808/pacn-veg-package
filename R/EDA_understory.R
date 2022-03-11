@@ -166,9 +166,7 @@ UnderNativityCover.plot.nat_v_non <- function(combine_strata = FALSE, paired_cha
                                plot_type = plot_type, paired_cycle = paired_cycle, silent = silent)
 
     data <- data %>%
-      dplyr::mutate(nat_ratio = dplyr::case_when(Native_Cover_Total_pct > NonNative_Cover_Total_pct ~ Native_Cover_Total_pct/(Native_Cover_Total_pct+NonNative_Cover_Total_pct),
-                                                 Native_Cover_Total_pct < NonNative_Cover_Total_pct ~ NonNative_Cover_Total_pct/(NonNative_Cover_Total_pct+Native_Cover_Total_pct)*-1,
-                                                 TRUE ~ 0)) %>%
+      dplyr::mutate(nat_ratio = Native_Cover_Total_pct / (NonNative_Cover_Total_pct + Native_Cover_Total_pct) * 100) %>%
       dplyr::mutate(tot_cover = Native_Cover_Total_pct + NonNative_Cover_Total_pct)
   }
 
@@ -243,18 +241,45 @@ totalCover_ggplot <- function(data, max_lim) {
 #' @return html widget
 totalCover_plotly <- function(data, max_lim) {
 
-  pal <- grDevices::colorRampPalette(c("red", "orange", "orange", "yellow", "yellow", "green"))(length(unique(data$nat_ratio)))
+  nat_ratio_cols <- data$data() %>%
+    dplyr::pull(nat_ratio)
 
-  plt <- plotly::plot_ly(data = data,
-          x = ~ Native_Cover_Total_pct,
-          y = ~ NonNative_Cover_Total_pct,
-          color = ~ nat_ratio,
-          colors = pal,
-          size = ~ tot_cover,
-          type = "scatter",
-          mode = "markers",
-          marker = list(line = list(color = "black"),
-                        width = 2))
+  # pal <- grDevices::colorRampPalette(c("red", "orange", "orange", "yellow", "yellow", "green"))(length(unique(nat_ratio_cols)))
+  #
+  # plt <- plotly::plot_ly(data = data,
+  #         x = ~ Native_Cover_Total_pct,
+  #         y = ~ NonNative_Cover_Total_pct,
+  #         color = ~ nat_ratio,
+  #         colors = pal,
+  #         size = ~ tot_cover,
+  #         type = "scatter",
+  #         mode = "markers",
+  #         marker = list(line = list(color = "black"),
+  #                       width = 2))
+
+  pal <- grDevices::colorRampPalette(c("red", "orange", "yellow", "green"))(length(unique(nat_ratio_cols)))
+
+  plt <- plotly::plot_ly(colors = pal) %>%
+    plotly::add_segments(x = 0, xend = 144, y = 0, yend = 144,
+                         showlegend = TRUE,
+                         name = "1:1",
+                         line = list(color = "gray")) %>%
+    plotly::add_markers(data = data,
+                        x = ~ Native_Cover_Total_pct,
+                        y = ~ NonNative_Cover_Total_pct,
+                        hoverinfo = "text",
+                        color = ~ nat_ratio,
+                        type = "scatter",
+                        marker = list(line = list(color = "black"), width = 2, size = ~ tot_cover*.1),
+                        text = ~paste('</br> Plot: ', Plot_Number,
+                                      '</br> Native cover: ', round(Native_Cover_Total_pct, 1),
+                                      '</br> Non-native cover: ', round(NonNative_Cover_Total_pct, 1)),
+                        showlegend = TRUE,
+                        name = "Plot") %>%
+    plotly::highlight(on = "plotly_hover") %>%
+    plotly::layout(xaxis = list(title = "Native cover"), #, range = lims
+                   yaxis = list(title = "Non-native cover")) %>% #, range = lims
+    plotly::colorbar(title = "% Native", limits = c(0,max_lim))
 
   return(plt)
 }
