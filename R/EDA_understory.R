@@ -277,6 +277,7 @@ totalCover_plotly <- function(data, max_lim) {
                         x = ~ Native_Cover_Total_pct,
                         y = ~ NonNative_Cover_Total_pct,
                         hoverinfo = "text",
+                        #groups = ~Plot_Number,
                         color = ~ nat_ratio,
                         type = "scatter",
                         marker = list(line = list(color = "black"), width = 2, size = ~ tot_cover*.1),
