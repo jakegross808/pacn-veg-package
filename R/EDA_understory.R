@@ -164,16 +164,23 @@ UnderNativityCover.plot.nat_v_non <- function(combine_strata = FALSE, paired_cha
     data <- UnderNativityCover(combine_strata = combine_strata, paired_change = paired_change, crosstalk = FALSE,
                                park = park, sample_frame = sample_frame, community = community, year = year, cycle = cycle,
                                plot_type = plot_type, paired_cycle = paired_cycle, silent = silent)
-
-    data <- data %>%
-      dplyr::mutate(nat_ratio = Native_Cover_Total_pct / (NonNative_Cover_Total_pct + Native_Cover_Total_pct) * 100) %>%
-      dplyr::mutate(tot_cover = Native_Cover_Total_pct + NonNative_Cover_Total_pct)
   }
 
-  # If data is a crosstalk object, extract just the data so we can work with it
+  # If data not paired-change, then add columns to help plot total cover
+  if (!paired_change) {
+      data <- data %>%
+      dplyr::mutate(nat_ratio = Native_Cover_Total_pct / (NonNative_Cover_Total_pct + Native_Cover_Total_pct) * 100) %>%
+      dplyr::mutate(tot_cover = Native_Cover_Total_pct + NonNative_Cover_Total_pct) %>%
+      dplyr::group_by(Unit_Code, Sampling_Frame, Plot_Type, Plot_Number) %>%
+      dplyr::mutate(last_cycle = max(Cycle)) %>%
+      dplyr::ungroup() %>%
+      dplyr::mutate(last_visit = dplyr::case_when(Cycle == last_cycle ~ TRUE,
+                                                    TRUE ~ FALSE))
+  } else {data <- data}
 
+  # If data is a crosstalk object, extract just the data so we can work with it
   if (interactive && crosstalk) {
-    data <- dplyr::mutate(data, key = paste0(Unit_Code, Sampling_Frame, Plot_Type, Plot_Number, Year, Cycle))
+    data <- dplyr::mutate(data, key = paste0(Unit_Code, Sampling_Frame, Plot_Number, Plot_Type, Year, Cycle)) #crosstalk recommends using unique key
     data <- crosstalk::SharedData$new(data, group = crosstalk_group, key = ~key)
     data_table <- data$data()
   } else {data_table <- data}
@@ -259,7 +266,9 @@ totalCover_plotly <- function(data, max_lim) {
 
   pal <- grDevices::colorRampPalette(c("red", "orange", "yellow", "green"))(length(unique(nat_ratio_cols)))
 
-  plt <- plotly::plot_ly(colors = pal) %>%
+  plt <- data %>%
+    plotly::plot_ly(colors = pal) %>%
+    #plotly::highlight_key(~Plot_Number) %>%
     plotly::add_segments(x = 0, xend = max_lim, y = 0, yend = max_lim,
                          showlegend = TRUE,
                          name = "1:1",
@@ -272,16 +281,24 @@ totalCover_plotly <- function(data, max_lim) {
                         type = "scatter",
                         marker = list(line = list(color = "black"), width = 2, size = ~ tot_cover*.1),
                         text = ~paste('</br> Plot: ', Plot_Number,
+                                      '</br> Year: ', Year,
                                       '</br> Native cover: ', round(Native_Cover_Total_pct, 1),
                                       '</br> Non-native cover: ', round(NonNative_Cover_Total_pct, 1)),
                         showlegend = TRUE,
                         name = "Plot") %>%
-    #plotly::highlight(on = "plotly_hover") %>%
+    plotly::highlight(on = "plotly_hover", off = "plotly_doubleclick") %>%
     plotly::layout(xaxis = list(title = "Native cover"), #, range = lims
                    yaxis = list(title = "Non-native cover")) %>% #, range = lims
     plotly::colorbar(title = "% Native", limits = c(0,100))
 
-  return(plt)
+  box_filter <- crosstalk::filter_checkbox("Cycle", "Monitoring Cycle", data, ~Cycle)
+
+  bsc <- crosstalk::bscols(
+    widths = c(11, 1),
+    plt, box_filter
+  )
+
+  return(bsc)
 }
 
 #' Helper function for plotting cover change in ggplot
