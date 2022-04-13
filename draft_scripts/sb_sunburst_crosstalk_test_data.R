@@ -6,8 +6,9 @@ list1 <- (dplyr::tibble(
   values = c(65, 14, 12, 10, 2, 6, 6, 4, 4),
 ))
 
-nest1 <- nest(list1) %>%
-  mutate(name = "bible")
+nest1 <- list1 %>%
+  tidyr::nest(data = everything()) %>%
+  dplyr::mutate(name = "bible")
 
 list2 <- (dplyr::tibble(
   labels = c("Abraham", "Herb", "Homer", "Bart", "Lisa", "Maggie"),
@@ -15,12 +16,21 @@ list2 <- (dplyr::tibble(
   values = c(100, 25, 75, 25, 25, 25),
 ))
 
-nest2 <- nest(list2) %>%
-  mutate(name = "simpsons")
+nest2 <- list2 %>%
+  tidyr::nest(data = everything()) %>%
+  dplyr::mutate(name = "simpsons")
 
-fam_tree <- bind_rows(nest1, nest2)
+fam_tree <- dplyr::bind_rows(nest1, nest2)
 
-fam_tree[[2]][[1]]
+plotly::plot_ly(fam_tree[[1]][[1]], labels = ~labels, parents = ~parents, values = ~values, type = 'sunburst', branchvalues = 'total')
+plotly::plot_ly(fam_tree[[1]][[2]], labels = ~labels, parents = ~parents, values = ~values, type = 'sunburst', branchvalues = 'total')
+
+fam_tree %>%
+  dplyr::filter(name == "simpsons") %>%
+  dplyr::pull(data) %>%
+  purrr::pluck()
+
+fam_tree[[1]][[2]]
 
 create_buttons <- function(df, y_axis_var_names) {
   lapply(
