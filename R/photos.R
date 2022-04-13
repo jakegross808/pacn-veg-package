@@ -3,40 +3,19 @@
 #'
 #' @param AGOL_Layer "FTPC" "EIPS" or "Plants"
 #' @param gdb_name Name of the geodatabase (Example: "EIPS_Olaa_Nahuku_20220323.gdb")
-#' @param gdb_location File path to the geodatabase (Example: here::here("geodatabase"))
+#' @param gdb_location File path to the geodatabase (Example: "C:/Users/JJGross/Documents/RData/PROJECTS/pacnvegetation/geodatabase")
 #' @param gdb_layer The layer file inside the geodatabase (Example: "EIPS_Olaa_Nahuku_20220323")
+#' @param return_table FALSE = process photos; TRUE = do not process photos, and return table instead
 #'
 #' @return watermarked photos are saved to a folder "watermarked" inside the working directory. Use here() to determine current working directory.
 #' @export
 #'
 #' @examples
 #' \dontrun{
-#' process_photos(AGOL_Layer = "EIPS", gdb_name = "EIPS_Olaa_Nahuku_20220323.gdb", gdb_location = here("geodatabase"), gdb_layer = "EIPS_Olaa_Nahuku_20220323")
+#' process_photos(AGOL_Layer = "EIPS", gdb_name = "EIPS_Olaa_Nahuku_20220323.gdb", gdb_location = "C:/Users/JJGross/Documents/RData/PROJECTS/pacnvegetation/geodatabase", gdb_layer = "EIPS_Olaa_Nahuku_20220323")
 #' }
 
-process_photos <- function(AGOL_Layer, gdb_name, gdb_location, gdb_layer) {
-    # FIXES NEEDED:
-
-  #'1 - *** No Fixes Needed **
-
-  # Load Packages
-  #library(here) # package helps with relative paths
-  #library(tidyverse) # numerous packages that help make the script more intuitive
-  #library(lubridate) # helpful functions for working with dates/times
-  #library(magick) # photo editing packages
-
-  #here::here()
-
-  # User supplied variables -----------
-  # Veg Protocol Layer Type containing the collector/field maps photos
-  #AGOL_Layer <- "EIPS" # Options: "FTPC" "EIPS" "Plants"
-
-  # Geodatabase name. Example: "EIPS_Olaa_Nahuku_20220323.gdb"
-  #gdb_name <- "EIPS_Olaa_Nahuku_20220323_1.gdb"
-  #gdb_location <- here::here("geodatabase")
-  #gdb_layer <- "EIPS_Olaa_Nahuku_20220323"
-
-  # ------------
+process_photos <- function(AGOL_Layer, gdb_name, gdb_location, gdb_layer, return_table = FALSE) {
 
   # Get joined GIS table + attachment table:
   gdb <- paste0(gdb_location, "/", gdb_name)
@@ -206,13 +185,13 @@ process_photos <- function(AGOL_Layer, gdb_name, gdb_location, gdb_layer) {
 
   # apply() function doesn't like blobs so change to list
   GIS_Table4$DATA <- as.list(GIS_Table4$DATA)
-  str(GIS_Table4$DATA)
-  #GIS_Table4$DATA <- blob::as_blob(GIS_Table4$DATA)
-  #str(GIS_Table4$DATA)
-  str(GIS_Table4$created_date)
   GIS_Table4$created_date <- as.character(GIS_Table4$created_date)
-  str(GIS_Table4$created_date)
-  names(GIS_Table4)
+
+  if(return_table == TRUE){
+    return(GIS_Table4)
+    }
+
+
   # Fix additional photos using changes here:
   #GIS_Table4 <- GIS_Table4 %>%
   #  filter(Site_Number == 54) %>%
