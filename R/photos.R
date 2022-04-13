@@ -183,8 +183,6 @@ process_photos <- function(AGOL_Layer, gdb_name, gdb_location, gdb_layer, return
 
   }
 
-  # apply() function doesn't like blobs so change to list
-  GIS_Table4$DATA <- as.list(GIS_Table4$DATA)
   GIS_Table4$created_date <- as.character(GIS_Table4$created_date)
 
   if(return_table == TRUE){
@@ -197,8 +195,12 @@ process_photos <- function(AGOL_Layer, gdb_name, gdb_location, gdb_layer, return
   #  filter(Site_Number == 54) %>%
   #  mutate(DT_HST = "2021-04-16")
 
-  # Run the function above on the GIS_Table
+  # apply() function doesn't like blobs so change to list before running apply()
+  GIS_Table4$DATA <- as.list(GIS_Table4$DATA)
+  # applyr the "watermark" function to each record (ie photo)
   apply(X = GIS_Table4, MARGIN = 1, FUN = watermark, new_folder = "watermarked")
+
+  #print warning message to remind user to move photos to sharepoint
   print("Remember to copy images from local folder to vital signs folders: 1) images folder and 2) database folder")
 
 }
