@@ -46,6 +46,8 @@ qc_presence_complete <- function(all_records = TRUE, park, sample_frame, communi
     dplyr::mutate(Datasheet = "Cover") %>%
     #dplyr::mutate(Status = dplyr::case_when(Dead == TRUE ~ "Dead",
     #                          Dead == FALSE ~ "Live")) %>%
+    #Dead may have been removed from understory (4/19/2022) changing to [Status == "Live"] because no cover points should be dead.
+    dplyr::mutate(Status = "Live") %>%
     dplyr::mutate(Comments = NA) %>%
     dplyr::mutate(Point = as.character(Point)) %>%
     dplyr::select(Sampling_Frame, Cycle, Plot_Number, Code, Scientific_Name, Life_Form, Nativity, Datasheet, Point, Status, Comments, Certified, Verified)
