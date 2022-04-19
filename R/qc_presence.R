@@ -44,8 +44,8 @@ qc_presence_complete <- function(all_records = TRUE, park, sample_frame, communi
   sp_understory <- filter_understory %>%
     tidyr::drop_na(Code, Scientific_Name) %>%
     dplyr::mutate(Datasheet = "Cover") %>%
-    dplyr::mutate(Status = dplyr::case_when(Dead == TRUE ~ "Dead",
-                              Dead == FALSE ~ "Live")) %>%
+    #dplyr::mutate(Status = dplyr::case_when(Dead == TRUE ~ "Dead",
+    #                          Dead == FALSE ~ "Live")) %>%
     dplyr::mutate(Comments = NA) %>%
     dplyr::mutate(Point = as.character(Point)) %>%
     dplyr::select(Sampling_Frame, Cycle, Plot_Number, Code, Scientific_Name, Life_Form, Nativity, Datasheet, Point, Status, Comments, Certified, Verified)
