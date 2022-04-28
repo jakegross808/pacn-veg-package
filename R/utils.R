@@ -318,7 +318,7 @@ ReadFTPC <- function(conn) {
 
   # . . Events_extra_other
   Events_extra_other <- Events_extra %>%
-    dplyr::select(Unit_Code, Sampling_Frame, Year, Cycle, Plot_Type, Zone, Management_Unit,
+    dplyr::select(Unit_Code, Sampling_Frame, Year, Cycle, Plot_Type,
                   Plot_Number, Max_Veg_Ht, Site_Name, Images, Certified, Verified) %>%
     dplyr::collect()
 
@@ -561,7 +561,7 @@ ReadEIPS <- function(db_paths) {
       #Move long text columns to end because of SQL driver error:
       dplyr::relocate(Event_Notes, .after = last_col()) %>%
       dplyr::relocate(Transect_Notes, .after = last_col()) %>%
-      dplyr::select(Event_ID, Transect_ID, Unit_Code, Community, Sampling_Frame, Start_Date, Year, Cycle, Zone, Management_Unit,
+      dplyr::select(Event_ID, Transect_ID, Unit_Code, Community, Sampling_Frame, Start_Date, Year, Cycle,
                     Transect_Number, Site_Name, Transect_Type, Transect_Number, Azimuth_Transect, Lat, Long,
                     GCS, Lat_Dir, Long_Dir, Entered_Date, Updated_Date, Verified, Verified_By, Verified_Date,
                     Certified, Certified_By, Certified_Date, Transect_Notes, Event_Notes) #-Start_Date
@@ -583,7 +583,7 @@ ReadEIPS <- function(db_paths) {
 
     # Events_extra_other
     Events_extra_other_new <- Events_extra %>%
-      dplyr::select(Unit_Code, Sampling_Frame, Year, Cycle, Transect_Type, Zone, Management_Unit,
+      dplyr::select(Unit_Code, Sampling_Frame, Year, Cycle, Transect_Type,
                     Transect_Number, Site_Name, Certified, Verified) %>%
       dplyr::collect()
 

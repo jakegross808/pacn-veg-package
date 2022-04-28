@@ -3,10 +3,8 @@ library(pacnvegetation)
 library(tidyverse)
 library(tidytext)
 
-LoadPACNVeg("pacnveg", c("C:/Users/JJGross/OneDrive - DOI/Documents/Certification_Local/Databases/EIPS/established_invasives_BE_master_20210818.mdb",
-                         "C:/Users/JJGross/OneDrive - DOI/EIPS_Databases/2021_established_invasives_20220324.mdb",
-                         "C:/Users/JJGross/OneDrive - DOI/EIPS_Databases/2017/2017-2018_established_invasives_20220324.mdb",
-                         "C:/Users/JJGross/OneDrive - DOI/EIPS_Databases/2019/2019_established_invasives_20220324.mdb"),
+LoadPACNVeg("pacnveg", c("C:/Users/JJGross/OneDrive - DOI/Documents/Certification_Local/Databases/EIPS/established_invasives_BE_master_20220422.mdb",
+                         "C:/Users/JJGross/OneDrive - DOI/Documents/Certification_Local/Databases/EIPS/2021_established_invasives_20220422.mdb"),
             cache = TRUE, force_refresh = FALSE)
 
 names(FilterPACNVeg())
