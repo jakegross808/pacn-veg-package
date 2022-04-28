@@ -1,13 +1,56 @@
-# To run test use:
+
 library(pacnvegetation)
 library(tidyverse)
 library(tidytext)
 
+LoadPACNVeg("pacnveg", c("C:/Users/JJGross/OneDrive - DOI/Documents/Certification_Local/Databases/EIPS/established_invasives_BE_master_20210818.mdb",
+                         "C:/Users/JJGross/OneDrive - DOI/EIPS_Databases/2021_established_invasives_20220324.mdb",
+                         "C:/Users/JJGross/OneDrive - DOI/EIPS_Databases/2017/2017-2018_established_invasives_20220324.mdb",
+                         "C:/Users/JJGross/OneDrive - DOI/EIPS_Databases/2019/2019_established_invasives_20220324.mdb"),
+            cache = TRUE, force_refresh = FALSE)
+
+names(FilterPACNVeg())
+#-----------------------
+canopy <- FilterPACNVeg("Canopy")
+
+canopy <- canopy %>%
+  arrange(Cycle, Sampling_Frame, Plot_Number) #%>%
+  summarise(n = n())
+
+small_woody <- FilterPACNVeg("SmWoody") %>%
+  #filter(Sampling_Frame == "Haleakala") %>%
+  filter(Cycle == 2)
+
+
+species_missed <- qc_presence_complete()
+species_missed <- qc_presence_complete(all_records = FALSE)
+
+FilterPACNVeg("LgTrees") %>%
+  filter(Caudex_Length != 999) %>%
+  filter(Life_Form == "Tree Fern") %>%
+  ggplot(aes(x=Caudex_Length)) +
+  geom_histogram(color="black", fill="white") +
+  facet_grid(. ~ Sampling_Frame)
+
+large_trees %>%
+  #filter(Status == "Dead") %>%
+  filter(Life_Form == "Tree Fern") #%>%
+  count(Foliar)
+
+
+shrubs <- FilterPACNVeg("SmWoody")
+
+chk <- process_photos(AGOL_Layer = "EIPS",
+               gdb_name = "EIPS_Olaa_Nahuku_20220323_1.gdb",
+               gdb_location = "C:/Users/JJGross/Documents/RData/PROJECTS/pacnvegetation/geodatabase",
+               gdb_layer = "EIPS_Olaa_Nahuku_20220323",
+               return_table = TRUE)
 
 process_photos(AGOL_Layer = "EIPS",
                gdb_name = "EIPS_Olaa_Nahuku_20220323_1.gdb",
                gdb_location = "C:/Users/JJGross/Documents/RData/PROJECTS/pacnvegetation/geodatabase",
-               gdb_layer = "EIPS_Olaa_Nahuku_20220323")
+               gdb_layer = "EIPS_Olaa_Nahuku_20220323",
+               return_table = FALSE)
 
 
 LoadPACNVeg("pacnveg", c("C:/Users/JJGross/OneDrive - DOI/Documents/Certification_Local/Databases/EIPS/established_invasives_BE_master_20210818.mdb",

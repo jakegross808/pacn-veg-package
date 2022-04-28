@@ -233,12 +233,9 @@ ReadFTPC <- function(conn) {
   #Locations (e.g. Sampling Frame)
 
   #Short
-  tbl_Locations_short <- dplyr::tbl(conn, "tbl_Locations") %>%
+  tbl_Locations <- dplyr::tbl(conn, "tbl_Locations") %>%
     dplyr::select(Location_ID, Site_ID, Community, Sampling_Frame)
 
-  #Extra
-  tbl_Locations_extra <- dplyr::tbl(conn, "tbl_Locations") %>%
-    dplyr::select(Location_ID, Site_ID, Community, Sampling_Frame, Zone, Management_Unit)
 
   # . . 3. tbl_Plot----
 
@@ -284,7 +281,7 @@ ReadFTPC <- function(conn) {
   # . . . . Events ----
   Events <- tbl_Events_short %>%
     dplyr::left_join(tbl_Plot_short, by = "Plot_ID") %>%
-    dplyr::left_join(tbl_Locations_short, by = "Location_ID") %>%
+    dplyr::left_join(tbl_Locations, by = "Location_ID") %>%
     dplyr::left_join(tbl_Sites_short, by = "Site_ID") %>%
     dplyr::select(Unit_Code, Community, Sampling_Frame, Year, Cycle, Plot_Type, Plot_Number,
            QA_Plot, Certified, Verified, Event_ID)
@@ -293,7 +290,7 @@ ReadFTPC <- function(conn) {
   # . . . . Events_extra ----
   Events_extra <- tbl_Events %>%
     dplyr::left_join(tbl_Plot_extra, by = "Plot_ID") %>%
-    dplyr::left_join(tbl_Locations_extra, by = "Location_ID") %>%
+    dplyr::left_join(tbl_Locations, by = "Location_ID") %>%
     #Move long text columns to end because of SQL driver error:
     dplyr::relocate(Plot_Notes, .after = last_col()) %>%
     dplyr::relocate(Event_Notes, .after = last_col()) %>%
@@ -538,11 +535,8 @@ ReadEIPS <- function(db_paths) {
 
     #Locations (e.g. Sampling Frame)
     #Short
-    tbl_Locations_short <- dplyr::tbl(conn, "tbl_Locations") %>%
+    tbl_Locations <- dplyr::tbl(conn, "tbl_Locations") %>%
       dplyr::select(Location_ID, Site_ID, Community = Plant_Community, Sampling_Frame)
-    #Extra
-    tbl_Locations_extra <- dplyr::tbl(conn, "tbl_Locations") %>%
-      dplyr::select(Location_ID, Site_ID, Community = Plant_Community, Sampling_Frame, Zone, Management_Unit)
 
     # Transects
     tbl_Transects_short <- dplyr::tbl(conn, "tbl_Transects") %>%
@@ -559,7 +553,7 @@ ReadEIPS <- function(db_paths) {
                                      ifelse(Year >= 2015 & Year <= 2020, 2,
                                             ifelse(Year >= 2021, 3, NA)))) %>%
       dplyr::left_join(tbl_Transects_extra, by = "Transect_ID") %>%
-      dplyr::left_join(tbl_Locations_extra, by = "Location_ID") %>%
+      dplyr::left_join(tbl_Locations, by = "Location_ID") %>%
       #Move long text columns to end because of SQL driver error:
       dplyr::relocate(Event_Notes, .after = last_col()) %>%
       dplyr::relocate(Transect_Notes, .after = last_col()) %>%
