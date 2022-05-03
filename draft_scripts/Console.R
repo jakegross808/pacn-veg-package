@@ -3,12 +3,52 @@ library(pacnvegetation)
 library(tidyverse)
 library(tidytext)
 
-LoadPACNVeg("pacnveg", c("C:/Users/JJGross/OneDrive - DOI/Documents/Certification_Local/Databases/EIPS/established_invasives_BE_master_20220422.mdb",
+LoadPACNVeg("pacnveg", c("C:/Users/JJGross/OneDrive - DOI/Documents/Certification_Local/Databases/EIPS/established_invasives_BE_master_20220428.mdb",
                          "C:/Users/JJGross/OneDrive - DOI/Documents/Certification_Local/Databases/EIPS/2021_established_invasives_20220422.mdb"),
             cache = TRUE, force_refresh = FALSE)
 
 names(FilterPACNVeg())
 #-----------------------
+chk <- process_photos(AGOL_Layer = "EIPS",
+                      gdb_name = "EIPS_OL_ER_20220502.gdb",
+                      gdb_location = "C:/Users/JJGross/OneDrive - DOI/Documents/Photo Processing/FTPC_EIPS_Photo_Processing",
+                      gdb_layer = "EIPS_OL_ER_20220502",
+                      return_table = TRUE)
+chk1 <- chk %>%
+  # remove subjects that are not photo points
+  filter(!Subject_EIPS == "Staff" & !Subject_EIPS == "Other") %>%
+  separate(Subject_EIPS, sep = "_", into = c("distance", "direction"), remove = FALSE) %>%
+  group_by(Sampling_Frame, Site_numb, Site_Type, distance) %>%
+  summarise(n_direct = n_distinct(direction)) %>%
+  filter(n_direct != 3 & Site_Type == "Fixed" |
+           n_direct != 2 & Site_Type == "Rotational" )
+
+process_photos(AGOL_Layer = "EIPS",
+                      gdb_name = "EIPS_OL_ER_20220502.gdb",
+                      gdb_location = "C:/Users/JJGross/OneDrive - DOI/Documents/Photo Processing/FTPC_EIPS_Photo_Processing",
+                      gdb_layer = "EIPS_OL_ER_20220502",
+                      return_table = FALSE)
+
+transects <- FilterPACNVeg("EIPS_data")
+
+l <- transects %>%
+  filter(Sampling_Frame == "Mauna Loa" |
+           Sampling_Frame == "Kahuku") %>%
+  distinct(Cycle, Sampling_Frame, Transect_Number, Transect_Type) %>%
+  mutate(Transect_Number = as.numeric(Transect_Number))
+  count(Cycle, Sampling_Frame)
+
+AMME_transects <- FilterPACNVeg("EIPS_data") %>%
+  filter(Sampling_Frame == "Muchot")
+
+l <- AMME_transects %>%
+  group_by(Cycle, Transect_Number, Segment) %>%
+  summarise(All_Segments = n())
+
+AMME_transects %>%
+  group_by(Cycle, Scientific_Name, Code, Life_Form, Nativity) %>%
+  summarise(total_segments = n())
+
 canopy <- FilterPACNVeg("Canopy")
 
 canopy <- canopy %>%
@@ -39,11 +79,13 @@ large_trees %>%
 shrubs <- FilterPACNVeg("SmWoody")
 
 chk <- process_photos(AGOL_Layer = "EIPS",
-               gdb_name = "EIPS_Olaa_Nahuku_20220323_1.gdb",
-               gdb_location = "C:/Users/JJGross/Documents/RData/PROJECTS/pacnvegetation/geodatabase",
-               gdb_layer = "EIPS_Olaa_Nahuku_20220323",
+               gdb_name = "EIPS_OL_ER_20220502.gdb",
+               gdb_location = "C:/Users/JJGross/OneDrive - DOI/Documents/Photo Processing/FTPC_EIPS_Photo_Processing",
+               gdb_layer = "EIPS_OL_ER_20220502",
                return_table = TRUE)
 
+
+?process_photos
 process_photos(AGOL_Layer = "EIPS",
                gdb_name = "EIPS_Olaa_Nahuku_20220323_1.gdb",
                gdb_location = "C:/Users/JJGross/Documents/RData/PROJECTS/pacnvegetation/geodatabase",

@@ -159,7 +159,7 @@ process_photos <- function(AGOL_Layer, gdb_name, gdb_location, gdb_layer, return
       # Out_Name
       dplyr::mutate(Out_Name = paste(File_Date, TNum_3, Subject2, sep = "_")) %>%
       dplyr::group_by(Out_Name) %>%
-      dplyr::mutate(Out_Name = if(dplyr::n() > 1) {paste(Out_Name, stringr::str_pad(row_number(), 3, pad = "0"), sep = "_")}
+      dplyr::mutate(Out_Name = if(dplyr::n() > 1) {paste(Out_Name, stringr::str_pad(dplyr::row_number(), 3, pad = "0"), sep = "_")}
                     else {paste0(Out_Name)}) %>%
       dplyr::mutate(Out_Name = paste0(Out_Name, ".jpg")) %>%
       dplyr::ungroup()
