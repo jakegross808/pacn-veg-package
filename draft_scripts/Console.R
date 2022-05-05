@@ -1,20 +1,90 @@
 
 library(pacnvegetation)
 library(tidyverse)
-library(tidytext)
+#library(tidytext)
 
 LoadPACNVeg("pacnveg", c("C:/Users/JJGross/OneDrive - DOI/Documents/Certification_Local/Databases/EIPS/established_invasives_BE_master_20220428.mdb",
                          "C:/Users/JJGross/OneDrive - DOI/Documents/Certification_Local/Databases/EIPS/2021_established_invasives_20220422.mdb"),
             cache = TRUE, force_refresh = FALSE)
 
 names(FilterPACNVeg())
-#-----------------------
-chk <- process_photos(AGOL_Layer = "EIPS",
+
+
+# Check photos -----------------------------------------------------------------
+
+# Tables to check
+# ............... chk_missing
+# ............... dupes
+
+
+
+# FTPC Photos ---------
+
+# Load FTPC data
+chk <- process_photos(AGOL_Layer = "FTPC",
+                      gdb_name = "FTPC_OL_ER_20220503.gdb",
+                      gdb_location = "C:/Users/JJGross/OneDrive - DOI/Documents/Photo Processing/FTPC_EIPS_Photo_Processing",
+                      gdb_layer = "FTPC_OL_ER_20220503",
+                      return_table = TRUE)
+
+
+
+# Get list of missing fixed photos
+chk_fixed <- chk %>%
+  filter(Site_Type == "Fixed") %>%
+  filter(Subject1 != "Staff_Photo") %>%
+  filter(Subject1 != "Other") %>%
+  group_by(Samp_Year, Samp_Frame, Sampling_Frame, Site_Number, Site_Type, Subject1) %>%
+  summarize(n = n()) %>%
+  ungroup() %>%
+  complete(nesting(Samp_Year, Samp_Frame, Sampling_Frame, Site_Number, Site_Type), Subject1) %>%
+  filter(is.na(n))
+
+# Get list of missing rotational photos
+chk_rotational <- chk %>%
+  filter(Site_Type == "Rotational") %>%
+  filter(Subject1 != "Staff_Photo") %>%
+  filter(Subject1 != "Other") %>%
+  group_by(Samp_Year, Samp_Frame, Sampling_Frame, Site_Number, Site_Type, Subject1) %>%
+  summarize(n = n()) %>%
+  ungroup() %>%
+  complete(nesting(Samp_Year, Samp_Frame, Sampling_Frame, Site_Number, Site_Type), Subject1) %>%
+  filter(is.na(n))
+
+# Combine fixed and rotational into one table
+chk_missing <- bind_rows(chk_fixed, chk_rotational)
+
+
+# Create a table of duplicate points
+# missing photos may be hiding as a mislabeled point,
+# if so, it would likely be a duplicate
+
+chk_dupes <- chk %>%
+  # Count number of photos per subject
+  group_by(Samp_Year, Samp_Frame, Sampling_Frame, Site_Number, Site_Type, Subject1, REL_GLOBALID) %>%
+  summarize(n_photos = n()) %>%
+  # Count number of points per subject (disregards multiple photos at one point)
+  group_by(Samp_Year, Samp_Frame, Sampling_Frame, Site_Number, Site_Type, Subject1) %>%
+  summarize(n_points = n()) %>%
+  filter(n_points > 1) %>%
+  filter(Subject1 != "Other")
+
+# join with original data to check created date, etc.
+dupes <- chk_dupes %>%
+  left_join(chk) %>%
+  select(Samp_Year, Samp_Frame, Sampling_Frame, Site_Number, Site_Type, Subject1, n_points, Staff_list, created_date, last_edited_date, last_edited_user)
+
+# EIPS Photos ---------
+
+# Load EIPS data
+EIPS_chk <- process_photos(AGOL_Layer = "EIPS",
                       gdb_name = "EIPS_OL_ER_20220502.gdb",
                       gdb_location = "C:/Users/JJGross/OneDrive - DOI/Documents/Photo Processing/FTPC_EIPS_Photo_Processing",
                       gdb_layer = "EIPS_OL_ER_20220502",
                       return_table = TRUE)
-chk1 <- chk %>%
+
+# Look for missing points
+EIPS_missing <- EIPS_chk %>%
   # remove subjects that are not photo points
   filter(!Subject_EIPS == "Staff" & !Subject_EIPS == "Other") %>%
   separate(Subject_EIPS, sep = "_", into = c("distance", "direction"), remove = FALSE) %>%
@@ -23,11 +93,54 @@ chk1 <- chk %>%
   filter(n_direct != 3 & Site_Type == "Fixed" |
            n_direct != 2 & Site_Type == "Rotational" )
 
+EIPS_chk_dupes <- EIPS_chk %>%
+  # Count number of photos per subject
+  group_by(Samp_Year, Samp_Frame, Sampling_Frame, Site_Number, Site_Type, Subject1, REL_GLOBALID) %>%
+  summarize(n_photos = n()) %>%
+  # Count number of points per subject (disregards multiple photos at one point)
+  group_by(Samp_Year, Samp_Frame, Sampling_Frame, Site_Number, Site_Type, Subject1) %>%
+  summarize(n_points = n()) %>%
+  filter(n_points > 1)
+
+# join with original data to check created date, etc.
+EIPS_dupes <- EIPS_chk_dupes %>%
+  left_join(EIPS_chk) %>%
+  select(Samp_Year, Samp_Frame, Sampling_Frame, Site_Number, Site_Type, Subject1, n_points, Staff_list, created_date, last_edited_date, last_edited_user)
+
+
+
+# Code to Rotate an upsidedown image -------------
+
+upsidedown <- chk %>%
+  filter(Samp_Frame == "OL",
+         Site_numb == "EIPS 05",
+         Subject_EIPS == "600m_Post")
+
+# apply() function doesn't like blobs so change to list before running apply()
+upsidedown$DATA <- as.list(upsidedown$DATA)
+# Load photo
+library(magick)
+image_r <- image_read(upsidedown$DATA[[1]])
+image_r
+image_r <- image_flip(image_r)
+upsidedown$DATA[[1]] <- image_write(image_r)
+image_r <- image_read(upsidedown$DATA[[1]])
+image_r
+# applyr the "watermark" function to each record (ie photo)
+apply(X = upsidedown, MARGIN = 1, FUN = watermark, new_folder = "upsidedown")
+
+# --------------------------------
+
+# example of function parameters to process photos
+
 process_photos(AGOL_Layer = "EIPS",
                       gdb_name = "EIPS_OL_ER_20220502.gdb",
                       gdb_location = "C:/Users/JJGross/OneDrive - DOI/Documents/Photo Processing/FTPC_EIPS_Photo_Processing",
                       gdb_layer = "EIPS_OL_ER_20220502",
                       return_table = FALSE)
+
+
+# ------------------------------------------------------------------------------
 
 transects <- FilterPACNVeg("EIPS_data")
 
