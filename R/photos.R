@@ -246,6 +246,9 @@ watermark <- function(x, new_folder) {
   #print(paste("structure of photo = ", print(str(image.x))))
 
   img.x <- magick::image_read(image.x)
+  # Apply auto-orientation "image_orient()" which tries to infer the correct orientation
+  #' from the Exif data.
+  img.x <- magick::image_orient(img.x)
   #print(image_attributes(img.x))
 
 

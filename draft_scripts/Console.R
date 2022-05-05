@@ -10,6 +10,67 @@ LoadPACNVeg("pacnveg", c("C:/Users/JJGross/OneDrive - DOI/Documents/Certificatio
 names(FilterPACNVeg())
 
 
+
+update_photos <- process_photos(AGOL_Layer = "FTPC",
+               gdb_name = "FTPC_OL_ER_20220503.gdb",
+               gdb_location = "C:/Users/JJGross/OneDrive - DOI/Documents/Photo Processing/FTPC_EIPS_Photo_Processing",
+               gdb_layer = "FTPC_OL_ER_20220503",
+               return_table = TRUE)
+
+update_photos <- update_photos %>%
+  mutate(samp_plot = paste(Samp_Frame,Site_Number, sep = "_"))
+
+plots2update <- c("OL_7",
+                  "OL_11",
+                  "OL_14",
+                  "OL_15",
+                  "OL_47",
+                  "OL_51",
+                  "OL_53",
+                  "OL_57",
+                  "ER_46",
+                  "ER_54",
+                  "ER_55")
+
+plots2update <- "OL_47"
+
+update_photos2 <- update_photos %>%
+  filter(samp_plot %in% plots2update) %>%
+  mutate(DATA = as.list(DATA))
+
+apply(X = upsidedown, MARGIN = 1, FUN = watermark, new_folder = "watermark")
+
+# Fix orientation -------------
+library(magick)
+
+plots2update <- "OL_47"
+update_photos2 <- update_photos %>%
+  filter(samp_plot %in% plots2update)
+
+# northwest corner
+nw1 <- "TEST"
+nw2 <- "ORIENTATION"
+nw <- paste(nw1, nw2, sep = "\n")
+
+
+p2 <- update_photos2$DATA[[3]]
+
+mp2 <- magick::image_read(p2)
+mp2
+
+q.upsidedown <- image_attributes(mp2)
+
+mp2_orient <- magick::image_orient(mp1)
+
+
+img.marked <- magick::image_annotate(mp2_orient, nw,
+                                size = 25,
+                                gravity = "northwest",
+                                font = "Helvetica",
+                                color = "white",
+                                strokecolor = "black",
+                                weight = 900)
+img.marked
 # Check photos -----------------------------------------------------------------
 
 # Tables to check
