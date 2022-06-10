@@ -245,10 +245,10 @@ watermark <- function(x, new_folder) {
     purrr::pluck(1)
   #print(paste("structure of photo = ", print(str(image.x))))
 
-  img.x <- magick::image_read(image.x)
+  img.x1 <- magick::image_read(image.x)
   # Apply auto-orientation "image_orient()" which tries to infer the correct orientation
   #' from the Exif data.
-  img.x <- magick::image_orient(img.x)
+  img.x2 <- magick::image_orient(img.x1)
   #print(image_attributes(img.x))
 
 
@@ -258,7 +258,7 @@ watermark <- function(x, new_folder) {
   nw1 <- p.unit
   nw2 <- p.sf
   nw <- paste(nw1, nw2, sep = "\n")
-  img.x <- magick::image_annotate(img.x, nw,
+  img.x3 <- magick::image_annotate(img.x2, nw,
                           size = 25,
                           gravity = "northwest",
                           font = "Helvetica",
@@ -267,7 +267,7 @@ watermark <- function(x, new_folder) {
                           weight = 900)
   # northeast corner
   ne <- paste(p.prot_type_num, p.subject, sep = "\n")
-  img.x <- magick::image_annotate(img.x, ne,
+  img.x4 <- magick::image_annotate(img.x3, ne,
                           size = 25,
                           gravity = "northeast",
                           font = "Helvetica",
@@ -276,7 +276,7 @@ watermark <- function(x, new_folder) {
                           weight = 900)
   # southwest corner
   sw <- paste(p.date)
-  img.x <- magick::image_annotate(img.x, sw,
+  img.x5 <- magick::image_annotate(img.x4, sw,
                           size = 25,
                           gravity = "southwest",
                           font = "Helvetica",
@@ -285,6 +285,6 @@ watermark <- function(x, new_folder) {
                           weight = 900)
 
   # Save photo
-  magick::image_write(img.x, path = out.name, format = "jpg")
+  magick::image_write(img.x5, path = out.name, format = "jpg")
 }
 
