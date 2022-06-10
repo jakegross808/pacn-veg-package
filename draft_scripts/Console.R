@@ -3,11 +3,250 @@ library(pacnvegetation)
 library(tidyverse)
 #library(tidytext)
 
+BA <- function(dbh) {
+  pi*(dbh/200)^2
+}
+
+BA(10)
+
 LoadPACNVeg("pacnveg", c("C:/Users/JJGross/OneDrive - DOI/Documents/Certification_Local/Databases/EIPS/established_invasives_BE_master_20220428.mdb",
                          "C:/Users/JJGross/OneDrive - DOI/Documents/Certification_Local/Databases/EIPS/2021_established_invasives_20220422.mdb"),
             cache = TRUE, force_refresh = FALSE)
 
 names(FilterPACNVeg())
+
+spp <- FilterPACNVeg(data_name = "Species_extra", sample_frame = "Mauna Loa", is_qa_plot = FALSE)
+
+# Large Trees - Basal Area ------------------------------------------------
+
+
+Trees <- FilterPACNVeg(data_name = "LgTrees", sample_frame = "Mauna Loa", is_qa_plot = FALSE)
+
+SmWoody <- FilterPACNVeg(data_name = "SmWoody", sample_frame = "Mauna Loa", is_qa_plot = FALSE)
+
+SmWoody %>%
+  distinct(Code)
+
+Trees %>%
+  distinct(Code)
+
+SS_SmWoody1 <- SS_SmWoody %>%
+  filter(Plot_Number == 3) %>%
+  group_by(Status, Code, Cycle) %>%
+  summarize(total = sum(Count)) %>%
+  pivot_wider(names_from = Cycle, values_from = total)
+
+write_csv(SS_SmWoody1, "SmWoody_Plt3.csv")
+
+
+SS_Trees_BA3 <- SS_Trees %>%
+  mutate(bole_dbh = case_when(is.na(DBH_Bole) & !is.na(DBH) ~ DBH,
+                              is.na(DBH_Bole) & is.na(DBH) ~ 0,
+                              TRUE ~ DBH_Bole)) %>%
+  mutate(Basal_Area_m2_bole = BA(bole_dbh),
+         A_BD = BA(DBH_Other)) %>%
+  group_by(Unit_Code, Community, Sampling_Frame, Year, Cycle, Plot_Type, Plot_Number, Quad, Status,
+           Height, Height_Dead, Boles, DBH, DBH_Other, Vigor, Rooting, Fruit_Flower, Foliar,
+           Shrublike_Growth, Resprouts, Measurement_Type, Scientific_Name, Code,
+           Life_Form, Nativity, A_BD) %>%
+  summarize(A_DBH = sum(Basal_Area_m2_bole),
+            bole_check = n()) #%>%
+  #filter(Plot_Number == 3)
+str(SS_Trees_BA3$Cycle)
+
+SS_Trees_BA4 <- SS_Trees_BA3 %>%
+  filter(A_DBH != is.na(A_DBH),
+         A_BD != is.na(A_BD))
+
+SS_Trees_BA4 %>%
+  mutate(Cycle = as.character(Cycle)) %>%
+  pivot_longer(cols = c("A_BD", "A_DBH"), names_to = "Measurement", values_to = "Area") %>%
+  ggplot(aes(x = Cycle, y = Area)) +
+  geom_violin() +
+  facet_grid(rows = vars(Measurement))
+
+SS_Trees_dbh <- SS_Trees_BA4 %>%
+  group_by(Unit_Code, Community, Sampling_Frame, Year, Cycle, Plot_Type, Plot_Number, Quad, Status,
+           Height, Height_Dead, Boles, DBH, DBH_Other, Vigor, Rooting, Fruit_Flower, Foliar,
+           Shrublike_Growth, Resprouts, Measurement_Type, Scientific_Name, Code,
+           Life_Form, Nativity, A_BD)
+  pivot_wider(names_from = Cycle, values_from = A_DBH)
+
+SS_Trees_BA4
+dbh1 <- SS_Trees_BA4 %>%
+  filter(Plot_Type == "Fixed") %>%
+  filter(Cycle == 1) %>%
+  pull(A_DBH) %>%
+  var()
+dbh2 <- SS_Trees_BA4 %>%
+  filter(Plot_Type == "Fixed") %>%
+  filter(Cycle == 2) %>%
+  pull(A_DBH) %>%
+  var()
+
+bd1 <- SS_Trees_BA4 %>%
+  filter(Plot_Type == "Fixed") %>%
+  filter(Cycle == 1) %>%
+  pull(A_BD) %>%
+  var()
+bd2 <- SS_Trees_BA4 %>%
+  filter(Plot_Type == "Fixed") %>%
+  filter(Cycle == 2) %>%
+  pull(A_BD) %>%
+  var()
+bd2 - dbh2
+bd1 - dbh1
+var_bd <- bd2-bd1
+var_dbh <- dbh2-dbh1
+var_bd/var_dbh
+
+var(A_BD)
+
+SS_Trees_BA3 %>%
+  mutate(Cycle = as.character(Cycle)) %>%
+  ggplot(aes(x = Cycle, y = A_BD)) +
+  geom_boxplot() #+
+  #facet_grid(cols = vars())
+
+
+
+dbh1 <- SS_Trees_BA3 %>%
+  filter(Cycle == 1) %>%
+  pull(A_DBH)
+
+mean(dbh1)
+var(dbh1)
+
+dbh2 <- SS_Trees_BA3 %>%
+  filter(Cycle == 2) %>%
+  pull(A_DBH)
+
+mean(dbh2)
+var(dbh2)
+
+
+SS_Trees_Plt3_a <- SS_Trees_Plt3 %>%
+  arrange(Quad, Year)
+
+write_csv(SS_Trees_Plt3_a, "Lrg_Tree_Plt3.csv")
+
+
+bole_checks <- SS_Trees_BA3 %>%
+  filter(Boles != bole_check)
+
+BA_vs_DBH <- SS_Trees_BA3 %>%
+  filter(!is.na(A_BD),
+           Code == "METPOL1")
+
+# Variables
+#basal <- BA_vs_DBH$A_BD
+#DBH <- BA_vs_DBH$A_DBH
+ggplot(BA_vs_DBH, aes(x = A_BD, y = A_DBH)) +
+  geom_point()
+
+l <- BA_vs_DBH %>%
+  filter(!is.na(Height)) %>%
+  mutate(LD_height = case_when(Height_Dead > Height ~ Height_Dead,
+                              TRUE ~ Height))
+
+ggplot(l, aes(x = LD_height, y = A_DBH)) +
+  geom_point()
+ggplot(l, aes(x = LD_height, y = A_BD)) +
+  geom_point()
+
+ggplot(BA_vs_DBH, aes(x = A_BD, y = A_DBH)) +
+  geom_point()
+ggplot(BA_vs_DBH, aes(x = A_BD, y = A_DBH)) +
+  geom_point()
+
+
+# Distribution of CONT variable
+library(ggpubr)
+ggdensity(BA_vs_DBH, x = "A_BD", fill = "lightgray", title = "BD") +
+  #scale_x_continuous(limits = c(3, 12)) +
+  stat_overlay_normal_density(color = "red", linetype = "dashed")
+
+ggdensity(BA_vs_DBH, x = "A_DBH", fill = "lightgray", title = "DBH") +
+  #scale_x_continuous(limits = c(3, 12)) +
+  stat_overlay_normal_density(color = "red", linetype = "dashed")
+
+ggdensity(l, x = "LD_height", fill = "lightgray", title = "height") +
+  #scale_x_continuous(limits = c(3, 12)) +
+  stat_overlay_normal_density(color = "red", linetype = "dashed")
+
+cor.test(BA_vs_DBH$Basal_Area_m2_BD, BA_vs_DBH$Basal_Area_m2_DBH, method = 'pearson')
+
+lm1 <- lm(Basal_Area_m2_BD ~ Basal_Area_m2_DBH, data = BA_vs_DBH)
+lm1
+summary(lm1)
+par(mfrow=c(2,2))
+
+plot(lm1, which=1:4)
+
+ggplot(BA_vs_DBH) +
+  geom_qq(aes(sample = Basal_Area_m2_BD))
+
+nq <- 100
+p <- (1 : nq) / nq - 0.5 / nq
+ggplot() +
+  geom_point(aes(x = qnorm(p), y = quantile(BA_vs_DBH$Basal_Area_m2_BD, p)))
+
+ggplot() +
+  geom_point(aes(x = qexp(p), y = quantile(diamonds$price, p)))
+
+basal <- BA_vs_DBH$Basal_Area_m2_BD
+DBH <- BA_vs_DBH$Basal_Area_m2_DBH
+n <- nrow(BA_vs_DBH)
+p <- (1 : n) / n - 0.5 / n
+ggplot(BA_vs_DBH) +
+  geom_point(aes(x = basal, y = sort(pnorm(fheight, m, s))))
+
+
+
+understory_nativity <- summarize_understory(plant_grouping = "Nativity", combine_strata = TRUE)
+
+understory_species <- summarize_understory(plant_grouping = "Species", combine_strata = TRUE)
+
+library(tidyverse)
+
+understory_nativity1 <- understory_nativity %>%
+  filter(Nativity != "Unknown",
+         !is.na(Nativity)) %>%
+  filter(Cycle != 3)
+
+understory_species1 <- understory_species %>%
+  mutate(Presence = case_when(Cover > 0 ~ 1,
+                              TRUE ~ 0)) %>%
+  filter(Presence == 1) %>%
+  filter(!is.na(Scientific_Name)) %>%
+  filter(Cycle != 3) %>%
+  filter(Nativity != "Unknown")
+
+understory_nativity1 %>%
+  count(Year, Unit_Code)
+#library(ggplot2)
+
+write_csv(understory_species1, "Understory_Species.csv")
+write_csv(understory_nativity1, "Understory_Nativity.csv")
+
+library(tidyverse)
+
+understory_species1 <- read_csv("Understory_Species.csv")
+
+understory_species2 <- understory_species1 %>%
+  group_by(Unit_Code, Sampling_Frame, Cycle, Year, Plot_Type, Plot_Number, Nativity) %>%
+  summarize(Richness = sum(Presence))
+
+ggplot(understory_nativity1, aes(x=Cover, fill = Nativity)) +
+  geom_histogram() +
+  facet_grid(cols = vars(Sampling_Frame),
+                         rows = vars(Cycle)) +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+
+ggplot(understory_species1, aes(x=Presence)) +
+  geom_histogram()
+
+EIPS <- FilterPACNVeg(data_name = "EIPS_data")
 
 
 
@@ -17,28 +256,13 @@ update_photos <- process_photos(AGOL_Layer = "FTPC",
                gdb_layer = "FTPC_OL_ER_20220503",
                return_table = TRUE)
 
-update_photos <- update_photos %>%
-  mutate(samp_plot = paste(Samp_Frame,Site_Number, sep = "_"))
+update_photos2 <- update_photos[1:5,]
 
-plots2update <- c("OL_7",
-                  "OL_11",
-                  "OL_14",
-                  "OL_15",
-                  "OL_47",
-                  "OL_51",
-                  "OL_53",
-                  "OL_57",
-                  "ER_46",
-                  "ER_54",
-                  "ER_55")
+update_photos2$DATA <- as.list(update_photos2$DATA)
 
-plots2update <- "OL_47"
+apply(X = update_photos2, MARGIN = 1, FUN = watermark, new_folder = "watermark2")
 
-update_photos2 <- update_photos %>%
-  filter(samp_plot %in% plots2update) %>%
-  mutate(DATA = as.list(DATA))
 
-apply(X = upsidedown, MARGIN = 1, FUN = watermark, new_folder = "watermark")
 
 # Fix orientation -------------
 library(magick)

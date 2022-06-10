@@ -249,7 +249,7 @@ ReadFTPC <- function(conn) {
   tbl_Plot_extra <- dplyr::tbl(conn, "tbl_Plot") %>%
     dplyr::select(Plot_ID, Location_ID, Plot_Type, Plot_Number, Azimuth_Plot,
            Start_Lat, Start_Long, Center_Lat, Center_Long, End_Lat, End_Long,
-           GCS, GCS_Datum, Lat_Dir, Long_Dir, Plot_Notes)
+           GCS, Lat_Dir, Long_Dir, Plot_Notes)
 
   # B. Temporal ----------------------------------------------------------------
   # . . 1. tbl_Events----
