@@ -313,7 +313,7 @@ ReadFTPC <- function(conn) {
   Events_extra_xy <- Events_extra %>%
     dplyr::select(Unit_Code, Sampling_Frame, Year, Cycle, Plot_Type, Plot_Number,
            Azimuth_Plot, Start_Lat, Start_Long, Center_Lat, Center_Long,
-           End_Lat, End_Long, GCS, GCS_Datum, Lat_Dir, Long_Dir, Certified, Verified) %>%
+           End_Lat, End_Long, GCS, Lat_Dir, Long_Dir, Certified, Verified) %>%
     dplyr::collect()
 
   # . . Events_extra_other
