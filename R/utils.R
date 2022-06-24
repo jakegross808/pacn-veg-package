@@ -366,7 +366,7 @@ ReadFTPC <- function(conn) {
   # Large Trees & Large Tree Ferns (>10 cm DBH)
   tbl_Lg_Woody_Individual <- dplyr::tbl(conn, "tbl_Lg_Woody_Individual") %>%
     dplyr::select(Large_Woody_ID, Event_ID, Species_ID, Quad, Status, Height,
-                  Height_Dead, Boles, DBH, DBH_Other = DBH_Basal, Vigor,
+                  Height_Dead, Boles, DBH, Vigor,
                   Fruit_Flower, Rooting, Foliar, Caudex_Length,
                   Shrublike_Growth, Resprouts, Measurement_Type)
 
