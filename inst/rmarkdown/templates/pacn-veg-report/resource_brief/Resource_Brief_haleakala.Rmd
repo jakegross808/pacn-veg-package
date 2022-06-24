@@ -174,8 +174,8 @@ title: "Vegetation Monitoring at Haleakala National Park: Subalpine Shrubland Pl
 
 The Pacific Island Inventory and Monitoring Network (PACN) monitors subalpine shrubland plant communities occurring along the slopes of Haleakala and Mauna Loa in Hawaii. This brief focuses on the Haleakala section which includes 4460 ha and consists of generally vegetated sites above 1980 m encompassing Haleakala summit, the park visitor center, headquarters, and several hiking trails open to the public.
 
-```{r sampling-map, echo=FALSE, fig.cap= "All community plots and non-native transects monitored within the Haleakala Subalpine Shrubland Plant Community.", message=FALSE, warning=FALSE}
-MapPACNVeg(sample_frame = params$sample_frame)
+```{r sampling-map, echo=FALSE, fig.cap= "All community plots (squares) and non-native transects (cirle with line) monitored within the Haleakala Subalpine Shrubland Plant Community. Fixed plots = blue; Rotational plots = red", message=FALSE, warning=FALSE}
+MapPACNVeg2(sample_frame = params$sample_frame)
 ```
 
 # Methods

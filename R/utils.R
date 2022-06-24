@@ -233,12 +233,9 @@ ReadFTPC <- function(conn) {
   #Locations (e.g. Sampling Frame)
 
   #Short
-  tbl_Locations_short <- dplyr::tbl(conn, "tbl_Locations") %>%
+  tbl_Locations <- dplyr::tbl(conn, "tbl_Locations") %>%
     dplyr::select(Location_ID, Site_ID, Community, Sampling_Frame)
 
-  #Extra
-  tbl_Locations_extra <- dplyr::tbl(conn, "tbl_Locations") %>%
-    dplyr::select(Location_ID, Site_ID, Community, Sampling_Frame, Zone, Management_Unit)
 
   # . . 3. tbl_Plot----
 
@@ -250,9 +247,9 @@ ReadFTPC <- function(conn) {
 
   #Extra
   tbl_Plot_extra <- dplyr::tbl(conn, "tbl_Plot") %>%
-    dplyr::select(Plot_ID, Location_ID, Plot_Number, Azimuth_Plot,
+    dplyr::select(Plot_ID, Location_ID, Plot_Type, Plot_Number, Azimuth_Plot,
            Start_Lat, Start_Long, Center_Lat, Center_Long, End_Lat, End_Long,
-           GCS, GCS_Datum, Lat_Dir, Long_Dir, Plot_Notes)
+           GCS, Lat_Dir, Long_Dir, Plot_Notes)
 
   # B. Temporal ----------------------------------------------------------------
   # . . 1. tbl_Events----
@@ -284,7 +281,7 @@ ReadFTPC <- function(conn) {
   # . . . . Events ----
   Events <- tbl_Events_short %>%
     dplyr::left_join(tbl_Plot_short, by = "Plot_ID") %>%
-    dplyr::left_join(tbl_Locations_short, by = "Location_ID") %>%
+    dplyr::left_join(tbl_Locations, by = "Location_ID") %>%
     dplyr::left_join(tbl_Sites_short, by = "Site_ID") %>%
     dplyr::select(Unit_Code, Community, Sampling_Frame, Year, Cycle, Plot_Type, Plot_Number,
            QA_Plot, Certified, Verified, Event_ID)
@@ -293,7 +290,7 @@ ReadFTPC <- function(conn) {
   # . . . . Events_extra ----
   Events_extra <- tbl_Events %>%
     dplyr::left_join(tbl_Plot_extra, by = "Plot_ID") %>%
-    dplyr::left_join(tbl_Locations_extra, by = "Location_ID") %>%
+    dplyr::left_join(tbl_Locations, by = "Location_ID") %>%
     #Move long text columns to end because of SQL driver error:
     dplyr::relocate(Plot_Notes, .after = last_col()) %>%
     dplyr::relocate(Event_Notes, .after = last_col()) %>%
@@ -306,7 +303,7 @@ ReadFTPC <- function(conn) {
 
   # . . Events_extra_QAQC
   Events_extra_QAQC <- Events_extra %>%
-    dplyr::select(Unit_Code, Sampling_Frame, Start_Date, Year, Cycle, Plot_Number,
+    dplyr::select(Unit_Code, Sampling_Frame, Start_Date, Year, Cycle, Plot_Type, Plot_Number,
            Entered_Date, Updated_Date, Verified, Verified_By, Verified_Date,
            Certified, Certified_By, Certified_Date, Completion_Time,
            Event_Notes, Plot_Notes, QA_notes) %>%
@@ -314,14 +311,14 @@ ReadFTPC <- function(conn) {
 
   # . . Events_extra_xy
   Events_extra_xy <- Events_extra %>%
-    dplyr::select(Unit_Code, Sampling_Frame, Year, Cycle, Plot_Number,
+    dplyr::select(Unit_Code, Sampling_Frame, Year, Cycle, Plot_Type, Plot_Number,
            Azimuth_Plot, Start_Lat, Start_Long, Center_Lat, Center_Long,
-           End_Lat, End_Long, GCS, GCS_Datum, Lat_Dir, Long_Dir, Certified, Verified) %>%
+           End_Lat, End_Long, GCS, Lat_Dir, Long_Dir, Certified, Verified) %>%
     dplyr::collect()
 
   # . . Events_extra_other
   Events_extra_other <- Events_extra %>%
-    dplyr::select(Unit_Code, Sampling_Frame, Year, Cycle, Zone, Management_Unit,
+    dplyr::select(Unit_Code, Sampling_Frame, Year, Cycle, Plot_Type,
                   Plot_Number, Max_Veg_Ht, Site_Name, Images, Certified, Verified) %>%
     dplyr::collect()
 
@@ -369,7 +366,7 @@ ReadFTPC <- function(conn) {
   # Large Trees & Large Tree Ferns (>10 cm DBH)
   tbl_Lg_Woody_Individual <- dplyr::tbl(conn, "tbl_Lg_Woody_Individual") %>%
     dplyr::select(Large_Woody_ID, Event_ID, Species_ID, Quad, Status, Height,
-                  Height_Dead, Boles, DBH, DBH_Other = DBH_Basal, Vigor,
+                  Height_Dead, Boles, DBH, Vigor,
                   Fruit_Flower, Rooting, Foliar, Caudex_Length,
                   Shrublike_Growth, Resprouts, Measurement_Type)
 
@@ -448,11 +445,16 @@ ReadFTPC <- function(conn) {
   # . . . . xref_Understory_Low----
   UnderstoryLow <- dplyr::tbl(conn, "xref_Understory_Low") %>%
     dplyr::select(Event_ID, Point_ID, Species_ID, Dead) %>%
+    #dplyr::mutate(Species_ID = ifelse(Dead == TRUE, NA, Species_ID)) %>%
+    dplyr::filter(Dead == "FALSE") %>%
+    dplyr::select(-Dead) %>%
     dplyr::mutate(Stratum = "Low")
 
   # . . . . xref_Understory_High----
   UnderstoryHigh <- dplyr::tbl(conn, "xref_Understory_High") %>%
     dplyr::select(Event_ID, Point_ID, Species_ID, Dead) %>%
+    dplyr::filter(Dead == "FALSE") %>%
+    dplyr::select(-Dead) %>%
     dplyr::mutate(Stratum = "High")
 
   UnderstorySpecies <- dplyr::union_all(UnderstoryLow, UnderstoryHigh)
@@ -462,8 +464,8 @@ ReadFTPC <- function(conn) {
     dplyr::left_join(UnderstorySpecies, by = c("Event_ID", "Point_ID")) %>%
     dplyr::left_join(Species, by = c("Species_ID", "Unit_Code" = "Park")) %>%
     dplyr::select(-Event_ID, -Species_ID, -Point_ID) %>%
-    dplyr::collect() %>%
-    dplyr::relocate(Certified, Verified, .after = last_col())
+    dplyr::relocate(Certified, Verified, .after = last_col()) %>%
+    dplyr::collect()
 
 
   # . . 6. tbl_Woody_Debris----
@@ -517,6 +519,7 @@ ReadEIPS <- function(db_paths) {
   Events_extra_QAQC_EIPS <- tibble::tibble()
   Events_extra_xy_EIPS <- tibble::tibble()
   Events_extra_other_EIPS <- tibble::tibble()
+  EIPS_image_pts <- tibble::tibble()
   Species_extra_EIPS <- tibble::tibble()
   EIPS_data <- tibble::tibble()
 
@@ -532,11 +535,8 @@ ReadEIPS <- function(db_paths) {
 
     #Locations (e.g. Sampling Frame)
     #Short
-    tbl_Locations_short <- dplyr::tbl(conn, "tbl_Locations") %>%
+    tbl_Locations <- dplyr::tbl(conn, "tbl_Locations") %>%
       dplyr::select(Location_ID, Site_ID, Community = Plant_Community, Sampling_Frame)
-    #Extra
-    tbl_Locations_extra <- dplyr::tbl(conn, "tbl_Locations") %>%
-      dplyr::select(Location_ID, Site_ID, Community = Plant_Community, Sampling_Frame, Zone, Management_Unit)
 
     # Transects
     tbl_Transects_short <- dplyr::tbl(conn, "tbl_Transects") %>%
@@ -553,7 +553,7 @@ ReadEIPS <- function(db_paths) {
                                      ifelse(Year >= 2015 & Year <= 2020, 2,
                                             ifelse(Year >= 2021, 3, NA)))) %>%
       dplyr::left_join(tbl_Transects_extra, by = "Transect_ID") %>%
-      dplyr::left_join(tbl_Locations_extra, by = "Location_ID") %>%
+      dplyr::left_join(tbl_Locations, by = "Location_ID") %>%
       #Move long text columns to end because of SQL driver error:
       dplyr::relocate(Event_Notes, .after = last_col()) %>%
       dplyr::relocate(Transect_Notes, .after = last_col()) %>%
@@ -561,7 +561,7 @@ ReadEIPS <- function(db_paths) {
       #Move long text columns to end because of SQL driver error:
       dplyr::relocate(Event_Notes, .after = last_col()) %>%
       dplyr::relocate(Transect_Notes, .after = last_col()) %>%
-      dplyr::select(Event_ID, Transect_ID, Unit_Code, Community, Sampling_Frame, Start_Date, Year, Cycle, Zone, Management_Unit,
+      dplyr::select(Event_ID, Transect_ID, Unit_Code, Community, Sampling_Frame, Start_Date, Year, Cycle,
                     Transect_Number, Site_Name, Transect_Type, Transect_Number, Azimuth_Transect, Lat, Long,
                     GCS, Lat_Dir, Long_Dir, Entered_Date, Updated_Date, Verified, Verified_By, Verified_Date,
                     Certified, Certified_By, Certified_Date, Transect_Notes, Event_Notes) #-Start_Date
@@ -578,14 +578,24 @@ ReadEIPS <- function(db_paths) {
 
     # Events_extra_xy
     Events_extra_xy_new <- Events_extra %>%
-      dplyr::select(Unit_Code, Sampling_Frame, Year, Cycle, Transect_Number, Azimuth_Transect, Lat, Long, GCS, Lat_Dir, Long_Dir, Certified, Verified) %>%
+      dplyr::select(Unit_Code, Sampling_Frame, Year, Cycle, Transect_Type, Transect_Number, Azimuth_Transect, Lat, Long, GCS, Lat_Dir, Long_Dir, Certified, Verified) %>%
       dplyr::collect()
 
     # Events_extra_other
     Events_extra_other_new <- Events_extra %>%
-      dplyr::select(Unit_Code, Sampling_Frame, Year, Cycle, Zone, Management_Unit,
+      dplyr::select(Unit_Code, Sampling_Frame, Year, Cycle, Transect_Type,
                     Transect_Number, Site_Name, Certified, Verified) %>%
       dplyr::collect()
+
+    # Image Points
+    tbl_Image_Points <- dplyr::tbl(conn, "tbl_Image_Points")
+    EIPS_image_pts_new <- Events %>%
+      dplyr::right_join(tbl_Image_Points, by = "Event_ID") %>%
+      dplyr::select(Unit_Code, Community, Sampling_Frame, Year, Cycle,
+                    Transect_Type, Transect_Number, Image_Point,
+                    Latitude, Latitude_Dir, Longitude, Longitude_Dir, GCS, GPS_Error) %>%
+      dplyr::collect()
+
 
     # Species w/nativity
 
@@ -636,6 +646,7 @@ ReadEIPS <- function(db_paths) {
     Events_extra_QAQC_EIPS <- unique(rbind(Events_extra_QAQC_EIPS, Events_extra_QAQC_new))
     Events_extra_xy_EIPS <- unique(rbind(Events_extra_xy_EIPS, Events_extra_xy_new))
     Events_extra_other_EIPS <- unique(rbind(Events_extra_other_EIPS, Events_extra_other_new))
+    EIPS_image_pts <- unique(rbind(EIPS_image_pts, EIPS_image_pts_new))
     Species_extra_EIPS <- unique(rbind(Species_extra_EIPS, Species_extra_new))
     EIPS_data <- unique(rbind(EIPS_data, EIPS_data_new))
 
@@ -645,6 +656,7 @@ ReadEIPS <- function(db_paths) {
   data <- list(Events_extra_QAQC_EIPS = Events_extra_QAQC_EIPS,
                Events_extra_xy_EIPS = Events_extra_xy_EIPS,
                Events_extra_other_EIPS = Events_extra_other_EIPS,
+               EIPS_image_pts = EIPS_image_pts,
                Species_extra_EIPS = Species_extra_EIPS,
                EIPS_data = EIPS_data)
 
@@ -787,6 +799,13 @@ GetColSpec <- function() {
                                           Certified = readr::col_logical(),
                                           Verified = readr::col_logical(),
                                           .default = readr::col_character()),
+    EIPS_image_pts = readr::cols(Year = readr::col_integer(),
+                                 Cycle = readr::col_integer(),
+                                 Image_Point = readr::col_integer(),
+                                 Latitude = readr::col_double(),
+                                 Longitude = readr::col_double(),
+                                 GPS_Error = readr::col_double(),
+                                 .default = readr::col_character()),
     Species_extra_EIPS = readr::cols(Complete = readr::col_logical(),
                                      Update_Date = readr::col_datetime(),
                                      .default = readr::col_character()),
@@ -849,23 +868,24 @@ ReadCSV <- function(data_path) {
 #' all_certified_data <- FilterPACNVeg(certified = TRUE)
 #' native_kaho_understory <- FilterPACNVeg("Understory", park = "KAHO", nativity = "Native")
 #' }
-FilterPACNVeg <- function(data_name, park, sample_frame, community, year, cycle, plot_type, is_qa_plot = FALSE, transect_type, species_code, sci_name, nativity, certified, verified, case_sensitive = FALSE, silent = FALSE) {
+FilterPACNVeg <- function(data_name, park, sample_frame, community, year, cycle, plot_type, plot_number, is_qa_plot = FALSE, transect_type, species_code, sci_name, nativity, certified, verified, case_sensitive = FALSE, silent = FALSE) {
   data <- get_data(data_name)
 
-  all_filter_cols <- c(Unit_Code = ifelse(missing(park), NA, park),
-                   Park = ifelse(missing(park), NA, park),
-                   Sampling_Frame = ifelse(missing(sample_frame), NA, sample_frame),
-                   Community = ifelse(missing(community), NA, community),
-                   Year = ifelse(missing(year), NA, year),
-                   Cycle = ifelse(missing(cycle), NA, cycle),
-                   Plot_Type = ifelse(missing(plot_type), NA, plot_type),
-                   QA_Plot = ifelse(missing(is_qa_plot), NA, is_qa_plot),
-                   Transect_Type = ifelse(missing(transect_type), NA, transect_type),
-                   Code = ifelse(missing(species_code), NA, species_code),
-                   Scientific_Name = ifelse(missing(sci_name), NA, sci_name),
-                   Nativity = ifelse(missing(nativity), NA, nativity),
-                   Certified = ifelse(missing(certified), NA, certified),
-                   Verified = ifelse(missing(verified), NA, verified)
+  all_filter_cols <- list(Unit_Code = ifelse(missing(park), NA, park),
+                   Park = if (missing(park)) {NA} else {park},
+                   Sampling_Frame = if (missing(sample_frame)) {NA} else {sample_frame},
+                   Community = if(missing(community)) {NA} else {community},
+                   Year = if(missing(year)) {NA} else {year},
+                   Cycle = if (missing(cycle)) {NA} else {cycle},
+                   Plot_Type = if (missing(plot_type)) {NA} else {plot_type},
+                   Plot_Number = if (missing(plot_number)) {NA} else {plot_number},
+                   QA_Plot = if (missing(is_qa_plot)) {NA} else {is_qa_plot},
+                   Transect_Type = if (missing(transect_type)) {NA} else {transect_type},
+                   Code = if (missing(species_code)) {NA} else {species_code},
+                   Scientific_Name = if (missing(sci_name)) {NA} else {sci_name},
+                   Nativity = if (missing(nativity)) {NA} else {nativity},
+                   Certified = if (missing(certified)) {NA} else {certified},
+                   Verified = if (missing(verified)) {NA} else {verified}
                    )
 
   filter_cols <- all_filter_cols[!is.na(all_filter_cols)]
@@ -902,11 +922,11 @@ FilterOne <- function(data, data_name, filter_cols, case_sensitive, silent) {
   for (col in names(filter_cols)) {
     if (col %in% names(data)) {  # Only filter if the column is present in the dataframe
       cols_filtered <- c(cols_filtered, col)  # Use this to keep track of which columns were actually filtered
-      filter_value <- filter_cols[col]  # Value(s) to filter on
+      filter_value <- filter_cols[[col]]  # Value(s) to filter on
       if (is.character(data[[col]]) & !case_sensitive) {
-        data <- dplyr::filter(data, tolower(!!as.symbol(col)) == tolower(filter_value))  # Case-insensitive filtering
+        data <- dplyr::filter(data, tolower(!!as.symbol(col)) %in% tolower(filter_value))  # Case-insensitive filtering
       } else {
-        data <- dplyr::filter(data, !!as.symbol(col) == filter_value)  # Case-sensitive and non-character filtering
+        data <- dplyr::filter(data, !!as.symbol(col) %in% filter_value)  # Case-sensitive and non-character filtering
       }
       if (nrow(data) == 0) {  # Stop filtering if we end up with an empty dataframe
         warning("There are no data that match all of the filters provided.")
