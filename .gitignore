@@ -36,6 +36,9 @@ vignettes/*.pdf
 *.knit.md
 skeleton.html
 
+# HTML output of R Markdown
+inst/rmarkdown/**/Resource_Brief*.html
+
 # R Environment Variables
 .Renviron
 .Rproj.user
