@@ -422,7 +422,7 @@ ReadFTPC <- function(conn) {
   # . . 4. tbl_Sm_Woody_Tally----
   # Vines, seedlings, shrubs, small trees, and small tree ferns.
   tbl_Sm_Woody_Tally <- dplyr::tbl(conn, "tbl_Sm_Woody_Tally") %>%
-    dplyr::select(Event_ID, Species_ID, Transect, DBH, Status,
+    dplyr::select(Event_ID, Species_ID, Sample_Area, DBH, Status,
                   Foliar, Rooting, Count, Comments)
   # . . . . SmWoody ----
   SmWoody <- Events %>%
