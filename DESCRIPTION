@@ -35,6 +35,7 @@ Imports:
     ggrepel,
     htmltools,
     scales,
-    tidyr
+    tidyr,
+    leaflet.esri
 Language: en-US
 Config/testthat/edition: 3
