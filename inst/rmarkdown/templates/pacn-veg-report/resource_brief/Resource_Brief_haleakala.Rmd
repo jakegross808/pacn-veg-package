@@ -307,6 +307,7 @@ v_cover_plot_bar_nativity(sample_frame = params$sample_frame, paired_change = TR
 
 -   Plot #2 showed the greatest increase in non-native percent cover (43), while Plot #10 showed the greatest decrease in native percent cover (-14.3) (Table \@ref(tab:chg-cover-table)).
 
+-   Hover over a point in the graph to see it highlighted on the map. Double click anywhere in the graph to deselect.
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE}
 grp <- "cov_change"
