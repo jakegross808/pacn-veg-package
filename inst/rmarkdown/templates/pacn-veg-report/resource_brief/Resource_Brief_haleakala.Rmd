@@ -206,7 +206,7 @@ und <- und %>%
 nativity_colors <- c("Native" = "#1b9e77", "No Veg" = "grey", "Non-Native" = "#d95f02", "Unknown" = "#7570b3")
 
 und2 <- UnderCombineStrata(und) %>%
-  mutate(across(everything(), replace_na, "No Veg")) %>%
+  mutate(across(where(is.character), replace_na, "No Veg")) %>%
   group_by(Cycle, Unit_Code, Sampling_Frame, Plot_Number,
            Nativity, Code, Scientific_Name, Life_Form) %>%
   summarize(Hits_Sp = n(), .groups = "drop") %>%
