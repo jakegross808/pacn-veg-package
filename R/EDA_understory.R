@@ -180,7 +180,7 @@ UnderNativityCover.plot.nat_v_non <- function(combine_strata = FALSE, paired_cha
 
   # If data is a crosstalk object, extract just the data so we can work with it
   if (interactive && crosstalk) {
-    data <- dplyr::mutate(data, key = paste0(Unit_Code, Sampling_Frame, Plot_Number, Plot_Type, Year, Cycle)) #crosstalk recommends using unique key
+    data <- dplyr::mutate(data, key = paste0(Unit_Code, Sampling_Frame, Plot_Type, Plot_Number, Year, Cycle)) #crosstalk recommends using unique key
     data <- crosstalk::SharedData$new(data, group = crosstalk_group, key = ~key)
     data_table <- data$data()
   } else {data_table <- data}
