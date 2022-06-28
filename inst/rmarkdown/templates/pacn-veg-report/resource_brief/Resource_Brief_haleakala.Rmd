@@ -265,11 +265,33 @@ v_cover_plot_bar_nativity(sample_frame = params$sample_frame, paired_change = FA
 
 -   Plot #3 has the most non-native cover (144%) and only ~1% native cover (Table \@ref(tab:tot-cover-table)).
 
-```{r tot-cover-graph, echo=FALSE, fig.cap= paste0("Native and non-native understory cover for the most recent monitoring (", max(years), "). Point numbers corrspond to fixed monitoring sites."), message=FALSE, warning=FALSE}
-UnderNativityCover.plot.nat_v_non(sample_frame = params$sample_frame, 
-                                  cycle = max(cycles), 
-                                  paired_change = FALSE, 
-                                  combine_strata = TRUE)
+
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+grp1 <- "cov_total"
+
+plt1 <- UnderNativityCover.plot.nat_v_non(
+  sample_frame = params$sample_frame,
+  cycle = max(cycles),
+  cycle_filter = FALSE,
+  paired_change = FALSE,
+  combine_strata = TRUE,
+  crosstalk = TRUE,
+  crosstalk_group = grp1,
+  interactive = TRUE)
+
+map1 <- MapCoverTotal(crosstalk = TRUE, 
+                      crosstalk_group = grp1, 
+                      sample_frame = params$sample_frame, 
+                      cycle = max(cycles))
+
+bscols(plt1, map1)
+```
+
+
+```{r tot-cover-graph, echo=FALSE, fig.cap= paste0("Native and non-native understory cover for the most recent monitoring (", max(years), "). Point numbers corrspond to fixed monitoring sites."), message=FALSE, warning=FALSE, out.height="0px", class.output="dummy-fig"}
+# Dumb hack to get fig caption to show below plot + map
+knitr::include_graphics(here("inst", "rmarkdown", "dummy_fig.PNG"))
 ```
 
 ```{r tot-cover-table, echo=FALSE, message=FALSE, warning=FALSE}

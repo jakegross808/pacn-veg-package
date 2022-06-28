@@ -153,7 +153,7 @@ UnderNativityCover <- function(combine_strata = FALSE, paired_change = FALSE, rm
 #' Native_v_Nonnative_Plot <- UnderNativityCover.plot.nat_v_non(sample_frame = "Haleakala", sample_cycle = 2, paired_change = TRUE)
 #' }
 
-UnderNativityCover.plot.nat_v_non <- function(combine_strata = FALSE, paired_change = FALSE, crosstalk = FALSE, crosstalk_group = "cover", interactive = FALSE, park, sample_frame, community, year, cycle, plot_type, paired_cycle, silent = FALSE, data_table) {
+UnderNativityCover.plot.nat_v_non <- function(combine_strata = FALSE, paired_change = FALSE, crosstalk = FALSE, crosstalk_group = "cover", interactive = FALSE, cycle_filter = TRUE, park, sample_frame, community, year, cycle, plot_type, paired_cycle, silent = FALSE, data_table) {
   if (crosstalk && !interactive) {
     stop("Crosstalk only works with interactive plots. Change `crosstalk` to FALSE or change `interactive` to TRUE.")
   }
@@ -194,7 +194,7 @@ UnderNativityCover.plot.nat_v_non <- function(combine_strata = FALSE, paired_cha
   # Total cover plots
   if (!paired_change) {
     if (interactive) {
-      plot.nat_v_non <- totalCover_plotly(data, toplot.max)  # Plot total cover in plotly
+      plot.nat_v_non <- totalCover_plotly(data, toplot.max, cycle_filter = cycle_filter)  # Plot total cover in plotly
     } else {
       plot.nat_v_non <- totalCover_ggplot(data, toplot.max)  # Plot total cover in ggplot
     }
@@ -246,7 +246,7 @@ totalCover_ggplot <- function(data, max_lim) {
 #' @param max_lim maximum value in data
 #'
 #' @return html widget
-totalCover_plotly <- function(data, max_lim) {
+totalCover_plotly <- function(data, max_lim, cycle_filter = TRUE) {
 
   nat_ratio_cols <- data$data() %>%
     dplyr::pull(nat_ratio)
@@ -292,14 +292,16 @@ totalCover_plotly <- function(data, max_lim) {
                    yaxis = list(title = "Non-native cover")) %>% #, range = lims
     plotly::colorbar(title = "% Native", limits = c(0,100))
 
-  box_filter <- crosstalk::filter_checkbox("Cycle", "Monitoring Cycle", data, ~Cycle)
+  # If 'cycle_filter == TRUE' then add filter checkbox:
+  if (cycle_filter) {
+    box_filter <- crosstalk::filter_checkbox("Cycle", "Monitoring Cycle", data, ~Cycle)
 
-  bsc <- crosstalk::bscols(
-    widths = c(11, 1),
-    plt, box_filter
-  )
+    plt <- crosstalk::bscols(
+      widths = c(11, 1),
+      plt, box_filter)
+  }
 
-  return(bsc)
+  return(plt)
 }
 
 #' Helper function for plotting cover change in ggplot

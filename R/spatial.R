@@ -268,6 +268,114 @@ MapCoverChange <- function(crosstalk = FALSE, crosstalk_group = "cover", combine
   return(map)
 }
 
+#' Map Total Native vs. Non-native vegetation cover
+#'
+#' @inheritParams PlotAndTransectLocations
+#'
+#' @return A leaflet map
+#' @export
+#'
+#' @examples
+#' \dontrun{
+#' MapCoverTotal(protocol = "FTPC") #currently only FTPC mapping supported
+#' MapCoverTotal(park = "AMME")
+#' MapCoverTotal(sample_frame = "Puu Alii")
+#' }
+MapCoverTotal <- function(crosstalk = FALSE, crosstalk_group = "cover", combine_strata = TRUE, park, sample_frame, community, year, cycle = max(cycles), plot_type, is_qa_plot, certified, verified, silent = TRUE) {
+
+  if (missing(cycle)) {
+    stop("cycle is required")
+  }
+  if (length(cycle) > 1) {
+    stop("cycle must be length 1")
+  }
+
+  pts <- PlotAndTransectLocations(protocol = "FTPC", crosstalk = FALSE, crosstalk_group = crosstalk_group, park = park, sample_frame = sample_frame, cycle = cycle, plot_type, is_qa_plot = is_qa_plot, certified = certified, verified = verified) %>%
+    dplyr::mutate(Cycle = as.integer(Cycle),
+                  Year = as.integer(Year),
+                  Sample_Unit_Number = as.integer(Sample_Unit_Number)) %>%
+    dplyr::rename(Plot_Type = Sample_Unit_Type,
+                  Plot_Number = Sample_Unit_Number) %>%
+    dplyr::select(Unit_Code, Sampling_Frame, Plot_Type, Plot_Number, Year, Cycle, Lat, Long)
+  cover_data <- UnderNativityCover(combine_strata = combine_strata, paired_change = FALSE, crosstalk = FALSE, park = park, sample_frame = sample_frame, community = community, year = year, cycle = cycle,
+                                   plot_type = plot_type, silent = silent)
+
+  # Combine cover and location data
+  cover_data <- dplyr::left_join(cover_data, pts, by = c("Unit_Code", "Sampling_Frame", "Plot_Type", "Plot_Number", "Year", "Cycle")) %>%
+    dplyr::mutate(nat_ratio = Native_Cover_Total_pct / (NonNative_Cover_Total_pct + Native_Cover_Total_pct) * 100) %>%
+    dplyr::arrange(nat_ratio)
+
+
+  pal <- grDevices::colorRampPalette(c("red", "orange", "yellow", "green"))(length(cover_data$nat_ratio))
+
+  # dplyr::mutate(color = dplyr::case_when(NonNative_Cover_Total_pct <= 0 & Native_Cover_Total_pct <= 0 ~ "#cccccc",#gray
+  #                                        NonNative_Cover_Total_pct > 0 & Native_Cover_Total_pct <= 0 ~ "#d11141",#red
+  #                                        NonNative_Cover_Total_pct > 0 & Native_Cover_Total_pct > 0 & NonNative_Cover_Total_pct > Native_Cover_Total_pct ~ "#f37735",#orange
+  #                                        NonNative_Cover_Total_pct > 0 & Native_Cover_Total_pct > 0 & NonNative_Cover_Total_pct < Native_Cover_Total_pct ~ "#C8E52A",#yellow
+  #                                        NonNative_Cover_Total_pct <= 0 & Native_Cover_Total_pct > 0 ~ "#00b159"))#green
+
+  cover_data <- cover_data %>%
+    dplyr::mutate(color = pal)
+
+
+  # Enable crosstalk if specified
+  if (crosstalk) {
+    cover_data <- dplyr::mutate(cover_data, key = paste0(Unit_Code, Sampling_Frame, Plot_Type, Plot_Number, Year, Cycle))
+    cover <- crosstalk::SharedData$new(cover_data, group = crosstalk_group, key = ~key)
+  }
+
+  # Set up icons
+  custom_icons <- pacnvegetation:::pchIcons(pch = rep(22, nrow(cover_data)),
+                                            width = 30,
+                                            height = 30,
+                                            bg = colorspace::darken(cover_data$color),
+                                            col = cover_data$color, 0.3)
+  iconwidth <- 25
+  iconheight <- 25
+
+  # Make NPS map Attribution
+  NPSAttrib <-
+    htmltools::HTML(
+      "<a href='https://www.nps.gov/npmap/disclaimer/'>Disclaimer</a> |
+      &copy; <a href='http://mapbox.com/about/maps' target='_blank'>Mapbox</a>
+      &copy; <a href='http://openstreetmap.org/copyright' target='_blank'>OpenStreetMap</a> contributors |
+      <a class='improve-park-tiles'
+      href='http://insidemaps.nps.gov/places/editor/#background=mapbox-satellite&map=4/-95.97656/39.02772&overlays=park-tiles-overlay'
+      target='_blank'>Improve Park Tiles</a>"
+    )
+
+  # NPS park tiles URLs
+  NPSbasic = "https://atlas-stg.geoplatform.gov/styles/v1/atlas-user/ck58pyquo009v01p99xebegr9/tiles/256/{z}/{x}/{y}@2x?access_token=pk.eyJ1IjoiYXRsYXMtdXNlciIsImEiOiJjazFmdGx2bjQwMDAwMG5wZmYwbmJwbmE2In0.lWXK2UexpXuyVitesLdwUg"
+  NPSimagery = "https://atlas-stg.geoplatform.gov/styles/v1/atlas-user/ck72fwp2642dv07o7tbqinvz4/tiles/256/{z}/{x}/{y}@2x?access_token=pk.eyJ1IjoiYXRsYXMtdXNlciIsImEiOiJjazFmdGx2bjQwMDAwMG5wZmYwbmJwbmE2In0.lWXK2UexpXuyVitesLdwUg"
+  NPSslate = "https://atlas-stg.geoplatform.gov/styles/v1/atlas-user/ck5cpvc2e0avf01p9zaw4co8o/tiles/256/{z}/{x}/{y}@2x?access_token=pk.eyJ1IjoiYXRsYXMtdXNlciIsImEiOiJjazFmdGx2bjQwMDAwMG5wZmYwbmJwbmE2In0.lWXK2UexpXuyVitesLdwUg"
+  NPSlight = "https://atlas-stg.geoplatform.gov/styles/v1/atlas-user/ck5cpia2u0auf01p9vbugvcpv/tiles/256/{z}/{x}/{y}@2x?access_token=pk.eyJ1IjoiYXRsYXMtdXNlciIsImEiOiJjazFmdGx2bjQwMDAwMG5wZmYwbmJwbmE2In0.lWXK2UexpXuyVitesLdwUg"
+
+  map <- leaflet::leaflet(cover) %>%
+    leaflet::addTiles(group = "Basic", urlTemplate = NPSbasic, attribution = NPSAttrib) %>%
+    leaflet::addTiles(group = "Imagery", urlTemplate = NPSimagery, attribution = NPSAttrib) %>%
+    leaflet::addTiles(group = "Slate", urlTemplate = NPSslate, attribution = NPSAttrib) %>%
+    leaflet::addTiles(group = "Light", urlTemplate = NPSlight, attribution = NPSAttrib) %>%
+    leaflet::addLayersControl(baseGroups = c("Basic", "Imagery", "Slate", "Light"),
+                              options=leaflet::layersControlOptions(collapsed = TRUE)) %>%
+    leaflet::addMarkers(lng = ~cover_data$Long,
+                        lat = ~cover_data$Lat,
+                        icon = ~leaflet::icons(iconUrl = custom_icons,
+                                               iconWidth = iconwidth,
+                                               iconHeight = iconheight),
+                        label = ~cover_data$Plot_Number,
+                        # layerId = ~cover_data$key,
+                        labelOptions = leaflet::labelOptions(noHide = TRUE, opacity = .9, textOnly = TRUE, offset = c(0,0), direction = "center", style = list("color" = "white", "font-weight" = "bold")),
+                        popup = ~paste0("<br><strong>Non-native cover:</strong> ", cover_data$NonNative_Cover_Total_pct,
+                                        "<br><strong>Native cover:</strong> ", cover_data$Native_Cover_Total_pct,
+                                        "<br><strong>Sampling Frame:</strong> ", cover_data$Sampling_Frame,
+                                        "<br><strong>Cycle:</strong> ", cover_data$Cycle,
+                                        "<br><strong>Year:</strong> ", cover_data$Year))
+
+  map %<>% leaflet::addScaleBar(position = "bottomleft")
+
+  return(map)
+}
+
 # this is modified from
 # https://github.com/rstudio/leaflet/blob/master/inst/examples/icons.R#L24
 #' Generate png icons for use in Leaflet
