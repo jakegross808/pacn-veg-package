@@ -4,7 +4,7 @@
 \alias{totalCover_plotly}
 \title{Helper function for plotting total cover in plotly}
 \usage{
-totalCover_plotly(data, max_lim)
+totalCover_plotly(data, max_lim, cycle_filter = TRUE)
 }
 \arguments{
 \item{data}{Data to plot}
