@@ -306,7 +306,9 @@ MapCoverTotal <- function(crosstalk = FALSE, crosstalk_group = "cover", combine_
     dplyr::arrange(nat_ratio)
 
 
-  pal <- grDevices::colorRampPalette(c("red", "orange", "yellow", "green"))(length(cover_data$nat_ratio))
+  # pal <- grDevices::colorRampPalette(c("red", "orange", "yellow", "green"))(length(cover_data$nat_ratio))
+  ramp <- grDevices::colorRamp(c("red", "orange", "yellow", "green"))
+  pal <- colorNumeric(ramp, domain = c(0,100))
 
   # dplyr::mutate(color = dplyr::case_when(NonNative_Cover_Total_pct <= 0 & Native_Cover_Total_pct <= 0 ~ "#cccccc",#gray
   #                                        NonNative_Cover_Total_pct > 0 & Native_Cover_Total_pct <= 0 ~ "#d11141",#red
@@ -315,7 +317,7 @@ MapCoverTotal <- function(crosstalk = FALSE, crosstalk_group = "cover", combine_
   #                                        NonNative_Cover_Total_pct <= 0 & Native_Cover_Total_pct > 0 ~ "#00b159"))#green
 
   cover_data <- cover_data %>%
-    dplyr::mutate(color = pal)
+    dplyr::mutate(color = pal(nat_ratio))
 
 
   # Enable crosstalk if specified

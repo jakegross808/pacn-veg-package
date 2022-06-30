@@ -223,10 +223,47 @@ und2 <- UnderCombineStrata(und) %>%
 # Create sunburst plot
 sb <- select(und2, Nativity, Life_Form, Code, Avg_Cover)
 sb <- as.sunburstDF(sb, value_column = "Avg_Cover")
-plot_ly(sb, ids = ~ids, labels = ~labels, parents = ~parents, values = ~values, type = 'sunburst', branchvalues = 'total') %>%
+sunburst_all <- plot_ly(sb, ids = ~ids, labels = ~labels, parents = ~parents, values = ~values, type = 'sunburst', branchvalues = 'total') %>%
   plotly::layout(colorway = nativity_colors)
+```
+```{r cover-composition-graph-grps1, echo=FALSE, fig.cap= paste0("Average understory species cover across the monitoring area from the most recent monitoring event (", max(years), ")."), message=FALSE, warning=FALSE}
+und <- FilterPACNVeg("Understory", sample_frame = params$sample_frame, cycle = max(cycles))  # Only get data from most recent cycle
 
-sb
+und <- und %>%
+  mutate(Life_Form=replace(Life_Form, Code=="SOPCHR", "Shrub"))
+
+# prep data for sunburst plot
+nativity_colors <- c("Native" = "#1b9e77", "No Veg" = "grey", "Non-Native" = "#d95f02", "Unknown" = "#7570b3")
+
+und2 <- UnderCombineStrata(und) %>%
+  mutate(GROUP_COL = sample(LETTERS[c(1, 2, 2, 3, 5, 5, 5)], size = dplyr::n(), replace = TRUE)) %>%  # TODO: replace this with actual grouping column
+  mutate(across(where(is.character), replace_na, "No Veg")) %>%
+  group_by(GROUP_COL, Cycle, Unit_Code, Sampling_Frame, Plot_Number,
+           Nativity, Code, Scientific_Name, Life_Form) %>%
+  summarize(Hits_Sp = n(), .groups = "drop") %>%
+  complete(nesting(GROUP_COL, Cycle, Unit_Code, Sampling_Frame, Plot_Number),  # TODO: replace GROUP_COL with actual grouping column
+           nesting(Nativity, Code, Scientific_Name, Life_Form),
+           fill = list(Hits_Sp = 0)) %>%
+  mutate(Plot_Percent = Hits_Sp/300) %>%
+  group_by(GROUP_COL, Cycle, Unit_Code, Sampling_Frame,
+           Nativity, Code, Scientific_Name, Life_Form) %>%
+  summarize(n = n(),
+            plots_present = sum(Hits_Sp > 0),
+            Avg_Cover = round(mean(Plot_Percent), 3),
+            #Median = median(Plot_Percent),
+            Std_Dev = round(sd(Plot_Percent), 3),
+            .groups = "drop")
+
+# Create sunburst plot
+sb <- select(und2, GROUP_COL, Nativity, Life_Form, Code, Avg_Cover)
+sb <- as.sunburstDF(sb, value_column = "Avg_Cover") %>%
+  SharedData$new(key = ~ids)
+
+grp_filter <- filter_select("select-group", "Select a group", sb, ~stringr::str_sub(ids, 1,  1), allLevels = FALSE)
+sunburst_by_grp <- plot_ly(sb, ids = ~ids, labels = ~labels, parents = ~parents, values = ~values, type = 'sunburst', branchvalues = 'total') %>%
+  highlight(on = NULL, off = NULL, persistent = FALSE)
+
+bscols(sunburst_all, list(sunburst_by_grp, grp_filter))
 ```
 
 ```{r cover-composition-table, echo=FALSE, message=FALSE, warning=FALSE, tab.cap="Average understory species cover."}
