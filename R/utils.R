@@ -334,8 +334,16 @@ ReadFTPC <- function(conn) {
   #Extra
   tlu_Species_extra <- dplyr::tbl(conn, "tlu_Species") %>%
     dplyr::select(Species_ID, Scientific_Name = Scientific_name, Code, Taxonomic_Order, Taxonomic_Family, Genus, Species,
-           Subdivision, Authority, Synonym, Authority_Source, Citation,
-           Common_Name = Common_name, Life_Cycle = Life_cycle, Complete, Update_Date = Update_date, Update_By = Update_by,
+           Subdivision,
+           Authority,
+           #Synonym,
+           Authority_Source,
+           Citation,
+           #Common_Name = Common_name,
+           Life_Cycle = Life_cycle,
+           #Complete,
+           Update_Date = Update_date,
+           Update_By = Update_by,
            Update_Comments = Update_comments)
 
   # . . 2. xref_Park_Species_Nativity----
@@ -422,8 +430,8 @@ ReadFTPC <- function(conn) {
   # . . 4. tbl_Sm_Woody_Tally----
   # Vines, seedlings, shrubs, small trees, and small tree ferns.
   tbl_Sm_Woody_Tally <- dplyr::tbl(conn, "tbl_Sm_Woody_Tally") %>%
-    dplyr::select(Event_ID, Species_ID, Sample_Area, DBH, Status,
-                  Foliar, Rooting, Count, Comments)
+    dplyr::select(Event_ID, Species_ID, Sample_Area, LF_Sm_Woody = Life_Form, DBH, Status,
+                  Length, Rooting, Count, Comments)
   # . . . . SmWoody ----
   SmWoody <- Events %>%
     dplyr::right_join(tbl_Sm_Woody_Tally, by = "Event_ID") %>%
