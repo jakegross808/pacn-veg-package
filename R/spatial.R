@@ -328,7 +328,7 @@ MapCoverTotal <- function(crosstalk = FALSE, crosstalk_group = "cover", combine_
   }
 
   # Set up icons
-  custom_icons <- pacnvegetation:::pchIcons(pch = rep(22, nrow(cover_data)),
+  custom_icons <- pchIcons(pch = rep(22, nrow(cover_data)),
                                             width = 30,
                                             height = 30,
                                             bg = colorspace::darken(cover_data$color),
