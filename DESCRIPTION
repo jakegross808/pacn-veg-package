@@ -36,6 +36,16 @@ Imports:
     htmltools,
     scales,
     tidyr,
-    leaflet.esri
+    leaflet.esri,
+    blob,
+    colorspace,
+    magick,
+    plotly,
+    purrr,
+    rlang,
+    sf,
+    sfheaders,
+    sp,
+    terra
 Language: en-US
 Config/testthat/edition: 3
