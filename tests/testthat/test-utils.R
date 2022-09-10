@@ -46,7 +46,7 @@ test_that("Species_extra column names are correct", {
 })
 
 test_that("LgTrees column names are correct", {
-  expected <- c('Unit_Code', 'Community', 'Sampling_Frame', 'Year', 'Cycle', 'Plot_Type', 'Plot_Number', 'QA_Plot', 'Quad', 'Status', 'Height', 'Height_Dead', 'Boles', 'DBH', 'Measurement_Type', 'Measurement', 'Vigor', 'Fruit_Flower', 'Rooting', 'Foliar', 'Caudex_Length', 'Shrublike_Growth', 'Resprouts', 'Measurement_Type', 'DBH_Bole', 'Status_Bole', 'Scientific_Name', 'Code', 'Life_Form', 'Nativity', 'Certified', 'Verified')
+  expected <- c('Unit_Code', 'Community', 'Sampling_Frame', 'Year', 'Cycle', 'Plot_Type', 'Plot_Number', 'QA_Plot', 'Quad', 'Status', 'Height', 'Height_Dead', 'Boles', 'DBH', 'Measurement_Type', 'Measurement', 'Vigor', 'Fruit_Flower', 'Rooting', 'Foliar', 'Caudex_Length', 'Shrublike_Growth', 'Resprouts', 'DBH_Bole', 'Status_Bole', 'Scientific_Name', 'Code', 'Life_Form', 'Nativity', 'Certified', 'Verified')
   actual <- names(FilterPACNVeg("LgTrees"))
   expect_equal(actual, expected)
 })
@@ -64,7 +64,7 @@ test_that("Presence column names are correct", {
 })
 
 test_that("SmWoody column names are correct", {
-  expected <- c('Unit_Code', 'Community', 'Sampling_Frame', 'Year', 'Cycle', 'Plot_Type', 'Plot_Number', 'QA_Plot', 'Sample_Area', 'DBH', 'Status', 'Length', 'Rooting', 'Count', 'Scientific_Name', 'Code', 'LF_Sm_Woody', 'Nativity', 'Comments', 'Certified', 'Verified')
+  expected <- c('Unit_Code', 'Community', 'Sampling_Frame', 'Year', 'Cycle', 'Plot_Type', 'Plot_Number', 'QA_Plot', 'Sample_Area', 'LF_Sm_Woody', 'DBH', 'Status', 'Length', 'Rooting', 'Count', 'Scientific_Name', 'Code', 'Nativity', 'Comments', 'Certified', 'Verified')
   actual <- names(FilterPACNVeg("SmWoody"))
   expect_equal(actual, expected)
 })
@@ -128,7 +128,7 @@ test_that("FilterPACNVeg filters on park", {
 })
 
 test_that("FilterPACNVeg filters on community", {
-  actual <- FilterPACNVeg(community = "Coastal")
+  actual <- FilterPACNVeg(community = "Coastal Strand")
   actual <- sapply(actual, function(df) {
     if ("Community" %in% names(df) & nrow(df) > 0) {
       unique(df$Community)
@@ -138,7 +138,7 @@ test_that("FilterPACNVeg filters on community", {
   })
   actual <- unique(actual[!is.na(actual)])
 
-  expect_equal(actual, "Coastal")
+  expect_equal(actual, "Coastal Strand")
 })
 
 test_that("FilterPACNVeg filters on sampling frame", {
