@@ -374,9 +374,9 @@ ReadFTPC <- function(conn) {
   # Large Trees & Large Tree Ferns (>10 cm DBH)
   tbl_Lg_Woody_Individual <- dplyr::tbl(conn, "tbl_Lg_Woody_Individual") %>%
     dplyr::select(Large_Woody_ID, Event_ID, Species_ID, Quad, Status, Height,
-                  Height_Dead, Boles, DBH, Vigor,
+                  Height_Dead, Boles, DBH, Measurement_Type, Measurement, Vigor,
                   Fruit_Flower, Rooting, Foliar, Caudex_Length,
-                  Shrublike_Growth, Resprouts, Measurement_Type)
+                  Shrublike_Growth, Resprouts)
 
   # . . . . tbl_Multiple_Boles----
   # Sub-table - Bole DBH for trees that have multiple boles.
@@ -454,6 +454,7 @@ ReadFTPC <- function(conn) {
   UnderstoryLow <- dplyr::tbl(conn, "xref_Understory_Low") %>%
     dplyr::select(Event_ID, Point_ID, Species_ID, Dead) %>%
     #dplyr::mutate(Species_ID = ifelse(Dead == TRUE, NA, Species_ID)) %>%
+    #All understory is Live (first year methods also collected data data which is dropped here)
     dplyr::filter(Dead == "FALSE") %>%
     dplyr::select(-Dead) %>%
     dplyr::mutate(Stratum = "Low")
