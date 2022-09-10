@@ -64,7 +64,7 @@ test_that("Presence column names are correct", {
 })
 
 test_that("SmWoody column names are correct", {
-  expected <- c('Unit_Code', 'Community', 'Sampling_Frame', 'Year', 'Cycle', 'Plot_Type', 'Plot_Number', 'QA_Plot', 'Sample_Area', 'LF_Sm_Woody', 'DBH', 'Status', 'Length', 'Rooting', 'Count', 'Scientific_Name', 'Code', 'Nativity', 'Comments', 'Certified', 'Verified')
+  expected <- c('Unit_Code', 'Community', 'Sampling_Frame', 'Year', 'Cycle', 'Plot_Type', 'Plot_Number', 'QA_Plot', 'Sample_Area', 'LF_Sm_Woody', 'DBH', 'Status', 'Length', 'Rooting', 'Count', 'Scientific_Name', 'Code', "Life_Form", 'Nativity', 'Comments', 'Certified', 'Verified')
   actual <- names(FilterPACNVeg("SmWoody"))
   expect_equal(actual, expected)
 })
