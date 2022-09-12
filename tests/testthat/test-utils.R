@@ -28,25 +28,25 @@ test_that("Events_extra_QAQC column names are correct", {
 })
 
 test_that("Events_extra_xy column names are correct", {
-  expected <- c('Unit_Code', 'Sampling_Frame', 'Year', 'Cycle', 'Plot_Type', 'Plot_Number', 'Azimuth_Plot', 'Start_Lat', 'Start_Long', 'Center_Lat', 'Center_Long', 'End_Lat', 'End_Long', 'GCS', 'GCS_Datum', 'Lat_Dir', 'Long_Dir', 'Certified', 'Verified')
+  expected <- c('Unit_Code', 'Sampling_Frame', 'Year', 'Cycle', 'Plot_Type', 'Plot_Number', 'Azimuth_Plot', 'Start_Lat', 'Start_Long', 'Center_Lat', 'Center_Long', 'End_Lat', 'End_Long', 'GCS', 'Lat_Dir', 'Long_Dir', 'Certified', 'Verified')
   actual <- names(suppressWarnings(FilterPACNVeg("Events_extra_xy")))
   expect_equal(actual, expected)
 })
 
 test_that("Events_extra_other column names are correct", {
-  expected <- c('Unit_Code', 'Sampling_Frame', 'Year', 'Cycle', 'Plot_Type', 'Zone', 'Management_Unit', 'Plot_Number', 'Max_Veg_Ht', 'Site_Name', 'Images', 'Certified', 'Verified')
+  expected <- c('Unit_Code', 'Sampling_Frame', 'Year', 'Cycle', 'Plot_Type', 'Plot_Number', 'Max_Veg_Ht', 'Site_Name', 'Images', 'Certified', 'Verified')
   actual <- names(suppressWarnings(FilterPACNVeg("Events_extra_other")))
   expect_equal(actual, expected)
 })
 
 test_that("Species_extra column names are correct", {
-  expected <- c('Species_ID', 'Scientific_Name', 'Code', 'Taxonomic_Order', 'Taxonomic_Family', 'Genus', 'Species', 'Subdivision', 'Authority', 'Synonym', 'Authority_Source', 'Citation', 'Common_Name', 'Life_Cycle', 'Complete', 'Update_Date', 'Update_By', 'Update_Comments', 'Park', 'Life_Form', 'Nativity', 'Park_Common_Name', 'Distribution', 'Conservation_Status')
+  expected <- c('Species_ID', 'Scientific_Name', 'Code', 'Taxonomic_Order', 'Taxonomic_Family', 'Genus', 'Species', 'Subdivision', 'Authority', 'Authority_Source', 'Citation', 'Life_Cycle', 'Update_Date', 'Update_By', 'Update_Comments', 'Park', 'Life_Form', 'Nativity', 'Park_Common_Name', 'Distribution', 'Conservation_Status')
   actual <- names(suppressWarnings(FilterPACNVeg("Species_extra")))
   expect_equal(actual, expected)
 })
 
 test_that("LgTrees column names are correct", {
-  expected <- c('Unit_Code', 'Community', 'Sampling_Frame', 'Year', 'Cycle', 'Plot_Type', 'Plot_Number', 'QA_Plot', 'Quad', 'Status', 'Height', 'Height_Dead', 'Boles', 'DBH', 'DBH_Other', 'Vigor', 'Fruit_Flower', 'Rooting', 'Foliar', 'Caudex_Length', 'Shrublike_Growth', 'Resprouts', 'Measurement_Type', 'DBH_Bole', 'Status_Bole', 'Scientific_Name', 'Code', 'Life_Form', 'Nativity', 'Certified', 'Verified')
+  expected <- c('Unit_Code', 'Community', 'Sampling_Frame', 'Year', 'Cycle', 'Plot_Type', 'Plot_Number', 'QA_Plot', 'Quad', 'Status', 'Height', 'Height_Dead', 'Boles', 'DBH', 'Measurement_Type', 'Measurement', 'Vigor', 'Fruit_Flower', 'Rooting', 'Foliar', 'Caudex_Length', 'Shrublike_Growth', 'Resprouts', 'DBH_Bole', 'Status_Bole', 'Scientific_Name', 'Code', 'Life_Form', 'Nativity', 'Certified', 'Verified')
   actual <- names(suppressWarnings(FilterPACNVeg("LgTrees")))
   expect_equal(actual, expected)
 })
@@ -64,13 +64,13 @@ test_that("Presence column names are correct", {
 })
 
 test_that("SmWoody column names are correct", {
-  expected <- c('Unit_Code', 'Community', 'Sampling_Frame', 'Year', 'Cycle', 'Plot_Type', 'Plot_Number', 'QA_Plot', 'Transect', 'DBH', 'Status', 'Foliar', 'Rooting', 'Count', 'Scientific_Name', 'Code', 'Life_Form', 'Nativity', 'Comments', 'Certified', 'Verified')
+  expected <- c('Unit_Code', 'Community', 'Sampling_Frame', 'Year', 'Cycle', 'Plot_Type', 'Plot_Number', 'QA_Plot', 'Sample_Area', 'LF_Sm_Woody', 'DBH', 'Status', 'Length', 'Rooting', 'Count', 'Scientific_Name', 'Code', "Life_Form", 'Nativity', 'Comments', 'Certified', 'Verified')
   actual <- names(suppressWarnings(FilterPACNVeg("SmWoody")))
   expect_equal(actual, expected)
 })
 
 test_that("Understory column names are correct", {
-  expected <- c('Unit_Code', 'Community', 'Sampling_Frame', 'Year', 'Cycle', 'Plot_Type', 'Plot_Number', 'QA_Plot', 'Point', 'Substrate', 'Dead', 'Stratum', 'Scientific_Name', 'Code', 'Life_Form', 'Nativity', 'Certified', 'Verified')
+  expected <- c('Unit_Code', 'Community', 'Sampling_Frame', 'Year', 'Cycle', 'Plot_Type', 'Plot_Number', 'QA_Plot', 'Point', 'Substrate', 'Stratum', 'Scientific_Name', 'Code', 'Life_Form', 'Nativity', 'Certified', 'Verified')
   actual <- names(suppressWarnings(FilterPACNVeg("Understory")))
   expect_equal(actual, expected)
 })
@@ -94,7 +94,7 @@ test_that("Events_extra_xy_EIPS column names are correct", {
 })
 
 test_that("Events_extra_other_EIPS column names are correct", {
-  expected <- c('Unit_Code', 'Sampling_Frame', 'Year', 'Cycle', 'Transect_Type', 'Zone', 'Management_Unit', 'Transect_Number', 'Site_Name', 'Certified', 'Verified')
+  expected <- c('Unit_Code', 'Sampling_Frame', 'Year', 'Cycle', 'Transect_Type', 'Transect_Number', 'Site_Name', 'Certified', 'Verified')
   actual <- names(suppressWarnings(FilterPACNVeg("Events_extra_other_EIPS")))
   expect_equal(actual, expected)
 })
