@@ -23,96 +23,96 @@ unlink(dir, recursive = TRUE)
 
 test_that("Events_extra_QAQC column names are correct", {
   expected <- c('Unit_Code', 'Sampling_Frame', 'Start_Date', 'Year', 'Cycle', 'Plot_Type', 'Plot_Number', 'Entered_Date', 'Updated_Date', 'Verified', 'Verified_By', 'Verified_Date', 'Certified', 'Certified_By', 'Certified_Date', 'Completion_Time', 'Event_Notes', 'Plot_Notes', 'QA_notes')
-  actual <- names(FilterPACNVeg("Events_extra_QAQC"))
+  actual <- names(suppressWarnings(FilterPACNVeg("Events_extra_QAQC")))
   expect_equal(actual, expected)
 })
 
 test_that("Events_extra_xy column names are correct", {
   expected <- c('Unit_Code', 'Sampling_Frame', 'Year', 'Cycle', 'Plot_Type', 'Plot_Number', 'Azimuth_Plot', 'Start_Lat', 'Start_Long', 'Center_Lat', 'Center_Long', 'End_Lat', 'End_Long', 'GCS', 'GCS_Datum', 'Lat_Dir', 'Long_Dir', 'Certified', 'Verified')
-  actual <- names(FilterPACNVeg("Events_extra_xy"))
+  actual <- names(suppressWarnings(FilterPACNVeg("Events_extra_xy")))
   expect_equal(actual, expected)
 })
 
 test_that("Events_extra_other column names are correct", {
   expected <- c('Unit_Code', 'Sampling_Frame', 'Year', 'Cycle', 'Plot_Type', 'Zone', 'Management_Unit', 'Plot_Number', 'Max_Veg_Ht', 'Site_Name', 'Images', 'Certified', 'Verified')
-  actual <- names(FilterPACNVeg("Events_extra_other"))
+  actual <- names(suppressWarnings(FilterPACNVeg("Events_extra_other")))
   expect_equal(actual, expected)
 })
 
 test_that("Species_extra column names are correct", {
   expected <- c('Species_ID', 'Scientific_Name', 'Code', 'Taxonomic_Order', 'Taxonomic_Family', 'Genus', 'Species', 'Subdivision', 'Authority', 'Synonym', 'Authority_Source', 'Citation', 'Common_Name', 'Life_Cycle', 'Complete', 'Update_Date', 'Update_By', 'Update_Comments', 'Park', 'Life_Form', 'Nativity', 'Park_Common_Name', 'Distribution', 'Conservation_Status')
-  actual <- names(FilterPACNVeg("Species_extra"))
+  actual <- names(suppressWarnings(FilterPACNVeg("Species_extra")))
   expect_equal(actual, expected)
 })
 
 test_that("LgTrees column names are correct", {
   expected <- c('Unit_Code', 'Community', 'Sampling_Frame', 'Year', 'Cycle', 'Plot_Type', 'Plot_Number', 'QA_Plot', 'Quad', 'Status', 'Height', 'Height_Dead', 'Boles', 'DBH', 'DBH_Other', 'Vigor', 'Fruit_Flower', 'Rooting', 'Foliar', 'Caudex_Length', 'Shrublike_Growth', 'Resprouts', 'Measurement_Type', 'DBH_Bole', 'Status_Bole', 'Scientific_Name', 'Code', 'Life_Form', 'Nativity', 'Certified', 'Verified')
-  actual <- names(FilterPACNVeg("LgTrees"))
+  actual <- names(suppressWarnings(FilterPACNVeg("LgTrees")))
   expect_equal(actual, expected)
 })
 
 test_that("Canopy column names are correct", {
   expected <- c('Unit_Code', 'Community', 'Sampling_Frame', 'Year', 'Cycle', 'Plot_Type', 'Plot_Number', 'QA_Plot', 'Quad', 'Status', 'Top', 'Base', 'Base_Ht', 'Distance', 'Height', 'Method', 'DBH', 'Scientific_Name', 'Code', 'Life_Form', 'Nativity', 'Comments', 'Certified', 'Verified')
-  actual <- names(FilterPACNVeg("Canopy"))
+  actual <- names(suppressWarnings(FilterPACNVeg("Canopy")))
   expect_equal(actual, expected)
 })
 
 test_that("Presence column names are correct", {
   expected <- c('Unit_Code', 'Community', 'Sampling_Frame', 'Year', 'Cycle', 'Plot_Type', 'Plot_Number', 'QA_Plot', 'Fruit_Flower', 'Dead', 'Outside_Plot', 'cf', 'Scientific_Name', 'Code', 'Life_Form', 'Nativity', 'Comments', 'Certified', 'Verified')
-  actual <- names(FilterPACNVeg("Presence"))
+  actual <- names(suppressWarnings(FilterPACNVeg("Presence")))
   expect_equal(actual, expected)
 })
 
 test_that("SmWoody column names are correct", {
   expected <- c('Unit_Code', 'Community', 'Sampling_Frame', 'Year', 'Cycle', 'Plot_Type', 'Plot_Number', 'QA_Plot', 'Transect', 'DBH', 'Status', 'Foliar', 'Rooting', 'Count', 'Scientific_Name', 'Code', 'Life_Form', 'Nativity', 'Comments', 'Certified', 'Verified')
-  actual <- names(FilterPACNVeg("SmWoody"))
+  actual <- names(suppressWarnings(FilterPACNVeg("SmWoody")))
   expect_equal(actual, expected)
 })
 
 test_that("Understory column names are correct", {
   expected <- c('Unit_Code', 'Community', 'Sampling_Frame', 'Year', 'Cycle', 'Plot_Type', 'Plot_Number', 'QA_Plot', 'Point', 'Substrate', 'Dead', 'Stratum', 'Scientific_Name', 'Code', 'Life_Form', 'Nativity', 'Certified', 'Verified')
-  actual <- names(FilterPACNVeg("Understory"))
+  actual <- names(suppressWarnings(FilterPACNVeg("Understory")))
   expect_equal(actual, expected)
 })
 
 test_that("Debris column names are correct", {
   expected <- c('Unit_Code', 'Community', 'Sampling_Frame', 'Year', 'Cycle', 'Plot_Type', 'Plot_Number', 'QA_Plot', 'Transect', 'Length', 'Debris_Type', 'Diameter', 'Decay_Class', 'Comments', 'Certified', 'Verified')
-  actual <- names(FilterPACNVeg("Debris"))
+  actual <- names(suppressWarnings(FilterPACNVeg("Debris")))
   expect_equal(actual, expected)
 })
 
 test_that("Events_extra_QAQC_EIPS column names are correct", {
   expected <- c('Unit_Code', 'Sampling_Frame', 'Start_Date', 'Year', 'Cycle', 'Transect_Type', 'Transect_Number', 'Entered_Date', 'Updated_Date', 'Verified', 'Verified_By', 'Verified_Date', 'Certified', 'Certified_By', 'Certified_Date', 'Transect_Notes', 'Event_Notes')
-  actual <- names(FilterPACNVeg("Events_extra_QAQC_EIPS"))
+  actual <- names(suppressWarnings(FilterPACNVeg("Events_extra_QAQC_EIPS")))
   expect_equal(actual, expected)
 })
 
 test_that("Events_extra_xy_EIPS column names are correct", {
   expected <- c('Unit_Code', 'Sampling_Frame', 'Year', 'Cycle', 'Transect_Type', 'Transect_Number', 'Azimuth_Transect', 'Lat', 'Long', 'GCS', 'Lat_Dir', 'Long_Dir', 'Certified', 'Verified')
-  actual <- names(FilterPACNVeg("Events_extra_xy_EIPS"))
+  actual <- names(suppressWarnings(FilterPACNVeg("Events_extra_xy_EIPS")))
   expect_equal(actual, expected)
 })
 
 test_that("Events_extra_other_EIPS column names are correct", {
   expected <- c('Unit_Code', 'Sampling_Frame', 'Year', 'Cycle', 'Transect_Type', 'Zone', 'Management_Unit', 'Transect_Number', 'Site_Name', 'Certified', 'Verified')
-  actual <- names(FilterPACNVeg("Events_extra_other_EIPS"))
+  actual <- names(suppressWarnings(FilterPACNVeg("Events_extra_other_EIPS")))
   expect_equal(actual, expected)
 })
 
 test_that("Species_extra_EIPS column names are correct", {
   expected <- c('Species_ID', 'Scientific_Name', 'Code', 'Taxonomic_Order', 'Taxonomic_Family', 'Genus', 'Species', 'Subdivision', 'Authority', 'Synonym', 'Authority_Source', 'Citation', 'Common_Name', 'Life_Cycle', 'Complete', 'Update_Date', 'Update_By', 'Update_Comments', 'Park', 'Life_Form', 'Nativity', 'Park_Common_Name', 'Distribution', 'Conservation_Status')
-  actual <- names(FilterPACNVeg("Species_extra_EIPS"))
+  actual <- names(suppressWarnings(FilterPACNVeg("Species_extra_EIPS")))
   expect_equal(actual, expected)
 })
 
 test_that("EIPS_data column names are correct", {
   expected <- c('Unit_Code', 'Community', 'Sampling_Frame', 'Year', 'Cycle', 'Transect_Type', 'Transect_Number', 'Segment', 'Species_ID', 'Cover_Class', 'Dead', 'Code', 'Scientific_Name', 'Life_Form', 'Nativity', 'Certified', 'Verified')
-  actual <- names(FilterPACNVeg("EIPS_data"))
+  actual <- names(suppressWarnings(FilterPACNVeg("EIPS_data")))
   expect_equal(actual, expected)
 })
 
 test_that("FilterPACNVeg filters on park", {
-  actual <- FilterPACNVeg(park = "AMME")
+  actual <- suppressWarnings(FilterPACNVeg(park = "AMME"))
   actual <- sapply(actual, function(df) {
     if ("Unit_Code" %in% names(df) & nrow(df) > 0) {
       unique(df$Unit_Code)
@@ -128,7 +128,7 @@ test_that("FilterPACNVeg filters on park", {
 })
 
 test_that("FilterPACNVeg filters on community", {
-  actual <- FilterPACNVeg(community = "Coastal")
+  actual <- suppressWarnings(FilterPACNVeg(community = "Coastal Strand"))
   actual <- sapply(actual, function(df) {
     if ("Community" %in% names(df) & nrow(df) > 0) {
       unique(df$Community)
@@ -138,11 +138,11 @@ test_that("FilterPACNVeg filters on community", {
   })
   actual <- unique(actual[!is.na(actual)])
 
-  expect_equal(actual, "Coastal")
+  expect_equal(actual, "Coastal Strand")
 })
 
 test_that("FilterPACNVeg filters on sampling frame", {
-  actual <- FilterPACNVeg(sample_frame = "Kaloko-Honokohau")
+  actual <- suppressWarnings(FilterPACNVeg(sample_frame = "Kaloko-Honokohau"))
   actual <- sapply(actual, function(df) {
     if ("Sampling_Frame" %in% names(df) & nrow(df) > 0) {
       unique(df$Sampling_Frame)
@@ -156,7 +156,7 @@ test_that("FilterPACNVeg filters on sampling frame", {
 })
 
 test_that("FilterPACNVeg filters on plot type", {
-  actual <- FilterPACNVeg(plot_type = "Rotational")
+  actual <- suppressWarnings(FilterPACNVeg(plot_type = "Rotational"))
   actual <- sapply(actual, function(df) {
     if ("Plot_Type" %in% names(df) & nrow(df) > 0) {
       unique(df$Plot_Type)
@@ -170,7 +170,7 @@ test_that("FilterPACNVeg filters on plot type", {
 })
 
 test_that("FilterPACNVeg filters on QA plots", {
-  actual <- FilterPACNVeg(is_qa_plot = TRUE)
+  actual <- suppressWarnings(FilterPACNVeg(is_qa_plot = TRUE))
   actual <- sapply(actual, function(df) {
     if ("QA_Plot" %in% names(df) & nrow(df) > 0) {
       unique(df$QA_Plot)
@@ -184,7 +184,7 @@ test_that("FilterPACNVeg filters on QA plots", {
 })
 
 test_that("FilterPACNVeg filters on transect type", {
-  actual <- FilterPACNVeg(transect_type = "Fixed")
+  actual <- suppressWarnings(FilterPACNVeg(transect_type = "Fixed"))
   actual <- sapply(actual, function(df) {
     if ("Transect_Type" %in% names(df) & nrow(df) > 0) {
       unique(df$Transect_Type)
@@ -198,7 +198,7 @@ test_that("FilterPACNVeg filters on transect type", {
 })
 
 test_that("FilterPACNVeg filters on species code", {
-  actual <- FilterPACNVeg(species_code = "GERHOM")
+  actual <- suppressWarnings(FilterPACNVeg(species_code = "GERHOM"))
   actual <- sapply(actual, function(df) {
     if ("Code" %in% names(df) & nrow(df) > 0) {
       unique(df$Code)
@@ -212,7 +212,7 @@ test_that("FilterPACNVeg filters on species code", {
 })
 
 test_that("FilterPACNVeg filters on species code", {
-  actual <- FilterPACNVeg(sci_name = "Passiflora edulis")
+  actual <- suppressWarnings(FilterPACNVeg(sci_name = "Passiflora edulis"))
   actual <- sapply(actual, function(df) {
     if ("Scientific_Name" %in% names(df) & nrow(df) > 0) {
       unique(df$Scientific_Name)
@@ -226,7 +226,7 @@ test_that("FilterPACNVeg filters on species code", {
 })
 
 test_that("FilterPACNVeg filters on species code", {
-  actual <- FilterPACNVeg(nativity = "Native")
+  actual <- suppressWarnings(FilterPACNVeg(nativity = "Native"))
   actual <- sapply(actual, function(df) {
     if ("Nativity" %in% names(df) & nrow(df) > 0) {
       unique(df$Nativity)
@@ -240,7 +240,7 @@ test_that("FilterPACNVeg filters on species code", {
 })
 
 test_that("FilterPACNVeg filters on certification status", {
-  actual <- FilterPACNVeg(certified = TRUE)
+  actual <- suppressWarnings(FilterPACNVeg(certified = TRUE))
   actual <- sapply(actual, function(df) {
     if ("Certified" %in% names(df) & nrow(df) > 0) {
       unique(df$Certified)
@@ -254,7 +254,7 @@ test_that("FilterPACNVeg filters on certification status", {
 })
 
 test_that("FilterPACNVeg filters on verification status", {
-  actual <- FilterPACNVeg(verified = TRUE)
+  actual <- suppressWarnings(FilterPACNVeg(verified = TRUE))
   actual <- sapply(actual, function(df) {
     if ("Verified" %in% names(df) & nrow(df) > 0) {
       unique(df$Verified)
@@ -268,7 +268,7 @@ test_that("FilterPACNVeg filters on verification status", {
 })
 
 test_that("RemoveSingleVisits removes data from plots with no revisits",{
-  data <- FilterPACNVeg("Understory")
+  data <- suppressWarnings(FilterPACNVeg("Understory"))
   result <- RemoveSingleVisits(data)
   visit_count <- result %>%
     dplyr::select(Unit_Code, Community, Sampling_Frame, Year, Cycle, Plot_Number) %>%
