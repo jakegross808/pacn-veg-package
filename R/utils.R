@@ -936,7 +936,7 @@ FilterOne <- function(data, data_name, filter_cols, case_sensitive, silent) {
         data <- dplyr::filter(data, !!as.symbol(col) %in% filter_value)  # Case-sensitive and non-character filtering
       }
       if (nrow(data) == 0) {  # Stop filtering if we end up with an empty dataframe
-        warning("There are no data that match all of the filters provided.")
+        warning(paste("There are no data in", data_name, "that match all of the filters provided."))
         break
       }
     }
