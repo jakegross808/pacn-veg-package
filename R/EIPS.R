@@ -4,8 +4,9 @@
 #' Cover Class "0" returns 0 for min and max, while cover class 7 will return 0.75
 #' for min and 1.0 for max.
 #' @return Filename and path
-#' #' @examples
-#' #' \dontrun{
+#' @export
+#' @examples
+#' \dontrun{
 #' MapPACNVeg(protocol = "FTPC")
 #' MapPACNVeg(park = "AMME")
 #'}
@@ -38,8 +39,9 @@ v_EIPS_cover_class2percent <- function(df, cover_column) {
 #' Cover Class "0" returns 0 for min and max, while cover class 7 will return 0.75
 #' for min and 1.0 for max.
 #' @return Filename and path
-#' #' @examples
-#' #' \dontrun{
+#' @export
+#' @examples
+#' \dontrun{
 #' MapPACNVeg(protocol = "FTPC")
 #' MapPACNVeg(park = "AMME")
 #'}
@@ -73,8 +75,9 @@ v_EIPS_cover_percent2class <- function(df, range_column, cover_column_name) {
 #' @description Pulls EIPS dataset from database cache and performs some
 #' basic data preparation.
 #' @return dataframe
-#' #' @examples
-#' #' \dontrun{
+#' @export
+#' @examples
+#' \dontrun{
 #' v_EIPS_prep(sample_frame = "Olaa")
 #' v_EIPS_prep(park = "AMME")
 #'}
@@ -188,8 +191,9 @@ v_EIPS_prep <- function(park, sample_frame, community, year, cycle, transect_typ
 #' @description Input a dataframe, metric, and a column to be mapped, returns a map using
 #' the column specified to color the metric.
 #' @return leaflet map with crosstalk selection
-#' #' @examples
-#' #' \dontrun{
+#' @export
+#' @examples
+#' \dontrun{
 #' v_EIPS_map()
 #' v_EIPS_map()
 #'}

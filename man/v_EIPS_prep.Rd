@@ -2,7 +2,7 @@
 % Please edit documentation in R/EIPS.R
 \name{v_EIPS_prep}
 \alias{v_EIPS_prep}
-\title{Prep and check EIPS data and add helpful columns}
+\title{Prep and check EIPS data and add helpful columns for mapping ect.}
 \usage{
 v_EIPS_prep(
   park,
