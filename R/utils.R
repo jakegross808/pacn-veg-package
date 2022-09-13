@@ -390,7 +390,8 @@ ReadFTPC <- function(conn) {
     dplyr::left_join(Species, by = c("Species_ID", "Unit_Code" = "Park")) %>%
     dplyr::select(-Large_Woody_ID, -Event_ID, -Species_ID) %>%
     dplyr::collect() %>%
-    dplyr::relocate(Certified, Verified, .after = last_col())
+    dplyr::relocate(Certified, Verified, .after = last_col()) %>%
+    dplyr::mutate(Cycle = as.integer(Cycle))
 
 
   # . . 2. tbl_Tree_Canopy_Height----
@@ -716,8 +717,7 @@ GetColSpec <- function() {
                                      Certified = readr::col_logical(),
                                      Verified = readr::col_logical(),
                                      .default = readr::col_character()),
-    Species_extra = readr::cols(Complete = readr::col_logical(),
-                                Update_Date = readr::col_datetime(time_format),
+    Species_extra = readr::cols(Update_Date = readr::col_datetime(time_format),
                                 .default = readr::col_character()),
     LgTrees = readr::cols(Year = readr::col_integer(),
                           Cycle = readr::col_integer(),
@@ -727,12 +727,12 @@ GetColSpec <- function() {
                           Height_Dead = readr::col_double(),
                           Boles = readr::col_integer(),
                           DBH = readr::col_double(),
-                          DBH_Other = readr::col_double(),
                           Fruit_Flower = readr::col_logical(),
                           Caudex_Length = readr::col_double(),
                           Shrublike_Growth = readr::col_logical(),
                           Resprouts = readr::col_logical(),
                           DBH_Bole = readr::col_double(),
+                          Measurement = readr::col_double(),
                           Certified = readr::col_logical(),
                           Verified = readr::col_logical(),
                           .default = readr::col_character()),
@@ -773,7 +773,6 @@ GetColSpec <- function() {
                              Plot_Number = readr::col_integer(),
                              QA_Plot = readr::col_logical(),
                              Point = readr::col_integer(),
-                             Dead = readr::col_logical(),
                              Certified = readr::col_logical(),
                              Verified = readr::col_logical(),
                              .default = readr::col_character()),
@@ -812,7 +811,6 @@ GetColSpec <- function() {
                                  Cycle = readr::col_integer(),
                                  Latitude = readr::col_double(),
                                  Longitude = readr::col_double(),
-                                 # GPS_Error = readr::col_double(),
                                  .default = readr::col_character()),
     Species_extra_EIPS = readr::cols(Complete = readr::col_logical(),
                                      Update_Date = readr::col_datetime(),
