@@ -40,7 +40,7 @@ PlotAndTransectLocations <- function(protocol = c("FTPC", "EIPS"), crosstalk = F
     dplyr::arrange(Unit_Code, Community, Sampling_Frame, Year, Cycle, Sample_Unit_Type, Sample_Unit_Number, Image_Point) %>%
     tidyr::nest(Transect_Line = c(Image_Point, Latitude, Latitude_Dir, Longitude, Longitude_Dir, GCS, GPS_Error)) %>%
     dplyr::mutate(Transect_Line = purrr::map(Transect_Line, function(df){
-      df <- dplyr::filter(df, !is.na(Longitude) && !is.na(Latitude))
+      df <- dplyr::filter(df, !is.na(Longitude) & !is.na(Latitude))
       # Convert to SpatialPointsDataFrame
       sp::coordinates(df) <- c("Longitude", "Latitude")
       sp::Line(df)}
