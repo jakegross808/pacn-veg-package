@@ -112,7 +112,7 @@ test_that("EIPS_data column names are correct", {
 })
 
 test_that("FilterPACNVeg filters on park", {
-  actual <- suppressWarnings(FilterPACNVeg(park = "AMME"))
+  actual <- suppressWarnings(FilterPACNVeg(park = "AMME", silent = TRUE))
   actual <- sapply(actual, function(df) {
     if ("Unit_Code" %in% names(df) & nrow(df) > 0) {
       unique(df$Unit_Code)
@@ -128,7 +128,7 @@ test_that("FilterPACNVeg filters on park", {
 })
 
 test_that("FilterPACNVeg filters on community", {
-  actual <- suppressWarnings(FilterPACNVeg(community = "Coastal Strand"))
+  actual <- suppressWarnings(FilterPACNVeg(community = "Coastal Strand", silent = TRUE))
   actual <- sapply(actual, function(df) {
     if ("Community" %in% names(df) & nrow(df) > 0) {
       unique(df$Community)
@@ -142,7 +142,7 @@ test_that("FilterPACNVeg filters on community", {
 })
 
 test_that("FilterPACNVeg filters on sampling frame", {
-  actual <- suppressWarnings(FilterPACNVeg(sample_frame = "Kaloko-Honokohau"))
+  actual <- suppressWarnings(FilterPACNVeg(sample_frame = "Kaloko-Honokohau", silent = TRUE))
   actual <- sapply(actual, function(df) {
     if ("Sampling_Frame" %in% names(df) & nrow(df) > 0) {
       unique(df$Sampling_Frame)
@@ -156,7 +156,7 @@ test_that("FilterPACNVeg filters on sampling frame", {
 })
 
 test_that("FilterPACNVeg filters on plot type", {
-  actual <- suppressWarnings(FilterPACNVeg(plot_type = "Rotational"))
+  actual <- suppressWarnings(FilterPACNVeg(plot_type = "Rotational", silent = TRUE))
   actual <- sapply(actual, function(df) {
     if ("Plot_Type" %in% names(df) & nrow(df) > 0) {
       unique(df$Plot_Type)
@@ -170,7 +170,7 @@ test_that("FilterPACNVeg filters on plot type", {
 })
 
 test_that("FilterPACNVeg filters on QA plots", {
-  actual <- suppressWarnings(FilterPACNVeg(is_qa_plot = TRUE))
+  actual <- suppressWarnings(FilterPACNVeg(is_qa_plot = TRUE, silent = TRUE))
   actual <- sapply(actual, function(df) {
     if ("QA_Plot" %in% names(df) & nrow(df) > 0) {
       unique(df$QA_Plot)
@@ -184,7 +184,7 @@ test_that("FilterPACNVeg filters on QA plots", {
 })
 
 test_that("FilterPACNVeg filters on transect type", {
-  actual <- suppressWarnings(FilterPACNVeg(transect_type = "Fixed"))
+  actual <- suppressWarnings(FilterPACNVeg(transect_type = "Fixed", silent = TRUE))
   actual <- sapply(actual, function(df) {
     if ("Transect_Type" %in% names(df) & nrow(df) > 0) {
       unique(df$Transect_Type)
@@ -198,7 +198,7 @@ test_that("FilterPACNVeg filters on transect type", {
 })
 
 test_that("FilterPACNVeg filters on species code", {
-  actual <- suppressWarnings(FilterPACNVeg(species_code = "GERHOM"))
+  actual <- suppressWarnings(FilterPACNVeg(species_code = "GERHOM", silent = TRUE))
   actual <- sapply(actual, function(df) {
     if ("Code" %in% names(df) & nrow(df) > 0) {
       unique(df$Code)
@@ -211,8 +211,8 @@ test_that("FilterPACNVeg filters on species code", {
   expect_equal(actual, "GERHOM")
 })
 
-test_that("FilterPACNVeg filters on species code", {
-  actual <- suppressWarnings(FilterPACNVeg(sci_name = "Passiflora edulis"))
+test_that("FilterPACNVeg filters on species name", {
+  actual <- suppressWarnings(FilterPACNVeg(sci_name = "Passiflora edulis", silent = TRUE))
   actual <- sapply(actual, function(df) {
     if ("Scientific_Name" %in% names(df) & nrow(df) > 0) {
       unique(df$Scientific_Name)
@@ -225,8 +225,8 @@ test_that("FilterPACNVeg filters on species code", {
   expect_equal(actual, "Passiflora edulis")
 })
 
-test_that("FilterPACNVeg filters on species code", {
-  actual <- suppressWarnings(FilterPACNVeg(nativity = "Native"))
+test_that("FilterPACNVeg filters on species nativity", {
+  actual <- suppressWarnings(FilterPACNVeg(nativity = "Native", silent = TRUE))
   actual <- sapply(actual, function(df) {
     if ("Nativity" %in% names(df) & nrow(df) > 0) {
       unique(df$Nativity)
@@ -240,7 +240,7 @@ test_that("FilterPACNVeg filters on species code", {
 })
 
 test_that("FilterPACNVeg filters on certification status", {
-  actual <- suppressWarnings(FilterPACNVeg(certified = TRUE))
+  actual <- suppressWarnings(FilterPACNVeg(certified = TRUE, silent = TRUE))
   actual <- sapply(actual, function(df) {
     if ("Certified" %in% names(df) & nrow(df) > 0) {
       unique(df$Certified)
@@ -254,7 +254,7 @@ test_that("FilterPACNVeg filters on certification status", {
 })
 
 test_that("FilterPACNVeg filters on verification status", {
-  actual <- suppressWarnings(FilterPACNVeg(verified = TRUE))
+  actual <- suppressWarnings(FilterPACNVeg(verified = TRUE, silent = TRUE))
   actual <- sapply(actual, function(df) {
     if ("Verified" %in% names(df) & nrow(df) > 0) {
       unique(df$Verified)
@@ -274,7 +274,7 @@ test_that("RemoveSingleVisits removes data from plots with no revisits",{
     dplyr::select(Unit_Code, Community, Sampling_Frame, Year, Cycle, Plot_Number) %>%
     unique() %>%
     dplyr::group_by(Unit_Code, Community, Sampling_Frame, Plot_Number) %>%
-    dplyr::summarise(plot_count = dplyr::n())
+    dplyr::summarise(plot_count = dplyr::n(), .groups = "keep")
 
   expect_true(all(visit_count$plot_count > 1))
 })
