@@ -69,7 +69,7 @@ v_EIPS_cover_percent2class <- function(df, range_column, cover_column_name) {
   return(df2)
 }
 
-#' Prep and check EIPS data and add helpful columns
+#' Prep and check EIPS data and add helpful columns for mapping ect.
 #' @description Pulls EIPS dataset from database cache and performs some
 #' basic data preparation.
 #' @return dataframe
