@@ -36,6 +36,17 @@ div#plot-level-change p.caption {
 }
 ```
 
+```{js fix-filtering, echo=FALSE, message=FALSE, warning=FALSE}
+function filter_default(){
+  document.getElementById("show_all").style.display = "none";
+  document.getElementById("show_all_sb").style.display = "none";
+  document.getElementById("show_all").getElementsByClassName("selectized")[0].selectize.setValue("Select all", false);
+  document.getElementById("show_all_sb").getElementsByClassName("selectized")[0].selectize.setValue("Select all", false);
+}
+    
+$(document).ready(filter_default);
+```
+
 ```{r packages, include=FALSE}
 #library(tidyverse)
 library(kableExtra)
@@ -258,48 +269,69 @@ und2 <- UnderCombineStrata(und) %>%
 # Create sunburst plot
 sb <- select(und2, GROUP_COL, Nativity, Life_Form, Code, Avg_Cover)
 sb <- as.sunburstDF(sb, value_column = "Avg_Cover") %>%
-  SharedData$new(key = ~ids)
+  SharedData$new(key = ~ids, group = "sb")
+
+sb_dummy <- sb$data() %>%
+  dplyr::mutate(all = "Select all") %>%  # Hack for displaying all values when filter dropdown cleared
+  SharedData$new(key = ~ids, group = "sb")
 
 grp_filter <- filter_select("select-group", "Select a group", sb, ~stringr::str_sub(ids, 1,  1), allLevels = FALSE)
 sunburst_by_grp <- plot_ly(sb, ids = ~ids, labels = ~labels, parents = ~parents, values = ~values, type = 'sunburst', branchvalues = 'total') %>%
   highlight(on = NULL, off = NULL, persistent = FALSE)
+show_all_sb <- filter_select("show_all_sb", "", sb_dummy, ~all, allLevels = FALSE, multiple = FALSE)
 
-bscols(sunburst_all, list(sunburst_by_grp, grp_filter))
+bscols(sunburst_all, list(sunburst_by_grp, grp_filter), show_all_sb, widths = c(6, 6, 0))
 ```
 
-```{r}
-# und2_shared <- und2 %>%
-#   dplyr::mutate(Cycle = as.factor(Cycle)) %>%
-#   dplyr::group_by(GROUP_COL)
+```{r cover-composition-bar, echo=FALSE, fig.cap="Average understory species cover across the monitoring area by management unit and monitoring cycle", message=FALSE, warning=FALSE}
+und <- FilterPACNVeg("Understory", sample_frame = params$sample_frame)  # Only get data from most recent cycle
 
-sp_w_cover <- dplyr::filter(und2, Avg_Cover > 0)
-cover_bar <- sp_w_cover %>%
-  dplyr::mutate(Cycle = as.factor(Cycle)) %>%
+und <- und %>%
+  mutate(Life_Form=replace(Life_Form, Code=="SOPCHR", "Shrub"))
+
+# prep data for sunburst plot
+nativity_colors <- c("Native" = "#1b9e77", "No Veg" = "grey", "Non-Native" = "#d95f02", "Unknown" = "#7570b3")
+
+und2 <- UnderCombineStrata(und) %>%
+  mutate(GROUP_COL = sample(LETTERS[c(1, 2, 2, 3, 5, 5, 5)], size = dplyr::n(), replace = TRUE)) %>%  # TODO: replace this with actual grouping column
+  dplyr::filter(!is.na(Code)) %>%
+  group_by(GROUP_COL, Cycle, Unit_Code, Sampling_Frame, Plot_Number,
+           Nativity, Code, Scientific_Name, Life_Form) %>%
+  summarize(Hits_Sp = n(), .groups = "drop") %>%
+  complete(nesting(GROUP_COL, Cycle, Unit_Code, Sampling_Frame, Plot_Number),  # TODO: replace GROUP_COL with actual grouping column
+           nesting(Nativity, Code, Scientific_Name, Life_Form),
+           fill = list(Hits_Sp = 0)) %>%
+  mutate(Plot_Percent = 100 * (Hits_Sp/300)) %>%
+  group_by(GROUP_COL, Cycle, Unit_Code, Sampling_Frame,
+           Nativity, Code, Scientific_Name, Life_Form) %>%
+  summarize(n = n(),
+            plots_present = sum(Hits_Sp > 0),
+            Avg_Cover = round(mean(Plot_Percent), 3),
+            #Median = median(Plot_Percent),
+            Std_Dev = round(sd(Plot_Percent), 3),
+            .groups = "drop")%>%
+  dplyr::mutate(Cycle = as.factor(Cycle),
+                all = "Select all",
+                hovertext = paste(Scientific_Name, Nativity, paste0(Avg_Cover, "%"), sep = "\n")) %>%
   dplyr::filter(Avg_Cover > 0) %>%
-  dplyr::group_by(GROUP_COL) %>%
-  plotly::plot_ly(type = "bar", x = ~Cycle, y = ~Avg_Cover, color = ~GROUP_COL,
-                    transforms = list(
-                      list(type = "filter", 
-                           target = ~Scientific_Name,
-                           operation = 'in',
-                           value = unique(sp_w_cover$Scientific_Name))
-                    )) %>%
-  plotly::layout(
-    updatemenus = list(
-      list(
-        type = "dropdown",
-        active = -1,
-        buttons = lapply(unique(sp_w_cover$Scientific_Name), function(sci_name) {list(method = "restyle",
-                                               args = list("transforms[0].value", sci_name),
-                                               label = sci_name)})
-      )
-  ))
+  dplyr::group_by(GROUP_COL)
 
-cover_bar
-# 
-# sp_filter <- filter_select("select-sp", "Select a species", und2_shared, ~Code, allLevels = FALSE)
-# 
-# bscols(cover_bar, sp_filter)
+sp_w_cover <- und2 %>%
+  crosstalk::SharedData$new()
+
+cover_bar <- sp_w_cover %>%
+  plotly::plot_ly(type = "bar", x = ~Cycle, y = ~Avg_Cover, color = ~GROUP_COL, strokes = "white", stroke = ~Scientific_Name,
+                  text = ~hovertext,
+                  hoverinfo = 'text',
+                  textposition = "none") %>%
+  plotly::layout(xaxis = list(title = "Cycle"),
+                 yaxis = list(title = "Average % cover"))
+
+sp_filter <- filter_select("select-sp", "Filter on species", sp_w_cover, ~Scientific_Name, allLevels = FALSE)
+nat_filter <- filter_select("select-nat", "Filter on nativity", sp_w_cover, ~Nativity, allLevels = FALSE)
+show_all <- filter_select("show_all", "", sp_w_cover, ~all, allLevels = FALSE, multiple = FALSE)
+
+bscols(cover_bar, list(sp_filter, nat_filter), show_all, widths = c(9, 3, 0))
 ```
 
 ```{r cover-composition-table, echo=FALSE, message=FALSE, warning=FALSE, tab.cap="Average understory species cover."}
