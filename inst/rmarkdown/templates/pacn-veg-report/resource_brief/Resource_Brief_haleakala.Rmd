@@ -50,6 +50,7 @@ library(data.table)
 library(DT)
 library(crosstalk)
 library(htmltools)
+library(sparkline)
 ```
 
 ```{r utility_fxns, include=FALSE}
@@ -264,6 +265,41 @@ sunburst_by_grp <- plot_ly(sb, ids = ~ids, labels = ~labels, parents = ~parents,
   highlight(on = NULL, off = NULL, persistent = FALSE)
 
 bscols(sunburst_all, list(sunburst_by_grp, grp_filter))
+```
+
+```{r}
+# und2_shared <- und2 %>%
+#   dplyr::mutate(Cycle = as.factor(Cycle)) %>%
+#   dplyr::group_by(GROUP_COL)
+
+sp_w_cover <- dplyr::filter(und2, Avg_Cover > 0)
+cover_bar <- sp_w_cover %>%
+  dplyr::mutate(Cycle = as.factor(Cycle)) %>%
+  dplyr::filter(Avg_Cover > 0) %>%
+  dplyr::group_by(GROUP_COL) %>%
+  plotly::plot_ly(type = "bar", x = ~Cycle, y = ~Avg_Cover, color = ~GROUP_COL,
+                    transforms = list(
+                      list(type = "filter", 
+                           target = ~Scientific_Name,
+                           operation = 'in',
+                           value = unique(sp_w_cover$Scientific_Name))
+                    )) %>%
+  plotly::layout(
+    updatemenus = list(
+      list(
+        type = "dropdown",
+        active = -1,
+        buttons = lapply(unique(sp_w_cover$Scientific_Name), function(sci_name) {list(method = "restyle",
+                                               args = list("transforms[0].value", sci_name),
+                                               label = sci_name)})
+      )
+  ))
+
+cover_bar
+# 
+# sp_filter <- filter_select("select-sp", "Select a species", und2_shared, ~Code, allLevels = FALSE)
+# 
+# bscols(cover_bar, sp_filter)
 ```
 
 ```{r cover-composition-table, echo=FALSE, message=FALSE, warning=FALSE, tab.cap="Average understory species cover."}
