@@ -4,8 +4,9 @@
 #' Cover Class "0" returns 0 for min and max, while cover class 7 will return 0.75
 #' for min and 1.0 for max.
 #' @return Filename and path
-#' #' @examples
-#' #' \dontrun{
+#' @export
+#' @examples
+#' \dontrun{
 #' MapPACNVeg(protocol = "FTPC")
 #' MapPACNVeg(park = "AMME")
 #'}
@@ -38,8 +39,9 @@ v_EIPS_cover_class2percent <- function(df, cover_column) {
 #' Cover Class "0" returns 0 for min and max, while cover class 7 will return 0.75
 #' for min and 1.0 for max.
 #' @return Filename and path
-#' #' @examples
-#' #' \dontrun{
+#' @export
+#' @examples
+#' \dontrun{
 #' MapPACNVeg(protocol = "FTPC")
 #' MapPACNVeg(park = "AMME")
 #'}
@@ -69,12 +71,13 @@ v_EIPS_cover_percent2class <- function(df, range_column, cover_column_name) {
   return(df2)
 }
 
-#' Prep and check EIPS data and add helpful columns
+#' Prep and check EIPS data and add helpful columns for mapping ect.
 #' @description Pulls EIPS dataset from database cache and performs some
 #' basic data preparation.
 #' @return dataframe
-#' #' @examples
-#' #' \dontrun{
+#' @export
+#' @examples
+#' \dontrun{
 #' v_EIPS_prep(sample_frame = "Olaa")
 #' v_EIPS_prep(park = "AMME")
 #'}
@@ -188,12 +191,13 @@ v_EIPS_prep <- function(park, sample_frame, community, year, cycle, transect_typ
 #' @description Input a dataframe, metric, and a column to be mapped, returns a map using
 #' the column specified to color the metric.
 #' @return leaflet map with crosstalk selection
-#' #' @examples
-#' #' \dontrun{
+#' @export
+#' @examples
+#' \dontrun{
 #' v_EIPS_map()
 #' v_EIPS_map()
 #'}
-v_EIPS_map_interstation <- function(.data, parameter, change = FALSE) {
+v_EIPS_map_interstation <- function(.data, parameter, change = FALSE, sample_frame) {
 
   if (parameter == "Mean_Species_Cover") {
     station_summary <- .data %>%
@@ -202,7 +206,7 @@ v_EIPS_map_interstation <- function(.data, parameter, change = FALSE) {
                Transect_Type, Transect_Number, Start_Station_m, End_Station_m,
                Seg_Length_m, Segs_Per_Station, Meters_Per_Station,
                Code, Scientific_Name, Life_Form, Nativity) %>%
-      dplyr::summarize(Actual_Segs = n_distinct(Segment),
+      dplyr::summarize(Actual_Segs = dplyr::n_distinct(Segment),
                 Tot_Station_Cov_Min = sum(Cov_Range_Min),
                 Tot_Station_Cov_Max = sum(Cov_Range_Max)) %>%
       dplyr::mutate(Actual_Meters = Actual_Segs * Seg_Length_m,
@@ -222,7 +226,7 @@ v_EIPS_map_interstation <- function(.data, parameter, change = FALSE) {
       # Mean Total Cover (Max Richness) by inter-station
     station_summary <- station_summary %>%
         dplyr::group_by(Unit_Code, Community, Sampling_Frame, Cycle, Year, Transect_Type, Transect_Number, Start_Station_m, End_Station_m, Seg_Length_m, Segs_Per_Station, Meters_Per_Station) %>%
-        dplyr::summarize(Actual_Segs = n_distinct(Segment),
+        dplyr::summarize(Actual_Segs = dplyr::n_distinct(Segment),
                   Max_Seg_Richness = max(Tot_Seg_Richness),
                   Tot_Station_Cov_Min = sum(Tot_Seg_Cover_Min),
                   Tot_Station_Cov_Max = sum(Tot_Seg_Cover_Max)) %>%
@@ -426,8 +430,8 @@ v_EIPS_map_interstation <- function(.data, parameter, change = FALSE) {
   EIPS_inter_station <- station_summary2 %>%
     dplyr::select(-Lat_Start, -Lat_End, -Long_Start, -Long_End) %>%
     dplyr::left_join(EIPS_sf_centroids) %>%
-    dplyr::mutate(long = unlist(map(geometry,1)),
-           lat = unlist(map(geometry,2)))
+    dplyr::mutate(long = unlist(purrr::map(geometry,1)),
+           lat = unlist(purrr::map(geometry,2)))
 
   # Create Null data that can be mapped to show all sites sampled
   all_sites <- EIPS_inter_station %>%
@@ -442,6 +446,23 @@ v_EIPS_map_interstation <- function(.data, parameter, change = FALSE) {
                   col_Mean_MaxCover = "#FFFFFF")
 
   EIPS_inter_station <- dplyr::bind_rows(all_sites, EIPS_inter_station)
+
+  # Make NPS map Attribution
+  NPSAttrib <-
+    htmltools::HTML(
+      "<a href='https://www.nps.gov/npmap/disclaimer/'>Disclaimer</a> |
+      &copy; <a href='http://mapbox.com/about/maps' target='_blank'>Mapbox</a>
+      &copy; <a href='http://openstreetmap.org/copyright' target='_blank'>OpenStreetMap</a> contributors |
+      <a class='improve-park-tiles'
+      href='http://insidemaps.nps.gov/places/editor/#background=mapbox-satellite&map=4/-95.97656/39.02772&overlays=park-tiles-overlay'
+      target='_blank'>Improve Park Tiles</a>"
+    )
+
+  # NPS tiles
+  NPSbasic = "https://atlas-stg.geoplatform.gov/styles/v1/atlas-user/ck58pyquo009v01p99xebegr9/tiles/256/{z}/{x}/{y}@2x?access_token=pk.eyJ1IjoiYXRsYXMtdXNlciIsImEiOiJjazFmdGx2bjQwMDAwMG5wZmYwbmJwbmE2In0.lWXK2UexpXuyVitesLdwUg"
+  NPSimagery = "https://atlas-stg.geoplatform.gov/styles/v1/atlas-user/ck72fwp2642dv07o7tbqinvz4/tiles/256/{z}/{x}/{y}@2x?access_token=pk.eyJ1IjoiYXRsYXMtdXNlciIsImEiOiJjazFmdGx2bjQwMDAwMG5wZmYwbmJwbmE2In0.lWXK2UexpXuyVitesLdwUg"
+  NPSslate = "https://atlas-stg.geoplatform.gov/styles/v1/atlas-user/ck5cpvc2e0avf01p9zaw4co8o/tiles/256/{z}/{x}/{y}@2x?access_token=pk.eyJ1IjoiYXRsYXMtdXNlciIsImEiOiJjazFmdGx2bjQwMDAwMG5wZmYwbmJwbmE2In0.lWXK2UexpXuyVitesLdwUg"
+  NPSlight = "https://atlas-stg.geoplatform.gov/styles/v1/atlas-user/ck5cpia2u0auf01p9vbugvcpv/tiles/256/{z}/{x}/{y}@2x?access_token=pk.eyJ1IjoiYXRsYXMtdXNlciIsImEiOiJjazFmdGx2bjQwMDAwMG5wZmYwbmJwbmE2In0.lWXK2UexpXuyVitesLdwUg"
 
   # Set up cross-talk shared object
   sd_cover <- crosstalk::SharedData$new(EIPS_inter_station)
@@ -461,8 +482,20 @@ v_EIPS_map_interstation <- function(.data, parameter, change = FALSE) {
              crosstalk::filter_select("species", "Species", sd_cover, ~Scientific_Name)
              ),
            leaflet::leaflet(sd_cover, width = "100%", height = 900) %>%
-             leaflet::addProviderTiles("OpenStreetMap") %>%
-             leaflet::addCircleMarkers(color = ~col_Mean_MaxCover,
+             leaflet::addTiles(group = "Basic", urlTemplate = NPSbasic, attribution = NPSAttrib) %>%
+             leaflet::addTiles(group = "Imagery", urlTemplate = NPSimagery, attribution = NPSAttrib) %>%
+             leaflet::addTiles(group = "Slate", urlTemplate = NPSslate, attribution = NPSAttrib) %>%
+             leaflet::addTiles(group = "Light", urlTemplate = NPSlight, attribution = NPSAttrib) %>%
+             leaflet.esri::addEsriFeatureLayer(group = "Sampling Frame",
+                                               #options = leaflet.esri::featureLayerOptions(where = paste0("Sampling_Frame == '", sample_frame, "'")),
+                                               url = "https://services1.arcgis.com/fBc8EJBxQRMcHlei/arcgis/rest/services/PACN_DBO_VEG_sampling_frames_ply/FeatureServer/0",
+                                               useServiceSymbology = TRUE,
+                                               labelProperty = "Sampling_Frame") %>%
+             leaflet::addLayersControl(baseGroups = c("Basic", "Imagery", "Slate", "Light"),
+                                       overlayGroups = c("Sampling Frame", "Invasive Plant Transects (l)"),
+                                       options=leaflet::layersControlOptions(collapsed = TRUE)) %>%
+             leaflet::addCircleMarkers(group = "Invasive Plant Transects (l)",
+                                       color = ~col_Mean_MaxCover,
                               stroke = FALSE,
                               radius = 6,
                               fillOpacity = 1,
@@ -489,7 +522,18 @@ v_EIPS_map_interstation <- function(.data, parameter, change = FALSE) {
                                crosstalk::filter_select("species", "Species", sd_cover, ~Scientific_Name)
                                ),
                              leaflet::leaflet(sd_cover, width = "100%", height = 900) %>%
-                               leaflet::addProviderTiles("OpenStreetMap") %>%
+                               leaflet::addTiles(group = "Basic", urlTemplate = NPSbasic, attribution = NPSAttrib) %>%
+                               leaflet::addTiles(group = "Imagery", urlTemplate = NPSimagery, attribution = NPSAttrib) %>%
+                               leaflet::addTiles(group = "Slate", urlTemplate = NPSslate, attribution = NPSAttrib) %>%
+                               leaflet::addTiles(group = "Light", urlTemplate = NPSlight, attribution = NPSAttrib) %>%
+                               leaflet.esri::addEsriFeatureLayer(group = "Sampling Frame",
+                                                                 #options = leaflet.esri::featureLayerOptions(where = paste0("Sampling_Frame == '", sample_frame, "'")),
+                                                                 url = "https://services1.arcgis.com/fBc8EJBxQRMcHlei/arcgis/rest/services/PACN_DBO_VEG_sampling_frames_ply/FeatureServer/0",
+                                                                 useServiceSymbology = TRUE,
+                                                                 labelProperty = "Sampling_Frame") %>%
+                               leaflet::addLayersControl(baseGroups = c("Basic", "Imagery", "Slate", "Light"),
+                                                         overlayGroups = c("Sampling Frame"),
+                                                         options=leaflet::layersControlOptions(collapsed = TRUE)) %>%
                                leaflet::addCircleMarkers(color = ~col_Richness,
                                                          stroke = FALSE,
                                                          radius = 6,
@@ -521,8 +565,20 @@ v_EIPS_map_interstation <- function(.data, parameter, change = FALSE) {
                                crosstalk::filter_select("species", "Species", sd_cover, ~Scientific_Name, multiple = FALSE)
                              ),
                              leaflet::leaflet(sd_cover, width = "100%", height = 900) %>%
-                               leaflet::addProviderTiles("OpenStreetMap") %>%
-                               leaflet::addCircleMarkers(color = ~col_Chg,
+                               leaflet::addTiles(group = "Basic", urlTemplate = NPSbasic, attribution = NPSAttrib) %>%
+                               leaflet::addTiles(group = "Imagery", urlTemplate = NPSimagery, attribution = NPSAttrib) %>%
+                               leaflet::addTiles(group = "Slate", urlTemplate = NPSslate, attribution = NPSAttrib) %>%
+                               leaflet::addTiles(group = "Light", urlTemplate = NPSlight, attribution = NPSAttrib) %>%
+                               leaflet.esri::addEsriFeatureLayer(group = "Sampling Frame",
+                                                                 #options = leaflet.esri::featureLayerOptions(where = paste0("Sampling_Frame == '", sample_frame, "'")),
+                                                                 url = "https://services1.arcgis.com/fBc8EJBxQRMcHlei/arcgis/rest/services/PACN_DBO_VEG_sampling_frames_ply/FeatureServer/0",
+                                                                 useServiceSymbology = TRUE,
+                                                                 labelProperty = "Sampling_Frame") %>%
+                               leaflet::addLayersControl(baseGroups = c("Basic", "Imagery", "Slate", "Light"),
+                                                         overlayGroups = c("Invasive Plant Transects (f)", "Sampling Frame"),
+                                                         options=leaflet::layersControlOptions(collapsed = TRUE)) %>%
+                               leaflet::addCircleMarkers(group = "Invasive Plant Transects (f)",
+                                                         color = ~col_Chg,
                                                          stroke = FALSE,
                                                          radius = 6,
                                                          fillOpacity = 1,

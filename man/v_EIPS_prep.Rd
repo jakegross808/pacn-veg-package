@@ -2,7 +2,7 @@
 % Please edit documentation in R/EIPS.R
 \name{v_EIPS_prep}
 \alias{v_EIPS_prep}
-\title{Prep and check EIPS data and add helpful columns}
+\title{Prep and check EIPS data and add helpful columns for mapping ect.}
 \usage{
 v_EIPS_prep(
   park,
@@ -17,13 +17,14 @@ v_EIPS_prep(
 }
 \value{
 dataframe
-#' @examples
-#' \dontrun{
-v_EIPS_prep(sample_frame = "Olaa")
-v_EIPS_prep(park = "AMME")
-}
 }
 \description{
 Pulls EIPS dataset from database cache and performs some
 basic data preparation.
+}
+\examples{
+\dontrun{
+v_EIPS_prep(sample_frame = "Olaa")
+v_EIPS_prep(park = "AMME")
+}
 }

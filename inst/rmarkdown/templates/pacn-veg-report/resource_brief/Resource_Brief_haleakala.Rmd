@@ -466,6 +466,31 @@ knitr::include_graphics(here("inst", "rmarkdown", "dummy_fig.PNG"))
 (not appropriate for all sites - for example, no transects monitored at some sites)
 
 ```
+```{r}
+test_haleakala <- v_EIPS_prep(sample_frame = "Haleakala")
+
+### Non-Native Species
+v_EIPS_map_interstation(.data = test_haleakala,
+                        parameter = "Mean_Species_Cover",
+                        change = FALSE)
+                        
+### Total Non-Native Cover
+v_EIPS_map_interstation(.data = test_haleakala,
+                        parameter = "Mean_Total_Cover",
+                        change = FALSE,
+                        sample_frame = "Haleakalā Subalpine")
+
+
+### Non-Native Richness
+v_EIPS_map_interstation(.data = test_haleakala,
+                        parameter = "Max_Richness",
+                        change = FALSE)
+
+### Non-Native Species Change
+v_EIPS_map_interstation(.data = test_haleakala,
+                        parameter = "Mean_Species_Cover",
+                        change = TRUE)
+```
 
 ## Tree Data
 
