@@ -8,15 +8,16 @@ v_EIPS_cover_class2percent(df, cover_column)
 }
 \value{
 Filename and path
-#' @examples
-#' \dontrun{
-MapPACNVeg(protocol = "FTPC")
-MapPACNVeg(park = "AMME")
-}
 }
 \description{
 Input a column with values 0-7 for Braun-Blanquet cover classes and
 returns two percent cover columns (min and max percent cover). Note that
 Cover Class "0" returns 0 for min and max, while cover class 7 will return 0.75
 for min and 1.0 for max.
+}
+\examples{
+\dontrun{
+MapPACNVeg(protocol = "FTPC")
+MapPACNVeg(park = "AMME")
+}
 }

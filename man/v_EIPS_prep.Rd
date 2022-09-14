@@ -17,13 +17,14 @@ v_EIPS_prep(
 }
 \value{
 dataframe
-#' @examples
-#' \dontrun{
-v_EIPS_prep(sample_frame = "Olaa")
-v_EIPS_prep(park = "AMME")
-}
 }
 \description{
 Pulls EIPS dataset from database cache and performs some
 basic data preparation.
+}
+\examples{
+\dontrun{
+v_EIPS_prep(sample_frame = "Olaa")
+v_EIPS_prep(park = "AMME")
+}
 }
