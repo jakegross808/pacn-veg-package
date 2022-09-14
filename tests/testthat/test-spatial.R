@@ -23,7 +23,7 @@ test_that("MapPACNVeg output hasn't changed", {
 })
 
 test_that("PlotAndTransectLocations returns the correct columns", {
-  expected <- c("Protocol", "Unit_Code", "Sampling_Frame", "Sample_Unit", "Sample_Unit_Type", "Sample_Unit_Number", "Lat", "Long", "Cycle", "Year")
+  expected <- c("Protocol", "Unit_Code", "Sampling_Frame", "Sample_Unit", "Sample_Unit_Type", "Sample_Unit_Number", "Lat", "Long", "Cycle", "Year", "Tsect_Line_Cycle", "Tsect_Line_Year", "Transect_Line")
 
   expect_equal(names(locs), expected)
   expect_equal(names(locs_havo), expected)
