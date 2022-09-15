@@ -84,4 +84,26 @@ EIPS_freq_fixed <- EIPS_frequency4 %>%
 EIPS_frequency5 <- dplyr::bind_rows(EIPS_freq_fixed, EIPS_freq_rotationals) %>%
   tidyr::separate(Cycle_Year, c("Cycle", "Year"))
 
-write_csv(EIPS_frequency5, file = "C:/Users/JJGross/Downloads/EIPS_frequency_cover_table.csv")
+# Summarize from transect to sampling frame
+EIPS_frequency6 <- EIPS_frequency5 %>%
+  group_by(Cycle, Year, Unit_Code, Community, Sampling_Frame,
+           Code, Scientific_Name, Life_Form, Nativity) %>%
+  summarize(Frequency = mean(Spp_Freq),
+            Transects_Present = sum(!is.na(Spp_Freq)),
+            Cover_Min = mean(Mean_Cover_Min),
+            #Cover_Min_n = sum(!is.na(Mean_Cover_Min)),
+            Cover_Max = mean(Mean_Cover_Max),
+            #Cover_Max_n = sum(!is.na(Mean_Cover_Max)),
+            Paired_Transects = sum(!is.na(Chg_Prior_Freq)),
+            Chg_Frequency = mean(Chg_Prior_Freq, na.rm = TRUE),
+            Chg_Cover_Min = mean(Chg_Prior_Cov_Min, na.rm = TRUE),
+            #Chg_Cover_Min_n = sum(!is.na(Chg_Prior_Cov_Min)),
+            Chg_Cover_Max = mean(Chg_Prior_Cov_Max, na.rm = TRUE))
+            #Chg_Cover_Max_n = sum(!is.na(Chg_Prior_Cov_Max)))
+
+
+
+
+write_csv(EIPS_frequency5, file = "C:/Users/JJGross/Downloads/EIPS_summary_table_transects.csv")
+
+write_csv(EIPS_frequency6, file = "C:/Users/JJGross/Downloads/EIPS_summary_table.csv")
