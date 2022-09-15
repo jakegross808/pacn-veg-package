@@ -197,7 +197,7 @@ v_EIPS_prep <- function(park, sample_frame, community, year, cycle, transect_typ
 #' v_EIPS_map()
 #' v_EIPS_map()
 #'}
-v_EIPS_map_interstation <- function(.data, parameter, change = FALSE, sample_frame) {
+v_EIPS_map_interstation <- function(.data, parameter, change = FALSE, agol_sample_frame) {
 
   if (parameter == "Mean_Species_Cover") {
     station_summary <- .data %>%
@@ -487,7 +487,7 @@ v_EIPS_map_interstation <- function(.data, parameter, change = FALSE, sample_fra
              leaflet::addTiles(group = "Slate", urlTemplate = NPSslate, attribution = NPSAttrib) %>%
              leaflet::addTiles(group = "Light", urlTemplate = NPSlight, attribution = NPSAttrib) %>%
              leaflet.esri::addEsriFeatureLayer(group = "Sampling Frame",
-                                               #options = leaflet.esri::featureLayerOptions(where = paste0("Sampling_Frame == '", sample_frame, "'")),
+                                               options = leaflet.esri::featureLayerOptions(where = paste0("Sampling_Frame = '", agol_sample_frame, "'")),
                                                url = "https://services1.arcgis.com/fBc8EJBxQRMcHlei/arcgis/rest/services/PACN_DBO_VEG_sampling_frames_ply/FeatureServer/0",
                                                useServiceSymbology = TRUE,
                                                labelProperty = "Sampling_Frame") %>%
@@ -527,7 +527,7 @@ v_EIPS_map_interstation <- function(.data, parameter, change = FALSE, sample_fra
                                leaflet::addTiles(group = "Slate", urlTemplate = NPSslate, attribution = NPSAttrib) %>%
                                leaflet::addTiles(group = "Light", urlTemplate = NPSlight, attribution = NPSAttrib) %>%
                                leaflet.esri::addEsriFeatureLayer(group = "Sampling Frame",
-                                                                 #options = leaflet.esri::featureLayerOptions(where = paste0("Sampling_Frame == '", sample_frame, "'")),
+                                                                 options = leaflet.esri::featureLayerOptions(where = paste0("Sampling_Frame = '", agol_sample_frame, "'")),
                                                                  url = "https://services1.arcgis.com/fBc8EJBxQRMcHlei/arcgis/rest/services/PACN_DBO_VEG_sampling_frames_ply/FeatureServer/0",
                                                                  useServiceSymbology = TRUE,
                                                                  labelProperty = "Sampling_Frame") %>%
@@ -570,7 +570,7 @@ v_EIPS_map_interstation <- function(.data, parameter, change = FALSE, sample_fra
                                leaflet::addTiles(group = "Slate", urlTemplate = NPSslate, attribution = NPSAttrib) %>%
                                leaflet::addTiles(group = "Light", urlTemplate = NPSlight, attribution = NPSAttrib) %>%
                                leaflet.esri::addEsriFeatureLayer(group = "Sampling Frame",
-                                                                 #options = leaflet.esri::featureLayerOptions(where = paste0("Sampling_Frame == '", sample_frame, "'")),
+                                                                 options = leaflet.esri::featureLayerOptions(where = paste0("Sampling_Frame = '", agol_sample_frame, "'")),
                                                                  url = "https://services1.arcgis.com/fBc8EJBxQRMcHlei/arcgis/rest/services/PACN_DBO_VEG_sampling_frames_ply/FeatureServer/0",
                                                                  useServiceSymbology = TRUE,
                                                                  labelProperty = "Sampling_Frame") %>%
