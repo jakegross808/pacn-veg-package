@@ -107,3 +107,46 @@ EIPS_frequency6 <- EIPS_frequency5 %>%
 write_csv(EIPS_frequency5, file = "C:/Users/JJGross/Downloads/EIPS_summary_table_transects.csv")
 
 write_csv(EIPS_frequency6, file = "C:/Users/JJGross/Downloads/EIPS_summary_table.csv")
+#https://github.com/renkun-ken/formattable/issues/95#issuecomment-792387356
+bg <- function(start, end, color, ...) {
+  paste("linear-gradient(90deg, transparent ",percent(start),",",
+        color, percent(start), ",", percent(end),
+        ", transparent", percent(end),")")
+}
+
+#https://github.com/renkun-ken/formattable/issues/95#issuecomment-792387356
+pm_color_bar2 <- function(color1 = "pink", color2 = "lightgreen", text_color1 = "darkred", text_color2 = "darkgreen", text_color3 = "grey", ...){
+  formatter("span",
+            style = function(x) style(
+              display = "inline-block",
+              color = ifelse(x > 0,text_color1,ifelse(x < 0,text_color2,text_color3)),
+              "text-align" = ifelse(x > 0, 'left', ifelse(x < 0, 'right', 'center')),
+              "width"='100%',
+              "background" = bg(ifelse(x >= 0, 0.5, 0.5 + (x/2)),
+                                ifelse(x >= 0, (x/2) + 0.5, 0.5),
+                                ifelse(x >= 0, color1, color2))
+            ))
+}
+
+# Table w/conditional formatting
+EIPS_frequency6 %>%
+  ungroup() %>%
+  dplyr::select(Unit_Code, Community, Sampling_Frame, Scientific_Name, Life_Form, Chg_Frequency, Chg_Cover_Max) %>%
+  dplyr::arrange(Chg_Frequency) %>%
+  dplyr::mutate(Chg_Frequency = ifelse(Chg_Frequency == "NaN", NA, Chg_Frequency),
+                Chg_Frequency = round(Chg_Frequency, 2),
+                Chg_Frequency = percent(Chg_Frequency, 1)) %>%
+  dplyr::mutate(Chg_Cover_Max = ifelse(Chg_Cover_Max == "NaN", NA, Chg_Cover_Max),
+                Chg_Cover_Max = round(Chg_Cover_Max, 2),
+                Chg_Cover_Max = percent(Chg_Cover_Max, 1)) %>%
+  dplyr::filter(!is.na(Chg_Frequency)) %>%
+  formattable::formattable(list(
+    Chg_Frequency = pm_color_bar2(na.rm = TRUE),
+    Chg_Cover_Max = pm_color_bar2(na.rm = TRUE)
+)) %>%
+  as.datatable(rownames = FALSE,
+               selection = "multiple",
+               options = list(dom = "tif",
+                              paging = FALSE,
+                              scrollY = "200px",
+                              scrollCollapse = TRUE))
