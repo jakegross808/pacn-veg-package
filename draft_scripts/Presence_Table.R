@@ -89,3 +89,28 @@ Presence5 <- Presence4 %>%
   dplyr::select(!dplyr::starts_with("Chg_Paired_Neg"))
 
 write_csv(Presence5, file = "C:/Users/JJGross/Downloads/Spp_Presence_Table.csv")
+
+
+presence_table <- Presence4 %>%
+  dplyr::select(-Chg_Paired_Neg, -Chg_Paired_Pos) %>%
+  dplyr::group_by(Unit_Code, Community, Sampling_Frame, Scientific_Name, Code, Life_Form, Nativity) %>%
+  dplyr::summarise(All_Plots = as.character(htmltools::as.tags(sparkline::sparkline(All_Plots))),
+                   Rotational_Plots = as.character(htmltools::as.tags(sparkline::sparkline(Rotational_Plots))),
+                   Fix_Plots = as.character(htmltools::as.tags(sparkline::sparkline(Fix_Plots))),
+                   Cumulative_Net = sum(Chg_Paired_Net, na.rm = TRUE))
+
+presence_table$All_Plots <- gsub('values\":null,','values\":[0,0],',presence_table$All_Plots)
+presence_table$Rotational_Plots <- gsub('values\":null,','values\":[0,0],',presence_table$Rotational_Plots)
+presence_table$Fix_Plots <- gsub('values\":null,','values\":[0,0],',presence_table$Fix_Plots)
+
+tbl <- formattable::formattable(presence_table) %>%
+  formattable::as.datatable(rownames = FALSE,
+               selection = "multiple",
+               options = list(dom = "tif",
+                              paging = FALSE,
+                              scrollY = "200px",
+                              scrollCollapse = TRUE)) %>%
+  htmltools::tagList() %>%
+  htmltools::attachDependencies(htmlwidgets:::widget_dependencies("sparkline","sparkline")) %>%
+  htmltools::browsable()
+tbl
