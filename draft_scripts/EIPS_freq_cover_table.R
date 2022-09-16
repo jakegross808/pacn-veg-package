@@ -50,7 +50,7 @@ EIPS_frequency4 <- EIPS_frequency3 %>%
          Code, Scientific_Name, Life_Form, Nativity,
          Transect_Type, Transect_Number,
          Year, Cycle,
-         Spp_Freq, Mean_Cover_Min, Mean_Cover_Max) %>%
+         Tran_Spp_Freq, Tran_Mean_Cover_Min, Tran_Mean_Cover_Max) %>%
   # Combine Year and Cycle to make it easier to run tidyr::complete() below
   tidyr::unite(col = Cycle_Year, c("Cycle", "Year"))
 
@@ -70,14 +70,14 @@ EIPS_freq_fixed <- EIPS_frequency4 %>%
   tidyr::complete(Cycle_Year, tidyr::nesting(Unit_Code, Community, Sampling_Frame,
                                              Transect_Type, Transect_Number,
                                              Code, Scientific_Name, Life_Form, Nativity),
-                  fill = list(Spp_Freq = 0,
-                              Mean_Cover_Min = 0,
-                              Mean_Cover_Max = 0)) %>%
+                  fill = list(Tran_Spp_Freq = 0,
+                              Tran_Mean_Cover_Min = 0,
+                              Tran_Mean_Cover_Max = 0)) %>%
   group_by(dplyr::across(grp_vars)) %>%
   dplyr::arrange(Cycle_Year, .by_group = TRUE) %>%
-  dplyr::mutate(Chg_Prior_Freq = Spp_Freq - dplyr::lag(Spp_Freq, order_by = Cycle_Year),
-                Chg_Prior_Cov_Min = Mean_Cover_Min - dplyr::lag(Mean_Cover_Min, order_by = Cycle_Year),
-                Chg_Prior_Cov_Max = Mean_Cover_Max - dplyr::lag(Mean_Cover_Max, order_by = Cycle_Year)) %>%
+  dplyr::mutate(Chg_Prior_Freq = Tran_Spp_Freq - dplyr::lag(Tran_Spp_Freq, order_by = Cycle_Year),
+                Chg_Prior_Cov_Min = Tran_Mean_Cover_Min - dplyr::lag(Tran_Mean_Cover_Min, order_by = Cycle_Year),
+                Chg_Prior_Cov_Max = Tran_Mean_Cover_Max - dplyr::lag(Tran_Mean_Cover_Max, order_by = Cycle_Year)) %>%
   ungroup()
 
 
@@ -88,11 +88,11 @@ EIPS_frequency5 <- dplyr::bind_rows(EIPS_freq_fixed, EIPS_freq_rotationals) %>%
 EIPS_frequency6 <- EIPS_frequency5 %>%
   group_by(Cycle, Year, Unit_Code, Community, Sampling_Frame,
            Code, Scientific_Name, Life_Form, Nativity) %>%
-  summarize(Frequency = mean(Spp_Freq),
-            Transects_Present = sum(!is.na(Spp_Freq)),
-            Cover_Min = mean(Mean_Cover_Min),
+  summarize(Frequency = mean(Tran_Spp_Freq),
+            Transects_Present = sum(!is.na(Tran_Spp_Freq)),
+            Cover_Min = mean(Tran_Mean_Cover_Min),
             #Cover_Min_n = sum(!is.na(Mean_Cover_Min)),
-            Cover_Max = mean(Mean_Cover_Max),
+            Cover_Max = mean(Tran_Mean_Cover_Max),
             #Cover_Max_n = sum(!is.na(Mean_Cover_Max)),
             Paired_Transects = sum(!is.na(Chg_Prior_Freq)),
             Chg_Frequency = mean(Chg_Prior_Freq, na.rm = TRUE),
