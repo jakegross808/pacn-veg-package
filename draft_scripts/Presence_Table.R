@@ -1,0 +1,91 @@
+# Create Table for Native species Plot Presence ----
+
+Presence <- FilterPACNVeg("Presence", sample_frame  = "Olaa") %>%
+  dplyr::filter(QA_Plot == FALSE) %>%
+  dplyr::group_by(Sampling_Frame, Cycle) %>%
+  dplyr::mutate(Year = min(Year)) %>%
+  dplyr::mutate(Year = as.factor(Year)) %>%
+  dplyr::ungroup() %>%
+  dplyr::mutate(Plot_Number = as.factor(Plot_Number))
+
+Presence2 <- Presence %>%
+  dplyr::select(Unit_Code, Community, Sampling_Frame, Year, Cycle, Plot_Type, Plot_Number, Scientific_Name, Code, Life_Form, Nativity) %>%
+  tidyr::unite(col = Cycle_Year, c("Cycle", "Year"))
+
+Presence2_rotational <- Presence2 %>%
+  dplyr::filter(Plot_Type == "Rotational" |
+                  Plot_Type == "Rotational Alternate") %>%
+  dplyr::group_by(Unit_Code, Community, Sampling_Frame, Cycle_Year, Scientific_Name, Code, Life_Form, Nativity) %>%
+  dplyr::summarise(Rotational_Plots = n())
+
+Presence2_all<- Presence2 %>%
+  dplyr::group_by(Unit_Code, Community, Sampling_Frame, Cycle_Year, Scientific_Name, Code, Life_Form, Nativity) %>%
+  dplyr::summarise(All_Plots = n())
+
+fixed <- Presence2 %>%
+  dplyr::filter(Plot_Type == "Fixed") %>%
+  droplevels()
+
+fixed_plts_not_sampled <- fixed %>%
+  ungroup() %>%
+  select (Unit_Code, Community, Sampling_Frame, Cycle_Year, Plot_Number) %>%
+  distinct() %>%
+  mutate(Sampled = 1) %>%
+  tidyr::complete(Plot_Number, tidyr::nesting(Unit_Code, Community, Sampling_Frame, Cycle_Year)) %>%
+  dplyr::filter(is.na(Sampled)) %>%
+  dplyr::mutate(Sampled = FALSE)
+
+
+Presence2_fixed <- fixed %>%
+  ##dplyr::group_by(Unit_Code, Community, Sampling_Frame, Cycle_Year, Scientific_Name, Code, Life_Form, Nativity, Plot_Type) %>%
+  ##dplyr::summarise(Plots = n()) %>%
+  # if species recorded one year, than any other year it was not recorded...
+  # it will show up as zero cover
+  dplyr::mutate(Present = 1) %>%
+  tidyr::complete(Cycle_Year, tidyr::nesting(Unit_Code, Community, Sampling_Frame,
+                                             Plot_Type, Plot_Number,
+                                             Scientific_Name, Code, Life_Form, Nativity),
+                  fill = list(Present = 0)) %>%
+  left_join(fixed_plts_not_sampled) %>%
+  mutate(Present = dplyr::case_when(Sampled == FALSE ~ as.numeric(NA),
+                                    TRUE ~ as.numeric(Present))) %>%
+  group_by(Unit_Code, Community, Sampling_Frame,
+           Plot_Type, Plot_Number,
+           Scientific_Name, Code, Life_Form, Nativity) %>%
+  dplyr::arrange(Cycle_Year, .by_group = TRUE) %>%
+  dplyr::mutate(Chg_Paired_Plot = Present - dplyr::lag(Present, order_by = Cycle_Year)) %>%
+  dplyr::mutate(Chg_Paired_Plot_Pos = case_when(Chg_Paired_Plot >= 0 ~ as.numeric(Chg_Paired_Plot),
+                                                TRUE ~ as.numeric(NA))) %>%
+  dplyr::mutate(Chg_Paired_Plot_Neg = case_when(Chg_Paired_Plot <= 0 ~ as.numeric(Chg_Paired_Plot),
+                                                TRUE ~ as.numeric(NA))) %>%
+  ungroup()
+
+
+# Summarize from plot to sampling frame
+Presence3_fixed <- Presence2_fixed %>%
+  group_by(Cycle_Year, Unit_Code, Community, Sampling_Frame, Plot_Type,
+           Code, Scientific_Name, Life_Form, Nativity) %>%
+  summarize(Fix_Plots = sum(Present, na.rm = TRUE),
+            Chg_Paired_Net = sum(Chg_Paired_Plot, na.rm = TRUE),
+            Chg_Paired_Pos = sum(Chg_Paired_Plot_Pos, na.rm = TRUE),
+            Chg_Paired_Neg = sum(Chg_Paired_Plot_Neg, na.rm = TRUE), .groups = "drop") %>%
+  select(-Plot_Type)
+
+Presence4 <- Presence2_all %>%
+  left_join(Presence2_rotational) %>%
+  full_join(Presence3_fixed) %>%
+  mutate(All_Plots = case_when(is.na(All_Plots) ~ 0, TRUE ~ as.numeric(All_Plots))) %>%
+  mutate(Rotational_Plots = case_when(is.na(Rotational_Plots) ~ 0, TRUE ~ as.numeric(Rotational_Plots)))
+# not running code below because any 'Fixed_Plots == NA' means the species has never been
+# found in a fixed plot, only a rotational plot.
+  #mutate(Fixed_Plots = case_when(is.na(Fixed_Plots) ~ 0, TRUE ~ as.numeric(Fixed_Plots)))
+
+Presence5 <- Presence4 %>%
+  tidyr::pivot_wider(names_from = Cycle_Year,
+                     values_from = c(All_Plots, Rotational_Plots, Fix_Plots,
+                                     Chg_Paired_Net, Chg_Paired_Pos, Chg_Paired_Neg)) %>%
+  dplyr::mutate(Cumulative_Net = sum(across(dplyr::starts_with("Chg_Paired_Net")), na.rm = TRUE)) %>%
+  dplyr::select(!dplyr::starts_with("Chg_Paired_Pos")) %>%
+  dplyr::select(!dplyr::starts_with("Chg_Paired_Neg"))
+
+write_csv(Presence5, file = "C:/Users/JJGross/Downloads/Spp_Presence_Table.csv")
