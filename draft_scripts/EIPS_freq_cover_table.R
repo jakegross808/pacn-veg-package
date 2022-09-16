@@ -115,9 +115,11 @@ bg <- function(start, end, color, ...) {
 }
 
 #https://github.com/renkun-ken/formattable/issues/95#issuecomment-792387356
-pm_color_bar2 <- function(color1 = "pink", color2 = "lightgreen", text_color1 = "darkred", text_color2 = "darkgreen", text_color3 = "grey", ...){
+pm_color_bar2 <- function(color1 = "pink", color2 = "lightgreen", text_color1 = "darkred", text_color2 = "darkgreen", text_color3 = "grey", transform_fn = function(x) {x}, ...){
   formatter("span",
-            style = function(x) style(
+            style = function(x) {
+              x <- transform_fn(x)
+              style(
               display = "inline-block",
               color = ifelse(x > 0,text_color1,ifelse(x < 0,text_color2,text_color3)),
               "text-align" = ifelse(x > 0, 'left', ifelse(x < 0, 'right', 'center')),
@@ -125,7 +127,7 @@ pm_color_bar2 <- function(color1 = "pink", color2 = "lightgreen", text_color1 = 
               "background" = bg(ifelse(x >= 0, 0.5, 0.5 + (x/2)),
                                 ifelse(x >= 0, (x/2) + 0.5, 0.5),
                                 ifelse(x >= 0, color1, color2))
-            ))
+            )})
 }
 
 # Table w/conditional formatting
