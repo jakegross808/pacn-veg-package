@@ -68,7 +68,7 @@ pacn_dt <- function(data, record_count = TRUE, search = TRUE, ...) {
   DT::datatable(data,
                 rownames = FALSE,
                 selection = "multiple",
-                options = list(dom = "tif",
+                options = list(dom = dom,
                                paging = FALSE,
                                scrollY = "200px",
                                scrollCollapse = TRUE), ...)
