@@ -15,6 +15,7 @@ output:
           - header.html
 params:
   data_folder: !expr ifelse(dir.exists("C:/Users/sewright/OneDrive - DOI/Data Scientist Projects/FY2022/PACN/"), "C:/Users/sewright/OneDrive - DOI/Data Scientist Projects/FY2022/PACN/", "C:/Users/JJGross/OneDrive - DOI/Documents/Certification_Local/Databases/EIPS/")
+  access_dbs: !expr c("established_invasives_BE_master_20220428.mdb", "2021_established_invasives_20220422.mdb")
   protocol: !expr c("EIPS", "FTPC")
   park: !expr NA
   sample_frame: "Haleakala"
@@ -31,8 +32,17 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 
 ```{css caption-hack, echo=FALSE, eval=TRUE}
-div#plot-level-change p.caption {
-  margin-top: -40px !important;
+
+span.dummy-fig + div.figure > span {
+  display: none !important;
+}
+
+span.dummy-fig + div.figure > img {
+  display: none !important;
+}
+
+div.plotly {
+  margin-bottom: 0px !important;
 }
 ```
 
@@ -53,113 +63,20 @@ library(htmltools)
 library(sparkline)
 ```
 
-```{r utility_fxns, include=FALSE}
-
-# Convenience function for creating a simple DT datatable
-pacn_dt <- function(data, record_count = TRUE, search = TRUE, ...) {
-  dom <- "t"
-  if (record_count) {
-    dom <- c(dom, "i")
-  }
-  if (search) {
-    dom <- c(dom, "f")
-  }
-  
-  DT::datatable(data,
-                rownames = FALSE,
-                selection = "multiple",
-                options = list(dom = dom,
-                               paging = FALSE,
-                               scrollY = "200px",
-                               scrollCollapse = TRUE), ...)
-}
-
-# Use an empty kable table to create a numbered caption for a DT datatable.
-# Call this right before or right after the call to DT (depending whether you want the caption on top or bottom)
-add_table_caption <- function(caption) {
-  knitr::kable(tibble::tibble(), caption = caption, table.attr = "style='width:100%;'")
-}
-
-# Function for prepping data for sunburst plot, shamelessly copied from https://stackoverflow.com/a/58481176
-as.sunburstDF <- function(DF, value_column = NULL, add_root = FALSE){
-  colNamesDF <- names(DF)
-  
-  if(is.data.table(DF)){
-    DT <- copy(DF)
-  } else {
-    DT <- data.table(DF, stringsAsFactors = FALSE)
-  }
-  
-  if(add_root){
-    DT[, root := "Total"]  
-  }
-  
-  colNamesDT <- names(DT)
-  hierarchy_columns <- setdiff(colNamesDT, value_column)
-  DT[, (hierarchy_columns) := lapply(.SD, as.factor), .SDcols = hierarchy_columns]
-  
-  if(is.null(value_column) && add_root){
-    setcolorder(DT, c("root", colNamesDF))
-  } else if(!is.null(value_column) && !add_root) {
-    setnames(DT, value_column, "values", skip_absent=TRUE)
-    setcolorder(DT, c(setdiff(colNamesDF, value_column), "values"))
-  } else if(!is.null(value_column) && add_root) {
-    setnames(DT, value_column, "values", skip_absent=TRUE)
-    setcolorder(DT, c("root", setdiff(colNamesDF, value_column), "values"))
-  }
-  
-  hierarchyList <- list()
-  
-  for(i in seq_along(hierarchy_columns)){
-    current_columns <- colNamesDT[1:i]
-    if(is.null(value_column)){
-      currentDT <- unique(DT[, ..current_columns][, values := .N, by = current_columns], by = current_columns)
-    } else {
-      currentDT <- DT[, lapply(.SD, sum, na.rm = TRUE), by=current_columns, .SDcols = "values"]
-    }
-    setnames(currentDT, length(current_columns), "labels")
-    hierarchyList[[i]] <- currentDT
-  }
-  
-  hierarchyDT <- rbindlist(hierarchyList, use.names = TRUE, fill = TRUE)
-  
-  parent_columns <- setdiff(names(hierarchyDT), c("labels", "values", value_column))
-  hierarchyDT[, parents := apply(.SD, 1, function(x){fifelse(all(is.na(x)), yes = NA_character_, no = paste(x[!is.na(x)], sep = ":", collapse = " - "))}), .SDcols = parent_columns]
-  hierarchyDT[, ids := apply(.SD, 1, function(x){paste(x[!is.na(x)], collapse = " - ")}), .SDcols = c("parents", "labels")]
-  hierarchyDT[, c(parent_columns) := NULL]
-  return(hierarchyDT)
-}
-```
 
 ```{r load data, include=FALSE}
-# Change this to point to your EIPS database(s)
-access_dbs <- c("established_invasives_BE_master_20220428.mdb",
-            "2021_established_invasives_20220422.mdb"
-            )
-access_dbs <- here(params$data_folder, access_dbs)
+access_dbs <- here(params$data_folder, params$access_dbs)
+
 # Load the data
 data <- LoadPACNVeg(ftpc_params = "pacnveg", eips_paths = access_dbs, 
                     cache = TRUE, force_refresh = FALSE)
 
-# Get monitoring years. If there are multiple monitoring years per cycle, assumes that the year with the most visits is the one that represents that cycle. A human should verify this each time!
-years <- FilterPACNVeg("Events_extra_xy", sample_frame = params$sample_frame) %>%
-  dplyr::select(Year, Cycle) %>%
-  dplyr::arrange(Cycle, Year) %>%
-  dplyr::group_by(Cycle, Year) %>%
-  dplyr::mutate(Count = n()) %>%
-  unique() %>%
-  dplyr::group_by(Cycle) %>%
-  dplyr::mutate(MaxCount = max(Count)) %>%
-  dplyr::filter(Count == MaxCount) 
-years <- years[["Year"]]  # get years as vector instead of tibble
+# Get monitoring years
+years <- get_years(params$sample_frame)
 years_string <- paste(min(years), "-", max(years))
 
 # Get monitoring cycles
-cycles <- FilterPACNVeg("Events_extra_xy", sample_frame = params$sample_frame) %>%
-  dplyr::select(Cycle) %>%
-  unique() %>%
-  dplyr::arrange(Cycle)
-cycles <- cycles[["Cycle"]]
+cycles <- get_cycles(params$sample_frame)
 ```
 
 ---
@@ -185,6 +102,7 @@ MapPACNVeg2(sample_frame = params$sample_frame)
 
 -   Invasive Plant Transects: Additional data on non-native plants were collected using frequency of occurrence along 500 m transects (Ainsworth et al. 2012).
 
+comment this out
 
 # Results
 
@@ -194,148 +112,63 @@ MapPACNVeg2(sample_frame = params$sample_frame)
 
 -   The native shrub Leptecophylla tameiameiae had the highest average cover at 21.4% and occurred in 29/30 plots, followed by the non-native grass Holcus lanatus at 20.6% occuring in 22/30 plots (Table \@ref(tab:cover-composition-table)).
 
-```{r echo=FALSE, fig.cap= paste0("Average understory species cover across the monitoring area from the most recent monitoring event (", max(years), ")."), message=FALSE, warning=FALSE}
-und <- FilterPACNVeg("Understory", sample_frame = params$sample_frame, cycle = max(cycles))  # Only get data from most recent cycle
-
-und <- und %>%
-  mutate(Life_Form=replace(Life_Form, Code=="SOPCHR", "Shrub"))
-
-# prep data for sunburst plot
-nativity_colors <- c("Native" = "#1b9e77", "No Veg" = "grey", "Non-Native" = "#d95f02", "Unknown" = "#7570b3")
-
-und2 <- UnderCombineStrata(und) %>%
-  mutate(across(where(is.character), replace_na, "No Veg")) %>%
-  group_by(Cycle, Unit_Code, Sampling_Frame, Plot_Number,
-           Nativity, Code, Scientific_Name, Life_Form) %>%
-  summarize(Hits_Sp = n(), .groups = "drop") %>%
-  complete(nesting(Cycle, Unit_Code, Sampling_Frame, Plot_Number),
-           nesting(Nativity, Code, Scientific_Name, Life_Form),
-           fill = list(Hits_Sp = 0)) %>%
-  mutate(Plot_Percent = Hits_Sp/300) %>%
-  group_by(Cycle, Unit_Code, Sampling_Frame,
-           Nativity, Code, Scientific_Name, Life_Form) %>%
-  summarize(n = n(),
-            plots_present = sum(Hits_Sp > 0),
-            Avg_Cover = round(mean(Plot_Percent), 3),
-            #Median = median(Plot_Percent),
-            Std_Dev = round(sd(Plot_Percent), 3),
-            .groups = "drop")
-
-# Create sunburst plot
-sb <- select(und2, Nativity, Life_Form, Code, Avg_Cover)
-sb <- as.sunburstDF(sb, value_column = "Avg_Cover")
-sunburst_all <- plot_ly(sb, ids = ~ids, labels = ~labels, parents = ~parents, values = ~values, type = 'sunburst', branchvalues = 'total') %>%
-  plotly::layout(colorway = nativity_colors)
-```
 ```{r echo=FALSE, message=FALSE, warning=FALSE}
-und <- FilterPACNVeg("Understory", sample_frame = params$sample_frame, cycle = max(cycles))  # Only get data from most recent cycle
-
-und <- und %>%
-  mutate(Life_Form=replace(Life_Form, Code=="SOPCHR", "Shrub"))
-
-# prep data for sunburst plot
+# prep colors for sunburst plots
 nativity_colors <- c("Native" = "#1b9e77", "No Veg" = "grey", "Non-Native" = "#d95f02", "Unknown" = "#7570b3")
+mgmt_unit_colors <- c("#F8573A", "#F4C47B", "#28468B", "#AED5CB")
 
-und2 <- UnderCombineStrata(und) %>%
-  mutate(GROUP_COL = sample(LETTERS[c(1, 2, 2, 3, 5, 5, 5)], size = dplyr::n(), replace = TRUE)) %>%  # TODO: replace this with actual grouping column
-  mutate(across(where(is.character), replace_na, "No Veg")) %>%
-  group_by(GROUP_COL, Cycle, Unit_Code, Sampling_Frame, Plot_Number,
-           Nativity, Code, Scientific_Name, Life_Form) %>%
-  summarize(Hits_Sp = n(), .groups = "drop") %>%
-  complete(nesting(GROUP_COL, Cycle, Unit_Code, Sampling_Frame, Plot_Number),  # TODO: replace GROUP_COL with actual grouping column
-           nesting(Nativity, Code, Scientific_Name, Life_Form),
-           fill = list(Hits_Sp = 0)) %>%
-  mutate(Plot_Percent = Hits_Sp/300) %>%
-  group_by(GROUP_COL, Cycle, Unit_Code, Sampling_Frame,
-           Nativity, Code, Scientific_Name, Life_Form) %>%
-  summarize(n = n(),
-            plots_present = sum(Hits_Sp > 0),
-            Avg_Cover = round(mean(Plot_Percent), 3),
-            #Median = median(Plot_Percent),
-            Std_Dev = round(sd(Plot_Percent), 3),
-            .groups = "drop")
+sunburst_all <- understorySunburst(params$sample_frame, params$cycle, colors = nativity_colors)
 
-# Create sunburst plot
-sb <- select(und2, GROUP_COL, Nativity, Life_Form, Code, Avg_Cover)
-sb <- as.sunburstDF(sb, value_column = "Avg_Cover") %>%
-  SharedData$new(key = ~ids, group = "sb")
+sunburst_by_grp <- understorySunburst(params$sample_frame, params$cycle, group_by = c("GROUP_COL", "Nativity", "Life_Form", "Code"), colors = mgmt_unit_colors)
 
-sb_dummy <- sb$data() %>%
-  SharedData$new(key = ~ids, group = "sb")
-
-sunburst_by_grp <- plot_ly(sb, ids = ~ids, labels = ~labels, parents = ~parents, values = ~values, type = 'sunburst', branchvalues = 'total') %>%
-  highlight(on = NULL, off = NULL, persistent = FALSE)
-
-bscols(sunburst_all, sunburst_by_grp, widths = c(6, 6, 0))
+bscols(sunburst_all, sunburst_by_grp, widths = c(6, 6))
 ```
-```{r cover-composition-graph, echo=FALSE, fig.cap= paste0("Average understory species cover across the monitoring area from the most recent monitoring event (", max(years), "). Click on a section of the sunburst plot to drill down and click in the center to go back to the previous level of data."), message=FALSE, warning=FALSE, out.height="0px", class.output="dummy-fig"}
+
+```{r cover-composition-graph, echo=FALSE, fig.cap= paste0("Average understory species cover across the monitoring area from the most recent monitoring event (", max(years), "). Click on a section of the sunburst plot to drill down and click in the center to go back to the previous level of data."), message=FALSE, warning=FALSE, out.height="0px"}
 # Dumb hack to get fig caption to show below plot + map
+htmltools::span(class = "dummy-fig")
+knitr::include_graphics(here("inst", "rmarkdown", "dummy_fig.PNG"))
+```
+<br/>
+<br/>
+```{r echo=FALSE, warning=FALSE, message=FALSE}
+understoryBarCover(params$sample_frame)
+```
+```{r avg-cover-bar, echo=FALSE, fig.cap= "Average understory species cover across the monitoring area by management unit and monitoring cycle", message=FALSE, warning=FALSE, out.height="0px"}
+# Dumb hack to get fig caption to show below plot + map
+htmltools::span(class = "dummy-fig")
 knitr::include_graphics(here("inst", "rmarkdown", "dummy_fig.PNG"))
 ```
 
-```{r echo=FALSE, warning=FALSE}
+
+```{r cover-composition-table, echo=FALSE, message=FALSE, warning=FALSE, tab.cap="Average understory species cover."}
 und <- FilterPACNVeg("Understory", sample_frame = params$sample_frame)  # Only get data from most recent cycle
 
-und <- und %>%
-  mutate(Life_Form=replace(Life_Form, Code=="SOPCHR", "Shrub"))
-
-# prep data for sunburst plot
-nativity_colors <- c("Native" = "#1b9e77", "No Veg" = "grey", "Non-Native" = "#d95f02", "Unknown" = "#7570b3")
+  # PLACEHOLDER
+  # TODO: replace this with actual grouping column
+  und <- mutate(und, GROUP_COL = sample(LETTERS[c(1, 2, 2, 3, 5, 5, 5)], size = dplyr::n(), replace = TRUE))
 
 und2 <- UnderCombineStrata(und) %>%
-  mutate(GROUP_COL = sample(LETTERS[c(1, 2, 2, 3, 5, 5, 5)], size = dplyr::n(), replace = TRUE)) %>%  # TODO: replace this with actual grouping column
-  dplyr::filter(!is.na(Code)) %>%
-  group_by(GROUP_COL, Cycle, Unit_Code, Sampling_Frame, Plot_Number,
-           Nativity, Code, Scientific_Name, Life_Form) %>%
-  summarize(Hits_Sp = n(), .groups = "drop") %>%
-  complete(nesting(GROUP_COL, Cycle, Unit_Code, Sampling_Frame, Plot_Number),  # TODO: replace GROUP_COL with actual grouping column
-           nesting(Nativity, Code, Scientific_Name, Life_Form),
+  dplyr::mutate(dplyr::across(where(is.character), replace_na, "No Veg")) %>%
+  dplyr::group_by(GROUP_COL, Cycle, Unit_Code, Sampling_Frame, Plot_Number,
+                  Nativity, Code, Scientific_Name, Life_Form) %>%
+  dplyr::summarize(Hits_Sp = dplyr::n(), .groups = "drop") %>%
+  complete(nesting(GROUP_COL, Cycle, Unit_Code, Sampling_Frame, Plot_Number, Nativity, Code, Scientific_Name, Life_Form),
            fill = list(Hits_Sp = 0)) %>%
-  mutate(Plot_Percent = 100 * (Hits_Sp/300)) %>%
-  group_by(GROUP_COL, Cycle, Unit_Code, Sampling_Frame,
-           Nativity, Code, Scientific_Name, Life_Form) %>%
-  summarize(n = n(),
-            plots_present = sum(Hits_Sp > 0),
-            Avg_Cover = round(mean(Plot_Percent), 3),
-            #Median = median(Plot_Percent),
-            Std_Dev = round(sd(Plot_Percent), 3),
-            .groups = "drop")%>%
+  dplyr::mutate(Plot_Percent = Hits_Sp/300) %>%
+  dplyr::group_by(GROUP_COL, Cycle, Unit_Code, Sampling_Frame,
+                  Nativity, Code, Scientific_Name, Life_Form) %>%
+  dplyr::summarize(n = dplyr::n(),
+                   plots_present = sum(Hits_Sp > 0),
+                   Avg_Cover = round(mean(Plot_Percent), 3),
+                   Std_Dev = round(sd(Plot_Percent), 3),
+                   .groups = "drop") %>%
   dplyr::mutate(Cycle = as.factor(Cycle),
                 all = "Select all",
                 hovertext = paste(Scientific_Name, Nativity, paste0(Avg_Cover, "%"), sep = "\n")) %>%
   dplyr::filter(Avg_Cover > 0) %>%
   dplyr::group_by(GROUP_COL)
 
-sp_w_cover <- und2 %>%
-  crosstalk::SharedData$new()
-
-cover_bar <- sp_w_cover %>%
-  plotly::plot_ly(type = "bar", x = ~Cycle, y = ~Avg_Cover, color = ~GROUP_COL, strokes = "white", stroke = ~Scientific_Name,
-                  text = ~hovertext,
-                  hoverinfo = 'text',
-                  textposition = "none") %>%
-  plotly::layout(xaxis = list(title = "Cycle"),
-                 yaxis = list(title = "Average % cover"),
-                 legend = list(itemclick = FALSE,
-                               itemdoubleclick = FALSE),
-                 clickmode = "none")
-
-sp_filter <- filter_select("select-sp", "Filter on species", sp_w_cover, ~Scientific_Name, allLevels = FALSE)
-nat_filter <- filter_select("select-nat", "Filter on nativity", sp_w_cover, ~Nativity, allLevels = FALSE)
-mgmt_filter <- filter_select("select-sp", "Filter on management unit", sp_w_cover, ~GROUP_COL, allLevels = FALSE)
-nat_filter <- filter_select("select-nat", "Filter on nativity", sp_w_cover, ~Nativity, allLevels = FALSE)
-
-show_all <- filter_select("show_all", "", sp_w_cover, ~all, allLevels = FALSE, multiple = FALSE)
-
-bscols(list(sp_filter, nat_filter, mgmt_filter), cover_bar, show_all, widths = c(3, 9, 0))
-```
-```{r avg-cover-bar, echo=FALSE, fig.cap= "Average understory species cover across the monitoring area by management unit and monitoring cycle", message=FALSE, warning=FALSE, out.height="0px", class.output="dummy-fig"}
-# Dumb hack to get fig caption to show below plot + map
-knitr::include_graphics(here("inst", "rmarkdown", "dummy_fig.PNG"))
-```
-
-
-```{r cover-composition-table, echo=FALSE, message=FALSE, warning=FALSE, tab.cap="Average understory species cover."}
 avg_cover_table <- und2 %>%
   select(Code, Scientific_Name, Life_Form, Nativity, plots_present, Avg_Cover, Std_Dev) %>%
   mutate(Avg_Cover = Avg_Cover*100,
@@ -395,8 +228,9 @@ bscols(plt1, map1)
 ```
 
 
-```{r tot-cover-graph, echo=FALSE, fig.cap= paste0("Native and non-native understory cover for the most recent monitoring (", max(years), "). Point numbers corrspond to fixed monitoring sites."), message=FALSE, warning=FALSE, out.height="0px", class.output="dummy-fig"}
+```{r tot-cover-graph, echo=FALSE, fig.cap= paste0("Native and non-native understory cover for the most recent monitoring (", max(years), "). Point numbers corrspond to fixed monitoring sites."), message=FALSE, warning=FALSE, out.height="0px"}
 # Dumb hack to get fig caption to show below plot + map
+htmltools::span(class = "dummy-fig")
 knitr::include_graphics(here("inst", "rmarkdown", "dummy_fig.PNG"))
 ```
 
@@ -412,11 +246,7 @@ names(cover_by_nativity) <- gsub("_", " ", names(cover_by_nativity)) %>% str_to_
 
 add_table_caption("Total understory cover per plot.")
 pacn_dt(cover_by_nativity)
-# cover_by_nativity %>%
-#   kbl(digits = 1, align = "c",
-#       caption = "Total understory cover per plot.") %>%
-#   kable_styling(bootstrap_options = c("striped", "condensed")) %>%
-#   scroll_box(height = "300px") 
+
 ```
 
 ## Understory - Change in Cover 
@@ -454,8 +284,9 @@ map <- MapCoverChange(crosstalk = TRUE, crosstalk_group = grp, sample_frame = pa
 bscols(plt, map)
 ```
 
-```{r chg-cover-graph, echo=FALSE, fig.cap= paste0("Change in native vs. non-native cover from ", years[length(years)-1], "-", max(years), ". Point numbers correspond to fixed monitoring sites."), message=FALSE, warning=FALSE, out.height="0px", class.output="dummy-fig"}
+```{r chg-cover-graph, echo=FALSE, fig.cap= paste0("Change in native vs. non-native cover from ", years[length(years)-1], "-", max(years), ". Point numbers correspond to fixed monitoring sites."), message=FALSE, warning=FALSE, out.height="0px"}
 # Dumb hack to get fig caption to show below plot + map
+htmltools::span(class = "dummy-fig")
 knitr::include_graphics(here("inst", "rmarkdown", "dummy_fig.PNG"))
 ```
 
@@ -479,7 +310,7 @@ v_EIPS_map_interstation(.data = test_haleakala,
 v_EIPS_map_interstation(.data = test_haleakala,
                         parameter = "Mean_Total_Cover",
                         change = FALSE,
-                        sample_frame = "Haleakalā Subalpine")
+                        agol_sample_frame = "Haleakalā Subalpine")
 
 
 ### Non-Native Richness

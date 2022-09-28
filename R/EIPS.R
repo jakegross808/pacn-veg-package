@@ -197,7 +197,7 @@ v_EIPS_prep <- function(park, sample_frame, community, year, cycle, transect_typ
 #' v_EIPS_map()
 #' v_EIPS_map()
 #'}
-v_EIPS_map_interstation <- function(.data, parameter, change = FALSE, agol_sample_frame) {
+v_EIPS_map_interstation <- function(.data, parameter, change = FALSE, agol_sample_frame = "*") {
 
   if (parameter == "Mean_Species_Cover") {
     station_summary <- .data %>%
@@ -559,7 +559,7 @@ v_EIPS_map_interstation <- function(.data, parameter, change = FALSE, agol_sampl
                 "0", "0-1", "1-5", "5-10", "10-25", "25-50", "50-75", "75+")
     custom_leg <- data.frame(Labels, Palette)
 
-    map <- crosstalk::bscols(widths = c(1,NA),device = "lg",
+    map <- crosstalk::bscols(widths = c(3,NA),device = "lg",
                              list(
                                crosstalk::filter_select("year", "Year", sd_cover, ~Year, multiple = FALSE),
                                crosstalk::filter_select("species", "Species", sd_cover, ~Scientific_Name, multiple = FALSE)
