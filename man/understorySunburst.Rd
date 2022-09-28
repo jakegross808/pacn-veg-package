@@ -4,20 +4,14 @@
 \alias{understorySunburst}
 \title{Sunburst plot of understory percent cover}
 \usage{
-understorySunburst(
-  sample_frame,
-  cycle,
-  group_by = c("Nativity", "Life_Form", "Code"),
-  colors = c(Native = "#1b9e77", `No Veg` = "grey", `Non-Native` = "#d95f02", Unknown =
-    "#7570b3")
-)
+understorySunburst(sample_frame, cycle, mgmt_unit = TRUE, colors = "default")
 }
 \arguments{
 \item{sample_frame}{Name of sample frame}
 
 \item{cycle}{Monitoring cycle}
 
-\item{group_by}{Character vector with names of columns to include as "rings" of the sunburst plot. The first column corresponds to the center of the plot and the last corresponds to the outermost ring.}
+\item{mgmt_unit}{Include management unit?}
 
 \item{colors}{Character vector of color names or hex values. This can be a named vector with names corresponding to the values in the center of the plot (the first column specified in \code{group_by}), or you can provide an unnamed vector of any number of colors to create a gradient.}
 }
