@@ -1,0 +1,4 @@
+name: Resource Brief Template
+description: >
+   PACN resource brief example. Don't forget to update the text to reflect the park/sample frame/data you are working with!
+create_dir: FALSE
