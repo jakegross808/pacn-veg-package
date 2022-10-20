@@ -1,0 +1,4 @@
+name: PACN Veg Report Demo
+description: >
+   Examples of interactive maps, tables and plots that can be used in a PACN veg report
+create_dir: FALSE

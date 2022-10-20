@@ -1,4 +1,12 @@
 #' @importFrom magrittr %>% %<>%
+#' @importFrom data.table ":="
+#'
+#' @export
+magrittr::`%>%`
+magrittr::`%<>%`
+
+# Make sure data.table knows we know we're using it
+.datatable.aware = TRUE
 
 pkg_globals <- new.env(parent = emptyenv())
 

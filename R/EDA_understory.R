@@ -701,3 +701,206 @@ v_cover_plot_bar_nativity <- function(combine_strata = FALSE,
   return(plot)
 
 }
+
+
+#' Sunburst plot of understory percent cover
+#'
+#' @inheritParams FilterPACNVeg
+#' @param mgmt_unit Include management unit?
+#' @param colors Character vector of color names or hex values. This can be a named vector with names corresponding to the values in the center of the plot (the first column specified in `group_by`), or you can provide an unnamed vector of any number of colors to create a gradient.
+#'
+#' @return A plotly object
+#' @export
+#'
+understorySunburst <- function(sample_frame, cycle, mgmt_unit = TRUE, colors = "default") {
+  if (missing(sample_frame)) {
+    stop("`sample_frame` is required")
+  }
+
+  if (missing(cycle)) {
+    stop("`cycle` is required")
+  }
+
+  if (length(colors) == 1 && colors == "default") {
+    nativity_colors <- c("Native" = "#1b9e77", "No Veg" = "grey", "Non-Native" = "#d95f02", "Unknown" = "#7570b3")
+    mgmt_unit_colors <- c("#F8573A", "#F4C47B", "#28468B", "#AED5CB")
+    if (mgmt_unit) {
+      colors <- mgmt_unit_colors
+    } else {
+      colors <- nativity_colors
+    }
+  }
+
+  plot_levels <- c("Nativity", "Life_Form", "Code")
+  if (mgmt_unit) {
+    plot_levels <- c("GROUP_COL", plot_levels)
+  }
+
+
+  # und <- FilterPACNVeg("Understory", sample_frame = sample_frame, cycle = cycle)  # Only get data from most recent cycle
+  #
+  # # PLACEHOLDER
+  # # TODO: replace this with actual grouping column
+  # und <- mutate(und, GROUP_COL = sample(LETTERS[c(1, 2, 2, 3, 5, 5, 5)], size = dplyr::n(), replace = TRUE))
+  #
+  # und <- und %>%
+  #   dplyr::mutate(Life_Form=replace(Life_Form, Code=="SOPCHR", "Shrub"))
+  #
+  # # prep data for sunburst plot
+  # und <- UnderCombineStrata(und) %>%
+  #   dplyr::mutate(dplyr::across(where(is.character), replace_na, "No Veg")) %>%
+  #   dplyr::group_by(dplyr::across(tidyselect::all_of(c("Cycle", "Unit_Code", "Sampling_Frame", "Plot_Number", group_by)))) %>%
+  #   dplyr::summarize(Hits_Sp = dplyr::n(), .groups = "drop") %>%
+  #   complete(nesting(!!!syms(c("Cycle", "Unit_Code", "Sampling_Frame", "Plot_Number", group_by))),
+  #            fill = list(Hits_Sp = 0)) %>%
+  #   dplyr::mutate(Plot_Percent = Hits_Sp/300) %>%
+  #   dplyr::group_by(dplyr::across(tidyselect::all_of(c("Cycle", "Unit_Code", "Sampling_Frame", group_by)))) %>%
+  #   dplyr::summarize(n = dplyr::n(),
+  #             plots_present = sum(Hits_Sp > 0),
+  #             Avg_Cover = round(mean(Plot_Percent), 3),
+  #             Std_Dev = round(sd(Plot_Percent), 3),
+  #             .groups = "drop")
+
+  # Set colors - use first col in summarize_by
+  # If names of colors vector match values in the first grouping level, then assign colors based on that.
+  # Otherwise, create a palette with the provided colors
+
+  group_by <- c("Cycle", "Nativity")
+  if (mgmt_unit) {
+    group_by <- c("GROUP_COL", group_by)
+  }
+
+  und <- understorySpeciesCover(sample_frame = sample_frame, cycle = cycle, group_by = group_by)
+
+  if (is.null(names(colors))) {
+    pal <- colorRampPalette(colors)
+    n_colors <- length(unique(und[[plot_levels[1]]]))
+    colors <- pal(n_colors)
+    names(colors) <- sort(unique(und[[plot_levels[1]]]))
+  } else if (!all(unique(und[[plot_levels[1]]]) %in% names(colors))) {
+    stop("If `colors` is a named vector, its names must match the values of the first column in `group_by`")
+  }
+
+  # Create sunburst plot
+  sb <- dplyr::select(und, tidyselect::all_of(c(plot_levels, "Avg_Cover")))
+  sb <- as.sunburstDF(sb, value_column = "Avg_Cover")
+  sb$color <- colors[str_replace(sb$ids, " - .*", "")]
+  sunburst <- plotly::plot_ly(sb,
+                              ids = ~ids,
+                              labels = ~labels,
+                              parents = ~parents,
+                              values = ~values,
+                              type = 'sunburst',
+                              branchvalues = 'total',
+                              marker = list(colors = ~color))
+
+  return(sunburst)
+}
+
+#' Bar plot of avg. % cover vs cycle
+#'
+#' Broken down by management unit
+#'
+#' @inheritParams LoadPACNVeg
+#' @param crosstalk_filters Include dropdowns to filter on species, nativity, and mgmt unit?
+#' @param colors Character vector of color names or hex values. This can be a named vector with names corresponding to each management unit, or you can provide an unnamed vector of any number of colors to create a gradient.
+#' @return An HTML object (if `crosstalk_filters == TRUE`) or a plotly object.
+#' @export
+#'
+understoryBarCover <- function(sample_frame, crosstalk_filters = TRUE, colors = c("#F8573A", "#F4C47B", "#28468B", "#AED5CB")) {
+
+  if (missing(sample_frame)) {
+    stop("`sample_frame` is required")
+  }
+
+  und <- understorySpeciesCover(sample_frame = sample_frame) %>%
+    dplyr::mutate(Cycle = as.factor(Cycle),
+                  all = "Select all",
+                  hovertext = paste(Scientific_Name, Nativity, paste0(Avg_Cover, "%"), sep = "\n")) %>%
+    dplyr::filter(Avg_Cover > 0) %>%
+    dplyr::group_by(GROUP_COL)
+
+  sp_w_cover <- und %>%
+    crosstalk::SharedData$new()
+
+  cover_bar <- sp_w_cover %>%
+    plotly::plot_ly(type = "bar", x = ~Cycle, y = ~Avg_Cover, color = ~GROUP_COL, strokes = "white", stroke = ~Scientific_Name,
+                    colors = colorRamp(colors),
+                    text = ~hovertext,
+                    hoverinfo = 'text',
+                    textposition = "none") %>%
+    plotly::layout(xaxis = list(title = "Cycle"),
+                   yaxis = list(title = "Average % cover"),
+                   legend = list(itemclick = FALSE,
+                                 itemdoubleclick = FALSE),
+                   clickmode = "none")
+
+  if (crosstalk_filters) {
+    sp_filter <- filter_select("select-sp", "Filter on species", sp_w_cover, ~Scientific_Name, allLevels = FALSE)
+    nat_filter <- filter_select("select-nat", "Filter on nativity", sp_w_cover, ~Nativity, allLevels = FALSE)
+    mgmt_filter <- filter_select("select-sp", "Filter on management unit", sp_w_cover, ~GROUP_COL, allLevels = FALSE)
+    nat_filter <- filter_select("select-nat", "Filter on nativity", sp_w_cover, ~Nativity, allLevels = FALSE)
+
+    show_all <- filter_select("show_all", "", sp_w_cover, ~all, allLevels = FALSE, multiple = FALSE)
+
+    plot <- bscols(list(sp_filter, nat_filter, mgmt_filter), cover_bar, show_all, widths = c(3, 9, 0))
+  } else {
+    plot <- cover_bar
+  }
+
+  return(plot)
+}
+
+#' Title
+#'
+#' @inheritParams LoadPACNVeg
+#' @param group_by Columns to group by. Must be a subset of `c("GROUP_COL", "Cycle", "Nativity")`
+#'
+#' @return A tibble
+#' @export
+#'
+understorySpeciesCover <- function(sample_frame, cycle, group_by = c("GROUP_COL", "Cycle", "Nativity")) {
+  col_order <- c("Unit_Code",
+                 "GROUP_COL",
+                 "Sampling_Frame",
+                 "Cycle",
+                 "Code",
+                 "Scientific_Name",
+                 "Life_Form",
+                 "Nativity",
+                 "Avg_Cover",
+                 "Std_Dev",
+                 "n",
+                 "plots_present")
+
+  und <- FilterPACNVeg("Understory", sample_frame = sample_frame, cycle = cycle)  # Only get data from most recent cycle
+
+  # PLACEHOLDER
+  # TODO: replace this with actual grouping column
+  set.seed(11) # Set random number generation seed so that GROUP_COL is the same each time
+  und <- mutate(und, GROUP_COL = sample(LETTERS[c(1, 2, 2, 3, 5, 5, 5)], size = dplyr::n(), replace = TRUE))
+
+  und <- und %>%
+    dplyr::mutate(Life_Form=replace(Life_Form, Code=="SOPCHR", "Shrub"))
+
+  # prep data for sunburst plot
+  und <- UnderCombineStrata(und) %>%
+    dplyr::mutate(dplyr::across(where(is.character), replace_na, "No Veg")) %>%
+    dplyr::group_by(dplyr::across(tidyselect::all_of(c("Unit_Code", "Sampling_Frame", "Plot_Number", "Life_Form", "Scientific_Name", "Code", group_by)))) %>%
+    dplyr::summarize(Hits_Sp = dplyr::n(), .groups = "drop") %>%
+    complete(nesting(!!!syms(c("Unit_Code", "Sampling_Frame", "Plot_Number", "Life_Form", "Scientific_Name", "Code", group_by))),
+             fill = list(Hits_Sp = 0)) %>%
+    dplyr::mutate(Plot_Percent = Hits_Sp/300) %>%
+    dplyr::group_by(dplyr::across(tidyselect::all_of(c("Unit_Code", "Sampling_Frame", "Life_Form", "Scientific_Name", "Code", group_by)))) %>%
+    dplyr::summarize(n = dplyr::n(),
+                     plots_present = sum(Hits_Sp > 0),
+                     Avg_Cover = round(mean(Plot_Percent), 3),
+                     Std_Dev = round(sd(Plot_Percent), 3),
+                     .groups = "drop")
+
+  # Reorder columns
+  col_order <- col_order[col_order %in% names(und)]
+  und <- und[, col_order]
+
+  return(und)
+}

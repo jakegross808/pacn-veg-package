@@ -4,7 +4,12 @@
 \alias{v_EIPS_map_interstation}
 \title{Map EIPS data}
 \usage{
-v_EIPS_map_interstation(.data, parameter, change = FALSE, sample_frame)
+v_EIPS_map_interstation(
+  .data,
+  parameter,
+  change = FALSE,
+  agol_sample_frame = "*"
+)
 }
 \value{
 leaflet map with crosstalk selection
