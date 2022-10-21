@@ -15,9 +15,6 @@ pacn_dt(data, record_count = TRUE, search = TRUE, ...)
 
 \item{...}{Additional arguments to pass to \link[DT:datatable]{DT::datatable}}
 }
-\value{
-
-}
 \description{
 Create DT tables with consistent formatting
 }

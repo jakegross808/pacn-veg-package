@@ -25,6 +25,10 @@ EIPS_pts <- FilterPACNVeg(data_name = "EIPS_image_pts",
                                #sample_frame = "Olaa",
                                is_qa_plot = FALSE)
 
+EIPS_pts_extra <- FilterPACNVeg(data_name = "Events_extra_other_EIPS",
+                          #sample_frame = "Olaa",
+                          is_qa_plot = FALSE)
+
 EIPS_pts <- EIPS_pts %>%
   dplyr::group_by(Sampling_Frame, Cycle) %>%
   dplyr::mutate(Year = min(Year)) %>%
@@ -148,10 +152,32 @@ EIPS_station_summary3 <- EIPS_station_summary2 %>%
   rename(End_Lat = Latitude,
          End_Long = Longitude)
 
+EIPS_station_summary4 <- EIPS_station_summary3 %>%
+  dplyr::mutate(Cover_Class_High = dplyr::case_when(Mean_Seg_Cov_High == 0  ~ 0,
+                                                    Mean_Seg_Cov_High > 0 & Mean_Seg_Cov_High < 0.01 ~ 1,
+                                                    Mean_Seg_Cov_High >= 0.01 & Mean_Seg_Cov_High < 0.05 ~ 2,
+                                                    Mean_Seg_Cov_High >= 0.05 & Mean_Seg_Cov_High < 0.10 ~ 3,
+                                                    Mean_Seg_Cov_High >= 0.10 & Mean_Seg_Cov_High < 0.25 ~ 4,
+                                                    Mean_Seg_Cov_High >= 0.25 & Mean_Seg_Cov_High < 0.50 ~ 5,
+                                                    Mean_Seg_Cov_High >= 0.50 & Mean_Seg_Cov_High < 0.75 ~ 6,
+                                                    Mean_Seg_Cov_High >= 0.75 ~ 7))
+library(leaflet)
+map <-  leaflet(EIPS_station_summary4)
+map <- addTiles(map)
+for( group in levels(EIPS_station_summary4$Mean_Seg_Cov_High)){
+  map <- addPolylines(map, lng=~Start_long,lat=~Start_lat,data=EIPS_station_summary4[EIPS_station_summary4$Mean_Seg_Cov_High==group,], color=~"red")
+}
+map
+
+# map:
+
+
+
+
 
 str(EIPS_stations)
 
-
+#check
 
 EIPS_segment_check <- EIPS4 %>%
    group_by(Unit_Code, Community, Sampling_Frame, Cycle, Year, Transect_Type, Transect_Number, Segment) %>%

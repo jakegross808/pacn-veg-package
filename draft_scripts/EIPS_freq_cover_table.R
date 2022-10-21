@@ -107,19 +107,20 @@ EIPS_frequency6 <- EIPS_frequency5 %>%
 write_csv(EIPS_frequency5, file = "C:/Users/JJGross/Downloads/EIPS_summary_table_transects.csv")
 
 write_csv(EIPS_frequency6, file = "C:/Users/JJGross/Downloads/EIPS_summary_table.csv")
+
 #https://github.com/renkun-ken/formattable/issues/95#issuecomment-792387356
 bg <- function(start, end, color, ...) {
-  paste("linear-gradient(90deg, transparent ",percent(start),",",
-        color, percent(start), ",", percent(end),
-        ", transparent", percent(end),")")
+  paste("linear-gradient(90deg, transparent ",formattable::percent(start),",",
+        color, formattable::percent(start), ",", formattable::percent(end),
+        ", transparent", formattable::percent(end),")")
 }
 
 #https://github.com/renkun-ken/formattable/issues/95#issuecomment-792387356
 pm_color_bar2 <- function(color1 = "pink", color2 = "lightgreen", text_color1 = "darkred", text_color2 = "darkgreen", text_color3 = "grey", transform_fn = function(x) {x}, ...){
-  formatter("span",
+  formattable::formatter("span",
             style = function(x) {
               x <- transform_fn(x)
-              style(
+              formattable::style(
               display = "inline-block",
               color = ifelse(x > 0,text_color1,ifelse(x < 0,text_color2,text_color3)),
               "text-align" = ifelse(x > 0, 'left', ifelse(x < 0, 'right', 'center')),
@@ -137,16 +138,16 @@ EIPS_frequency6 %>%
   dplyr::arrange(Chg_Frequency) %>%
   dplyr::mutate(Chg_Frequency = ifelse(Chg_Frequency == "NaN", NA, Chg_Frequency),
                 Chg_Frequency = round(Chg_Frequency, 2),
-                Chg_Frequency = percent(Chg_Frequency, 1)) %>%
+                Chg_Frequency = formattable::percent(Chg_Frequency, 1)) %>%
   dplyr::mutate(Chg_Cover_Max = ifelse(Chg_Cover_Max == "NaN", NA, Chg_Cover_Max),
                 Chg_Cover_Max = round(Chg_Cover_Max, 2),
-                Chg_Cover_Max = percent(Chg_Cover_Max, 1)) %>%
+                Chg_Cover_Max = formattable::percent(Chg_Cover_Max, 1)) %>%
   dplyr::filter(!is.na(Chg_Frequency)) %>%
   formattable::formattable(list(
     Chg_Frequency = pm_color_bar2(na.rm = TRUE),
     Chg_Cover_Max = pm_color_bar2(na.rm = TRUE)
 )) %>%
-  as.datatable(rownames = FALSE,
+  formattable::as.datatable(rownames = FALSE,
                selection = "multiple",
                options = list(dom = "tif",
                               paging = FALSE,

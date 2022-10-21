@@ -134,10 +134,12 @@ update_photos <- process_photos(AGOL_Layer = "FTPC",
 update_photos <- update_photos %>%
   mutate(samp_plot = paste(Samp_Frame,Site_Number, sep = "_"))
 
-plots2update <- c("OL_7",
-                  "OL_11",
-                  "OL_14",
-                  "OL_15",
+distinct(update_photos$Site_numb)
+
+plots2update <- c("OL_2",
+                  "OL_3",
+                  "OL_4",
+                  "OL_35",
                   "OL_47",
                   "OL_51",
                   "OL_53",
@@ -146,10 +148,40 @@ plots2update <- c("OL_7",
                   "ER_54",
                   "ER_55")
 
-plots2update <- "OL_47"
+#plots2update <- "OL_47"
+
+plots2update
 
 update_photos2 <- update_photos %>%
   filter(samp_plot %in% plots2update) %>%
   mutate(DATA = as.list(DATA))
 
-apply(X = upsidedown, MARGIN = 1, FUN = watermark, new_folder = "watermark")
+apply(X = update_photos2, MARGIN = 1, FUN = watermark, new_folder = "watermark_EIPS_20220922")
+
+
+# ------------------------------------------------------------------------------
+# Fix specific photos (transects)
+
+update_photos <- process_photos(AGOL_Layer = "EIPS",
+                                gdb_name = "EIPS_OL_ER_20220502.gdb",
+                                gdb_location = "C:/Users/JJGross/OneDrive - DOI/Documents/Photo Processing/FTPC_EIPS_Photo_Processing",
+                                gdb_layer = "EIPS_OL_ER_20220502",
+                                return_table = TRUE)
+
+update_photos <- update_photos %>%
+  mutate(samp_plot = paste(Samp_Frame,Site_Number, sep = "_"))
+
+plots2update <- c("OL_2",
+                  "OL_3",
+                  "OL_4",
+                  "OL_35")
+
+#plots2update <- "OL_47"
+
+update_photos2 <- update_photos %>%
+  filter(samp_plot %in% plots2update) %>%
+  mutate(DATA = as.list(DATA))
+
+update_photos2$Site_numb
+
+apply(X = update_photos2, MARGIN = 1, FUN = watermark, new_folder = "watermark_EIPS__20220922")
