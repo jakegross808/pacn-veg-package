@@ -770,7 +770,7 @@ understorySunburst <- function(sample_frame, cycle, mgmt_unit = TRUE, colors = "
     group_by <- c("GROUP_COL", group_by)
   }
 
-  und <- understorySpeciesCover(sample_frame = sample_frame, cycle = cycle, group_by = group_by)
+  und <- understorySpeciesCover2(sample_frame = sample_frame, cycle = cycle, group_by = group_by)
 
   if (is.null(names(colors))) {
     pal <- colorRampPalette(colors)
