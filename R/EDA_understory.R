@@ -940,7 +940,7 @@ understorySpeciesCover2 <- function(sample_frame, cycle, group_by = c("GROUP_COL
     dplyr::group_by(Cycle, Sampling_Frame, Plot_Number) %>%
     tidyr::nest() %>%
     dplyr::mutate(GROUP_COL = sample(LETTERS[1:5], size = dplyr::n(), replace = TRUE)) %>%
-    tidyr::unnest() %>%
+    tidyr::unnest(data) %>%
     dplyr::ungroup()
 
   #und <- und %>%
