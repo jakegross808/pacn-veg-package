@@ -476,10 +476,10 @@ v_EIPS_map_interstation <- function(.data, parameter, change = FALSE, agol_sampl
     Labels <- c("0","<1", "1 - 5","5 - 10","10 - 25", "25 - 50", "50 - 75", "75+")
     custom_leg <- data.frame(Palette, Levels, Labels)
 
-    map <- crosstalk::bscols(widths = c(1,NA),device = "lg",
+    map <- crosstalk::bscols(widths = c(3,NA),device = "lg",
            list(
              crosstalk::filter_checkbox("year", "Year", sd_cover, ~Year),
-             crosstalk::filter_select("species", "Species", sd_cover, ~Scientific_Name)
+             crosstalk::filter_select("species", "Species", sd_cover, ~Scientific_Name, multiple = TRUE)
              ),
            leaflet::leaflet(sd_cover, width = "100%", height = 900) %>%
              leaflet::addTiles(group = "Basic", urlTemplate = NPSbasic, attribution = NPSAttrib) %>%
@@ -516,10 +516,10 @@ v_EIPS_map_interstation <- function(.data, parameter, change = FALSE, agol_sampl
     Labels <- c("0", "1", "2-3", "4-5", "6-8", "9-14", "15+")
     custom_leg <- data.frame(Labels, Palette)
 
-    map <- crosstalk::bscols(widths = c(1,NA),device = "lg",
+    map <- crosstalk::bscols(widths = c(3,NA),device = "lg",
                              list(
                                crosstalk::filter_checkbox("year", "Year", sd_cover, ~Year),
-                               crosstalk::filter_select("species", "Species", sd_cover, ~Scientific_Name)
+                               crosstalk::filter_select("species", "Species", sd_cover, ~Scientific_Name, multiple = FALSE)
                                ),
                              leaflet::leaflet(sd_cover, width = "100%", height = 900) %>%
                                leaflet::addTiles(group = "Basic", urlTemplate = NPSbasic, attribution = NPSAttrib) %>%

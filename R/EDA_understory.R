@@ -813,7 +813,7 @@ understoryBarCover <- function(sample_frame, crosstalk_filters = TRUE, colors = 
     stop("`sample_frame` is required")
   }
 
-  und <- understorySpeciesCover(sample_frame = sample_frame) %>%
+  und <- understorySpeciesCover2(sample_frame = sample_frame) %>%
     dplyr::mutate(Cycle = as.factor(Cycle),
                   all = "Select all",
                   hovertext = paste(Scientific_Name, Nativity, paste0(Avg_Cover, "%"), sep = "\n")) %>%
@@ -836,14 +836,14 @@ understoryBarCover <- function(sample_frame, crosstalk_filters = TRUE, colors = 
                    clickmode = "none")
 
   if (crosstalk_filters) {
-    sp_filter <- filter_select("select-sp", "Filter on species", sp_w_cover, ~Scientific_Name, allLevels = FALSE)
-    nat_filter <- filter_select("select-nat", "Filter on nativity", sp_w_cover, ~Nativity, allLevels = FALSE)
-    mgmt_filter <- filter_select("select-sp", "Filter on management unit", sp_w_cover, ~GROUP_COL, allLevels = FALSE)
-    nat_filter <- filter_select("select-nat", "Filter on nativity", sp_w_cover, ~Nativity, allLevels = FALSE)
+    sp_filter <- crosstalk::filter_select("select-sp", "Filter on species", sp_w_cover, ~Scientific_Name, allLevels = FALSE)
+    nat_filter <- crosstalk::filter_select("select-nat", "Filter on nativity", sp_w_cover, ~Nativity, allLevels = FALSE)
+    mgmt_filter <- crosstalk::filter_select("select-sp", "Filter on management unit", sp_w_cover, ~GROUP_COL, allLevels = FALSE)
+    nat_filter <- crosstalk::filter_select("select-nat", "Filter on nativity", sp_w_cover, ~Nativity, allLevels = FALSE)
 
-    show_all <- filter_select("show_all", "", sp_w_cover, ~all, allLevels = FALSE, multiple = FALSE)
+    show_all <- crosstalk::filter_select("show_all", "", sp_w_cover, ~all, allLevels = FALSE, multiple = FALSE)
 
-    plot <- bscols(list(sp_filter, nat_filter, mgmt_filter), cover_bar, show_all, widths = c(3, 9, 0))
+    plot <- crosstalk::bscols(list(sp_filter, nat_filter, mgmt_filter), cover_bar, show_all, widths = c(3, 9, 0))
   } else {
     plot <- cover_bar
   }
@@ -935,7 +935,6 @@ understorySpeciesCover2 <- function(sample_frame, cycle, group_by = c("GROUP_COL
   # TODO: replace this with actual grouping column
   set.seed(11) # Set random number generation seed so that GROUP_COL is the same each time
   #und <- mutate(und, GROUP_COL = sample(LETTERS[c(1, 2, 2, 3, 5, 5, 5)], size = dplyr::n(), replace = TRUE))
-
   und <- und %>%
     dplyr::group_by(Cycle, Sampling_Frame, Plot_Number) %>%
     tidyr::nest() %>%
@@ -960,8 +959,8 @@ understorySpeciesCover2 <- function(sample_frame, cycle, group_by = c("GROUP_COL
     dplyr::group_by(dplyr::across(tidyselect::all_of(c("Unit_Code", "Sampling_Frame", "Nativity", "Life_Form", "Scientific_Name", "Code", group_by)))) %>%
     dplyr::summarize(n = dplyr::n(),
                      plots_present = sum(Hits_Sp > 0),
-                     Avg_Cover = round(mean(Plot_Percent), 3),
-                     Std_Dev = round(sd(Plot_Percent), 3),
+                     Avg_Cover = round(mean(Plot_Percent), 3) *100,
+                     Std_Dev = round(sd(Plot_Percent), 3) *100,
                      .groups = "drop")
 
   # Reorder columns
