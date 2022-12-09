@@ -50,10 +50,11 @@ PlotAndTransectLocations <- function(protocol = c("FTPC", "EIPS"), crosstalk = F
   eips_pts <- eips_pts %>%
     dplyr::group_by(Protocol, Unit_Code, Sampling_Frame, Sample_Unit, Sample_Unit_Type, Sample_Unit_Number, Lat, Long) %>%
     dplyr::arrange(Protocol, Unit_Code, Sampling_Frame, Sample_Unit_Type, Sample_Unit_Number, Year, Cycle) %>%
-    dplyr::summarise(Tsect_Line_Cycle = max(Cycle),
-                     Tsect_Line_Year = max(Year),
-                     Cycle_Text = paste(Cycle, collapse = ", "),
-                     Year_Text = paste(Year, collapse = ", "),) %>%
+    dplyr::mutate(Tsect_Line_Cycle = max(Cycle),
+                     Tsect_Line_Year = max(Year)) %>%
+                     #Cycle_Text = paste(Cycle, collapse = ", "),
+                     #Year_Text = paste(Year, collapse = ", ")#,
+                     #) %>%
     dplyr::ungroup() %>%
     dplyr::left_join(eips_tsects, by = c("Protocol", "Unit_Code", "Sampling_Frame", "Sample_Unit", "Sample_Unit_Type", "Sample_Unit_Number", "Tsect_Line_Cycle" = "Cycle", "Tsect_Line_Year" = "Year")) %>%
     dplyr::select(-Community)
@@ -61,8 +62,8 @@ PlotAndTransectLocations <- function(protocol = c("FTPC", "EIPS"), crosstalk = F
   ftpc_pts <- ftpc_pts %>%
     dplyr::group_by(Protocol, Unit_Code, Sampling_Frame, Sample_Unit, Sample_Unit_Type, Sample_Unit_Number, Lat, Long) %>%
     dplyr::arrange(Protocol, Unit_Code, Sampling_Frame, Sample_Unit_Type, Sample_Unit_Number, Year, Cycle) %>%
-    dplyr::summarise(Cycle = paste(Cycle, collapse = ", "),
-                     Year = paste(Year, collapse = ", ")) %>%
+    #dplyr::summarise(Cycle = paste(Cycle, collapse = ", "),
+    #                 Year = paste(Year, collapse = ", ")) %>%
     dplyr::mutate(Tsect_Line_Cycle = NA, Tsect_Line_Year = NA, Transect_Line = NA) %>%
     dplyr::ungroup()
 
@@ -407,19 +408,29 @@ MapCoverTotal2 <- function(crosstalk = FALSE, crosstalk_group = "cover", combine
     lapply(.,function(x) max(as.numeric(x), na.rm = T) ) %>%
     unlist()
 
-  pts <- PlotAndTransectLocations(protocol = "FTPC", crosstalk = FALSE, crosstalk_group = crosstalk_group, park = park, sample_frame = sample_frame, cycle = cycle, plot_type, is_qa_plot = is_qa_plot, certified = certified, verified = verified) %>%
-    #dplyr::mutate(Cycle_Text = Cycle,
-    #              Year_Text = Year)
-    if (cycle) {
-      pts <- pts %>%
-
-        dplyr::mutate(Cycle = getmax(Cycle),
-                      Year = getmax(Year),
-                      Sample_Unit_Number = as.integer(Sample_Unit_Number))
-
-    } else {
-      pts <- pts
-    }
+  pts <- PlotAndTransectLocations(protocol = "FTPC",
+                                  crosstalk = FALSE,
+                                  crosstalk_group = crosstalk_group,
+                                  park = park,
+                                  sample_frame = sample_frame,
+                                  cycle = cycle,
+                                  plot_type,
+                                  is_qa_plot = is_qa_plot,
+                                  certified = certified,
+                                  verified = verified) %>%
+    dplyr::mutate(Cycle = as.character(Cycle),
+                  Year = as.character(Year))
+  #   #              Year_Text = Year)
+  #   if (cycle) {
+  #     pts <- pts %>%
+  #
+  #       dplyr::mutate(Cycle = getmax(Cycle),
+  #                     Year = getmax(Year),
+  #                     Sample_Unit_Number = as.integer(Sample_Unit_Number))
+  #
+  #   } else {
+  #     pts <- pts
+  #   }
 
 
   pts <- pts %>%
@@ -428,7 +439,7 @@ MapCoverTotal2 <- function(crosstalk = FALSE, crosstalk_group = "cover", combine
                   Sample_Unit_Number = as.integer(Sample_Unit_Number)) %>%
     dplyr::rename(Plot_Type = Sample_Unit_Type,
                   Plot_Number = Sample_Unit_Number) %>%
-    dplyr::select(Unit_Code, Sampling_Frame, Plot_Type, Plot_Number, Year, Cycle, Year_Text, Cycle_Text, Lat, Long)
+    dplyr::select(Unit_Code, Sampling_Frame, Plot_Type, Plot_Number, Year, Cycle, Lat, Long) #Year_Text, Cycle_Text,
   cover_data <- UnderNativityCover(combine_strata = combine_strata, paired_change = FALSE, crosstalk = FALSE, park = park, sample_frame = sample_frame, community = community, year = year, cycle = cycle,
                                    plot_type = plot_type, silent = silent)
 
@@ -513,8 +524,8 @@ MapCoverTotal2 <- function(crosstalk = FALSE, crosstalk_group = "cover", combine
                         popup = ~paste0("<br><strong>Non-native cover:</strong> ", cover_data$NonNative_Cover_Total_pct,
                                         "<br><strong>Native cover:</strong> ", cover_data$Native_Cover_Total_pct,
                                         "<br><strong>Sampling Frame:</strong> ", cover_data$Sampling_Frame,
-                                        "<br><strong>Cycle:</strong> ", cover_data$Cycle_Text,
-                                        "<br><strong>Year:</strong> ", cover_data$Year_Text))
+                                        "<br><strong>Cycle:</strong> ", cover_data$Cycle,
+                                        "<br><strong>Year:</strong> ", cover_data$Year))
 
   map %<>% leaflet::addScaleBar(position = "bottomleft")
 
