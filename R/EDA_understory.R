@@ -153,7 +153,7 @@ UnderNativityCover <- function(combine_strata = FALSE, paired_change = FALSE, rm
 #' Native_v_Nonnative_Plot <- UnderNativityCover.plot.nat_v_non(sample_frame = "Haleakala", sample_cycle = 2, paired_change = TRUE)
 #' }
 
-UnderNativityCover.plot.nat_v_non <- function(combine_strata = FALSE, paired_change = FALSE, crosstalk = FALSE, crosstalk_group = "cover", interactive = FALSE, cycle_filter = TRUE, park, sample_frame, community, year, cycle, plot_type, paired_cycle, silent = FALSE, data_table) {
+UnderNativityCover.plot.nat_v_non <- function(combine_strata = FALSE, paired_change = FALSE, crosstalk = FALSE, crosstalk_group = "cover", interactive = FALSE, year_filter = TRUE, park, sample_frame, community, year, cycle, plot_type, paired_cycle, silent = FALSE, data_table) {
   if (crosstalk && !interactive) {
     stop("Crosstalk only works with interactive plots. Change `crosstalk` to FALSE or change `interactive` to TRUE.")
   }
@@ -163,7 +163,9 @@ UnderNativityCover.plot.nat_v_non <- function(combine_strata = FALSE, paired_cha
   } else {
     data <- UnderNativityCover(combine_strata = combine_strata, paired_change = paired_change, crosstalk = FALSE,
                                park = park, sample_frame = sample_frame, community = community, year = year, cycle = cycle,
-                               plot_type = plot_type, paired_cycle = paired_cycle, silent = silent)
+                               plot_type = plot_type, paired_cycle = paired_cycle, silent = silent) %>%
+        dplyr::group_by(Sampling_Frame, Cycle) %>%
+        dplyr::mutate(Year = min(Year))
   }
 
   # If data not paired-change, then add columns to help plot total cover
@@ -194,7 +196,7 @@ UnderNativityCover.plot.nat_v_non <- function(combine_strata = FALSE, paired_cha
   # Total cover plots
   if (!paired_change) {
     if (interactive) {
-      plot.nat_v_non <- totalCover_plotly(data, toplot.max, cycle_filter = cycle_filter)  # Plot total cover in plotly
+      plot.nat_v_non <- totalCover_plotly(data, toplot.max, year_filter = year_filter)  # Plot total cover in plotly
     } else {
       plot.nat_v_non <- totalCover_ggplot(data, toplot.max)  # Plot total cover in ggplot
     }
@@ -246,7 +248,7 @@ totalCover_ggplot <- function(data, max_lim) {
 #' @param max_lim maximum value in data
 #'
 #' @return html widget
-totalCover_plotly <- function(data, max_lim, cycle_filter = TRUE) {
+totalCover_plotly <- function(data, max_lim, year_filter = TRUE) {
 
   nat_ratio_cols <- data$data() %>%
     dplyr::pull(nat_ratio)
@@ -292,12 +294,12 @@ totalCover_plotly <- function(data, max_lim, cycle_filter = TRUE) {
                    yaxis = list(title = "Non-native cover")) %>% #, range = lims
     plotly::colorbar(title = "% Native", limits = c(0,100))
 
-  # If 'cycle_filter == TRUE' then add filter checkbox:
-  if (cycle_filter) {
-    box_filter <- crosstalk::filter_checkbox("Cycle", "Monitoring Cycle", data, ~Cycle)
+  # If 'year_filter == TRUE' then add filter checkbox:
+  if (year_filter) {
+    box_filter <- crosstalk::filter_checkbox("year", "Year", data, ~Year, inline = TRUE)
 
     plt <- crosstalk::bscols(
-      widths = c(11, 1),
+      widths = c(12, 12),
       plt, box_filter)
   }
 
@@ -702,6 +704,78 @@ v_cover_plot_bar_nativity <- function(combine_strata = FALSE,
 
 }
 
+
+#' Bar plot of species % cover for each sampling plot
+#'
+#' Can be placed side-by-side to compare two plots
+#'
+#' @inheritParams LoadPACNVeg
+#' @param sample_frame (required)
+#' @param crosstalk_filters Include dropdowns to filter on species, nativity, and mgmt unit?
+#' @param crosstalk_group Help distinguish crosstalk iterations
+#' @return An HTML object (if `crosstalk_filters == TRUE`) or a plotly object.
+#' @export
+#'
+v_cover_bar_spp_plot <- function(sample_frame, crosstalk_filters = TRUE, crosstalk_group) {
+
+  if (missing(sample_frame)) {
+    stop("`sample_frame` is required")
+  }
+
+  sum_und1 <- summarize_understory(combine_strata = TRUE,
+                                   plant_grouping = "Species",
+                                   paired_change = FALSE,
+                                   sample_frame = sample_frame)
+
+  sum_und2 <-sum_und1 %>%
+    dplyr::mutate(Cycle = as.factor(Cycle),
+                  all = "Select all",
+                  hovertext = paste(Scientific_Name, Nativity, paste0(round(Cover, digits = 1), "%"), sep = "\n")) %>%
+    # Filter zero cover
+    dplyr::filter(Cover > 0) %>%
+    # Filter No Veg Cover
+    dplyr::filter(!is.na(Scientific_Name))
+
+  message_nas <- sum_und2 %>%
+    dplyr::filter_all(any_vars(is.na(.)))
+
+  if (nrow(message_nas) > 0) {
+    warning(paste(nrow(message_nas), "rows with 'NA' in dataset", sep = " "))
+    message(paste0(capture.output(message_nas), collapse = "\n"))
+  }
+
+  sp_w_cover <- sum_und2 %>%
+    crosstalk::SharedData$new(group = crosstalk_group)
+
+  cover_bar <- sp_w_cover %>%
+    plotly::plot_ly(type = "bar", x = ~Life_Form, y = ~Cover, color = ~Nativity, strokes = "white", stroke = ~Scientific_Name,
+                    text = ~hovertext,
+                    hoverinfo = 'text',
+                    textposition = "none") %>%
+    plotly::layout(xaxis = list(title = "Life Form"),
+                   yaxis = list(title = "% cover"),
+                   legend = list(itemclick = FALSE,
+                                 itemdoubleclick = FALSE),
+                   clickmode = "none")
+
+  cover_bar
+
+  if (crosstalk_filters) {
+    filters <- crosstalk::bscols(
+      crosstalk::filter_select(id = "select-year", label = "Filter on year", sharedData = sp_w_cover, group = ~Year, allLevels = FALSE, multiple = FALSE),
+      crosstalk::filter_select("select-plot", "Filter on plot #", sp_w_cover, ~Plot_Number, allLevels = FALSE, multiple = FALSE),
+      widths = c(4,4))
+
+    plot <- suppressWarnings(crosstalk::bscols(filters,
+                                               cover_bar,
+                                               widths = c(12, 12)))
+  } else {
+    plot <- cover_bar
+  }
+
+  return(plot)
+
+}
 
 #' Sunburst plot of understory percent cover
 #'

@@ -180,7 +180,7 @@ v_EIPS_prep <- function(park, sample_frame, community, year, cycle, transect_typ
 
   if(nrow(dups) > 0) {
     warning(paste(nrow(dups), "duplicate species present within data, see list above", sep = " "))
-    print(dups)
+    message(paste0(capture.output(dups), collapse = "\n"))
   }
 
   return(EIPS4)
@@ -277,8 +277,8 @@ v_EIPS_map_interstation <- function(.data, parameter, change = FALSE, agol_sampl
     dplyr::distinct()
 
   if(nrow(missing_lat_long) > 0) {
-    warning(paste(nrow(missing_lat_long), "stations missing lat/long coordinates", sep = " "))
-    print(missing_lat_long)
+    message(paste(nrow(missing_lat_long), "stations missing lat/long coordinates", sep = " "))
+    message(paste0(capture.output(missing_lat_long), collapse = "\n"))
   }
 
   station_summary2 <- station_summary2 %>%
@@ -445,7 +445,9 @@ v_EIPS_map_interstation <- function(.data, parameter, change = FALSE, agol_sampl
                   Mean_MaxCover = 0,
                   col_Mean_MaxCover = "#FFFFFF")
 
-  EIPS_inter_station <- dplyr::bind_rows(all_sites, EIPS_inter_station)
+  #EIPS_inter_station <- dplyr::bind_rows(all_sites, EIPS_inter_station) %>%
+  #  dplyr::mutate(Monitoring_Sites = dplyr::case_when(Code == "All Sites" ~ TRUE,
+  #                                                    TRUE ~ FALSE))
 
   # Make NPS map Attribution
   NPSAttrib <-
@@ -466,10 +468,10 @@ v_EIPS_map_interstation <- function(.data, parameter, change = FALSE, agol_sampl
 
   # Set up cross-talk shared object
   sd_cover <- crosstalk::SharedData$new(EIPS_inter_station)
+  sd_all_sites <- crosstalk::SharedData$new(all_sites)
 
-  # Total or Species Cover
-  if (parameter == "Mean_Species_Cover" & change == FALSE |
-      parameter == "Mean_Total_Cover" & change == FALSE) {
+  # Species Cover (no change)----
+  if (parameter == "Mean_Species_Cover" & change == FALSE) {
 
     Palette <- c("#FFFFFF", "#F6F4C6", "#EEE98D", "#EAC07D", "#E7976E", "#E36E5F", "#E04550", "#DD1C41")
     Levels <- as.factor(c(0,1,2,3,4,5,6,7))
@@ -478,10 +480,11 @@ v_EIPS_map_interstation <- function(.data, parameter, change = FALSE, agol_sampl
 
     map <- crosstalk::bscols(widths = c(3,NA),device = "lg",
            list(
-             crosstalk::filter_checkbox("year", "Year", sd_cover, ~Year),
-             crosstalk::filter_select("species", "Species", sd_cover, ~Scientific_Name, multiple = TRUE)
+             crosstalk::filter_checkbox("cover data", "Cover Data", sd_cover, ~Year),
+             crosstalk::filter_checkbox("monitoring sites", "Monitoring Sites", sd_all_sites, ~Year),
+             crosstalk::filter_select("species", "Species", sd_cover, ~Scientific_Name, multiple = FALSE)
              ),
-           leaflet::leaflet(sd_cover, width = "100%", height = 900) %>%
+           leaflet::leaflet(width = "100%", height = 900) %>%
              leaflet::addTiles(group = "Basic", urlTemplate = NPSbasic, attribution = NPSAttrib) %>%
              leaflet::addTiles(group = "Imagery", urlTemplate = NPSimagery, attribution = NPSAttrib) %>%
              leaflet::addTiles(group = "Slate", urlTemplate = NPSslate, attribution = NPSAttrib) %>%
@@ -492,9 +495,19 @@ v_EIPS_map_interstation <- function(.data, parameter, change = FALSE, agol_sampl
                                                useServiceSymbology = TRUE,
                                                labelProperty = "Sampling_Frame") %>%
              leaflet::addLayersControl(baseGroups = c("Basic", "Imagery", "Slate", "Light"),
-                                       overlayGroups = c("Sampling Frame", "Invasive Plant Transects (l)"),
+                                       overlayGroups = c("Sampling Frame", "Absence", "Non-native Cover"),
                                        options=leaflet::layersControlOptions(collapsed = TRUE)) %>%
-             leaflet::addCircleMarkers(group = "Invasive Plant Transects (l)",
+             leaflet::addCircleMarkers(data = sd_all_sites,
+                                       group = "Absence",
+                                       color = "#FFFFFF",
+                                       stroke = FALSE,
+                                       radius = 6,
+                                       fillOpacity = 1,
+                                       popup = ~paste(sep = "<br/>",
+                                                      paste("Transect", Transect_Number)
+                                                      )) %>%
+             leaflet::addCircleMarkers(data = sd_cover,
+                                       group = "Non-native Cover",
                                        color = ~col_Mean_MaxCover,
                               stroke = FALSE,
                               radius = 6,
@@ -509,6 +522,47 @@ v_EIPS_map_interstation <- function(.data, parameter, change = FALSE, agol_sampl
 
   }
 
+  # Total Cover (no change) ----
+  if (parameter == "Mean_Total_Cover" & change == FALSE) {
+
+    Palette <- c("#FFFFFF", "#F6F4C6", "#EEE98D", "#EAC07D", "#E7976E", "#E36E5F", "#E04550", "#DD1C41")
+    Levels <- as.factor(c(0,1,2,3,4,5,6,7))
+    Labels <- c("0","<1", "1 - 5","5 - 10","10 - 25", "25 - 50", "50 - 75", "75+")
+    custom_leg <- data.frame(Palette, Levels, Labels)
+
+    map <- crosstalk::bscols(widths = c(3,NA),device = "lg",
+                             list(
+                               crosstalk::filter_checkbox("year", "Year", sd_cover, ~Year)#,
+                               #crosstalk::filter_select("species", "Species", sd_cover, ~Scientific_Name, multiple = TRUE)
+                             ),
+                             leaflet::leaflet(sd_cover, width = "100%", height = 900) %>%
+                               leaflet::addTiles(group = "Basic", urlTemplate = NPSbasic, attribution = NPSAttrib) %>%
+                               leaflet::addTiles(group = "Imagery", urlTemplate = NPSimagery, attribution = NPSAttrib) %>%
+                               leaflet::addTiles(group = "Slate", urlTemplate = NPSslate, attribution = NPSAttrib) %>%
+                               leaflet::addTiles(group = "Light", urlTemplate = NPSlight, attribution = NPSAttrib) %>%
+                               leaflet.esri::addEsriFeatureLayer(group = "Sampling Frame",
+                                                                 options = leaflet.esri::featureLayerOptions(where = paste0("Sampling_Frame = '", agol_sample_frame, "'")),
+                                                                 url = "https://services1.arcgis.com/fBc8EJBxQRMcHlei/arcgis/rest/services/PACN_DBO_VEG_sampling_frames_ply/FeatureServer/0",
+                                                                 useServiceSymbology = TRUE,
+                                                                 labelProperty = "Sampling_Frame") %>%
+                               leaflet::addLayersControl(baseGroups = c("Basic", "Imagery", "Slate", "Light"),
+                                                         overlayGroups = c("Sampling Frame", "Invasive Plant Transects (l)"),
+                                                         options=leaflet::layersControlOptions(collapsed = TRUE)) %>%
+                               leaflet::addCircleMarkers(group = "Invasive Plant Transects (l)",
+                                                         color = ~col_Mean_MaxCover,
+                                                         stroke = FALSE,
+                                                         radius = 6,
+                                                         fillOpacity = 1,
+                                                         popup = ~paste(sep = "<br/>",
+                                                                        paste("Transect", Transect_Number),
+                                                                        #Scientific_Name,
+                                                                        Txt_Range)) %>%
+                               leaflet::addLegend(colors = custom_leg$Palette, labels = custom_leg$Labels,
+                                                  title = "Cover (%)",
+                                                  opacity = 1))
+
+  }
+  #  Richness (no change) ----
   if (parameter == "Max_Richness" & change == FALSE) {
     # Richness
 
@@ -518,8 +572,8 @@ v_EIPS_map_interstation <- function(.data, parameter, change = FALSE, agol_sampl
 
     map <- crosstalk::bscols(widths = c(3,NA),device = "lg",
                              list(
-                               crosstalk::filter_checkbox("year", "Year", sd_cover, ~Year),
-                               crosstalk::filter_select("species", "Species", sd_cover, ~Scientific_Name, multiple = FALSE)
+                               crosstalk::filter_select("year", "Year", sd_cover, ~Year, multiple = FALSE)#,
+                               #crosstalk::filter_select("species", "Species", sd_cover, ~Scientific_Name, multiple = FALSE)
                                ),
                              leaflet::leaflet(sd_cover, width = "100%", height = 900) %>%
                                leaflet::addTiles(group = "Basic", urlTemplate = NPSbasic, attribution = NPSAttrib) %>%
@@ -541,17 +595,19 @@ v_EIPS_map_interstation <- function(.data, parameter, change = FALSE, agol_sampl
                                                          popup = ~paste(sep = "<br/>",
                                                                         paste("Transect", Transect_Number),
                                                                         #Scientific_Name,
-                                                                        Txt_Range)) %>%
+                                                                        paste("Max non-native species: ", Max_Seg_Richness),
+                                                                        paste0("Across ",Segs_Per_Station, " Segments"),
+                                                                        paste0("Each segment = 5x", Seg_Length_m, " meters")
+                                                                        )) %>%
                                leaflet::addLegend(colors = custom_leg$Palette, labels = custom_leg$Labels,
                                                   title = "Non-Native Species",
                                                   opacity = 1))
 
   }
 
+  # Change in Cover ----
   if (parameter == "Mean_Species_Cover" & change == TRUE |
       parameter == "Mean_Total_Cover" & change == TRUE) {
-
-    # Change in Cover
 
     Palette <- c("#005A32", "#238B45", "#41AB5D", "#74C476", "#A1D99B", "#C7E9C0", "#EDF8E9",
                  "#FFFFFF", "#FFFFB2", "#FED976", "#FEB24C", "#FD8D3C", "#FC4E2A", "#E31A1C", "#B10026")

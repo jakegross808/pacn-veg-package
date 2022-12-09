@@ -52,8 +52,8 @@ PlotAndTransectLocations <- function(protocol = c("FTPC", "EIPS"), crosstalk = F
     dplyr::arrange(Protocol, Unit_Code, Sampling_Frame, Sample_Unit_Type, Sample_Unit_Number, Year, Cycle) %>%
     dplyr::summarise(Tsect_Line_Cycle = max(Cycle),
                      Tsect_Line_Year = max(Year),
-                     Cycle = paste(Cycle, collapse = ", "),
-                     Year = paste(Year, collapse = ", "),) %>%
+                     Cycle_Text = paste(Cycle, collapse = ", "),
+                     Year_Text = paste(Year, collapse = ", "),) %>%
     dplyr::ungroup() %>%
     dplyr::left_join(eips_tsects, by = c("Protocol", "Unit_Code", "Sampling_Frame", "Sample_Unit", "Sample_Unit_Type", "Sample_Unit_Number", "Tsect_Line_Cycle" = "Cycle", "Tsect_Line_Year" = "Year")) %>%
     dplyr::select(-Community)
@@ -310,7 +310,7 @@ MapCoverTotal <- function(crosstalk = FALSE, crosstalk_group = "cover", combine_
   # pal <- grDevices::colorRampPalette(c("red", "orange", "yellow", "green"))(length(cover_data$nat_ratio))
   ramp <- grDevices::colorRamp(c("#d11141", "#f37735", "#C8E52A", "#00b159")) #better colors for red, orange, yellow, green
   #ramp <- grDevices::colorRamp(c("red", "orange", "yellow", "green"))
-  pal <- colorNumeric(ramp, domain = c(0,100))
+  pal <- leaflet::colorNumeric(ramp, domain = c(0,100))
 
   # dplyr::mutate(color = dplyr::case_when(NonNative_Cover_Total_pct <= 0 & Native_Cover_Total_pct <= 0 ~ "#cccccc",#gray
   #                                        NonNative_Cover_Total_pct > 0 & Native_Cover_Total_pct <= 0 ~ "#d11141",#red
@@ -408,10 +408,23 @@ MapCoverTotal2 <- function(crosstalk = FALSE, crosstalk_group = "cover", combine
     unlist()
 
   pts <- PlotAndTransectLocations(protocol = "FTPC", crosstalk = FALSE, crosstalk_group = crosstalk_group, park = park, sample_frame = sample_frame, cycle = cycle, plot_type, is_qa_plot = is_qa_plot, certified = certified, verified = verified) %>%
-    dplyr::mutate(Cycle_Text = Cycle,
-                  Year_Text = Year) %>%
-    dplyr::mutate(Cycle = getmax(Cycle),
-                  Year = getmax(Year),
+    #dplyr::mutate(Cycle_Text = Cycle,
+    #              Year_Text = Year)
+    if (cycle) {
+      pts <- pts %>%
+
+        dplyr::mutate(Cycle = getmax(Cycle),
+                      Year = getmax(Year),
+                      Sample_Unit_Number = as.integer(Sample_Unit_Number))
+
+    } else {
+      pts <- pts
+    }
+
+
+  pts <- pts %>%
+    dplyr::mutate(Cycle = Cycle, #getmax(Cycle) #removed getmax to try to have each plot filter
+                  Year = Year, #getmax(Year)
                   Sample_Unit_Number = as.integer(Sample_Unit_Number)) %>%
     dplyr::rename(Plot_Type = Sample_Unit_Type,
                   Plot_Number = Sample_Unit_Number) %>%
@@ -420,9 +433,14 @@ MapCoverTotal2 <- function(crosstalk = FALSE, crosstalk_group = "cover", combine
                                    plot_type = plot_type, silent = silent)
 
   #remove older fixed plot data? May want to remove this if user is filtering by Year
+  #cover_data <- cover_data %>%
+  #  dplyr::group_by(Sampling_Frame, Plot_Number) %>%
+  #  dplyr::slice_max(Cycle)
+
+  #Make 'Year' character for join:
   cover_data <- cover_data %>%
-    dplyr::group_by(Sampling_Frame, Plot_Number) %>%
-    dplyr::slice_max(Cycle)
+    dplyr::mutate(Cycle = as.character(Cycle),
+                  Year = as.character(Year))
 
   # Combine cover and location data
   cover_data <- dplyr::left_join(cover_data, pts, by = c("Unit_Code", "Sampling_Frame", "Plot_Type", "Plot_Number", "Year", "Cycle")) %>%
@@ -433,7 +451,7 @@ MapCoverTotal2 <- function(crosstalk = FALSE, crosstalk_group = "cover", combine
   # pal <- grDevices::colorRampPalette(c("red", "orange", "yellow", "green"))(length(cover_data$nat_ratio))
   ramp <- grDevices::colorRamp(c("#d11141", "#f37735", "#C8E52A", "#00b159")) #better colors for red, orange, yellow, green
   #ramp <- grDevices::colorRamp(c("red", "orange", "yellow", "green"))
-  pal <- colorNumeric(ramp, domain = c(0,100))
+  pal <- leaflet::colorNumeric(ramp, domain = c(0,100))
 
   # dplyr::mutate(color = dplyr::case_when(NonNative_Cover_Total_pct <= 0 & Native_Cover_Total_pct <= 0 ~ "#cccccc",#gray
   #                                        NonNative_Cover_Total_pct > 0 & Native_Cover_Total_pct <= 0 ~ "#d11141",#red

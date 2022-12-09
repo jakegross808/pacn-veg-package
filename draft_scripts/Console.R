@@ -1,21 +1,698 @@
+#WritePACNVeg(dest.folder = "C:/Users/JJGross/OneDrive - DOI/Documents/Certification_Local/Databases/FTPC/writepacnveg")
+
+vegmap_db_paths <- c("C:/Users/JJGross/OneDrive - DOI/Documents/Veg_Map_Data/havodata.accdb",
+                     "C:/Users/JJGross/OneDrive - DOI/Documents/Veg_Map_Data/haledata.accdb",
+                     "C:/Users/JJGross/OneDrive - DOI/Documents/Veg_Map_Data/kahodata.mdb",
+                     "C:/Users/JJGross/OneDrive - DOI/Documents/Veg_Map_Data/kaladata.mdb",
+                     "C:/Users/JJGross/OneDrive - DOI/Documents/Veg_Map_Data/puhedata.mdb",
+                     "C:/Users/JJGross/OneDrive - DOI/Documents/Veg_Map_Data/puhodata.mdb")
+
+#------------------------------------------------------------------------------.
 
 library(pacnvegetation)
+
 library(tidyverse)
-#library(tidytext)
 
-BA <- function(dbh) {
-  pi*(dbh/200)^2
+# if need to install packages while on network
+#options(download.file.method = "wininet")
+
+# Load Data ----
+
+LoadPACNVeg(ftpc_params = "pacnveg",
+            eips_paths = c("C:/Users/JJGross/OneDrive - DOI/Documents/Certification_Local/Databases/EIPS/established_invasives_BE_master_20220503.mdb",
+                           "C:/Users/JJGross/OneDrive - DOI/Documents/Certification_Local/Databases/EIPS/2021_established_invasives_20221010.mdb",
+                           "C:/Users/JJGross/OneDrive - DOI/Documents/Certification_Local/Databases/EIPS/2022_established_invasives_20221012.mdb"),
+            cache = TRUE,
+            expire_interval_days = 30,
+            force_refresh = FALSE)
+
+# Get dataset names:
+names(FilterPACNVeg())
+
+# ----Merge NPSpecies Lists ----
+library(readxl)
+
+KAHO_veg <- readxl::read_xlsx("C:/Users/JJGross/Downloads/NPSpecies_FullListWithDetails_KAHO_20221118154653.xlsx")
+PUHE_veg <- readxl::read_xlsx("C:/Users/JJGross/Downloads/NPSpecies_FullListWithDetails_PUHE_20221118154822.xlsx")
+PUHO_veg <- readxl::read_xlsx("C:/Users/JJGross/Downloads/NPSpecies_FullListWithDetails_PUHO_20221118154945.xlsx")
+
+KONA_veg <- bind_rows(KAHO_veg, PUHE_veg, PUHO_veg)
+
+names(KONA_veg)
+
+KONA_veg2 <- KONA_veg %>%
+  dplyr::select(Unit = "Park Code", Family, Scientific_Name = "Scientific Name", Common_Names = "Common Names", Occurrence, Nativeness, Abundance) %>%
+  dplyr::group_by(Scientific_Name) %>%
+  dplyr::mutate(Units = paste(Unit, collapse = ", "),
+                Occurrence = paste(Occurrence, collapse = ", "),
+                Abundance = paste(Abundance, collapse = ", ")) %>%
+  tidyr::separate(Common_Names, c("Common_Name", NA), sep = ",", remove = FALSE) %>%
+  dplyr::select(Family, Scientific_Name, Nativeness, Common_Name, Units, Occurrence, Abundance) %>%
+  dplyr::distinct(Scientific_Name, .keep_all = TRUE) %>%
+  dplyr::arrange(Family, Scientific_Name)
+
+unique(KONA_veg$Abundance)
+
+# use write_excel_csv to preserve hawaiian diacriticals
+readr::write_excel_csv(KONA_veg2, "C:/Users/JJGross/Downloads/NPSpecies_Kona_Parks_20221118.csv")
+
+# ----Test USFS FIA packages ----
+install.packages("rFIA")
+library(rFIA)
+HI_FIA <- getFIA(states = "HI")
+
+#devtools::install_github("atkinsjeff/ForestAnalysisInR")
+library(ForestAnalysisInR)
+## basic example code
+launchRFA()
+
+library("ForestAnalysisInR")
+
+detections <- FilterPACNVeg("LgTrees") %>%
+  filter(Year == 2022) #%>%
+  #select(Scientific_Name, Code, Life_Form, Nativity) %>%
+  distinct()
+
+# get species DB table for Audreyʻs etymology project ----
+detections <- FilterPACNVeg("Presence") %>%
+  filter(Year == 2022) %>%
+  select(Scientific_Name, Code, Life_Form, Nativity) %>%
+  distinct()
+
+a <- FilterPACNVeg("Species_extra")
+
+b <- detections %>%
+  left_join(a, by = c("Scientific_Name", "Code")) %>%
+  filter(Park == "HAVO") %>%
+  select(-Life_Form.x, -Nativity.x)
+
+readr::write_excel_csv(b, "C:/Users/JJGross/Downloads/2022_Presence.csv")
+
+write_csv(b, "C:/Users/JJGross/Downloads/2022_Presence.csv")
+
+detections_code <- detections %>%
+  select(Code)
+
+b_code <- b %>%
+  select(Code)
+
+not_in <- b %>%
+  filter(!Code %in% detections$Code)
+
+not_in <- detections %>%
+  filter(!Code %in% b$Code)
+
+# get two independent crosstalk graphs ----
+a <- v_cover_bar_spp_plot(sample_frame = "Kahuku", crosstalk_filters = TRUE, crosstalk_group = "test1")
+b <- v_cover_bar_spp_plot(sample_frame = "Kahuku", crosstalk_filters = TRUE, crosstalk_group = "test2")
+crosstalk::bscols(a,b,widths = 6,6)
+# add 'year' filter to ratio graph/map ----
+
+
+
+grp1 <- "cov_total"
+
+#cover_data <- dplyr::mutate(cover_data, key = paste0(Unit_Code, Sampling_Frame, Plot_Type, Plot_Number, Year, Cycle))
+#cover <- crosstalk::SharedData$new(cover_data, group = crosstalk_group, key = ~key)
+#filter <- crosstalk::filter_checkbox("year", "Year", grp1, ~Year)
+
+cover_data_look <- UnderNativityCover(paired_change = FALSE, crosstalk = FALSE, sample_frame = "Kahuku")
+str(cover_data_look)
+
+pts_look <- PlotAndTransectLocations(protocol = "FTPC", crosstalk = FALSE, sample_frame = "Kahuku")
+str(pts_look)
+
+plt1 <- UnderNativityCover.plot.nat_v_non(
+  sample_frame = "Kahuku",
+  #cycle = 3,
+  cycle_filter = TRUE,
+  paired_change = FALSE,
+  combine_strata = TRUE,
+  crosstalk = TRUE,
+  crosstalk_group = grp1,
+  interactive = TRUE)
+
+map1 <- MapCoverTotal2(crosstalk = TRUE,
+                       crosstalk_group = grp1,
+                       sample_frame = "Kahuku",
+                       cycle = 3)
+
+crosstalk::bscols(plt1, map1)
+
+
+# troubleshoot EIPS maps ----
+test_data <- v_EIPS_prep(sample_frame = "Kahuku")
+
+### Non-Native Species
+v_EIPS_map_interstation(.data = test_data,
+                        parameter = "Mean_Species_Cover",
+                        change = FALSE)
+
+v_EIPS_map_interstation(.data = test_data,
+                        parameter = "Mean_Total_Cover",
+                        change = FALSE,
+                        agol_sample_frame = "Haleakalā Subalpine")
+
+v_EIPS_map_interstation(.data = test_data,
+                        parameter = "Max_Richness",
+                        change = FALSE)
+
+
+
+MapCoverTotal2(crosstalk = TRUE, crosstalk_group = "cover", combine_strata = TRUE, rmv_old_fixed = FALSE, sample_frame = "Mauna Loa")
+
+
+sample_frame <- "Kahuku"
+
+getmax <- function(col) str_extract_all(col,"[0-9\\.-]+") %>%
+  lapply(.,function(x) max(as.numeric(x), na.rm = T) ) %>%
+  unlist()
+
+getmax(test_pts$Year_Text)
+
+test_pts <- PlotAndTransectLocations(protocol = "FTPC", crosstalk = FALSE, crosstalk_group = crosstalk_group, sample_frame = sample_frame) %>%
+  dplyr::mutate(Cycle_Text = Cycle,
+                Year_Text = Year) %>%
+  dplyr::mutate(Cycle = getmax(Cycle),
+                Year = getmax(Year),
+                Sample_Unit_Number = as.integer(Sample_Unit_Number)) %>%
+  dplyr::rename(Plot_Type = Sample_Unit_Type,
+                Plot_Number = Sample_Unit_Number) %>%
+  dplyr::select(Unit_Code, Sampling_Frame, Plot_Type, Plot_Number, Year, Cycle, Lat, Long)
+cover_data <- UnderNativityCover(combine_strata = combine_strata, paired_change = FALSE, crosstalk = FALSE, park = park, sample_frame = sample_frame, community = community, year = year, cycle = cycle,
+                                 plot_type = plot_type, silent = silent)
+
+# Combine cover and location data
+cover_data <- dplyr::left_join(cover_data, pts, by = c("Unit_Code", "Sampling_Frame", "Plot_Type", "Plot_Number", "Year", "Cycle")) %>%
+  dplyr::mutate(nat_ratio = Native_Cover_Total_pct / (NonNative_Cover_Total_pct + Native_Cover_Total_pct) * 100) %>%
+  dplyr::arrange(nat_ratio)
+
+
+
+
+
+
+# ---- filtering out old fixed if new fixed present
+chk_ftpc_pts <- read_csv("C:/Users/JJGross/Downloads/ftpc_pts.csv")
+
+rmv_old_fixed <- chk_ftpc_pts %>%
+  dplyr::group_by(Protocol, Sampling_Frame, Sample_Unit_Number) %>%
+  dplyr::slice_max(Cycle)
+
+
+
+
+
+# ---- Prep Veg Crew Demo
+names(FilterPACNVeg())
+
+# Grab understory data
+understory <- FilterPACNVeg("Understory")
+
+# look at data
+understory
+
+# simple filter
+understory %>%
+  pull(Sampling_Frame) %>%
+  unique()
+
+#Summarize understory data
+?summarize_understory  #custom function within pacnvegetation package
+
+#Summarize by "Nativity" and filter to "Kahuku"
+understory_nat <- summarize_understory(combine_strata = TRUE,
+                                    plant_grouping = "Nativity",
+                                    paired_change = FALSE,
+                                    sample_frame = "Kahuku")
+
+# Use ggplot to make simple bar chart from the summarized data
+
+# Total Nativity cover by plot
+understory_nat %>%
+  #filter(Plot_Type == "Fixed") %>%
+  filter(Nativity != "Unknown") %>%
+  ggplot(aes(x = Year,
+             y = Cover,
+             fill = Nativity)) +
+  geom_bar(stat="identity", position = position_dodge()) +
+  facet_wrap(~Plot_Number)
+
+#Summarize by "Species" and filter to "Kahuku"
+understory_spp <- summarize_understory(combine_strata = TRUE,
+                                    plant_grouping = "Species",
+                                    paired_change = FALSE,
+                                    sample_frame = "Kahuku")
+
+# Use ggplot to make simple bar chart from the summarized data
+
+# Spp cover by plot
+understory_spp %>%
+  filter(Plot_Type == "Fixed") %>%
+  filter(Nativity != "Unknown") %>%
+  ggplot(aes(x = Code,
+             y = Cover,
+             fill = Nativity)) +
+  geom_bar(stat="identity", position = position_dodge()) +
+  facet_wrap(~Plot_Number)
+
+
+
+# Nativity change by plot
+understory2_chg <- summarize_understory(combine_strata = TRUE,
+                                    plant_grouping = "Nativity",
+                                    paired_change = TRUE,
+                                    sample_frame = "Kahuku")
+understory2_chg %>%
+  filter(Plot_Type == "Fixed") %>%
+  filter(Nativity != "Unknown") %>%
+  ggplot(aes(x = Year,
+             y = Chg_Prior,
+             fill = Nativity)) +
+  geom_bar(stat="identity", position = position_dodge()) +
+  facet_wrap(~Plot_Number)
+
+
+
+
+
+# Re-run using same function but different "arguments"
+understory2_spp_chg <- summarize_understory(combine_strata = TRUE,
+                                        plant_grouping = "Species",
+                                        paired_change = TRUE,
+                                        sample_frame = "Kahuku")
+
+
+# Change in each species across all plots
+understory2_spp_chg %>%
+  filter(Code == "CENCLA") %>%
+  filter(Plot_Type == "Fixed") %>%
+  filter(Nativity != "Unknown") %>%
+  ggplot(aes(x = Plot_Number,
+             y = Chg_Prior,
+             fill = Year)) +
+  geom_bar(stat="identity", position = position_dodge()) +
+  facet_wrap(~Code)
+
+# Change in all species across all plots
+understory2_spp_chg %>%
+  filter(Plot_Number == 7) %>%
+  filter(Plot_Type == "Fixed") %>%
+  filter(Nativity != "Unknown") %>%
+  filter(Chg_Prior != 0) %>%
+  ggplot(aes(x = Code,
+             y = Chg_Prior,
+             fill = Year)) +
+  geom_bar(stat="identity", position = position_dodge2(preserve = "single")) +
+  facet_wrap(~Plot_Number)
+
+
+# Re-run using same function but different "arguments"
+understory3 <- summarize_understory(combine_strata = FALSE,
+                                            plant_grouping = "Nativity",
+                                            paired_change = FALSE,
+                                            sample_frame = "Kahuku")
+
+understory_stats <- understory3 %>%
+  dplyr::filter(Nativity == "Native" |
+                  Nativity == "Non-Native") %>%
+  dplyr::group_by(Sampling_Frame, Cycle, Stratum, Nativity) %>%
+  dplyr::summarise(NPLOTS = sum(!is.na(Cover)),
+                   MEAN = round(mean(Cover, na.rm = TRUE),3),
+                   MED = round(median(Cover, na.rm = TRUE),3),
+                   MIN = round(min(Cover, na.rm = TRUE),3),
+                   MAX = round(max(Cover, na.rm = TRUE),3),
+                   SD = sd(Cover, na.rm = TRUE),
+                   ERR = qt(0.975,df=NPLOTS-1)*(SD/sqrt(NPLOTS)),
+                   L = MEAN - ERR,
+                   R = MEAN + ERR)
+
+
+# Change in each species across all plots
+understory_stats %>%
+  ggplot(aes(x = Cycle,
+             y = MEAN,
+             fill = Nativity)) +
+  geom_bar(stat="identity", position = position_dodge()) +
+  facet_grid(vars(Stratum), vars(Nativity))
+
+# visualizations can also be turned into functions:
+v_cover_plot_bar_nativity(sample_frame = "Kahuku")
+
+?v_cover_plot_bar_nativity
+
+UnderNativityCover.plot.nat_v_non(sample_frame = "Kahuku",
+                                  cycle = 3)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+understoryBarCover(sample_frame = "Olaa")
+
+Trees <- FilterPACNVeg(data_name = "LgTrees", sample_frame = "Mauna Loa", is_qa_plot = FALSE)
+write_csv(x = Trees, file = "C:/Users/JJGross/Downloads/Trees.csv")
+
+
+
+SmWoody <- FilterPACNVeg(data_name = "SmWoody", sample_frame = "Mauna Loa", is_qa_plot = FALSE)
+
+
+# ---- Troubleshoot EIPS transect maps in brief
+library(crosstalk)
+devtools::install_github("jcheng5/d3scatter")
+
+library(d3scatter)
+shared_iris <- SharedData$new(iris)
+
+d3scatter(shared_iris, ~Petal.Length, ~Petal.Width, ~Species, width="100%", height=300)
+d3scatter(shared_iris, ~Sepal.Length, ~Sepal.Width, ~Species, width="100%", height=300)
+
+
+sf <- "Olaa"
+
+test_data <- v_EIPS_prep(sample_frame = sf)
+
+### Non-Native Species
+v_EIPS_map_interstation(.data = test_data,
+                        parameter = "Mean_Species_Cover",
+                        change = FALSE)
+
+# ---- Troubleshoot transect 38 Olaa showing way off on map
+
+look <- PlotAndTransectLocations(protocol = "EIPS", sample_frame = "Olaa")
+look_38 <- FilterPACNVeg("Events_extra_xy_EIPS", sample_frame = "Olaa")
+look_38_image_pts <- FilterPACNVeg("EIPS_image_pts", sample_frame = "Olaa")
+
+# ---- Troubleshoot sunburst plot
+
+
+sample_frame <- "Haleakala"
+cycle <- 2
+und_test <- FilterPACNVeg("Understory", sample_frame = sample_frame, cycle = cycle)  # Only get data from most recent cycle
+
+# PLACEHOLDER
+# TODO: replace this with actual grouping column
+
+set.seed(11) # Set random number generation seed so that GROUP_COL is the same each time
+#und_test <- mutate(und_test, GROUP_COL = sample(LETTERS[c(1, 2, 2, 3, 5, 5, 5)], size = dplyr::n(), replace = TRUE))
+
+#und_test <- und_test %>%
+#  dplyr::mutate(GROUP_COL = dplyr::case_when(Plot_Number <= 5 ~ "A",
+#                                             Plot_Number > 5 & Plot_Number < 15 ~ "B",
+#                                             Plot_Number >= 15 ~ "C",
+#                                             TRUE ~ "D"))
+und_test <- und_test %>%
+  dplyr::group_by(Cycle, Sampling_Frame, Plot_Number) %>%
+  tidyr::nest() %>%
+  dplyr::mutate(GROUP_COL = sample(LETTERS[1:5], size = dplyr::n(), replace = TRUE)) %>%
+  tidyr::unnest(data) %>%
+  dplyr::ungroup()
+
+und_test <- und_test %>%
+  dplyr::mutate(Life_Form=replace(Life_Form, Code=="SOPCHR", "Shrub"))
+
+# prep data for sunburst plot
+mgmt_unit <- FALSE
+#group_by <- c("Cycle", "Nativity")
+group_by <- c("Cycle")
+if (mgmt_unit) {
+  group_by <- c("GROUP_COL", group_by)
 }
+group_by
 
-BA(10)
+und_test <- UnderCombineStrata(und_test) %>%
+  dplyr::mutate(dplyr::across(where(is.character), replace_na, "No Veg")) %>%
+  dplyr::group_by(dplyr::across(tidyselect::all_of(c("Unit_Code", "Sampling_Frame", "Plot_Number", "Nativity", "Life_Form", "Scientific_Name", "Code", group_by)))) %>%
+  dplyr::summarize(Hits_Sp = dplyr::n(), .groups = "drop") %>%
+  #complete(nesting(!!!syms(c("Unit_Code", "Sampling_Frame", "Plot_Number", "Life_Form", "Scientific_Name", "Code", group_by))),
+  #         fill = list(Hits_Sp = 0)) %>%
+  complete(nesting(!!!syms(c("Unit_Code", "Sampling_Frame", "Plot_Number", group_by))),
+           nesting(!!!syms(c("Nativity", "Code", "Scientific_Name", "Life_Form"))),
+           fill = list(Hits_Sp = 0)) %>%
+  dplyr::mutate(Plot_Percent = Hits_Sp/300) %>%
+  dplyr::group_by(dplyr::across(tidyselect::all_of(c("Unit_Code", "Sampling_Frame", "Nativity", "Life_Form", "Scientific_Name", "Code", group_by)))) %>%
+  dplyr::summarize(n = dplyr::n(),
+                   plots_present = sum(Hits_Sp > 0),
+                   Avg_Cover = round(mean(Plot_Percent), 3),
+                   Std_Dev = round(sd(Plot_Percent), 3),
+                   .groups = "drop")
 
-LoadPACNVeg("pacnveg", c("C:/Users/JJGross/OneDrive - DOI/Documents/Certification_Local/Databases/EIPS/established_invasives_BE_master_20220428.mdb",
-                         "C:/Users/JJGross/OneDrive - DOI/Documents/Certification_Local/Databases/EIPS/2021_established_invasives_20220422.mdb"),
-            cache = TRUE, force_refresh = FALSE)
+
+# Create sunburst plot
+plot_levels <- c("Nativity", "Life_Form", "Code")
+if (mgmt_unit) {
+  plot_levels <- c("GROUP_COL", plot_levels)
+}
+plot_levels
+
+sb <- dplyr::select(und_test, tidyselect::all_of(c(plot_levels, "Avg_Cover")))
+sb <- as.sunburstDF(sb, value_column = "Avg_Cover")
+#sb$color <- colors[str_replace(sb$ids, " - .*", "")]
+sunburst <- plotly::plot_ly(sb,
+                            ids = ~ids,
+                            labels = ~labels,
+                            parents = ~parents,
+                            values = ~values,
+                            type = 'sunburst',
+                            branchvalues = 'total')#,
+                            #marker = list(colors = ~color))
+
+sunburst
+
+
+
+# ---- Add in-line variables to Rmarkdown brief template
+
+names <- readxl::read_xlsx(here::here("R", "PACN_veg_names.xlsx")) %>%
+  dplyr::filter(Sampling_Frame == params$sample_frame)
+
+x <- names$Park_Name
+x
+here("R", "PACN_veg_names.csv")
+
+park_name <- FilterPACNVeg("Events_extra_other",
+                           sample_frame = params$sample_frame) %>%
+  dplyr::slice(1) %>%
+  dplyr::pull(Site_Name)
+
+park_name <- FilterPACNVeg("Events_extra_other") %>%
+  dplyr::distinct(Sampling_Frame) %>%
+  dplyr::pull(Sampling_Frame)
+park_name
+
+# ---- Search for Angiopteris
+
+Species_extra <- FilterPACNVeg(data_name = "Species_extra") %>%
+  select(Code, Taxonomic_Family) %>%
+  distinct()
+
+Events_extra_xy <- FilterPACNVeg(data_name = "Events_extra_xy") %>%
+  select(Unit_Code, Sampling_Frame, Year, Cycle, Plot_Type, Plot_Number, Start_Lat, Start_Long)
+
+EIPS_image_pts <- FilterPACNVeg(data_name = "EIPS_image_pts") %>%
+  mutate(Year = as.character(Year)) %>%
+  select(-Latitude_Dir, -Longitude_Dir, -GCS)
+
+angiopteris <-  FilterPACNVeg(data_name = "Presence") %>%
+  #filter(Code == "ANGEVE") %>%
+  filter(Unit_Code == "HAVO") %>%
+  left_join(Species_extra) %>%
+  left_join(Events_extra_xy)
+
+# Species Lumping Table (moved to draft_scripts) ----
+
+library(magrittr)
+
+Species_lump <- FilterPACNVeg("Species_extra") %>%
+  dplyr::select(Lump_Park = Park,
+                Lump_Nativity = Nativity,
+                Lump_Life_Form = Life_Form,
+                Lump_Genus = Genus,
+                Lump_Species = Species,
+                Lump_Subdivision = Subdivision,
+                Lump_Scientific_Name = Scientific_Name,
+                Lump_Code = Code)
+
+Species_lump2 <- Species_lump %>%
+  dplyr::group_by(Lump_Park, Lump_Genus, Lump_Species) %>%
+  dplyr::filter(dplyr::n()>1) %>%
+  dplyr::filter(!is.na(Lump_Genus)) %>%
+  dplyr::filter(is.na(Lump_Subdivision))
+
+Species_extra <- FilterPACNVeg("Species_extra") %>%
+  dplyr::left_join(Species_lump2, by = c("Park" = "Lump_Park", "Genus" = "Lump_Genus", "Species" = "Lump_Species"))
+
+
+
+# EIPS functions Test ----
+library(tidyverse)
+sample_frame
+
+test_haleakala <- v_EIPS_prep(sample_frame = "Haleakala")
+
+v_EIPS_map_interstation(.data = test_haleakala,
+                        parameter = "Mean_Total_Cover",
+                        change = FALSE,
+                        sample_frame = "Haleakalā Subalpine")
+
+v_EIPS_map_interstation(.data = test_haleakala,
+                        parameter = "Mean_Species_Cover",
+                        change = TRUE)
+
+v_EIPS_map_interstation(.data = test_haleakala,
+                        parameter = "Max_Richness",
+                        change = FALSE)
+
+v_EIPS_map_interstation(.data = test_haleakala,
+                        parameter = "Mean_Total_Cover",
+                        change = TRUE)
+
+v_EIPS_map_interstation(.data = test_haleakala,
+                        parameter = "Mean_Species_Cover",
+                        change = TRUE)
+
+olaa_richness <- v_EIPS_map_interstation(.data = test_olaa,
+                                         parameter = "Max_Richness",
+                                         change = FALSE)
+
+olaa_spp_cover <- v_EIPS_map_interstation(.data = test_olaa,
+                                          parameter = "Mean_Species_Cover",
+                                          change = FALSE)
+
+
+# Package Test ----
+
+FilterPACNVeg("EIPS_data", community = "Coastal Strand")
+look <- FilterPACNVeg("SmWoody", community = "Wet Forest")
+look <- FilterPACNVeg("Presence")
+
+look_locs <- PlotAndTransectLocations()
+look_locs_havo <- PlotAndTransectLocations(park = "HAVO")
+
+
+# Veg map & species locations ----
+
+Hawaii_vegmap_data <- read_vegmap_db(vegmap_db_paths)
+
+hi_poaceae_vegmap <- Hawaii_vegmap_data %>%
+  filter(!is.na(lat), !is.na(long)) %>%
+  filter(Family == "Poaceae")
 
 names(FilterPACNVeg())
 
-spp <- FilterPACNVeg(data_name = "Species_extra", sample_frame = "Mauna Loa", is_qa_plot = FALSE)
+look <- FilterPACNVeg(data_name = "Understory")
+
+# ---- 20220829
+
+Species_extra <- FilterPACNVeg(data_name = "Species_extra") %>%
+  select(Code, Taxonomic_Family) %>%
+  distinct()
+
+Events_extra_xy <- FilterPACNVeg(data_name = "Events_extra_xy") %>%
+  select(Unit_Code, Sampling_Frame, Year, Cycle, Plot_Type, Plot_Number, Start_Lat, Start_Long)
+
+EIPS_image_pts <- FilterPACNVeg(data_name = "EIPS_image_pts") %>%
+  mutate(Year = as.character(Year)) %>%
+  select(-Latitude_Dir, -Longitude_Dir, -GCS)
+
+hypolepis <-  FilterPACNVeg(data_name = "Presence") %>%
+  #filter(Code == "HYPHAW") %>%
+  filter(Unit_Code == "HAVO") %>%
+  left_join(Species_extra) %>%
+  left_join(Events_extra_xy)
+
+write_csv(hypolepis, "C:/Users/JJGross/Downloads/hypolepis.csv")
+
+library(leaflet)
+
+pal <- colorFactor(palette = "Spectral",
+                   domain = hypolepis$Code)
+
+m <- leaflet(hypolepis) %>%
+  addProviderTiles(providers$OpenTopoMap) %>%
+  addCircleMarkers(lat = ~Start_Lat, lng = ~Start_Long,
+    label = ~as.character(paste(Code, Plot_Number, sep = " Plot ")),
+    radius = 6,
+    stroke = FALSE, fillOpacity = 0.75,
+    fillColor = ~pal(Code))
+m
+
+
+
+poaceae_FTPC <- FilterPACNVeg(data_name = "Presence") %>%
+  filter(Unit_Code %in% c("HAVO", "HALE", "KALA", "KAHO")) %>%
+  left_join(Species_extra) %>%
+  filter(Taxonomic_Family == "Poaceae") %>%
+  left_join(EIPS_image_pts)
+
+poaceae_EIPS <- v_EIPS_prep() %>%
+  filter(Unit_Code %in% c("HAVO", "HALE", "KALA", "KAHO")) %>%
+  mutate(Start_Station_m = as.character(Start_Station_m)) %>%
+  left_join(Species_extra, by = "Code") %>%
+  filter(Taxonomic_Family == "Poaceae") %>%
+  select(Unit_Code, Community, Sampling_Frame, Cycle, Year, Transect_Type, Transect_Number, Segment, Start_Station_m, Scientific_Name, Code, Cover_Class, Meters_Per_Station) %>%
+  left_join(EIPS_image_pts, by = c("Unit_Code", "Community", "Sampling_Frame", "Year", "Cycle", "Transect_Type", "Transect_Number", "Start_Station_m" = "Image_Point"))
+
+write_csv(poaceae_EIPS, file = "C:/Users/JJGross/Downloads/Poaceae_Nonnative_Transects.csv")
+write_csv(poaceae_FTPC, file = "C:/Users/JJGross/Downloads/Poaceae_Plant_Community_Plots.csv")
+
+look <- poaceae_EIPS %>%
+  select(Scientific_Name) %>%
+  distinct
+
+# ---- 20220615
+
+summarize_understory(sample_frame = "Olaa", plant_grouping = "Nativity")
+
+v_cover_plot_bar_nativity(sample_frame = params$sample_frame, paired_change = FALSE, param = "Cover")
+
+SmWoody <- FilterPACNVeg(data_name = "SmWoody", sample_frame = "Mauna Loa", is_qa_plot = FALSE)
+
+SmWoody %>%
+  distinct(Code)
+
+Trees %>%
+  distinct(Code)
+
+SS_SmWoody1 <- SS_SmWoody %>%
+  filter(Plot_Number == 3) %>%
+  group_by(Status, Code, Cycle) %>%
+  summarize(total = sum(Count)) %>%
+  pivot_wider(names_from = Cycle, values_from = total)
+
+
+#spp <- FilterPACNVeg(data_name = "Species_extra", sample_frame = "Mauna Loa", is_qa_plot = FALSE)
+
+
+# ---- 20220610
+update_photos <- process_photos(AGOL_Layer = "EIPS",
+                                gdb_name = "EIPS_OL_ER_20220502.gdb",
+                                gdb_location = "C:/Users/JJGross/OneDrive - DOI/Documents/Photo Processing/FTPC_EIPS_Photo_Processing",
+                                gdb_layer = "EIPS_OL_ER_20220502",
+                                return_table = TRUE)
+
+update_photos$DATA <- as.list(update_photos$DATA)
+
+update_photos2 <- update_photos[1:5,]
+
+update_photos2$DATA <- as.list(update_photos2$DATA)
+
+apply(X = update_photos, MARGIN = 1, FUN = watermark, new_folder = "watermark_20220610")
+
 
 # Large Trees - Basal Area ------------------------------------------------
 

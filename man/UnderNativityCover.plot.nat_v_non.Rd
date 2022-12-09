@@ -10,7 +10,7 @@ UnderNativityCover.plot.nat_v_non(
   crosstalk = FALSE,
   crosstalk_group = "cover",
   interactive = FALSE,
-  cycle_filter = TRUE,
+  year_filter = TRUE,
   park,
   sample_frame,
   community,
