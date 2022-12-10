@@ -13,7 +13,7 @@
 #' all_locs <- PlotAndTransectLocations()
 #' eips_transects <- PlotAndTransectLocations("EIPS")
 #' }
-PlotAndTransectLocations <- function(protocol = c("FTPC", "EIPS"), crosstalk = FALSE, crosstalk_group = "map", park, sample_frame, cycle, plot_type, is_qa_plot, transect_type, certified, verified) {
+PlotAndTransectLocations <- function(protocol = c("FTPC", "EIPS"), crosstalk = FALSE, crosstalk_group = "map", park, sample_frame, cycle, plot_type, is_qa_plot = FALSE, transect_type, certified, verified) {
   if (!all(toupper(protocol) %in% c("FTPC", "EIPS"))) {
     stop("Invalid protocol selection. Protocol must be 'FTPC', 'EIPS', or c('FTPC', 'EIPS')")
   }
@@ -519,7 +519,7 @@ MapCoverTotal2 <- function(crosstalk = FALSE, crosstalk_group = "cover", combine
                                                iconWidth = iconwidth,
                                                iconHeight = iconheight),
                         label = ~cover_data$Plot_Number,
-                        # layerId = ~cover_data$key,
+                        #layerId = ~cover_data$key,
                         labelOptions = leaflet::labelOptions(noHide = TRUE, opacity = .9, textOnly = TRUE, offset = c(0,0), direction = "center", style = list("color" = "white", "font-weight" = "bold")),
                         popup = ~paste0("<br><strong>Non-native cover:</strong> ", cover_data$NonNative_Cover_Total_pct,
                                         "<br><strong>Native cover:</strong> ", cover_data$Native_Cover_Total_pct,
@@ -588,7 +588,7 @@ filename <- function(pch, col, bg) {
 #' MapPACNVeg(protocol = "FTPC")
 #' MapPACNVeg(park = "AMME")
 #' }
-MapPACNVeg2 <- function(protocol = c("FTPC", "EIPS"), crosstalk = FALSE, crosstalk_group = "map", park, sample_frame, cycle, plot_type, is_qa_plot, transect_type, certified, verified) {
+MapPACNVeg2 <- function(protocol = c("FTPC", "EIPS"), crosstalk = FALSE, crosstalk_group = "map", park, sample_frame, cycle, plot_type, is_qa_plot = FALSE, transect_type, certified, verified) {
   pts <- PlotAndTransectLocations(protocol = protocol, crosstalk = crosstalk, crosstalk_group = crosstalk_group, park = park, sample_frame = sample_frame, cycle = cycle, plot_type = plot_type, is_qa_plot = is_qa_plot, transect_type = transect_type, certified = certified, verified = verified)
 
   pts <- pts %>%

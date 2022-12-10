@@ -12,7 +12,7 @@ PlotAndTransectLocations(
   sample_frame,
   cycle,
   plot_type,
-  is_qa_plot,
+  is_qa_plot = FALSE,
   transect_type,
   certified,
   verified

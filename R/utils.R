@@ -313,20 +313,20 @@ ReadFTPC <- function(conn) {
   Events_extra_QAQC <- Events_extra %>%
     dplyr::select(Unit_Code, Sampling_Frame, Start_Date, Year, Cycle, Plot_Type, Plot_Number,
            Entered_Date, Updated_Date, Verified, Verified_By, Verified_Date,
-           Certified, Certified_By, Certified_Date, Completion_Time,
+           Certified, Certified_By, Certified_Date, Completion_Time, QA_Plot,
            Event_Notes, Plot_Notes, QA_notes) %>%
     dplyr::collect()
 
   # . . Events_extra_xy
   Events_extra_xy <- Events_extra %>%
     dplyr::select(Unit_Code, Sampling_Frame, Year, Cycle, Plot_Type, Plot_Number,
-           Azimuth_Plot, Start_Lat, Start_Long, Center_Lat, Center_Long,
+           Azimuth_Plot, QA_Plot, Start_Lat, Start_Long, Center_Lat, Center_Long,
            End_Lat, End_Long, GCS, Lat_Dir, Long_Dir, Certified, Verified) %>%
     dplyr::collect()
 
   # . . Events_extra_other
   Events_extra_other <- Events_extra %>%
-    dplyr::select(Unit_Code, Sampling_Frame, Year, Cycle, Plot_Type,
+    dplyr::select(Unit_Code, Sampling_Frame, Year, Cycle, Plot_Type, QA_Plot,
                   Plot_Number, Max_Veg_Ht, Site_Name, Images, Certified, Verified) %>%
     dplyr::collect()
 

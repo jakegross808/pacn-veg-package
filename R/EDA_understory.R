@@ -296,7 +296,7 @@ totalCover_plotly <- function(data, max_lim, year_filter = TRUE) {
 
   # If 'year_filter == TRUE' then add filter checkbox:
   if (year_filter) {
-    box_filter <- crosstalk::filter_checkbox("year", "Year", data, ~Year, inline = TRUE)
+    box_filter <- crosstalk::filter_checkbox("html_year_id", "Year", data, ~Year, inline = TRUE)
 
     plt <- crosstalk::bscols(
       widths = c(12, 12),

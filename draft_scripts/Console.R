@@ -29,6 +29,10 @@ LoadPACNVeg(ftpc_params = "pacnveg",
 # Get dataset names:
 names(FilterPACNVeg())
 
+all_samp_frames <- FilterPACNVeg("Presence") %>%
+  pull(Sampling_Frame) %>%
+  unique()
+all_samp_frames
 # ----Merge NPSpecies Lists ----
 library(readxl)
 

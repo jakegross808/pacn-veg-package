@@ -47,7 +47,7 @@ get_cycles <- function(sample_frame) {
 #' @param search Display search box?
 #' @param ... Additional arguments to pass to [DT::datatable]
 #'
-#' @return
+#' @return A data table
 #' @export
 #'
 pacn_dt <- function(data, record_count = TRUE, search = TRUE, ...) {
