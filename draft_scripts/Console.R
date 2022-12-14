@@ -33,6 +33,17 @@ all_samp_frames <- FilterPACNVeg("Presence") %>%
   pull(Sampling_Frame) %>%
   unique()
 all_samp_frames
+
+# ----Check crosstalk objects ----
+map_cover_data <- read_csv("C:/Users/JJGross/Downloads/MapCoverTotal2_cover_data.csv")
+natvsnon_data <- read_csv("C:/Users/JJGross/Downloads/natvsnon_data_table.csv")
+
+look_join <- left_join(by = "key", x = map_cover_data, y = natvsnon_data, )
+
+look <- anti_join(by = "key", x = map_cover_data, y = natvsnon_data)
+
+look2 <- anti_join(natvsnon_data, map_cover_data)
+
 # ----Merge NPSpecies Lists ----
 library(readxl)
 

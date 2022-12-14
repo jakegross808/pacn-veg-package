@@ -394,7 +394,7 @@ MapCoverTotal <- function(crosstalk = FALSE, crosstalk_group = "cover", combine_
 #' MapCoverTotal(park = "AMME")
 #' MapCoverTotal(sample_frame = "Puu Alii")
 #' }
-MapCoverTotal2 <- function(crosstalk = FALSE, crosstalk_group = "cover", combine_strata = TRUE, cycle, park, sample_frame, community, year, plot_type, is_qa_plot, certified, verified, silent = TRUE) {
+MapCoverTotal2 <- function(crosstalk = FALSE, crosstalk_group = "cover", combine_strata = TRUE, cycle, park, sample_frame, community, year, plot_type, is_qa_plot = FALSE, certified, verified, silent = TRUE) {
 
   #if (missing(fixed_plot_cycle)) {
   #  stop("cycle is required")
