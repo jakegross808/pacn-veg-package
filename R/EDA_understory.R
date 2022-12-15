@@ -69,6 +69,10 @@ UnderNativityCover <- function(combine_strata = FALSE, paired_change = FALSE, rm
 
   # Calculate Total Native & Nonnative Cover by stratum
   Nat_Cov <- raw_data %>%
+    # Change so all sampling cyles have same year (ie first year of new cycle)
+    dplyr::group_by(Sampling_Frame, Cycle) %>%
+    dplyr::mutate(Year = min(Year)) %>%
+    dplyr::ungroup() %>%
     ## Dead Still present in Understory Data!!  - change default filter settings? Or remove entirely from database
     #dplyr::filter(Dead==FALSE)  %>%
     ## Drop point records if point had no hits: (drop if 'Code == NA')
@@ -709,7 +713,6 @@ v_cover_plot_bar_nativity <- function(combine_strata = FALSE,
 #'
 #' Can be placed side-by-side to compare two plots
 #'
-#' @inheritParams LoadPACNVeg
 #' @param sample_frame (required)
 #' @param crosstalk_filters Include dropdowns to filter on species, nativity, and mgmt unit?
 #' @param crosstalk_group Help distinguish crosstalk iterations
