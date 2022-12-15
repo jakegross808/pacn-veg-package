@@ -21,12 +21,20 @@ PlotAndTransectLocations <- function(protocol = c("FTPC", "EIPS"), crosstalk = F
   ftpc_pts <- FilterPACNVeg(data_name = "Events_extra_xy", park = park, sample_frame = sample_frame, cycle = cycle, plot_type = plot_type, is_qa_plot = is_qa_plot, certified = certified, verified = verified) %>%
     dplyr::mutate(Protocol = "FTPC", Sample_Unit = "Plot") %>%
     dplyr::rename(Sample_Unit_Number = Plot_Number, Sample_Unit_Type = Plot_Type, Lat = Start_Lat, Long = Start_Long) %>%
-    dplyr::select(Protocol, Unit_Code, Sampling_Frame, Sample_Unit, Sample_Unit_Type, Sample_Unit_Number, Lat, Long, Year, Cycle)
+    dplyr::select(Protocol, Unit_Code, Sampling_Frame, Sample_Unit, Sample_Unit_Type, Sample_Unit_Number, Lat, Long, Year, Cycle) %>%
+    # Change so all sampling cyles have same year (ie first year of new cycle)
+    dplyr::group_by(Sampling_Frame, Cycle) %>%
+    dplyr::mutate(Year = min(Year)) %>%
+    dplyr::ungroup()
 
   eips_pts <- FilterPACNVeg(data_name = "Events_extra_xy_EIPS", park = park, sample_frame = sample_frame, cycle = cycle, transect_type = transect_type, certified = certified, verified = verified) %>%
     dplyr::mutate(Protocol = "EIPS", Sample_Unit = "Transect") %>%
     dplyr::rename(Sample_Unit_Number = Transect_Number, Sample_Unit_Type = Transect_Type) %>%
-    dplyr::select(Protocol, Unit_Code, Sampling_Frame, Sample_Unit, Sample_Unit_Type, Sample_Unit_Number, Lat, Long, Year, Cycle)
+    dplyr::select(Protocol, Unit_Code, Sampling_Frame, Sample_Unit, Sample_Unit_Type, Sample_Unit_Number, Lat, Long, Year, Cycle) %>%
+    # Change so all sampling cyles have same year (ie first year of new cycle)
+    dplyr::group_by(Sampling_Frame, Cycle) %>%
+    dplyr::mutate(Year = min(Year)) %>%
+    dplyr::ungroup()
 
   eips_tsects <- FilterPACNVeg(data_name = "EIPS_image_pts", park = park, sample_frame = sample_frame, cycle = cycle, transect_type = transect_type, certified = certified, verified = verified) %>%
     dplyr::group_by(Unit_Code, Community, Sampling_Frame, Transect_Type, Transect_Number) %>%
