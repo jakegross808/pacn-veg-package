@@ -34,6 +34,17 @@ all_samp_frames <- FilterPACNVeg("Presence") %>%
   unique()
 all_samp_frames
 
+all_samp_frames_plots <- FilterPACNVeg("Presence") %>%
+  select(Sampling_Frame, Plot_Number, Plot_Type) %>%
+  unique()
+all_samp_frames_plots
+
+all_samp_frames_trans <- FilterPACNVeg("EIPS_data") %>%
+  select(Unit_Code, Year, Sampling_Frame, Transect_Number, Transect_Type) %>%
+  mutate(Transect_Number = as.numeric(Transect_Number)) %>%
+  unique()
+all_samp_frames_trans
+
 # ----Check crosstalk objects ----
 map_cover_data <- read_csv("C:/Users/JJGross/Downloads/MapCoverTotal2_cover_data.csv")
 natvsnon_data <- read_csv("C:/Users/JJGross/Downloads/natvsnon_data_table.csv")
