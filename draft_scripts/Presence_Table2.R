@@ -1,26 +1,3 @@
-#https://github.com/renkun-ken/formattable/issues/95#issuecomment-792387356
-bg <- function(start, end, color, ...) {
-  paste("linear-gradient(90deg, transparent ",formattable::percent(start),",",
-        color, formattable::percent(start), ",", formattable::percent(end),
-        ", transparent", formattable::percent(end),")")
-}
-
-#https://github.com/renkun-ken/formattable/issues/95#issuecomment-792387356
-pm_color_bar2 <- function(color1 = "pink", color2 = "lightgreen", text_color1 = "darkred", text_color2 = "darkgreen", text_color3 = "grey", transform_fn = function(x) {x}, ...){
-  formattable::formatter("span",
-                         style = function(x) {
-                           x <- transform_fn(x)
-                           formattable::style(
-                             display = "inline-block",
-                             color = ifelse(x > 0,text_color1,ifelse(x < 0,text_color2,text_color3)),
-                             "text-align" = ifelse(x > 0, 'left', ifelse(x < 0, 'right', 'center')),
-                             "width"='100%',
-                             "background" = bg(ifelse(x >= 0, 0.5, 0.5 + (x/2)),
-                                               ifelse(x >= 0, (x/2) + 0.5, 0.5),
-                                               ifelse(x >= 0, color1, color2))
-                           )})
-}
-
 # Create Table for Native species Plot Presence ----
 
 Presence <- FilterPACNVeg("Presence", sample_frame  = "Olaa") %>%
@@ -87,7 +64,7 @@ fixed_plts_not_sampled <- fixed %>%
   dplyr::mutate(Sampled = FALSE)
 
 Presence4 <- Presence2_all %>%
-  #dplyr::bind_rows(Presence2_rotational) %>%
+  #dplyr::bind_rows(Presence2_rotational) %>% # Can add column for rotationals specifically here
   dplyr::bind_rows(Presence2_fixed)
 
 Presence5 <- Presence4 %>%
@@ -110,11 +87,14 @@ Presence7 <- Presence6 %>%
                      values_fill = 0) %>%
   dplyr::rename_with(~stringr::str_remove(., '_Prop'))
 
-percentage <- function(x) {round(x * 100, digits = 0)}
+#percentage <- function(x) {round(x * 100, digits = 0)}
+percentage <- function(x) {round(x, digits = 2)}
+percentage2 <- function(x) {formattable::percent(x,digits = 0)}
 
 # Formatting
 Presence8 <- Presence7 %>%
   dplyr::mutate(across(where(is.numeric),percentage)) %>%
+  dplyr::mutate(across(where(is.numeric),percentage2)) %>%
   dplyr::arrange(Scientific_Name)
 names(Presence8)
 
@@ -122,10 +102,10 @@ names(Presence8)
 #tbl <- formattable::formattable(Presence8)
 
 tbl <- Presence8
-
+tbl
 tbl$`2015_All` <- apply(tbl[, 5:7], 1,
                           FUN = function(x) as.character(
-                            htmltools::as.tags(sparkline(as.numeric(x),
+                            htmltools::as.tags(sparkline::sparkline(as.numeric(x),
                                                          type = "line"))))
 names(tbl)[5] <- "|2010"
 names(tbl)[6] <- "All Plots"
@@ -133,19 +113,87 @@ names(tbl)[7] <- "2022|"
 
 tbl$`2015_Fixed` <- apply(tbl[, 8:10], 1,
                         FUN = function(x) as.character(
-                          htmltools::as.tags(sparkline(as.numeric(x),
+                          htmltools::as.tags(sparkline::sparkline(as.numeric(x),
                                                        type = "line"))))
 names(tbl)[8] <- "||2010"
 names(tbl)[9] <- "Fixed Plots"
 names(tbl)[10] <- "2022||"
+len <- length(names(tbl))
 #new_tbl <- tbl[, c(1, 2, 3, 4, 5, 7, 8, 9, 10)]
 
-out <- as.htmlwidget(formattable(tbl,
+out <- formattable::as.htmlwidget(formattable::formattable(tbl,
                                 align = c("l",rep("c", NCOL(tbl) - 1)),
-                                list(`Scientific_Name` = formatter("span", style = ~ style(color = "grey", font.weight = "bold"))#,
+                                list(`Scientific_Name` = formattable::formatter("span", style = ~ formattable::style(color = "grey", font.weight = "bold"))#,
                                      #" " = formatter("span",
                                     #                 style = ~ style(color = ifelse(`2016` > `2011`, "green", "red")),
                                     #                ~ icontext(sapply(` `, function(x) if (x < -1.96) "arrow-down" else if (x> 1.96) "arrow-up" else "")))))
                                     )))
 out$dependencies <- c(out$dependencies, htmlwidgets:::widget_dependencies("sparkline", "sparkline"))
 out
+
+# mess with other table
+out2 <- formattable::formattable(tbl,
+                                 list(
+                                   `Scientific_Name` =
+                                     formattable::formatter(
+                                       "span",style = ~ formattable::style(
+                                         color = "grey", font.weight = "bold")))) %>%
+  formattable::as.datatable(rownames = FALSE,
+                            selection = "multiple",
+                            #filter = "bottom", # filter each column individually
+                            options = list(
+                              dom = "ltif", # t = table, i = information summary, f = filtering input
+                              paging = FALSE,
+                              scrollY = "400px",
+                              scrollX = TRUE,
+                              scrollCollapse = TRUE,
+                              columnDefs = list(list(className= 'dt-center',
+                                                     targets = -1:-(len-1))))) %>%
+  htmltools::tagList() %>%
+  htmltools::attachDependencies(htmlwidgets:::widget_dependencies("sparkline","sparkline")) %>%
+  htmltools::browsable()
+
+out2
+
+
+
+
+
+out <- formattable::formattable(tbl,
+                                align = c("l",rep("c", NCOL(tbl) - 1)),
+                                list(`Scientific_Name` = formattable::formatter("span", style = ~ formattable::style(color = "grey", font.weight = "bold"))))
+
+out2 <- formattable::as.datatable(out,
+                                  rownames = TRUE,
+                                  selection = "multiple",
+                                  options = list(dom = "tif",
+                                                 paging = FALSE,
+                                                 scrollY = "200px",
+                                                 scrollCollapse = TRUE))
+
+
+out3 <- formattable::as.htmlwidget(out2)
+out$dependencies <- c(out$dependencies, htmlwidgets:::widget_dependencies("sparkline", "sparkline"))
+out
+
+formattable::
+sparkline::sparkline()
+
+tbl <- formattable::formattable(presence_table,
+                                list(Cumulative_Net = pm_color_bar2(color1 = "lightblue", color2 = "lightblue",
+                                                                    text_color1 = "darkblue", text_color2 = "darkblue", text_color3 = "gray",
+                                                                    transform_fn = function(x) {
+                                                                      max_x <- max(abs(max(x, na.rm = TRUE)), abs(min(x, na.rm = TRUE)))
+                                                                      x <- x/max_x
+                                                                    },
+                                                                    na.rm = TRUE))) %>%
+  formattable::as.datatable(rownames = TRUE,
+                            selection = "multiple",
+                            options = list(dom = "tif",
+                                           paging = FALSE,
+                                           scrollY = "200px",
+                                           scrollCollapse = TRUE)) %>%
+  htmltools::tagList() %>%
+  htmltools::attachDependencies(htmlwidgets:::widget_dependencies("sparkline","sparkline")) %>%
+  htmltools::browsable()
+tbl
