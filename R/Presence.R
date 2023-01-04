@@ -111,7 +111,7 @@ v_presence_table <- function(sample_frame, table_type = "html") {
     dplyr::arrange(Scientific_Name)
 
   if (table_type == "tibble") { #if tibble option selected then code stops here
-    out_table <- Presence5
+    out_table <- Presence4
     }
 
   if (table_type == "html") { #if html option selected then prepare formattable
