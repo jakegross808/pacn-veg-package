@@ -37,7 +37,7 @@ v_presence_table <- function(sample_frame, table_type = "html") {
     dplyr::select(Unit_Code, Community, Sampling_Frame, Cycle_Year, Plot_Number, Plot_Type) %>%
     dplyr::distinct() %>%
     dplyr::group_by(Unit_Code, Community, Sampling_Frame, Cycle_Year, Plot_Type) %>%
-    dplyr::summarise(N = n())
+    dplyr::summarise(N = dplyr::n())
   calc_n2 <- calc_n %>%
     dplyr::group_by(Unit_Code, Community, Sampling_Frame, Cycle_Year) %>%
     dplyr::summarize(All = sum(N)) %>%
@@ -47,7 +47,7 @@ v_presence_table <- function(sample_frame, table_type = "html") {
 
   Presence2_all<- Presence1 %>%
     dplyr::group_by(Unit_Code, Community, Sampling_Frame, Cycle_Year, Scientific_Name, Code, Life_Form, Nativity) %>%
-    dplyr::summarise(Plots = n()) %>%
+    dplyr::summarise(Plots = dplyr::n()) %>%
     dplyr::mutate(Plot_Type = "All") %>%
     dplyr::left_join(calc_n2) %>%
     dplyr::mutate(Prop = Plots/N) %>%
@@ -56,7 +56,7 @@ v_presence_table <- function(sample_frame, table_type = "html") {
   Presence2_rotational <- Presence1 %>%
     dplyr::filter(Plot_Type == "Rotational") %>%
     dplyr::group_by(Unit_Code, Community, Sampling_Frame, Cycle_Year, Plot_Type, Scientific_Name, Code, Life_Form, Nativity) %>%
-    dplyr::summarise(Plots = n()) %>%
+    dplyr::summarise(Plots = dplyr::n()) %>%
     dplyr::left_join(calc_n2) %>%
     dplyr::mutate(Prop = Plots/N) %>%
     dplyr::ungroup()
@@ -64,7 +64,7 @@ v_presence_table <- function(sample_frame, table_type = "html") {
   Presence2_fixed <- Presence1 %>%
     dplyr::filter(Plot_Type == "Fixed") %>%
     dplyr::group_by(Unit_Code, Community, Sampling_Frame, Cycle_Year, Plot_Type, Scientific_Name, Code, Life_Form, Nativity) %>%
-    dplyr::summarise(Plots = n()) %>%
+    dplyr::summarise(Plots = dplyr::n()) %>%
     dplyr::left_join(calc_n2) %>%
     dplyr::mutate(Prop = Plots/N) %>%
     dplyr::ungroup()
@@ -83,13 +83,16 @@ v_presence_table <- function(sample_frame, table_type = "html") {
     dplyr::bind_rows(Presence2_fixed)
 
   # Pivot Values
+  goo <- function(x) {tidyr::replace_na(x, replace = 0)}
+
   Presence4 <- Presence3 %>%
     tidyr::separate(Cycle_Year, into = c("Cycle", "Year")) %>%
     dplyr::select(-Unit_Code, -Community, -Sampling_Frame, -Cycle) %>%
     tidyr::pivot_wider(names_from = Plot_Type,
                        values_from = c(Plots, N, Prop),
-                       names_glue = "{Plot_Type}_{.value}",
-                       values_fill = 0)
+                       names_glue = "{Plot_Type}_{.value}") %>% #"values_fill = 0" does not work because then sometimes n will be zero
+    dplyr::mutate(dplyr::across(dplyr::ends_with("_Prop"), goo))
+
 
   # Custom functions for calculating percentage in apply() below
   percentage <- function(x) {round(x, digits = 2)}

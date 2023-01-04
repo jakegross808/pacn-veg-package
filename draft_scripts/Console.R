@@ -26,7 +26,7 @@ LoadPACNVeg(ftpc_params = "pacnveg",
             expire_interval_days = 30,
             force_refresh = FALSE)
 
-# Get dataset names:
+# ----quick lookup of names ----
 names(FilterPACNVeg())
 
 all_samp_frames <- FilterPACNVeg("Presence") %>%
@@ -44,6 +44,10 @@ all_samp_frames_trans <- FilterPACNVeg("EIPS_data") %>%
   mutate(Transect_Number = as.numeric(Transect_Number)) %>%
   unique()
 all_samp_frames_trans
+
+# ----Check new presence function 1/3/2023 ----
+v_presence_table(sample_frame = "Olaa")
+v_presence_table(sample_frame = "Kahuku", table_type = "tibble")
 
 # ----Check crosstalk objects ----
 map_cover_data <- read_csv("C:/Users/JJGross/Downloads/MapCoverTotal2_cover_data.csv")
