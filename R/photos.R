@@ -104,13 +104,19 @@ process_photos <- function(AGOL_Layer, gdb_name, gdb_location, gdb_layer, return
       tidyr::separate(Photo_Taxon, c("A", "B"), ";") %>%
       tidyr::separate(B, c("common", "lifeform", "nativity"), " / ") %>%
       tidyr::separate(A, c("species", "C"), " \\(") %>%
-      tidyr::separate(C, c("code", "family"), "\\) ") %>%
-      dplyr::mutate(Subject1 = code)
+      tidyr::separate(C, c("code", "family"), "\\)") %>%
+      dplyr::mutate(family = trimws(family)) %>%
+      dplyr::mutate(Subject1 = species)
   }
 
-  GIS_Table1 <- GIS_Table1 %>%
-    dplyr::mutate(Subject2 = dplyr::case_when(Subject1 == "Other" ~ paste(Subject1, Subject_other, sep = "_"),
-                                              TRUE ~ as.character(Subject1)))
+  if (any(GIS_Table1$Subject1 == "Other", na.rm = TRUE)) {
+    GIS_Table1 <- GIS_Table1 %>%
+      dplyr::mutate(Subject2 = dplyr::case_when(Subject1 == "Other" ~ paste(Subject1, Subject_other, sep = "_"),
+                                                TRUE ~ as.character(Subject1)))
+  } else {
+    GIS_Table1 <- GIS_Table1 %>%
+      dplyr::mutate(Subject2 = Subject1)
+  }
 
   # Date/Time-----------------------------------------------------
 
@@ -173,12 +179,13 @@ process_photos <- function(AGOL_Layer, gdb_name, gdb_location, gdb_layer, return
       dplyr::mutate(Out_Name = stringr::str_remove(Subject2, "\\.")) %>%
       dplyr::mutate(Out_Name = ifelse(is.na(Out_Name), REL_GLOBALID,
                                       ifelse(Out_Name >= 0, Out_Name, "error"))) %>%
-      dplyr::mutate(Out_Name = paste(File_DT, Out_Name, sep = "_")) %>%
+      dplyr::mutate(Out_Name = paste(File_Time, Out_Name, sep = "_")) %>%
       dplyr::arrange(created_date, ATT_NAME) %>%
       dplyr::group_by(Out_Name) %>%
       dplyr::mutate(Out_Name = if(dplyr::n() > 1) {paste(Out_Name, str_pad(row_number(), 2, pad = "0"), sep = "_")}
                     else {paste0(Out_Name)}) %>%
       dplyr::mutate(Out_Name = paste0(Out_Name, ".jpg")) %>%
+      dplyr::mutate(Folder_Name = File_Date) %>%
       dplyr::ungroup()
 
   }
@@ -197,8 +204,15 @@ process_photos <- function(AGOL_Layer, gdb_name, gdb_location, gdb_layer, return
 
   # apply() function doesn't like blobs so change to list before running apply()
   GIS_Table4$DATA <- as.list(GIS_Table4$DATA)
+
   # applyr the "watermark" function to each record (ie photo)
-  apply(X = GIS_Table4, MARGIN = 1, FUN = watermark, new_folder = "watermarked")
+  if(AGOL_Layer != "Plants"){
+    apply(X = GIS_Table4, MARGIN = 1, FUN = watermark, new_folder = "watermarked")
+  }
+
+  if(AGOL_Layer == "Plants"){
+    apply(X = GIS_Table4, MARGIN = 1, FUN = watermark_no, new_folder = "no_watermark")
+  }
 
   #print warning message to remind user to move photos to sharepoint
   print("Remember to copy images from local folder to vital signs folders: 1) images folder and 2) database folder")
@@ -288,3 +302,51 @@ watermark <- function(x, new_folder) {
   magick::image_write(img.x5, path = out.name, format = "jpg")
 }
 
+#' Process FTPC, EIPS, & Plant Photos without a watermark
+#'
+#' @param x GIS table
+#' @param new_folder folder where watermarked photos are saved
+#'
+#' @return an exported watermarked photo
+#' @export
+#'
+#' @examples
+#' \dontrun{
+#' watermark_no(GIS_Table, "new_folder")
+#' }
+
+watermark_no <- function(x, new_folder) {
+  # Function to apply to each row (i.e. photo) in the GIS_Table:
+  # Get data from GIS table (x)
+
+  p.date <- x["created_date"]
+  #p.unit <- x["Unit_Name"]
+  #p.protocol <- x["Protocol"]
+  #p.community <- x["Community"]
+  #p.sf <- x["Sampling_Frame"]
+  #p.tran <- x["Trans_Num"]
+  p.site_folder <- x["Folder_Name"]
+  #p.type_num <- x["TNum_3"]
+  p.subject <- x["Subject2"]
+  #p.prot_type_num <- paste0(p.protocol, " - ", p.type_num)
+
+  # Create paths and folders to save each photo
+  dir.create(here::here(new_folder, p.site_folder), recursive = TRUE, showWarnings = FALSE )
+  out.path <- here::here(new_folder, p.site_folder)
+  out.name <- file.path(out.path, x["Out_Name"])
+  print(out.name)
+
+  # Load photo
+  image.x <- x["DATA"] %>%
+    purrr::pluck(1)
+  #print(paste("structure of photo = ", print(str(image.x))))
+
+  img.x1 <- magick::image_read(image.x)
+  # Apply auto-orientation "image_orient()" which tries to infer the correct orientation
+  #' from the Exif data.
+  img.x2 <- magick::image_orient(img.x1)
+  #print(image_attributes(img.x))
+
+  # Save photo
+  magick::image_write(img.x2, path = out.name, format = "jpg")
+}

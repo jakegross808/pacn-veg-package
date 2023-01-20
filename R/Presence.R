@@ -10,7 +10,9 @@
 #' @export
 #'
 #' @examples
-
+#' \dontrun{
+#' FTPC_Olaa_Presence <- v_presence_table(sample_frame, table_type = "html")
+#' }
 v_presence_table <- function(sample_frame, table_type = "html") {
   # Table Prep ----
   # Stadard table prep (should consider moving into FiterPACNVeg)
@@ -49,7 +51,7 @@ v_presence_table <- function(sample_frame, table_type = "html") {
     dplyr::group_by(Unit_Code, Community, Sampling_Frame, Cycle_Year, Scientific_Name, Code, Life_Form, Nativity) %>%
     dplyr::summarise(Plots = dplyr::n()) %>%
     dplyr::mutate(Plot_Type = "All") %>%
-    dplyr::left_join(calc_n2) %>%
+    dplyr::left_join(calc_n2, by = c("Unit_Code", "Community", "Sampling_Frame", "Cycle_Year", "Plot_Type")) %>%
     dplyr::mutate(Prop = Plots/N) %>%
     dplyr::ungroup()
 
@@ -57,7 +59,7 @@ v_presence_table <- function(sample_frame, table_type = "html") {
     dplyr::filter(Plot_Type == "Rotational") %>%
     dplyr::group_by(Unit_Code, Community, Sampling_Frame, Cycle_Year, Plot_Type, Scientific_Name, Code, Life_Form, Nativity) %>%
     dplyr::summarise(Plots = dplyr::n()) %>%
-    dplyr::left_join(calc_n2) %>%
+    dplyr::left_join(calc_n2, by = c("Unit_Code", "Community", "Sampling_Frame", "Cycle_Year", "Plot_Type")) %>%
     dplyr::mutate(Prop = Plots/N) %>%
     dplyr::ungroup()
 
@@ -65,7 +67,7 @@ v_presence_table <- function(sample_frame, table_type = "html") {
     dplyr::filter(Plot_Type == "Fixed") %>%
     dplyr::group_by(Unit_Code, Community, Sampling_Frame, Cycle_Year, Plot_Type, Scientific_Name, Code, Life_Form, Nativity) %>%
     dplyr::summarise(Plots = dplyr::n()) %>%
-    dplyr::left_join(calc_n2) %>%
+    dplyr::left_join(calc_n2, by = c("Unit_Code", "Community", "Sampling_Frame", "Cycle_Year", "Plot_Type")) %>%
     dplyr::mutate(Prop = Plots/N) %>%
     dplyr::ungroup()
 
@@ -124,10 +126,8 @@ v_presence_table <- function(sample_frame, table_type = "html") {
     all_years <- all_years[!is.na(all_years)]
 
     min_year <- min(all_years)
-    min_year
 
     max_year <- max(all_years)
-    max_year
 
     other_years <- as.character(all_years) %>%
       stringr::str_remove(as.character(min_year)) %>%
@@ -135,20 +135,14 @@ v_presence_table <- function(sample_frame, table_type = "html") {
       as.integer() %>%
       unique() %>%
       purrr::discard(is.na)
-    other_years
 
-    #other_years <- c(2016,2017) # use this to test future cycles
     other_years_min <- min(other_years)
-    other_years
-    str(other_years_min)
 
-    length(other_years) == 1
 
     # "_All" Plots Columns ----
 
     # Get index for "All Plots" data
     all_plots_columns <- grep("_All", colnames(tbl))
-    #all_plots_columns <- str_locate(names(tbl), "_All")
     All_index_min <- min(all_plots_columns)
     All_index_max <- max(all_plots_columns)
 
@@ -172,11 +166,6 @@ v_presence_table <- function(sample_frame, table_type = "html") {
     # Max Year
     names(tbl)[names(tbl) == max_year_All_name] <- paste0(max_year, "|")
 
-
-    #tbl$`2015_Fixed` <- apply(tbl[, 8:10], 1,
-    #                        FUN = function(x) as.character(
-    #                          htmltools::as.tags(sparkline::sparkline(as.numeric(x),
-    #                                                       type = "line"))))
 
     # "_Fixed" Plots Columns ----
 
@@ -224,7 +213,9 @@ v_presence_table <- function(sample_frame, table_type = "html") {
                                            `Scientific_Name` =
                                              formattable::formatter(
                                                "span",style = ~ formattable::style(
-                                                 color = "grey", font.weight = "bold")))) %>%
+                                                 color = "grey",
+                                                 "padding-right" = "4px",
+                                                 font.weight = "bold")))) %>%
       formattable::as.datatable(rownames = FALSE,
                                 selection = "multiple",
                                 #filter = "bottom", # filter each column individually
@@ -245,4 +236,5 @@ v_presence_table <- function(sample_frame, table_type = "html") {
   }
   return(out_table)
 }
+
 

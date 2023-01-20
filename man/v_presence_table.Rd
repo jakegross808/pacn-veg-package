@@ -18,3 +18,8 @@ A html table
 Species presence per plot per year for all years available within a sampling frame.
 min and max plot percentage shown with sparkline showing presence trend for all years
 }
+\examples{
+\dontrun{
+FTPC_Olaa_Presence <- v_presence_table(sample_frame, table_type = "html")
+}
+}

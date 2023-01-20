@@ -20,8 +20,8 @@ library(tidyverse)
 
 LoadPACNVeg(ftpc_params = "pacnveg",
             eips_paths = c("C:/Users/JJGross/OneDrive - DOI/Documents/Certification_Local/Databases/EIPS/established_invasives_BE_master_20220503.mdb",
-                           "C:/Users/JJGross/OneDrive - DOI/Documents/Certification_Local/Databases/EIPS/2021_established_invasives_20221010.mdb",
-                           "C:/Users/JJGross/OneDrive - DOI/Documents/Certification_Local/Databases/EIPS/2022_established_invasives_20221012.mdb"),
+                           "C:/Users/JJGross/OneDrive - DOI/Documents/Certification_Local/Databases/EIPS/2021_established_invasives_20221010_20230119.mdb",
+                           "C:/Users/JJGross/OneDrive - DOI/Documents/Certification_Local/Databases/EIPS/2022_established_invasives_20230118_20230119.mdb"),
             cache = TRUE,
             expire_interval_days = 30,
             force_refresh = FALSE)
@@ -45,9 +45,105 @@ all_samp_frames_trans <- FilterPACNVeg("EIPS_data") %>%
   unique()
 all_samp_frames_trans
 
+# Export Plant photos -----------------------------------------------------------------
+
+chk <- process_photos(AGOL_Layer = "Plants",
+                      gdb_name = "AGOL_Backups_20221103.gdb",
+                      gdb_location = "C:/Users/JJGross/Downloads/AGOL_Backups_20221103",
+                      gdb_layer = "Plants_KU_ML_20221103",
+                      return_table = TRUE)
+
+names(chk)
+
+chk1 <- chk %>%
+  select(created_date, Unit_Code, Samp_Year, Samp_Frame, Site_numb, Staff_List,
+         species, code, family, common, lifeform, nativity,
+         Taxon_relate, Taxon_comment, Specimen, ID_notes,
+         ID_1, ID_1_relate, ID_1_staff,
+         ID_2, ID_2_relate, ID_2_staff,
+         ID_3, ID_3_relate, ID_3_staff,
+         ID_final, ID_final_relate,
+         ESRIGNSS_LATITUDE, ESRIGNSS_LONGITUDE)
+
+
+
+
+write_csv(chk1, file = "C:/Users/JJGross/Downloads/Plants_20230120.csv")
+
+process_photos(AGOL_Layer = "Plants",
+                      gdb_name = "AGOL_Backups_20221103.gdb",
+                      gdb_location = "C:/Users/JJGross/Downloads/AGOL_Backups_20221103",
+                      gdb_layer = "Plants_KU_ML_20221103",
+                      return_table = FALSE)
+
+
+# ----Look at Mgmt Layer ----
+sample_frame = "Olaa"
+
+MapPACNVeg2(sample_frame = sample_frame)
+
+leaflet::leaflet() %>%
+  leaflet.esri::addEsriBasemapLayer(leaflet.esri::esriBasemapLayers$Streets) %>%
+  leaflet.esri::addEsriFeatureLayer(options = leaflet.esri::featureLayerOptions(where = paste0("Sampling_Frame = '", sample_frame, "'")),
+                                    url = paste0("https://services1.arcgis.com/fBc8EJBxQRMcHlei/arcgis/rest/services/",
+                                                 "PACN_DBO_VEG_sampling_frames_ply/FeatureServer/0"),
+                                    useServiceSymbology = TRUE,
+                                    labelProperty = "Zone")
+
+leaflet::leaflet() %>%
+  leaflet.esri::addEsriBasemapLayer(leaflet.esri::esriBasemapLayers$Streets) %>%
+  leaflet.esri::addEsriFeatureLayer(url = paste0("https://services.arcgis.com/rOo16HdIMeOBI4Mb/arcgis/rest/services/",
+                                                 "Heritage_Trees_Portland/FeatureServer/0"),
+                                    useServiceSymbology = TRUE,)
+
+leaflet::leaflet() %>%
+  leaflet.esri::addEsriBasemapLayer(leaflet.esri::esriBasemapLayers$Streets) %>%
+  leaflet.esri::addEsriFeatureLayer(options = leaflet.esri::featureLayerOptions(where = paste0("Sampling_Frame == '", sample_frame, "'")),
+                                    group = "Sampling Frame",
+                                    url = "https://services1.arcgis.com/fBc8EJBxQRMcHlei/arcgis/rest/services/PACN_DBO_VEG_sampling_frames_ply/FeatureServer/0")
+
+leaflet::leaflet() %>%
+  leaflet.esri::addEsriBasemapLayer(leaflet.esri::esriBasemapLayers$Streets) %>%
+  leaflet::setView(-122.667, 45.526, 13) %>%
+  leaflet.esri::addEsriFeatureLayer(
+    url = paste0("https://services.arcgis.com/rOo16HdIMeOBI4Mb/arcgis/rest/services/",
+                 "Heritage_Trees_Portland/FeatureServer/0"),
+    useServiceSymbology = TRUE,
+    labelProperty = "COMMON_NAM", labelOptions = leaflet::labelOptions(textsize = "12px"),
+    popupProperty = leaflet::JS(paste0(
+      "function(feature) {",
+      "  return L.Util.template(",
+      "    \"<h3>{COMMON_NAM}</h3><hr />",
+      "      <p>This tree is located at {ADDRESS} and its scientific name is {SCIENTIFIC}.</p>",
+      "    \",",
+      "    feature.properties",
+      "  );",
+      "}"
+    )))
+
+
 # ----Check new presence function 1/3/2023 ----
-v_presence_table(sample_frame = "Olaa")
-v_presence_table(sample_frame = "Kahuku", table_type = "tibble")
+K <- v_presence_table(sample_frame = "Kahuku", table_type = "tibble")
+ML <- v_presence_table(sample_frame = "Mauna Loa", table_type = "tibble")
+
+KML <- K %>%
+  bind_rows(ML) %>%
+  pull(Code) %>%
+  unique(KML)
+
+KML
+l %>%
+  knitr::kable(caption = "Group 1")
+# Get the number of plots monitored for each year for the table caption.
+n_df <- v_presence_table(sample_frame = "Olaa", table_type = "tibble")
+n_df <- n_df %>%
+  dplyr::select(Year, All_N, Fixed_N) %>%
+  tidyr::drop_na() %>%
+  dplyr::distinct()
+n_fun <- function(x) {paste0(x[1], " = [", x[2], ", ", x[3], "]")}
+n_list <- apply(n_df, FUN = n_fun, MARGIN = 1)
+n_list <- paste(n_list, collapse = "; ")
+n_list
 
 # ----Check crosstalk objects ----
 map_cover_data <- read_csv("C:/Users/JJGross/Downloads/MapCoverTotal2_cover_data.csv")
@@ -1014,9 +1110,9 @@ img.marked
 
 # Load FTPC data
 chk <- process_photos(AGOL_Layer = "FTPC",
-                      gdb_name = "FTPC_OL_ER_20220503.gdb",
-                      gdb_location = "C:/Users/JJGross/OneDrive - DOI/Documents/Photo Processing/FTPC_EIPS_Photo_Processing",
-                      gdb_layer = "FTPC_OL_ER_20220503",
+                      gdb_name = "AGOL_Backups_20221103.gdb",
+                      gdb_location = "C:/Users/JJGross/Downloads/AGOL_Backups_20221103",
+                      gdb_layer = "FTPC_KU_ML_20221103",
                       return_table = TRUE)
 
 
