@@ -179,7 +179,9 @@ process_photos <- function(AGOL_Layer, gdb_name, gdb_location, gdb_layer, return
       dplyr::mutate(Out_Name = stringr::str_remove(Subject2, "\\.")) %>%
       dplyr::mutate(Out_Name = ifelse(is.na(Out_Name), REL_GLOBALID,
                                       ifelse(Out_Name >= 0, Out_Name, "error"))) %>%
-      dplyr::mutate(Out_Name = paste(File_Time, Out_Name, sep = "_")) %>%
+      #dplyr::mutate(Out_Name = paste(File_Time, Out_Name, sep = "_")) %>%
+      #Changed here so that file name uses species from Final ID instead of species from Field ID
+      dplyr::mutate(Out_Name = paste(File_Time, ID_final, sep = "_")) %>%
       dplyr::arrange(created_date, ATT_NAME) %>%
       dplyr::group_by(Out_Name) %>%
       dplyr::mutate(Out_Name = if(dplyr::n() > 1) {paste(Out_Name, str_pad(row_number(), 2, pad = "0"), sep = "_")}
