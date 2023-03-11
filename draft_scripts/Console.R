@@ -26,6 +26,23 @@ LoadPACNVeg(ftpc_params = "pacnveg",
             expire_interval_days = 30,
             force_refresh = FALSE)
 
+# ----test GROUP ----
+mgmt_test <- readr::read_csv(file = paste0(getwd(),"/R/Events_extra_xy_mgmt.csv"))
+und_test <- FilterPACNVeg("Understory", sample_frame = "Mauna Loa")
+
+und_test2 <- und_test %>%
+  dplyr::left_join(select(mgmt_test, Zone, Unit_Code, Sampling_Frame, Cycle, Plot_Number),
+                   by = c("Unit_Code", "Sampling_Frame", "Cycle", "Plot_Number"))
+
+
+
+
+
+und_new_out_test <- understory_spp_cover(sample_frame = "Mauna Loa")
+understoryBarCover("Mauna Loa")
+
+und_out_test <- understorySpeciesCover2(sample_frame = "Mauna Loa")
+
 # ----test mgmt layer function ----
 add.mgmt.unit(sample_frame = "All")
 look <- readr::read_csv(file = paste0(getwd(),"/R/Events_extra_xy_mgmt.csv"))

@@ -4,11 +4,7 @@
 \alias{understorySpeciesCover2}
 \title{Title}
 \usage{
-understorySpeciesCover2(
-  sample_frame,
-  cycle,
-  group_by = c("GROUP_COL", "Cycle")
-)
+understorySpeciesCover2(sample_frame, cycle, group_by = c("Zone", "Cycle"))
 }
 \arguments{
 \item{group_by}{Columns to group by. Must be a subset of \code{c("GROUP_COL", "Cycle")}}

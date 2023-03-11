@@ -884,7 +884,8 @@ understorySunburst <- function(sample_frame, cycle, mgmt_unit = TRUE, colors = "
 #' @return An HTML object (if `crosstalk_filters == TRUE`) or a plotly object.
 #' @export
 #'
-understoryBarCover <- function(sample_frame, crosstalk_filters = TRUE, colors = c("#F8573A", "#F4C47B", "#28468B", "#AED5CB")) {
+understoryBarCover <- function(sample_frame, crosstalk_filters = TRUE,
+                               colors = c("#F8573A", "#F4C47B", "#28468B", "#AED5CB")) {
 
   if (missing(sample_frame)) {
     stop("`sample_frame` is required")
@@ -893,15 +894,16 @@ understoryBarCover <- function(sample_frame, crosstalk_filters = TRUE, colors = 
   und <- understorySpeciesCover2(sample_frame = sample_frame) %>%
     dplyr::mutate(Cycle = as.factor(Cycle),
                   all = "Select all",
-                  hovertext = paste(Scientific_Name, Nativity, paste0(Avg_Cover, "%"), sep = "\n")) %>%
+                  hovertext = paste(Scientific_Name, Nativity,
+                                    paste0(Avg_Cover, "%"), sep = "\n")) %>%
     dplyr::filter(Avg_Cover > 0) %>%
-    dplyr::group_by(GROUP_COL)
+    dplyr::group_by(Zone)
 
   sp_w_cover <- und %>%
     crosstalk::SharedData$new()
 
   cover_bar <- sp_w_cover %>%
-    plotly::plot_ly(type = "bar", x = ~Cycle, y = ~Avg_Cover, color = ~GROUP_COL, strokes = "white", stroke = ~Scientific_Name,
+    plotly::plot_ly(type = "bar", x = ~Cycle, y = ~Avg_Cover, color = ~Zone, strokes = "white", stroke = ~Scientific_Name,
                     colors = colorRamp(colors),
                     text = ~hovertext,
                     hoverinfo = 'text',
@@ -915,7 +917,7 @@ understoryBarCover <- function(sample_frame, crosstalk_filters = TRUE, colors = 
   if (crosstalk_filters) {
     sp_filter <- crosstalk::filter_select("select-sp", "Filter on species", sp_w_cover, ~Scientific_Name, allLevels = FALSE)
     nat_filter <- crosstalk::filter_select("select-nat", "Filter on nativity", sp_w_cover, ~Nativity, allLevels = FALSE)
-    mgmt_filter <- crosstalk::filter_select("select-sp", "Filter on management unit", sp_w_cover, ~GROUP_COL, allLevels = FALSE)
+    mgmt_filter <- crosstalk::filter_select("select-sp", "Filter on management unit", sp_w_cover, ~Zone, allLevels = FALSE)
     nat_filter <- crosstalk::filter_select("select-nat", "Filter on nativity", sp_w_cover, ~Nativity, allLevels = FALSE)
 
     show_all <- crosstalk::filter_select("show_all", "", sp_w_cover, ~all, allLevels = FALSE, multiple = FALSE)
@@ -992,9 +994,10 @@ understorySpeciesCover <- function(sample_frame, cycle, group_by = c("GROUP_COL"
 #' @return A tibble
 #' @export
 #'
-understorySpeciesCover2 <- function(sample_frame, cycle, group_by = c("GROUP_COL", "Cycle")) {
+understorySpeciesCover2 <- function(sample_frame, cycle,
+                                    group_by = c("Zone", "Cycle")) {
   col_order <- c("Unit_Code",
-                 "GROUP_COL",
+                 "Zone",
                  "Sampling_Frame",
                  "Cycle",
                  "Code",
@@ -1009,28 +1012,36 @@ understorySpeciesCover2 <- function(sample_frame, cycle, group_by = c("GROUP_COL
   und <- FilterPACNVeg("Understory", sample_frame = sample_frame, cycle = cycle)  # Only get data from most recent cycle
 
   # PLACEHOLDER
-  # TODO: replace this with actual grouping column
-  set.seed(11) # Set random number generation seed so that GROUP_COL is the same each time
+  # replace this with actual grouping column
+  #set.seed(11) # Set random number generation seed so that GROUP_COL is the same each time
   #und <- mutate(und, GROUP_COL = sample(LETTERS[c(1, 2, 2, 3, 5, 5, 5)], size = dplyr::n(), replace = TRUE))
+  #und <- und %>%
+  #  dplyr::group_by(Cycle, Sampling_Frame, Plot_Number) %>%
+  #  tidyr::nest() %>%
+  #  dplyr::mutate(GROUP_COL = sample(LETTERS[1:5], size = dplyr::n(), replace = TRUE)) %>%
+  #  tidyr::unnest(data) %>%
+  #  dplyr::ungroup()
+
+  # NEW PLACEHOLDER
+  # TODO: fix location of mgmt unit (ie where should it first appear?)
+  mgmt <- readr::read_csv(file = paste0(getwd(),"/R/Events_extra_xy_mgmt.csv"))
   und <- und %>%
-    dplyr::group_by(Cycle, Sampling_Frame, Plot_Number) %>%
-    tidyr::nest() %>%
-    dplyr::mutate(GROUP_COL = sample(LETTERS[1:5], size = dplyr::n(), replace = TRUE)) %>%
-    tidyr::unnest(data) %>%
-    dplyr::ungroup()
+    dplyr::left_join(dplyr::select(mgmt, Zone, Unit_Code, Sampling_Frame, Cycle, Plot_Number),
+                     by = c("Unit_Code", "Sampling_Frame", "Cycle", "Plot_Number"))
+
 
   #und <- und %>%
   #  dplyr::mutate(Life_Form=replace(Life_Form, Code=="SOPCHR", "Shrub"))
 
   # prep data for sunburst plot
   und <- UnderCombineStrata(und) %>%
-    dplyr::mutate(dplyr::across(where(is.character), replace_na, "No Veg")) %>%
+    dplyr::mutate(dplyr::across(where(is.character), tidyr::replace_na, "No Veg")) %>%
     dplyr::group_by(dplyr::across(tidyselect::all_of(c("Unit_Code", "Sampling_Frame", "Plot_Number", "Nativity", "Life_Form", "Scientific_Name", "Code", group_by)))) %>%
     dplyr::summarize(Hits_Sp = dplyr::n(), .groups = "drop") %>%
     #complete(nesting(!!!syms(c("Unit_Code", "Sampling_Frame", "Plot_Number", "Life_Form", "Scientific_Name", "Code", group_by))),
     #         fill = list(Hits_Sp = 0)) %>%
-    complete(nesting(!!!syms(c("Unit_Code", "Sampling_Frame", "Plot_Number", group_by))),
-             nesting(!!!syms(c("Nativity", "Code", "Scientific_Name", "Life_Form"))),
+    tidyr::complete(tidyr::nesting(!!!rlang::syms(c("Unit_Code", "Sampling_Frame", "Plot_Number", group_by))),
+             tidyr::nesting(!!!rlang::syms(c("Nativity", "Code", "Scientific_Name", "Life_Form"))),
              fill = list(Hits_Sp = 0)) %>%
     dplyr::mutate(Plot_Percent = Hits_Sp/300) %>%
     dplyr::group_by(dplyr::across(tidyselect::all_of(c("Unit_Code", "Sampling_Frame", "Nativity", "Life_Form", "Scientific_Name", "Code", group_by)))) %>%
