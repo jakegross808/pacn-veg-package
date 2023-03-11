@@ -27,16 +27,63 @@ LoadPACNVeg(ftpc_params = "pacnveg",
             force_refresh = FALSE)
 
 # ----test mgmt layer function ----
-agol_sample_frame = "Thurston/East Rift"
-writeLines(agol_sample_frame)
-url_test <- httr::parse_url("https://services1.arcgis.com/fBc8EJBxQRMcHlei/arcgis/rest/services/")
-url_test$path <- paste(url_test$path, "PACN_DBO_VEG_sampling_frames_ply/FeatureServer/0/query", sep = "/")
-url_test$query <- list(where = paste0("Sampling_Frame = '", agol_sample_frame, "'"),
+add.mgmt.unit(sample_frame = "All")
+look <- readr::read_csv(file = paste0(getwd(),"/R/Events_extra_xy_mgmt.csv"))
+
+add.mgmt.unit(sample_frame = "Nahuku/East Rift")
+add.mgmt.unit(sample_frame = "Mauna Loa")
+
+# Read/Load AGOL layer:
+url <- httr::parse_url("https://services1.arcgis.com/fBc8EJBxQRMcHlei/arcgis/rest/services/")
+url$path <- paste(url$path, "PACN_DBO_VEG_sampling_frames_ply/FeatureServer/0/query", sep = "/")
+url$query <- list(where = paste0("Sampling_Frame = Sampling_Frame"),
                   outFields = "*",
                   returnGeometry = "true",
                   f = "geojson")
+request <- httr::build_url(url)
+request #print url request
+# Convert AGOL layer into a simple features object
+mgmt_unit <- sf::st_read(request)
 
+# Add line to make geometry valid - otherwise was receiving following error:
+# Error: "Edge 270 has duplicate vertex with edge 273"
+# see following for more information: https://r-spatial.org/r/2017/03/19/invalid.html
+mgmt_unit_valid <- sf::st_make_valid(mgmt_unit)
+
+
+url <- httr::parse_url("https://services.arcgis.com/P3ePLMYs2RVChkJx/arcgis/rest/services")
+url$path <- paste(url$path, "USA_Railroads_1/FeatureServer/0/query", sep = "/")
+url$query <- list(where = "STATE = STATE",
+                  outFields = "*",
+                  returnGeometry = "true",
+                  f = "geojson")
+request <- httr::build_url(url)
+
+Florida_Railroads2 <- sf::st_read(request)
+
+
+
+all_sample_frames = "*"
+url_test <- httr::parse_url("https://services1.arcgis.com/fBc8EJBxQRMcHlei/arcgis/rest/services/PACN_DBO_VEG_sampling_frames_ply/FeatureServer/0/")
+url_test$query <- list(outFields = "*",
+                       returnGeometry = "true",
+                       f = "geojson")
 request <- httr::build_url(url_test)
+request #print url request
+# Convert AGOL layer into a simple features object
+mgmt_unit_test <- sf::st_read(request)
+
+writeLines(agol_sample_frame)
+url_test <- httr::parse_url("https://services1.arcgis.com/fBc8EJBxQRMcHlei/arcgis/rest/services")
+url_test$path <- paste(url_test$path, "PACN_DBO_VEG_sampling_frames_ply/FeatureServer/0/?f=pjson", sep = "/")
+url_test$query <- list(returnGeometry = "true",
+                  f = "geojson")
+request <- httr::build_url(url_test)
+request
+mgmt_unit_test <- sf::st_read(request)
+
+
+request <- "https://services1.arcgis.com/fBc8EJBxQRMcHlei/arcgis/rest/services/PACN_DBO_VEG_sampling_frames_ply/FeatureServer/0/?f=pjson"
 request #print url request
 # Convert AGOL layer into a simple features object
 mgmt_unit_test <- sf::st_read(request)
