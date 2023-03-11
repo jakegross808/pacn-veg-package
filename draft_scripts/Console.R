@@ -26,6 +26,138 @@ LoadPACNVeg(ftpc_params = "pacnveg",
             expire_interval_days = 30,
             force_refresh = FALSE)
 
+# ----test mgmt layer function ----
+agol_sample_frame = "Thurston/East Rift"
+writeLines(agol_sample_frame)
+url_test <- httr::parse_url("https://services1.arcgis.com/fBc8EJBxQRMcHlei/arcgis/rest/services/")
+url_test$path <- paste(url_test$path, "PACN_DBO_VEG_sampling_frames_ply/FeatureServer/0/query", sep = "/")
+url_test$query <- list(where = paste0("Sampling_Frame = '", agol_sample_frame, "'"),
+                  outFields = "*",
+                  returnGeometry = "true",
+                  f = "geojson")
+
+request <- httr::build_url(url_test)
+request #print url request
+# Convert AGOL layer into a simple features object
+mgmt_unit_test <- sf::st_read(request)
+
+
+
+
+check_events <- FilterPACNVeg("Events_extra_xy" ,
+                              is_qa_plot = FALSE,
+                              sample_frame = "Nahuku/East Rift")
+
+add.mgmt.unit(sample_frame = "Nahuku/East Rift")
+add.mgmt.unit(sample_frame = "Mauna Loa")
+
+look <- readr::read_csv(file = paste0(getwd(),"/R/Events_extra_xy_mgmt.csv"))
+
+
+# ----quick lookup of names ----
+names(FilterPACNVeg())
+"Events_extra_xy"
+sfs <- FilterPACNVeg("Events_extra_xy" , is_qa_plot = FALSE) %>%
+  dplyr::pull(Sampling_Frame) %>%
+  unique()
+
+Events_filtered <- Events_extra_xy %>%
+  select(Year, Cycle, Sampling_Frame, Plot_Number, Plot_Type, Center_Lat, Center_Long)
+
+
+# ----Species per park ----
+"SmWoody"
+
+SmWoody <- FilterPACNVeg("SmWoody", is_qa_plot = FALSE) #%>%
+  select(Year, Sampling_Frame, Plot_Number, Scientific_Name)
+
+SmWoody_count <- SmWoody %>%
+  filter(LF_Sm_Woody == "Shrub") %>%
+  group_by(Year, Sampling_Frame, Plot_Number) %>%
+  summarise(all_count = sum(Count))
+# ----Species per park ----
+
+Species_per_plot <- FilterPACNVeg("Presence", is_qa_plot = FALSE) %>%
+  select(Year, Sampling_Frame, Plot_Number, Scientific_Name)
+
+spp_plot_count <- Species_per_plot %>%
+  group_by(Year, Sampling_Frame, Plot_Number) %>%
+  summarise(n = n())
+
+Species_per_park <- FilterPACNVeg("Presence") %>%
+  select(Year, Scientific_Name) %>%
+  distinct() %>%
+  group_by(Year) %>%
+  summarise(n = n())
+
+Species_total <- FilterPACNVeg("Presence") %>%
+    select(Scientific_Name) %>%
+    distinct()
+
+g <- ggplot(Species_per_park, aes(Year)) +
+  geom_bar()
+g
+
+
+# ----Look at Mgmt Layer ----
+leaflet::leaflet() %>%
+  leaflet.esri::addEsriBasemapLayer(leaflet.esri::esriBasemapLayers$Streets) %>%
+  leaflet.esri::addEsriFeatureLayer(options = leaflet.esri::featureLayerOptions(where = paste0("Sampling_Frame == '", sample_frame, "'")),
+                                    group = "Sampling Frame",
+                                    url = "https://services1.arcgis.com/fBc8EJBxQRMcHlei/arcgis/rest/services/PACN_DBO_VEG_sampling_frames_ply/FeatureServer/0")
+
+leaflet::leaflet() %>%
+  leaflet.esri::addEsriBasemapLayer(leaflet.esri::esriBasemapLayers$Streets) %>%
+  leaflet.esri::addEsriFeatureLayer(url = paste0("https://services1.arcgis.com/fBc8EJBxQRMcHlei/ArcGIS/rest/services/",
+                                                 "PACN_DBO_VEG_sampling_frames_ply/FeatureServer/0"),
+                                    useServiceSymbology = TRUE,)
+
+sample_frame = "Hoolehua"
+
+MapPACNVeg2(sample_frame = sample_frame)
+
+sample_frame = "KALA Coast"
+
+leaflet::leaflet() %>%
+  leaflet.esri::addEsriBasemapLayer(leaflet.esri::esriBasemapLayers$Streets) %>%
+  leaflet.esri::addEsriFeatureLayer(options = leaflet.esri::featureLayerOptions(where = paste0("Sampling_Frame = '", sample_frame, "'")),
+                                    url = paste0("https://services1.arcgis.com/fBc8EJBxQRMcHlei/arcgis/rest/services/",
+                                                 "PACN_DBO_VEG_sampling_frames_ply/FeatureServer/0"),
+                                    useServiceSymbology = TRUE,
+                                    labelProperty = "Zone")
+
+leaflet::leaflet() %>%
+  leaflet.esri::addEsriBasemapLayer(leaflet.esri::esriBasemapLayers$Streets) %>%
+  leaflet.esri::addEsriFeatureLayer(url = paste0("https://services.arcgis.com/rOo16HdIMeOBI4Mb/arcgis/rest/services/",
+                                                 "Heritage_Trees_Portland/FeatureServer/0"),
+                                    useServiceSymbology = TRUE,)
+
+leaflet::leaflet() %>%
+  leaflet.esri::addEsriBasemapLayer(leaflet.esri::esriBasemapLayers$Streets) %>%
+  leaflet.esri::addEsriFeatureLayer(options = leaflet.esri::featureLayerOptions(where = paste0("Sampling_Frame == '", sample_frame, "'")),
+                                    group = "Sampling Frame",
+                                    url = "https://services1.arcgis.com/fBc8EJBxQRMcHlei/arcgis/rest/services/PACN_DBO_VEG_sampling_frames_ply/FeatureServer/0")
+
+leaflet::leaflet() %>%
+  leaflet.esri::addEsriBasemapLayer(leaflet.esri::esriBasemapLayers$Streets) %>%
+  leaflet::setView(-122.667, 45.526, 13) %>%
+  leaflet.esri::addEsriFeatureLayer(
+    url = paste0("https://services.arcgis.com/rOo16HdIMeOBI4Mb/arcgis/rest/services/",
+                 "Heritage_Trees_Portland/FeatureServer/0"),
+    useServiceSymbology = TRUE,
+    labelProperty = "COMMON_NAM", labelOptions = leaflet::labelOptions(textsize = "12px"),
+    popupProperty = leaflet::JS(paste0(
+      "function(feature) {",
+      "  return L.Util.template(",
+      "    \"<h3>{COMMON_NAM}</h3><hr />",
+      "      <p>This tree is located at {ADDRESS} and its scientific name is {SCIENTIFIC}.</p>",
+      "    \",",
+      "    feature.properties",
+      "  );",
+      "}"
+    )))
+
+
 # ----quick lookup of names ----
 names(FilterPACNVeg())
 
@@ -100,49 +232,6 @@ process_photos(AGOL_Layer = "Plants",
                       return_table = FALSE)
 
 
-# ----Look at Mgmt Layer ----
-sample_frame = "Olaa"
-
-MapPACNVeg2(sample_frame = sample_frame)
-
-leaflet::leaflet() %>%
-  leaflet.esri::addEsriBasemapLayer(leaflet.esri::esriBasemapLayers$Streets) %>%
-  leaflet.esri::addEsriFeatureLayer(options = leaflet.esri::featureLayerOptions(where = paste0("Sampling_Frame = '", sample_frame, "'")),
-                                    url = paste0("https://services1.arcgis.com/fBc8EJBxQRMcHlei/arcgis/rest/services/",
-                                                 "PACN_DBO_VEG_sampling_frames_ply/FeatureServer/0"),
-                                    useServiceSymbology = TRUE,
-                                    labelProperty = "Zone")
-
-leaflet::leaflet() %>%
-  leaflet.esri::addEsriBasemapLayer(leaflet.esri::esriBasemapLayers$Streets) %>%
-  leaflet.esri::addEsriFeatureLayer(url = paste0("https://services.arcgis.com/rOo16HdIMeOBI4Mb/arcgis/rest/services/",
-                                                 "Heritage_Trees_Portland/FeatureServer/0"),
-                                    useServiceSymbology = TRUE,)
-
-leaflet::leaflet() %>%
-  leaflet.esri::addEsriBasemapLayer(leaflet.esri::esriBasemapLayers$Streets) %>%
-  leaflet.esri::addEsriFeatureLayer(options = leaflet.esri::featureLayerOptions(where = paste0("Sampling_Frame == '", sample_frame, "'")),
-                                    group = "Sampling Frame",
-                                    url = "https://services1.arcgis.com/fBc8EJBxQRMcHlei/arcgis/rest/services/PACN_DBO_VEG_sampling_frames_ply/FeatureServer/0")
-
-leaflet::leaflet() %>%
-  leaflet.esri::addEsriBasemapLayer(leaflet.esri::esriBasemapLayers$Streets) %>%
-  leaflet::setView(-122.667, 45.526, 13) %>%
-  leaflet.esri::addEsriFeatureLayer(
-    url = paste0("https://services.arcgis.com/rOo16HdIMeOBI4Mb/arcgis/rest/services/",
-                 "Heritage_Trees_Portland/FeatureServer/0"),
-    useServiceSymbology = TRUE,
-    labelProperty = "COMMON_NAM", labelOptions = leaflet::labelOptions(textsize = "12px"),
-    popupProperty = leaflet::JS(paste0(
-      "function(feature) {",
-      "  return L.Util.template(",
-      "    \"<h3>{COMMON_NAM}</h3><hr />",
-      "      <p>This tree is located at {ADDRESS} and its scientific name is {SCIENTIFIC}.</p>",
-      "    \",",
-      "    feature.properties",
-      "  );",
-      "}"
-    )))
 
 
 # ----Check new presence function 1/3/2023 ----
@@ -774,6 +863,9 @@ Species_lump2 <- Species_lump %>%
 Species_extra <- FilterPACNVeg("Species_extra") %>%
   dplyr::left_join(Species_lump2, by = c("Park" = "Lump_Park", "Genus" = "Lump_Genus", "Species" = "Lump_Species"))
 
+Species_per_park <- Species_extra %>%
+  group_by(Lump_Park, Lump_Genus, Lump_Species) %>%
+  distinct()
 
 
 # EIPS functions Test ----

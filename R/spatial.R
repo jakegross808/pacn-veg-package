@@ -693,3 +693,158 @@ MapPACNVeg2 <- function(protocol = c("FTPC", "EIPS"), crosstalk = FALSE, crossta
 
   return(map)
 }
+
+#' Add Management Unit
+#'
+#' Adds Management Unit and Zone Categorical Variables to Events Table and
+#'
+#' Saves a new Table (tibble) with management unit for use in other functions.
+#' Management unit is added to the table by performing a spatial join
+#' using both a specific AGOL management layer (hard coded)
+#' and the X,Y plot center coordinates found in the Events table.
+#'
+#' @param sample_frame Sampling_Frame name. For all sampling frames, use: Sampling_Frame = "All"
+#'
+#' @return A tibble copy of "Events_extra_xy" with columns 'Zone' and 'Mgmt' added for each event.
+#' Saved to R folder for now.
+#' @export
+#'
+add_mgmt_unit <- function(sample_frame){
+  # Get events table with plot locations:
+  if (sample_frame == "All") {
+    Events_filtered <- FilterPACNVeg("Events_extra_xy" ,
+                                     is_qa_plot = FALSE)
+  } else {
+    Events_filtered <- FilterPACNVeg("Events_extra_xy" ,
+                                     sample_frame = sample_frame,
+                                     is_qa_plot = FALSE)
+  }
+
+  # Add message if missing center X, Y coordinates
+  # populate center coordinates with start coordinates, if available
+  missing_center_xy <- Events_filtered %>%
+    dplyr::filter(is.na(Center_Lat) | is.na(Center_Long)) %>%
+    dplyr::select(-Azimuth_Plot, -QA_Plot, -GCS, -Lat_Dir, -Long_Dir, -Certified, -Verified)
+
+  count_missing_center_xy <- nrow(missing_center_xy)
+
+  if (nrow(missing_center_xy) > 0) {
+    message(paste0(count_missing_center_xy, " records are missing plot center X,Y coordinates:"))
+    print(missing_center_xy)
+    message("Using Start_Lat, Start_Long if avaiable")
+
+    Events_filtered <- Events_filtered %>%
+      dplyr::mutate(Center_Lat = dplyr::case_when(
+        is.na(Center_Lat) ~ Start_Lat,
+        TRUE ~ Center_Lat)) %>%
+      dplyr::mutate(Center_Long = dplyr::case_when(
+        is.na(Center_Long) ~ Start_Long,
+        TRUE ~ Center_Long))
+  }
+
+  # Add message if missing center X, Y coordinates
+  # populate center coordinates with start coordinates, if available
+  still_missing_center_xy <- Events_filtered %>%
+    dplyr::filter(is.na(Center_Lat) | is.na(Center_Long)) %>%
+    dplyr::select(-Azimuth_Plot, -QA_Plot, -GCS, -Lat_Dir, -Long_Dir, -Certified, -Verified)
+
+  count_still_missing_center_xy <- nrow(still_missing_center_xy)
+
+  if (nrow(still_missing_center_xy) > 0) {
+    message(paste0(count_still_missing_center_xy, " records are missing BOTH",
+                   " center & start X,Y coordinates. These records were dropped:"))
+    print(still_missing_center_xy)
+
+    Events_filtered <- Events_filtered %>%
+      dplyr::filter(!is.na(Center_Lat))
+  }
+
+  # Make the events table a simple features object for spatial join
+  # Use the plot center coordinates as the spatial location
+  # 'crs = 4326' is saying the coordinate reference system used is EPSG 4326
+  # 4326 is the EPSG registry identifier for WGS84
+
+  plots_sf <- sf::st_as_sf(Events_filtered, coords = c("Center_Long", "Center_Lat"), crs = 4326)
+
+  # Sampling Frames in AGOL currently do not have same names as in database...
+  # GIS layer should match sampling frame names from database in the future,
+  # Temporary Fixes for this go here:
+  if (sample_frame == "Mauna Loa" | sample_frame == "Haleakala") {
+    agol_sample_frame <- "Subalpine Shrubland"
+
+  } else if (sample_frame == "Guam") {
+    agol_sample_frame <- "Limestone Forest"
+
+  } else if (sample_frame == "Nahuku/East Rift") {
+    agol_sample_frame <- "Thurston/East Rift"
+
+  } else if (sample_frame == "Hoolehua" | sample_frame == "Kalawao") {
+    agol_sample_frame <- "KALA Coast"
+
+  } else {
+    agol_sample_frame <- sample_frame
+  }
+
+  if (sample_frame == "All") {
+    # Read/Load AGOL layer:
+    url <- httr::parse_url("https://services1.arcgis.com/fBc8EJBxQRMcHlei/arcgis/rest/services/")
+    url$path <- paste(url$path, "PACN_DBO_VEG_sampling_frames_ply/FeatureServer/0/query", sep = "/")
+    url$query <- list(where = paste0("Sampling_Frame = Sampling_Frame"),
+                      outFields = "*",
+                      returnGeometry = "true",
+                      f = "geojson")
+    request <- httr::build_url(url)
+    request #print url request
+  } else {
+
+    # Read/Load AGOL layer:
+    url <- httr::parse_url("https://services1.arcgis.com/fBc8EJBxQRMcHlei/arcgis/rest/services/")
+    url$path <- paste(url$path, "PACN_DBO_VEG_sampling_frames_ply/FeatureServer/0/query", sep = "/")
+    url$query <- list(where = paste0("Sampling_Frame = '", agol_sample_frame, "'"),
+                      outFields = "*",
+                      returnGeometry = "true",
+                      f = "geojson")
+    request <- httr::build_url(url)
+    request #print url request
+  }
+
+  # Convert AGOL layer into a simple features object
+  mgmt_unit <- sf::st_read(request)
+
+  # Add line to make geometry valid - otherwise was receiving following error:
+  # Error: "Edge 270 has duplicate vertex with edge 273"
+  # see following for more information: https://r-spatial.org/r/2017/03/19/invalid.html
+  mgmt_unit_valid <- sf::st_make_valid(mgmt_unit)
+
+  #st_is_valid(mgmt_unit, reason = TRUE)
+  #st_is_valid(mgmt_unit_valid, reason = TRUE)
+  # An alternative to "st_make_valid" is to turn spherical geometry off:
+  #sf_use_s2(TRUE) # turn off spherical geometry
+
+  # Spatially join plot locations with mgmt unit layer
+  # copies mgmt unit attribute (categorical variable) to the events (plots) table:
+  plots_mgmt_sf <- sf::st_join(plots_sf, mgmt_unit_valid)
+
+  # Drop sf geometry from table
+  plots_mgmt <- plots_mgmt_sf %>%
+    sf::st_drop_geometry()
+
+  # Pull center coordinates from geometry and
+  # put coordinates back into X,Y (Center_Long, Center_Lat) columns for the events table
+  xy <- sf::st_coordinates(plots_mgmt_sf$geometry) %>%
+    tibble::as_tibble() %>%
+    dplyr::select(Center_Long = X, Center_Lat = Y) %>%
+    dplyr::bind_cols(plots_mgmt)
+
+  # Select columns to match original Events table
+  plots_mgmt <- xy %>%
+    dplyr::select(Unit_Code = Unit_Code.x, Sampling_Frame = Sampling_Frame.x,
+                  Year, Cycle, Plot_Type, Plot_Number, Azimuth_Plot, QA_Plot,
+                  Start_Lat, Start_Long, Center_Lat, Center_Long, End_Lat, End_Long,
+                  GCS, Lat_Dir, Long_Dir, Certified, Verified,
+                  Zone) # Add Mgmt Unit here when available
+
+  # Write to R folder in project. Is this best location?
+  readr::write_csv(plots_mgmt, file = paste0(getwd(),"/R/Events_extra_xy_mgmt.csv"))
+
+}
