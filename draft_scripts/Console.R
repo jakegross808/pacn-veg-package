@@ -12,6 +12,7 @@ vegmap_db_paths <- c("C:/Users/JJGross/OneDrive - DOI/Documents/Veg_Map_Data/hav
 library(pacnvegetation)
 
 library(tidyverse)
+library(magrittr)
 
 # if need to install packages while on network
 #options(download.file.method = "wininet")
@@ -25,6 +26,368 @@ LoadPACNVeg(ftpc_params = "pacnveg",
             cache = TRUE,
             expire_interval_days = 30,
             force_refresh = FALSE)
+
+# ----Clidemia in NPSA----
+spp_chg_und <- summarize_understory(combine_strata = TRUE,
+                     plant_grouping = "Species",
+                     paired_change = TRUE,
+                     park = "NPSA")
+
+clihir_chg_und <- spp_chg_und %>%
+  filter(Scientific_Name == "Clidemia hirta")
+
+# Nativity discrete scale Colors:
+param <- "Cover"
+
+nativity_colors <- c("Native" = "#1b9e77",
+                     "No_Veg" = "grey",
+                     "Non-Native" = "#d95f02",
+                     "Unknown" = "#7570b3")
+
+# add stats
+clihir_chg_und_stats <- add_stats(clihir_chg_und, Unit_Code, Sampling_Frame,
+                              Cycle, Year, Stratum, Nativity, Scientific_Name)
+
+# sample size calculation for text (output is on graph caption)
+sample_size <- clihir_chg_und_stats %>%
+  dplyr::filter(NPLOTS != 0) %>%
+  dplyr::filter(Parameter == param) %>%
+  dplyr::select(Sampling_Frame, Year, NPLOTS) %>%
+  dplyr::distinct() %>%
+  dplyr::group_by(Sampling_Frame) %>%
+  dplyr::mutate(count_cycles = match(Year, unique(Year))) %>%
+  dplyr::mutate(SF = paste0("; ", Sampling_Frame, ": ")) %>%
+  dplyr::mutate(SF = dplyr::case_when(count_cycles == 1 ~ SF,
+                                      TRUE ~ "")) %>%
+  dplyr::mutate(Text = paste0(SF, Year, " [n = ", NPLOTS, "]")) %>%
+  dplyr::pull(Text) %>%
+  paste(collapse = ", ") %>%
+  stringr::str_sub(3) %>%
+  stringr::str_replace_all(", ;", ";")
+sample_size
+
+#........BAR YEARLY MEANS
+label_param <- stringr::str_replace_all(param, "_", " ")
+
+plot <- clihir_chg_und_stats %>%
+  dplyr::mutate(SF_no_space = stringr::str_replace_all(Sampling_Frame, " ", "_")) %>%
+  dplyr::filter(NPLOTS != 0) %>%
+  dplyr::filter(Parameter == param) %>%
+  ggplot2::ggplot(ggplot2::aes(x = Year, y = MEAN, fill = Nativity)) +
+  ggplot2::geom_col(position = ggplot2::position_dodge()) +
+  ggplot2::geom_errorbar(ggplot2::aes(ymin=L, ymax=R), width=.2,
+                         position=ggplot2::position_dodge(.9)) +
+  ggplot2::geom_hline(yintercept = 0) +
+  ggplot2::labs(y = paste(label_param, "(% Cover)")) +
+  #ggh4x package allows nested facets:
+  #ggplot2::facet_grid(Stratum ~ SF_no_space + Nativity,
+  #                    labeller = ggplot2::label_parsed,
+  #                    scales = "free_x") +
+  ggplot2::facet_grid(Scientific_Name ~ Sampling_Frame) +
+  ggplot2::scale_fill_manual(values = nativity_colors, limits = force) +
+  ggplot2::xlab("Year") +
+  ggplot2::theme(legend.position="none") +
+  ggplot2::labs(caption = sample_size) +
+  ggplot2::theme(axis.text.x=ggplot2::element_text(angle = 90, hjust = 0, vjust = 0.5))
+
+plot
+
+data_table <- clihir_chg_und
+paired_change <- FALSE
+interactive <- TRUE
+
+# Get max value for plotting data
+#toplot.max <- data_table %>%
+#  dplyr::ungroup() %>%
+#  dplyr::select(dplyr::starts_with(c("Cover")))
+#toplot.max <- max(c(abs(max(toplot.max, na.rm = TRUE)), abs(min(toplot.max, na.rm = TRUE))))
+
+input <- data_table %>%
+  filter(Sampling_Frame == "Tau") %>%
+  drop_na(Chg_Prior) %>%
+  dplyr::arrange(-Chg_Prior)
+
+
+param_cols <- input %>%
+  dplyr::pull(Chg_Prior)
+
+input <- dplyr::mutate(input, key = paste0(Unit_Code, Sampling_Frame, Plot_Type, Plot_Number, Year, Cycle)) #crosstalk recommends using unique key
+input <- crosstalk::SharedData$new(input, group = "ctg", key = ~key)
+input_table <- input$data()
+
+
+plt3 <- plotly::plot_ly(data = input,
+                       x = ~Plot_Number,
+                       y = ~Chg_Prior,
+                       type = "bar",
+                       colors = pal) %>%
+  layout(title = 'Change in Clidemia cover - Tau',
+         xaxis = list(categoryorder = "trace",
+                      title = "Plot Number"),
+         yaxis = list(title = '% Cover'))
+
+plt3
+
+map_input_dataset <- input_table %>%
+  mutate(Plot_Number = as.integer(Plot_Number))
+
+map3 <- MapCoverTotal3(sample_frame = "Tau", map_dataset = map_input_dataset, crosstalk = TRUE, crosstalk_group = "ctg")
+map3
+bscols(widths = c(6, NA), plt3, map3)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+input <- data_table %>%
+  filter(Sampling_Frame == "Tau")
+
+plt <- plotly::plot_ly(colors = pal) %>%
+  #plotly::highlight_key(~Plot_Number) %>%
+  plotly::plot_ly(data = input,
+                      x = ~ Plot_Number,
+                      y = ~ Cover,
+                      hoverinfo = "text",
+                      #groups = ~Plot_Number,
+                      color = ~ Cover,
+                      type = "scatter",
+                      marker = list(line = list(color = "black"), width = 2, size = ~ Cover*.1),
+                      text = ~paste('</br> Plot: ', Plot_Number,
+                                    '</br> Year: ', Year,
+                                    '</br> Cover: ', round(Cover, 1)),
+                      showlegend = TRUE,
+                      name = "Plot") %>%
+  plotly::highlight(on = "plotly_hover", off = "plotly_doubleclick") %>%
+  plotly::layout(xaxis = list(title = "Native cover"), #, range = lims
+                 yaxis = list(title = "Non-native cover")) %>% #, range = lims
+  plotly::colorbar(title = "% Cover", limits = c(0,100))
+plt
+
+
+# If 'year_filter == TRUE' then add filter checkbox:
+if (year_filter) {
+  box_filter <- crosstalk::filter_checkbox("html_year_id", "Year", data, ~Year, inline = TRUE)
+
+  plt <- crosstalk::bscols(
+    widths = c(12, 12),
+    plt, box_filter)
+}
+
+return(plt)
+
+# Total cover plots
+if (!paired_change) {
+  if (interactive) {
+    plot.nat_v_non <- pacnvegetation:::totalCover_plotly(data, toplot.max, year_filter = year_filter)  # Plot total cover in plotly
+  } else {
+    plot.nat_v_non <- totalCover_ggplot(data, toplot.max)  # Plot total cover in ggplot
+  }
+}
+
+# Paired change plots
+if (paired_change) {
+  if (interactive) {
+    plot.nat_v_non <- changeInCover_plotly(data, toplot.max)  # Plot paired change in plotly
+  } else {
+    plot.nat_v_non <- changeInCover_ggplot(data, toplot.max)  # Plot paired change in ggplot
+  }
+}
+
+return(plot.nat_v_non)
+
+v_cover_plot_bar_nativity()
+
+MapPACNVeg2(protocol = "FTPC", sample_frame = "Tutuila", cycle = 1)
+
+Plot_Presence <- FilterPACNVeg("Presence", is_qa_plot = FALSE) %>%
+  select(Year, Sampling_Frame, Plot_Number, Scientific_Name)
+
+sp_Plot_Presence <- Plot_Presence %>%
+  filter(Scientific_Name == "Clidemia hirta") %>%
+  group_by(Year, Sampling_Frame) %>%
+  summarise(n = n())
+
+
+# ----Test why MapPACNVeg2 does not work with null transects----
+
+# Because you have to specify no EIPS protocol
+
+# this works:
+MapPACNVeg2(protocol = "FTPC", sample_frame = "Tau")
+# this does not:
+MapPACNVeg2(sample_frame = "Tau")
+# because default is:
+MapPACNVeg2(protocol = c("FTPC", "EIPS"), sample_frame = "Tau")
+
+names(FilterPACNVeg())
+
+EIPS_in_park <- FilterPACNVeg("EIPS_data", is_qa_plot = FALSE) %>%
+  select(Sampling_Frame) %>%
+  distinct() %>%
+  drop_na()
+
+FTPC_in_park <- FilterPACNVeg("Presence", is_qa_plot = FALSE) %>%
+  select(Sampling_Frame) %>%
+  distinct() %>%
+  drop_na()
+
+anti_join(FTPC_in_park, EIPS_in_park)
+
+no_eips <- c("Guam", "Tau", "Tutuila", "Puu Alii", "Kaloko-Honokohau")
+
+if (sf %in% no_eips){
+  protocol <- "FTPC"
+  } else {
+    protocol <- c("FTPC", "EIPS")
+}
+
+protocol
+
+# Protocols per Park
+
+# ----Plot Presence of a Species ----
+
+Plot_Presence <- FilterPACNVeg("Presence", is_qa_plot = FALSE) %>%
+  select(Year, Sampling_Frame, Plot_Number, Scientific_Name)
+
+sp_Plot_Presence <- Plot_Presence %>%
+  filter(Scientific_Name == "Clidemia hirta") %>%
+  group_by(Year, Sampling_Frame) %>%
+  summarise(n = n())
+
+Species_per_park <- FilterPACNVeg("Presence") %>%
+  select(Year, Scientific_Name) %>%
+  distinct() %>%
+  group_by(Year) %>%
+  summarise(n = n())
+
+# FM Species List - HALE ----
+
+HALE_veg <- readxl::read_xlsx("C:/Users/JJGross/Downloads/NPSpecies_FullListWithDetails_HALE_20230419182817.xlsx")
+KALA_veg <- readxl::read_xlsx("C:/Users/JJGross/Downloads/NPSpecies_FullListWithDetails_KALA_20230419182842.xlsx")
+
+MAUI_NUI_veg <- bind_rows(HALE_veg, KALA_veg)
+
+names(MAUI_NUI_veg)
+head(MAUI_NUI_veg)
+
+MAUI_NUI_veg2 <- MAUI_NUI_veg %>%
+  dplyr::select(Unit = "Park Code", Family, Scientific_Name = "Scientific Name", Common_Names = "Common Names", Occurrence, Nativeness, Abundance) %>%
+  dplyr::group_by(Scientific_Name) %>%
+  dplyr::mutate(Units = paste(Unit, collapse = ", "),
+                Occurrence = paste(Occurrence, collapse = ", "),
+                Abundance = paste(Abundance, collapse = ", ")) %>%
+  tidyr::separate(Common_Names, c("Common_Name", NA), sep = ",", remove = FALSE) %>%
+  dplyr::select(Family, Scientific_Name, Nativeness, Common_Name, Units, Occurrence, Abundance) %>%
+  dplyr::distinct(Scientific_Name, .keep_all = TRUE) %>%
+  dplyr::arrange(Family, Scientific_Name)
+
+unique(MAUI_NUI_veg2$Abundance)
+
+# use write_excel_csv to preserve hawaiian diacriticals
+readr::write_excel_csv(MAUI_NUI_veg2, "C:/Users/JJGross/Downloads/NPSpecies_Mauinui_20230419.csv")
+
+# Look at shapefile ----
+library(sf)
+library(leaflet)
+folder <- "C:/Users/JJGross/Downloads/FinalManagementUnitClips/FinalManagementUnitClips/"
+shps <- list.files(path = folder, pattern = "\\.shp$")
+shps
+
+for (i in shps) {
+
+  print(i)
+
+  if (exists("sf_objects") == FALSE) {
+    sf_objects <- sf::st_read(paste0(folder, i)) %>%
+      sf::st_transform('+proj=longlat +datum=WGS84')
+    print(sf::st_crs(sf_objects))
+    count <- 1
+  }
+
+  if (exists("sf_objects") == TRUE) {
+  sf_object <- sf::st_read(paste0(folder, i)) %>%
+    sf::st_transform('+proj=longlat +datum=WGS84')
+
+  print(sf::st_crs(sf_object))
+
+  sf_objects <- rbind(sf_objects, sf_object)
+
+  count <- count + 1
+  }
+
+  print(paste("count = ", count))
+
+  }
+
+shps
+
+
+
+!exists("blah")
+st_crs(HALE_mgmt_layer)
+st_bbox(HALE_mgmt_layer)
+
+leaflet(HALE_mgmt_layer_wgs84) %>%
+  addProviderTiles("CartoDB.Positron") %>%
+  addPolygons()
+
+sample_frame <- "Kipahulu"
+map <- leaflet::leaflet(pts) %>%
+  leaflet::addTiles(group = "Basic", urlTemplate = NPSbasic, attribution = NPSAttrib) %>%
+  leaflet::addTiles(group = "Imagery", urlTemplate = NPSimagery, attribution = NPSAttrib) %>%
+  leaflet::addTiles(group = "Slate", urlTemplate = NPSslate, attribution = NPSAttrib) %>%
+  leaflet::addTiles(group = "Light", urlTemplate = NPSlight, attribution = NPSAttrib) %>%
+  leaflet.esri::addEsriFeatureLayer(options = leaflet.esri::featureLayerOptions(where = paste0("Sampling_Frame = '", sample_frame, "'")),
+                                    group = "Sampling Frame",
+                                    url = "https://services1.arcgis.com/fBc8EJBxQRMcHlei/arcgis/rest/services/PACN_DBO_VEG_sampling_frames_ply/FeatureServer/0",
+                                    useServiceSymbology = TRUE,
+                                    labelProperty = "Sampling_Frame") %>%
+  leaflet::addLayersControl(baseGroups = c("Basic", "Imagery", "Slate", "Light"),
+                            overlayGroups = c("Sampling Frame", grps),
+                            options=leaflet::layersControlOptions(collapsed = TRUE)) %>%
+  leaflet::addMarkers(lng = ~Long,
+                      lat = ~Lat,
+                      icon = ~leaflet::icons(iconUrl = custom_icons,
+                                             iconWidth = symb_w,
+                                             iconHeight = symb_h),
+                      group = ~paste(Protocol, "points"),
+                      label = ~Sample_Unit_Number,
+                      labelOptions = leaflet::labelOptions(noHide = TRUE, opacity = .9, textOnly = TRUE, offset = c(0,0), direction = "center", style = list("color" = "white", "font-weight" = "bold")),
+                      popup = ~paste0("<strong>", Protocol, " ", Sample_Unit, ":</strong> ", Sample_Unit_Number,
+                                      "<br><strong>", Sample_Unit, " Type:</strong> ", Sample_Unit_Type,
+                                      "<br><strong>Sampling Frame:</strong> ", Sampling_Frame,
+                                      "<br><strong>Cycle:</strong> ", Cycle,
+                                      "<br><strong>Year:</strong> ", Year))
+
+
+
+
+
+# Test KAHO brief
+
+MapPACNVeg2(sample_frame = "Kaloko-Honokohau")
+
+# List all sampling frames----
+all_samp_frames <- FilterPACNVeg("Presence") %>%
+  pull(Sampling_Frame) %>%
+  unique()
+all_samp_frames
+
+# check Albizia for Dave ----
+detections <- FilterPACNVeg("Presence") %>%
+  filter(Sampling_Frame == "Puu Alii") %>%
+  #select(Scientific_Name, Code, Life_Form, Nativity, Family) %>%
+  distinct()
 
 # ----test GROUP ----
 mgmt_test <- readr::read_csv(file = paste0(getwd(),"/R/Events_extra_xy_mgmt.csv"))
