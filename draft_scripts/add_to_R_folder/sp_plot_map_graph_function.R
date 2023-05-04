@@ -95,11 +95,16 @@ v_cover_bar_stats(combine_strata = TRUE,
                   paired_change = TRUE,
                   )
 
-v_cover_bar_stats(sample_frame = "Tau",
-                  combine_strata = TRUE,
-                  plant_grouping = "Life_Form",
-                  paired_change = FALSE,
-                  parameter = "Cover")
+v_cover_bar_stats(
+  #sample_frame = "Tau",
+  combine_strata = TRUE,
+  plant_grouping = "Life_Form",
+  paired_change = FALSE,
+  parameter = "Cover",
+  park = "NPSA",
+  species_filter =
+  spec
+  )
 
 
 und_test2 <- summarize_understory(combine_strata = FALSE,
