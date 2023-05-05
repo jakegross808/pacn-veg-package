@@ -20,10 +20,10 @@ LoadPACNVeg(ftpc_params = "pacnveg",
 
 # ----Clidemia in NPSA----
 understory2_test <- summarize_understory(combine_strata = TRUE,
-                                    plant_grouping = "Life_Form",
+                                    plant_grouping = "Species",
                                     paired_change = FALSE,
                                     #sample_frame = "Tau"
-                                    park = "NPSA",
+                                    park = "AMME",
                                     #species_code = c("CLIHIR1", "MIKMIC", "LOMCOR","HUMHET")
                                     )
 
@@ -95,17 +95,36 @@ v_cover_bar_stats(combine_strata = TRUE,
                   paired_change = TRUE,
                   )
 
-v_cover_bar_stats(
+l <- v_cover_bar_stats(
   #sample_frame = "Tau",
   combine_strata = TRUE,
-  plant_grouping = "Life_Form",
+  measurement = "Cover",
+  plant_grouping = "Species",
   paired_change = FALSE,
-  parameter = "Cover",
   park = "NPSA",
-  species_filter =
-  spec
+  species_filter = "Clidemia hirta",
+  #plot_number = c("2","4","6","9"),
+  #year = "2019"
   )
 
+l
+
+l +
+  facet_grid(SF_no_space ~ Stratum, switch = "y", scales = "free_y") +
+  theme(strip.text.y.left = element_text(angle = 0))
+l
+
+l + facet_grid(SF_no_space ~ ., scales="free_y")
+l + facet_grid(SF_no_space ~ .)
+
+l +
+  facet_grid(~factor(Scientific_Name, levels=c('Acrostichum aureum', 'Hibiscus tiliaceus', 'Mikania spp', ...)))
+
+l <- l +
+  coord_flip() +
+  facet_grid(.data[[summary_param]] + SF_no_space ~ ., switch = "y") +
+  theme(strip.text.y.left = element_text(angle = 0))
+l
 
 und_test2 <- summarize_understory(combine_strata = FALSE,
                                     plant_grouping = "Nativity",

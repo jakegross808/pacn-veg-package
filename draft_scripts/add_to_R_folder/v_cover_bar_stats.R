@@ -1,4 +1,4 @@
-#' Stats Bar Plot for Understory Cover by Species or Nativity
+#' Stats Bar Plot for Understory Cover by Species, Life form, Nativity, or no grouping (all cover lumped)
 #'
 #' @inheritParams summarize_understory
 #'
@@ -7,7 +7,7 @@
 #' "Life_Form" = Cover values grouped into native and non-native lifeforms (e.g. Trees, Shrubs, Ferns).
 #' "Species" = Cover values for individual plant species.
 #'
-#' @param parameter "Cover" = Total % Cover for plant_grouping.
+#' @param measurement "Cover" = Total % Cover for plant_grouping.
 #' "Chg_Prior = Difference between Cover for a selected cycle and the previous cycle.
 #' "Years_Prior" = Number of years between sampling cycles.
 #' "Chg_Per_Year" = Chg_Prior divided by Years_Prior.
@@ -22,7 +22,7 @@
 #' }
 
 v_cover_bar_stats <- function(combine_strata = FALSE, plant_grouping = "Nativity", species_filter,
-                                      paired_change = FALSE, parameter = "Cover", park, sample_frame, community,
+                                      paired_change = FALSE, measurement = "Cover", park, sample_frame, community,
                                       year, cycle, plot_type, plot_number, filter_Code, silent = FALSE) {
 
 # Removed this error because actually filtering by species before summarizing by lifeform, etc. has advantages
@@ -31,6 +31,15 @@ v_cover_bar_stats <- function(combine_strata = FALSE, plant_grouping = "Nativity
 #  }
 
   # Set plant_grouping_vars used for calculating stats based on plant_grouping argument
+  if (plant_grouping == "Species") {
+    summary_param <- "Scientific_Name"
+  } else if (plant_grouping == "None") {
+    summary_param <- "Sampling_Frame"
+  } else {
+    summary_param <- plant_grouping
+
+  }
+
 
   if (plant_grouping == "None") {
     plant_grouping_vars <- c()
@@ -59,23 +68,25 @@ v_cover_bar_stats <- function(combine_strata = FALSE, plant_grouping = "Nativity
 
   if (!missing("species_filter")) {
     understory2 <- understory2 %>%
-      filter()
+      filter(Scientific_Name %in% species_filter)
   }
 
+  if (plant_grouping != "None") {
 
+    unknown_cover <- understory2 %>%
+      dplyr::filter(.data[[summary_param]] == "Unknown" & "Cover" > 0)
 
+    unk_cover_tot <- unknown_cover %>%
+      dplyr::pull("Cover") %>%
+      sum()
 
-  unknown_cover <- understory2 %>%
-    dplyr::filter(.data[[plant_grouping]] == "Unknown" & .data[[parameter]] > 0)
-
-  unk_cover_tot <- unknown_cover %>%
-    dplyr::pull(.data[[parameter]]) %>%
-    sum()
-
-  understory3 <- understory2 %>%
-    dplyr::filter(Stratum != "No_Veg",
-                  Nativity != "Unknown")
-  message(paste0(round(unk_cover_tot,2), "% cover of species with unknown ", plant_grouping, " removed"))
+    understory3 <- understory2 %>%
+      dplyr::filter(Stratum != "No_Veg",
+                    Nativity != "Unknown")
+    message(paste0(round(unk_cover_tot,2), "% cover of species with unknown ", plant_grouping, " removed"))
+  } else {
+    understory3 <- understory2
+  }
 
 
   # Nativity discrete scale Colors:
@@ -83,6 +94,7 @@ v_cover_bar_stats <- function(combine_strata = FALSE, plant_grouping = "Nativity
                        "No_Veg" = "grey",
                        "Non-Native" = "#d95f02",
                        "Unknown" = "#7570b3")
+
 
   # add stats
   base_vars <- c("Unit_Code", "Sampling_Frame", "Cycle", "Year", "Stratum")
@@ -94,7 +106,7 @@ v_cover_bar_stats <- function(combine_strata = FALSE, plant_grouping = "Nativity
   # sample size calculation for text (output is on graph caption)
   sample_size <- understory_stats %>%
     dplyr::filter(NPLOTS != 0) %>%
-    dplyr::filter(Parameter == parameter) %>%
+    dplyr::filter(Parameter == measurement) %>%
     dplyr::select(Sampling_Frame, Year, NPLOTS) %>%
     dplyr::distinct() %>%
     dplyr::group_by(Sampling_Frame) %>%
@@ -110,18 +122,29 @@ v_cover_bar_stats <- function(combine_strata = FALSE, plant_grouping = "Nativity
   sample_size
 
   #........BAR YEARLY MEANS
-  if (plant_grouping == "Species") {
-    summary_param <- "Scientific_Name"
-  } else {
-    summary_param <- plant_grouping
+
+
+  label_param <- stringr::str_replace_all(measurement, "_", " ")
+
+  understory_stats <- understory_stats[complete.cases(understory_stats),]
+
+  understory_stats <- understory_stats %>%
+    dplyr::filter(Parameter == measurement)
+
+  understory_stats[[summary_param]] <- as.factor(understory_stats[[summary_param]])
+
+  understory_stats[[summary_param]] <- reorder(understory_stats[[summary_param]],
+                                              understory_stats$MEAN, .fun = max,
+                                              decreasing = TRUE)
+  if (plant_grouping == "None") {
+    understory_stats$Nativity <- "Unknown"
   }
 
-  label_param <- stringr::str_replace_all(parameter, "_", " ")
-
   plot <- understory_stats %>%
+    #forcats::fct_reorder(Scientific_Name, MEAN, .fun = max) %>%
     dplyr::mutate(SF_no_space = stringr::str_replace_all(Sampling_Frame, " ", "_")) %>%
     dplyr::filter(NPLOTS != 0) %>%
-    dplyr::filter(Parameter == parameter) %>%
+    dplyr::filter(Parameter == measurement) %>%
     ggplot2::ggplot(ggplot2::aes(x = Year, y = MEAN, fill = Nativity)) +
     ggplot2::geom_col(position = ggplot2::position_dodge()) +
     ggplot2::geom_errorbar(ggplot2::aes(ymin=L, ymax=R), width=.2,
@@ -148,6 +171,13 @@ v_cover_bar_stats <- function(combine_strata = FALSE, plant_grouping = "Nativity
       facet_grid(.data[[summary_param]] + SF_no_space ~ ., switch = "y") +
       theme(strip.text.y.left = element_text(angle = 0))
   }
+
+  # This should be changed to if (distinct(Sampling_Frame) > 1)
+  if (plant_grouping == "None") {
+    plot <- plot +
+      facet_grid(SF_no_space ~ ., switch = "y", scales = "free_y") +
+      theme(strip.text.y.left = element_text(angle = 0))
+    }
 
 
   return(plot)
