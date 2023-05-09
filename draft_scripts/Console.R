@@ -27,6 +27,14 @@ LoadPACNVeg(ftpc_params = "pacnveg",
             expire_interval_days = 30,
             force_refresh = FALSE)
 
+# ----MapPACNVeg2----
+
+MapPACNVeg2(protocol = c("FTPC"),
+            crosstalk = FALSE,
+            crosstalk_group = "map",
+            sample_frame = "Mauna Loa",
+            is_qa_plot = FALSE)
+
 
 # ----sunburst labels----
 nativity_colors <- c("Native" = "#1b9e77", "No Veg" = "grey", "Non-Native" = "#d95f02", "Unknown" = "#7570b3")

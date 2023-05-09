@@ -643,6 +643,43 @@ MapPACNVeg2 <- function(protocol = c("FTPC", "EIPS"), crosstalk = FALSE, crossta
   NPSslate = "https://atlas-stg.geoplatform.gov/styles/v1/atlas-user/ck5cpvc2e0avf01p9zaw4co8o/tiles/256/{z}/{x}/{y}@2x?access_token=pk.eyJ1IjoiYXRsYXMtdXNlciIsImEiOiJjazFmdGx2bjQwMDAwMG5wZmYwbmJwbmE2In0.lWXK2UexpXuyVitesLdwUg"
   NPSlight = "https://atlas-stg.geoplatform.gov/styles/v1/atlas-user/ck5cpia2u0auf01p9vbugvcpv/tiles/256/{z}/{x}/{y}@2x?access_token=pk.eyJ1IjoiYXRsYXMtdXNlciIsImEiOiJjazFmdGx2bjQwMDAwMG5wZmYwbmJwbmE2In0.lWXK2UexpXuyVitesLdwUg"
 
+  # AGOL Layers
+
+  #------------.
+  # Sampling Frames in AGOL currently do not have same names as in database...
+  # GIS layer should match sampling frame names from database in the future,
+  # Temporary Fixes for this go here:
+  if (sample_frame == "Mauna Loa" | sample_frame == "Haleakala") {
+    agol_sample_frame <- "Subalpine Shrubland"
+
+  } else if (sample_frame == "Guam") {
+    agol_sample_frame <- "Limestone Forest"
+
+  } else if (sample_frame == "Nahuku/East Rift") {
+    agol_sample_frame <- "Thurston/East Rift"
+
+  } else if (sample_frame == "Hoolehua" | sample_frame == "Kalawao") {
+    agol_sample_frame <- "KALA Coast"
+
+  } else {
+    agol_sample_frame <- sample_frame
+  }
+  #------------.
+
+  url <- httr::parse_url("https://services1.arcgis.com/fBc8EJBxQRMcHlei/arcgis/rest/services/")
+  url$path <- paste(url$path, "PACN_Vegetation_Sampling_Frames_vlyr/FeatureServer/0/query", sep = "/")
+  url$query <- list(where = paste0("Sampling_Frame = '", agol_sample_frame, "'"),
+                    outFields = "*",
+                    returnGeometry = "true",
+                    f = "geojson")
+  agol_request <- httr::build_url(url)
+  agol_sf <- sf::st_read(agol_request)
+
+  factpal <- leaflet::colorFactor(c("#F8573A", "#F4C47B", "#28468B", "#AED5CB"),
+                                  agol_sf$Zone) # Colors for polygons factors
+  #factpal <- leaflet::colorFactor(topo.colors(5), agol_sf$Zone) # Colors for polygons factors
+  #leaflet::addPolygons(color =  ~factpal(Zone), label = ~Zone)
+
   # Set up icons
   custom_icons <- pchIcons(pch = pts$map_symb,
                            width = pts$symb_w,
@@ -661,13 +698,14 @@ MapPACNVeg2 <- function(protocol = c("FTPC", "EIPS"), crosstalk = FALSE, crossta
     leaflet::addTiles(group = "Imagery", urlTemplate = NPSimagery, attribution = NPSAttrib) %>%
     leaflet::addTiles(group = "Slate", urlTemplate = NPSslate, attribution = NPSAttrib) %>%
     leaflet::addTiles(group = "Light", urlTemplate = NPSlight, attribution = NPSAttrib) %>%
-    leaflet.esri::addEsriFeatureLayer(options = leaflet.esri::featureLayerOptions(where = paste0("Sampling_Frame = '", sample_frame, "'")),
-                                      group = "Sampling Frame",
-                                      url = "https://services1.arcgis.com/fBc8EJBxQRMcHlei/arcgis/rest/services/PACN_DBO_VEG_sampling_frames_ply/FeatureServer/0",
-                                      useServiceSymbology = TRUE,
-                                      labelProperty = "Sampling_Frame") %>%
+    leaflet::addPolygons(data = agol_sf, group = "Zone", color =  ~factpal(Zone), label = ~Zone) %>%
+    #leaflet.esri::addEsriFeatureLayer(options = leaflet.esri::featureLayerOptions(where = paste0("Sampling_Frame = '", sample_frame, "'")),
+    #                                  group = "Sampling Frame",
+    #                                  url = "https://services1.arcgis.com/fBc8EJBxQRMcHlei/arcgis/rest/services/PACN_DBO_VEG_sampling_frames_vlyr/FeatureServer/0",
+    #                                  useServiceSymbology = TRUE,
+    #                                  labelProperty = "Sampling_Frame") %>%
     leaflet::addLayersControl(baseGroups = c("Basic", "Imagery", "Slate", "Light"),
-                              overlayGroups = c("Sampling Frame", grps),
+                              overlayGroups = c("Zone", grps),
                               options=leaflet::layersControlOptions(collapsed = TRUE)) %>%
     leaflet::addMarkers(lng = ~Long,
                         lat = ~Lat,
