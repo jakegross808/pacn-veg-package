@@ -20,10 +20,10 @@ LoadPACNVeg(ftpc_params = "pacnveg",
 
 # ----Clidemia in NPSA----
 understory2_test <- summarize_understory(combine_strata = TRUE,
-                                    plant_grouping = "Species",
-                                    paired_change = FALSE,
-                                    #sample_frame = "Tau"
-                                    park = "AMME",
+                                    plant_grouping = "Nativity",
+                                    paired_change = TRUE,
+                                    sample_frame = "Olaa"
+                                    #park = "AMME",
                                     #species_code = c("CLIHIR1", "MIKMIC", "LOMCOR","HUMHET")
                                     )
 
@@ -87,26 +87,55 @@ if (nrow(num_facets) > 6) {
 
 plot
 
+summar
 
+v_cover_bar_stats(combine_strata = TRUE,
+                  sample_frame = "Kahuku",
+                  plant_grouping = "Species",
+                  species_filter = "Axonopus fissifolius",
+                  paired_change = TRUE
+                  )
 
 v_cover_bar_stats(combine_strata = TRUE,
                   plant_grouping = "Nativity",
-                  species_filter = "Clidemia hirta",
+                  species_filter = "Axonopus fissifolius",
                   paired_change = TRUE,
-                  )
+)
+
+n_rot <- v_cover_bar_stats(sample_frame = "Olaa",
+                       return_n = TRUE,
+                       plot_type = "Rotational")
+n_rot
+
+n_fix <- v_cover_bar_stats(sample_frame = "Olaa",
+                       return_n = TRUE,
+                       plot_type = "Fixed")
+n_fix
 
 l <- v_cover_bar_stats(
-  #sample_frame = "Tau",
+  sample_frame = c("Olaa"),
   combine_strata = TRUE,
-  measurement = "Cover",
+  measurement = "Chg_Prior",
   plant_grouping = "Species",
-  paired_change = FALSE,
-  park = "NPSA",
-  species_filter = "Clidemia hirta",
+  paired_change = TRUE,
+  cycle = c("2", "3"),
+  return_n = TRUE
+  #park = "HAVO",
+  #species_filter = c("Axonopus fissifolius", "Cenchrus clandestinus", "Cyperus sanguinolentus",
+  #                   "Digitaria eriantha", "Nephrolepis brownii", "Commelina diffusa", "Kyllinga brevifolia")
   #plot_number = c("2","4","6","9"),
-  #year = "2019"
+  #year = c("2016")
   )
+l
 
+l <- v_cover_bar_stats(
+  park = "HAVO",
+  #sample_frame = c("Kahuku"),
+  combine_strata = TRUE,
+  measurement = "Chg_Prior",
+  plant_grouping = "Nativity",
+  paired_change = TRUE,
+)
 l
 
 l +

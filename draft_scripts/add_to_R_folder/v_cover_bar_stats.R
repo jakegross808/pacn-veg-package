@@ -23,12 +23,8 @@
 
 v_cover_bar_stats <- function(combine_strata = FALSE, plant_grouping = "Nativity", species_filter,
                                       paired_change = FALSE, measurement = "Cover", park, sample_frame, community,
-                                      year, cycle, plot_type, plot_number, filter_Code, silent = FALSE) {
+                                      year, cycle, plot_type, plot_number, filter_Code, silent = FALSE, return_n = FALSE) {
 
-# Removed this error because actually filtering by species before summarizing by lifeform, etc. has advantages
-#  if (!missing("species_filter") && plant_grouping != "Species"){
-#    stop("Invalid plant_grouping selection. If species_filter is used, plant_grouping must = 'Species'")
-#  }
 
   # Set plant_grouping_vars used for calculating stats based on plant_grouping argument
   if (plant_grouping == "Species") {
@@ -66,10 +62,15 @@ v_cover_bar_stats <- function(combine_strata = FALSE, plant_grouping = "Nativity
                                       cycle = cycle, plot_type = plot_type,
                                       plot_number = plot_number, silent = silent)
 
-  if (!missing("species_filter")) {
+  if (!missing("species_filter") && plant_grouping == "Species") {
     understory2 <- understory2 %>%
-      filter(Scientific_Name %in% species_filter)
-  }
+      dplyr::filter(Scientific_Name %in% species_filter)
+  } else if (!missing("species_filter") && plant_grouping != "Species") {
+    stop("Invalid plant_grouping selection. If species_filter is used, plant_grouping must = 'Species'")
+  } # may want to change this in the future - can filter species as part of summarize_understory,
+  # then summarize by Life_form, Nativity, etc. This could be useful.
+
+
 
   if (plant_grouping != "None") {
 
@@ -101,7 +102,8 @@ v_cover_bar_stats <- function(combine_strata = FALSE, plant_grouping = "Nativity
 
   add_stats_vars <- c(base_vars, plant_grouping_vars)
 
-  understory_stats <- add_stats(understory3, across(all_of(add_stats_vars)))
+  understory_stats <- add_stats(understory3,
+                                dplyr::across(dplyr::all_of(add_stats_vars)))
 
   # sample size calculation for text (output is on graph caption)
   sample_size <- understory_stats %>%
@@ -120,6 +122,10 @@ v_cover_bar_stats <- function(combine_strata = FALSE, plant_grouping = "Nativity
     stringr::str_sub(3) %>%
     stringr::str_replace_all(", ;", ";")
   sample_size
+
+  if (return_n == TRUE){
+    return(sample_size)
+  }
 
   #........BAR YEARLY MEANS
 
@@ -162,21 +168,22 @@ v_cover_bar_stats <- function(combine_strata = FALSE, plant_grouping = "Nativity
     ggplot2::theme(axis.text.x=ggplot2::element_text(angle = 90, hjust = 0, vjust = 0.5))
 
   num_facets <- understory_stats %>%
-    select(Sampling_Frame, .data[[summary_param]]) %>%
-    distinct()
+    dplyr::select(Sampling_Frame, .data[[summary_param]]) %>%
+    dplyr::distinct()
 
   if (nrow(num_facets) > 6) {
     plot <- plot +
-      coord_flip() +
-      facet_grid(.data[[summary_param]] + SF_no_space ~ ., switch = "y") +
-      theme(strip.text.y.left = element_text(angle = 0))
+      ggplot2::coord_flip() +
+      ggplot2::facet_grid(.data[[summary_param]] + SF_no_space ~ ., switch = "y") +
+      ggplot2::theme(strip.text.y.left = ggplot2::element_text(angle = 0))
   }
 
   # This should be changed to if (distinct(Sampling_Frame) > 1)
-  if (plant_grouping == "None") {
+  if (length(unique(understory_stats$Sampling_Frame)) > 2) {
     plot <- plot +
-      facet_grid(SF_no_space ~ ., switch = "y", scales = "free_y") +
-      theme(strip.text.y.left = element_text(angle = 0))
+      ggplot2::coord_flip() +
+      ggplot2::facet_grid(SF_no_space ~ ., switch = "y", scales = "free_y") +
+      ggplot2::theme(strip.text.y.left = ggplot2::element_text(angle = 0))
     }
 
 

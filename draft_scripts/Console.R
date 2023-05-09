@@ -27,6 +27,16 @@ LoadPACNVeg(ftpc_params = "pacnveg",
             expire_interval_days = 30,
             force_refresh = FALSE)
 
+
+# ----sunburst labels----
+nativity_colors <- c("Native" = "#1b9e77", "No Veg" = "grey", "Non-Native" = "#d95f02", "Unknown" = "#7570b3")
+mgmt_unit_colors <- c("#F8573A", "#F4C47B", "#28468B", "#AED5CB")
+
+understorySunburst(sample_frame = "Mauna Loa", cycle = "3", mgmt_unit = FALSE, colors = nativity_colors)
+
+
+
+
 # ----Clidemia in NPSA----
 spp_chg_und <- summarize_understory(combine_strata = TRUE,
                      plant_grouping = "Species",
@@ -35,6 +45,15 @@ spp_chg_und <- summarize_understory(combine_strata = TRUE,
 
 clihir_chg_und <- spp_chg_und %>%
   filter(Scientific_Name == "Clidemia hirta")
+
+presence <- clihir_chg_und %>%
+  dplyr::group_by(Year, Sampling_Frame) %>%
+  dplyr::mutate(sp_present = dplyr::case_when(
+    Cover > 0 ~ TRUE,
+    Cover <= 0 ~ FALSE)) %>%
+  summarise(plots_present = sum(sp_present),
+            total_plots = n(),
+            presence = plots_present/total_plots)
 
 # Nativity discrete scale Colors:
 param <- "Cover"
@@ -93,7 +112,7 @@ plot <- clihir_chg_und_stats %>%
 plot
 
 data_table <- clihir_chg_und
-paired_change <- FALSE
+paired_change <- TRUE
 interactive <- TRUE
 
 # Get max value for plotting data
