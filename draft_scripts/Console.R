@@ -27,7 +27,58 @@ LoadPACNVeg(ftpc_params = "pacnveg",
             expire_interval_days = 30,
             force_refresh = FALSE)
 
+# ----v_cover_bar_stats----
+UnderNativityCover.plot.nat_v_non(sample_frame = "Olaa",
+                                         cycle = 2,
+                                         paired_cycle = 1,
+                                         paired_change = TRUE,
+                                         combine_strata = TRUE,
+                                         crosstalk = TRUE,
+                                         crosstalk_group = "fake_grp",
+                                         interactive = TRUE)
+
+look <- summarize_understory(sample_frame = "Olaa",
+                     combine_strata = TRUE,
+                     plant_grouping = "Species",
+                     paired_change = TRUE)
+
+v_cover_bar_stats(sample_frame = "Olaa",
+                  combine_strata = TRUE,
+                  plant_grouping = "Species",
+                  paired_change = TRUE,
+                  measurement = "Cycle3vs1")
+
 # ----MapPACNVeg2----
+sample_frame <- "Mauna Loa"
+add_mgmt_unit_test2(sample_frame = "Mauna Loa")
+
+url <- httr::parse_url("https://services1.arcgis.com/fBc8EJBxQRMcHlei/arcgis/rest/services/")
+url$path <- paste(url$path, "PACN_Vegetation_Sampling_Frames_vlyr/FeatureServer/0/query", sep = "/")
+url$query <- list(where = paste0("Sampling_Frame = Sampling_Frame"),
+                  outFields = "*",
+                  returnGeometry = "true",
+                  f = "geojson")
+request <- httr::build_url(url)
+request #print url request
+
+zones <- sf::st_read(request)
+
+factpal <- leaflet::colorFactor(topo.colors(5), zones$Zone)
+
+leaflet::leaflet(zones) %>%
+  leaflet::addProviderTiles("CartoDB.Positron") %>%
+  leaflet::addPolygons(color =  ~factpal(Zone), label = ~Zone)
+
+
+
+url <- httr::parse_url("https://services1.arcgis.com/fBc8EJBxQRMcHlei/arcgis/rest/services/")
+url$path <- paste(url$path, "PACN_DBO_VEG_sampling_frames_ply/FeatureServer/0/query", sep = "/")
+url$query <- list(where = paste0("Sampling_Frame = Sampling_Frame"),
+                  outFields = "*",
+                  returnGeometry = "true",
+                  f = "geojson")
+request <- httr::build_url(url)
+mgmt_unit <- sf::st_read(request, quiet = TRUE)
 
 MapPACNVeg2(protocol = c("FTPC"),
             crosstalk = FALSE,

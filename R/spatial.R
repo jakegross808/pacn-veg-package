@@ -673,7 +673,7 @@ MapPACNVeg2 <- function(protocol = c("FTPC", "EIPS"), crosstalk = FALSE, crossta
                     returnGeometry = "true",
                     f = "geojson")
   agol_request <- httr::build_url(url)
-  agol_sf <- sf::st_read(agol_request)
+  agol_sf <- sf::st_read(agol_request, quiet = TRUE)
 
   factpal <- leaflet::colorFactor(c("#F8573A", "#F4C47B", "#28468B", "#AED5CB"),
                                   agol_sf$Zone) # Colors for polygons factors
