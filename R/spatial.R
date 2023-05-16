@@ -649,11 +649,14 @@ MapPACNVeg2 <- function(protocol = c("FTPC", "EIPS"), crosstalk = FALSE, crossta
   # Sampling Frames in AGOL currently do not have same names as in database...
   # GIS layer should match sampling frame names from database in the future,
   # Temporary Fixes for this go here:
-  if (sample_frame == "Mauna Loa" | sample_frame == "Haleakala") {
+  if (sample_frame == "Mauna Loa") {
     agol_sample_frame <- "Subalpine Shrubland"
 
   } else if (sample_frame == "Guam") {
     agol_sample_frame <- "Limestone Forest"
+
+  } else if (sample_frame == "Kipahulu District") {
+    agol_sample_frame <- "Kīpahulu District"
 
   } else if (sample_frame == "Nahuku/East Rift") {
     agol_sample_frame <- "Thurston/East Rift"
@@ -674,6 +677,10 @@ MapPACNVeg2 <- function(protocol = c("FTPC", "EIPS"), crosstalk = FALSE, crossta
                     f = "geojson")
   agol_request <- httr::build_url(url)
   agol_sf <- sf::st_read(agol_request, quiet = TRUE)
+
+  if (is.na(agol_sf$Zone)) {
+    agol_sf$Zone <- agol_sf$Sampling_Frame
+  }
 
   factpal <- leaflet::colorFactor(c("#F8573A", "#F4C47B", "#28468B", "#AED5CB"),
                                   agol_sf$Zone) # Colors for polygons factors

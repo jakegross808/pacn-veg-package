@@ -27,6 +27,48 @@ LoadPACNVeg(ftpc_params = "pacnveg",
             expire_interval_days = 30,
             force_refresh = FALSE)
 
+# ----Kipahulu Zone----
+
+MapPACNVeg2(sample_frame = "Kipahulu District", protocol = c("FTPC", "EIPS"))
+
+
+# ----Get Species For Charlie & Palikea----
+v_cover_bar_stats(sample_frame = "Kipahulu District",
+                  combine_strata = TRUE,
+                  plant_grouping = "Species",
+                  paired_change = TRUE,
+                  measurement = "Chg_Prior", plot_number = c(2,3,6,7,11,12,15)
+                  )
+
+# ----troubleshoot Nahuku/East Rift Rmd----
+test_eips_paths = c("C:/Users/JJGross/OneDrive - DOI/Documents/Certification_Local/Databases/EIPS/established_invasives_BE_master_20220503.mdb")
+test_conn_strings <- paste0("Driver={Microsoft Access Driver (*.mdb, *.accdb)};DBQ=", test_eips_paths)
+test_conn <- DBI::dbConnect(odbc::odbc(), .connection_string = test_conn_strings)
+
+
+tbl_Locations <- dplyr::tbl(test_conn, "tbl_Locations") %>%
+  dplyr::select(Location_ID, Site_ID, Community = Plant_Community, Sampling_Frame) %>%
+  # Remove white space " / " in "Nahuku / East Rift" to match FTPC
+
+  # This replaces all records (does not match pattern)
+  #dplyr::mutate(Sampling_Frame = REPLACE("Sampling_Frame", 'Nahuku / East Rift', 'Nahuku/East Rift')) %>%
+  #dplyr::mutate(REPLACE("Sampling_Frame", 'Nahuku / East Rift', 'Nahuku/East Rift')) %>%
+  #dplyr::mutate(Sampling_Frame = REPLACE('Nahuku / East Rift', 'Nahuku/East Rift')) %>%
+  #dplyr::mutate(Sampling_Frame = REPLACE(" / ", "/")) %>%
+  dplyr::collect() %>%
+  dplyr::mutate(Sampling_Frame = stringr::str_replace_all(Sampling_Frame, 'Nahuku / East Rift', 'Nahuku/East Rift'))
+
+MapPACNVeg2(sample_frame = "Nahuku/East Rift", protocol = "EIPS")
+#Error in df$Transect_Line : $ operator is invalid for atomic vectors
+# No EIPS data showing up
+
+look_eips_pts <- FilterPACNVeg(data_name = "Events_extra_xy_EIPS", park = "HAVO")
+look_nahu <- unique(look_eips_pts$Sampling_Frame)[2]
+look_nahu
+sub(x = look_eips_pts$Sampling_Frame, pattern = " / ", replacement = "/")
+# "Nahuku / East Rift" has space on both sides of "/" in EIPS
+# In FTPC it is "Nahuku/East Rift"
+
 # ----v_cover_bar_stats----
 UnderNativityCover.plot.nat_v_non(sample_frame = "Olaa",
                                          cycle = 2,
@@ -335,12 +377,12 @@ protocol
 # ----Plot Presence of a Species ----
 
 Plot_Presence <- FilterPACNVeg("Presence", is_qa_plot = FALSE) %>%
-  select(Year, Sampling_Frame, Plot_Number, Scientific_Name)
+  dplyr::select(Year, Sampling_Frame, Plot_Number, Scientific_Name)
 
 sp_Plot_Presence <- Plot_Presence %>%
-  filter(Scientific_Name == "Clidemia hirta") %>%
-  group_by(Year, Sampling_Frame) %>%
-  summarise(n = n())
+  dplyr::filter(Scientific_Name == "Argyroxiphium sandwicense ssp. macrocephalum") %>%
+  dplyr::group_by(Year, Sampling_Frame) %>%
+  dplyr::summarise(n = dplyr::n())
 
 Species_per_park <- FilterPACNVeg("Presence") %>%
   select(Year, Scientific_Name) %>%
@@ -565,6 +607,7 @@ names(FilterPACNVeg())
 sfs <- FilterPACNVeg("Events_extra_xy" , is_qa_plot = FALSE) %>%
   dplyr::pull(Sampling_Frame) %>%
   unique()
+sfs
 
 Events_filtered <- Events_extra_xy %>%
   select(Year, Cycle, Sampling_Frame, Plot_Number, Plot_Type, Center_Lat, Center_Long)

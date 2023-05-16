@@ -555,6 +555,9 @@ ReadEIPS <- function(db_paths) {
     #Short
     tbl_Locations <- dplyr::tbl(conn, "tbl_Locations") %>%
       dplyr::select(Location_ID, Site_ID, Community = Plant_Community, Sampling_Frame)
+      # Remove white space " / " in "Nahuku / East Rift" to match FTPC
+      # dplyr::mutate(Sampling_Frame = str_replace(Sampling_Frame, " / ", "/"))
+      # have to do dplyr::collect() before can do str_replace
 
     # Transects
     tbl_Transects_short <- dplyr::tbl(conn, "tbl_Transects") %>%
@@ -592,18 +595,21 @@ ReadEIPS <- function(db_paths) {
       dplyr::select(Unit_Code, Sampling_Frame, Start_Date, Year, Cycle, Transect_Type, Transect_Number,
                     Entered_Date, Updated_Date, Verified, Verified_By, Verified_Date,
                     Certified, Certified_By, Certified_Date, Transect_Notes, Event_Notes) %>% #-Start_date
-      dplyr::collect()
+      dplyr::collect() %>%
+      dplyr::mutate(Sampling_Frame = str_replace(Sampling_Frame, " / ", "/"))
 
     # Events_extra_xy
     Events_extra_xy_new <- Events_extra %>%
       dplyr::select(Unit_Code, Sampling_Frame, Year, Cycle, Transect_Type, Transect_Number, Azimuth_Transect, Lat, Long, GCS, Lat_Dir, Long_Dir, Certified, Verified) %>%
-      dplyr::collect()
+      dplyr::collect() %>%
+      dplyr::mutate(Sampling_Frame = str_replace(Sampling_Frame, " / ", "/"))
 
     # Events_extra_other
     Events_extra_other_new <- Events_extra %>%
       dplyr::select(Unit_Code, Sampling_Frame, Year, Cycle, Transect_Type,
                     Transect_Number, Site_Name, Certified, Verified) %>%
-      dplyr::collect()
+      dplyr::collect() %>%
+      dplyr::mutate(Sampling_Frame = str_replace(Sampling_Frame, " / ", "/"))
 
     # Image Points
     tbl_Image_Points <- dplyr::tbl(conn, "tbl_Image_Points")
@@ -612,7 +618,8 @@ ReadEIPS <- function(db_paths) {
       dplyr::select(Unit_Code, Community, Sampling_Frame, Year, Cycle,
                     Transect_Type, Transect_Number, Image_Point,
                     Latitude, Latitude_Dir, Longitude, Longitude_Dir, GCS, GPS_Error) %>%
-      dplyr::collect()
+      dplyr::collect() %>%
+      dplyr::mutate(Sampling_Frame = str_replace(Sampling_Frame, " / ", "/"))
 
 
     # Species w/nativity
