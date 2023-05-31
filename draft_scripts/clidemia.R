@@ -57,25 +57,9 @@ MapCoverTotal3 <- function(map_dataset, crosstalk = FALSE, crosstalk_group = "co
                   Year = as.character(Year))
 
   # Combine cover and location data
-  cover_data <- dplyr::left_join(cover_data, pts, by = c("Unit_Code", "Sampling_Frame", "Plot_Type", "Plot_Number", "Year", "Cycle")) %>%
-    dplyr::mutate(stat = Chg_Prior) %>%
-    dplyr::arrange(stat)
-
-
-  # pal <- grDevices::colorRampPalette(c("red", "orange", "yellow", "green"))(length(cover_data$nat_ratio))
-  ramp <- grDevices::colorRamp(c("#d11141", "#f37735", "#C8E52A", "#00b159")) #better colors for red, orange, yellow, green
-  #ramp <- grDevices::colorRamp(c("red", "orange", "yellow", "green"))
-  pal <- leaflet::colorNumeric(ramp, domain = c(0,26))
-
-  # dplyr::mutate(color = dplyr::case_when(NonNative_Cover_Total_pct <= 0 & Native_Cover_Total_pct <= 0 ~ "#cccccc",#gray
-  #                                        NonNative_Cover_Total_pct > 0 & Native_Cover_Total_pct <= 0 ~ "#d11141",#red
-  #                                        NonNative_Cover_Total_pct > 0 & Native_Cover_Total_pct > 0 & NonNative_Cover_Total_pct > Native_Cover_Total_pct ~ "#f37735",#orange
-  #                                        NonNative_Cover_Total_pct > 0 & Native_Cover_Total_pct > 0 & NonNative_Cover_Total_pct < Native_Cover_Total_pct ~ "#C8E52A",#yellow
-  #                                        NonNative_Cover_Total_pct <= 0 & Native_Cover_Total_pct > 0 ~ "#00b159"))#green
-
-  cover_data <- cover_data %>%
-    dplyr::mutate(color = pal(stat))
-
+  cover_data <- dplyr::left_join(cover_data, pts, by = c("Unit_Code", "Sampling_Frame", "Plot_Type", "Plot_Number", "Year", "Cycle")) #%>%
+    #dplyr::mutate(stat = !!sym(param)) %>%
+    #dplyr::arrange(stat)
 
   # Enable crosstalk if specified
   if (crosstalk) {
@@ -87,8 +71,8 @@ MapCoverTotal3 <- function(map_dataset, crosstalk = FALSE, crosstalk_group = "co
   custom_icons <- pacnvegetation:::pchIcons(pch = rep(22, nrow(cover_data)),
                            width = 30,
                            height = 30,
-                           bg = colorspace::darken(cover_data$color),
-                           col = cover_data$color, 0.3)
+                           bg = colorspace::darken(cover_data$new_cols),
+                           col = cover_data$new_cols, 0.3)
   iconwidth <- 25
   iconheight <- 25
 
@@ -124,7 +108,7 @@ MapCoverTotal3 <- function(map_dataset, crosstalk = FALSE, crosstalk_group = "co
                         label = ~cover_data$Plot_Number,
                         #layerId = ~cover_data$key,
                         labelOptions = leaflet::labelOptions(noHide = TRUE, opacity = .9, textOnly = TRUE, offset = c(0,0), direction = "center", style = list("color" = "white", "font-weight" = "bold")),
-                        popup = ~paste0("<br><strong>Change in cover:</strong> ", cover_data$Chg_Prior,
+                        popup = ~paste0(paste0("<br><strong>",param,":</strong> "), cover_data[[rlang::sym(param)]],
                                         "<br><strong>Cover:</strong> ", cover_data$Cover,
                                         "<br><strong>Sampling Frame:</strong> ", cover_data$Sampling_Frame,
                                         "<br><strong>Cycle:</strong> ", cover_data$Cycle,

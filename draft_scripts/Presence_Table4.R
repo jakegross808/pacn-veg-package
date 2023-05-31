@@ -1,7 +1,7 @@
 # Table Prep ----
 
 # Variables
-sampling_frame <- "Mauna Loa"
+sampling_frame <- "Haleakala"
 
 # Stadard table prep (should consider moving into FiterPACNVeg)
 Presence <- FilterPACNVeg("Presence", sample_frame  = sampling_frame) %>%
@@ -118,9 +118,11 @@ other_years <- as.character(all_years) %>%
   as.integer() %>%
   unique() %>%
   purrr::discard(is.na)
+other_years
 
 #other_years <- c(2016,2017) # use this to test future cycles
 other_years_min <- min(other_years)
+other_years
 str(other_years_min)
 
 length(other_years) == 1
@@ -181,13 +183,25 @@ tbl[[other_years_min_Fixed_name]] <- apply(tbl[, fixed_index_min:fixed_index_max
 
 # Rename "_All" (all plots) columns
 # Min Year
+# Use double "||" to distinguish from previous column
 names(tbl)[names(tbl) == min_year_Fixed_name] <- paste0("||", min_year)
 # Sparkline data (minimum of other between years)
 names(tbl)[names(tbl) == other_years_min_Fixed_name] <- "Fixed Plots"
 # Max Year
+# Use double "||" to distinguish from previous column
 names(tbl)[names(tbl) == max_year_Fixed_name] <- paste0(max_year, "||")
 
+# get column number to use in creation of table below
 len <- length(names(tbl))
+
+
+# If only two years in dataset, then move sparkline column to the middle
+# in between the two years:
+if (length(other_years) == 0) {
+  tbl <- tbl %>%
+    dplyr::relocate("All Plots", .after = paste0("|", min_year)) %>%
+    dplyr::relocate("Fixed Plots", .after = paste0("||", min_year))
+}
 
 
 tbl_html <- formattable::formattable(tbl,

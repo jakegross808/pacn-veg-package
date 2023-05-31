@@ -1,4 +1,4 @@
-EIPS_frequency <- v_EIPS_prep(sample_frame  = "Haleakala")
+EIPS_frequency <- v_EIPS_prep(sample_frame  = "Olaa")
 
 check <- EIPS_frequency %>%
   select(Segment) %>%

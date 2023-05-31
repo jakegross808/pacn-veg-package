@@ -11,6 +11,9 @@ vegmap_db_paths <- c("C:/Users/JJGross/OneDrive - DOI/Documents/Veg_Map_Data/hav
 
 library(pacnvegetation)
 
+LoadPACNVeg(data_path = "C:/Users/JJGross/Downloads/pacnveg_data_export_20230530",
+            data_source = "file")
+
 library(tidyverse)
 library(magrittr)
 
@@ -26,6 +29,22 @@ LoadPACNVeg(ftpc_params = "pacnveg",
             cache = TRUE,
             expire_interval_days = 30,
             force_refresh = FALSE)
+
+WritePACNVeg(dest.folder = "C:/Users/JJGross/Downloads/pacnveg_data_export_20230530")
+
+#----- Large Trees - Basal Area ------------------------------------------------
+
+
+BRUGYM <- FilterPACNVeg(data_name = "LgTrees", sample_frame = "Muchot", is_qa_plot = FALSE, sci_name = "Bruguiera gymnorrhiza")
+
+SmWoody <- FilterPACNVeg(data_name = "SmWoody", sample_frame = "Muchot", is_qa_plot = FALSE)
+
+BRUGYM_plt_tot_DBH <- BRUGYM %>%
+  mutate(DBH_coalesce = dplyr::coalesce(DBH_Bole, DBH)) %>%
+  dplyr::group_by(Sampling_Frame, Year, Plot_Number, Status) %>%
+  dplyr::summarise(DBH_sum = sum(DBH_coalesce))
+
+
 
 # ----Kipahulu Zone----
 
@@ -1575,9 +1594,9 @@ apply(X = update_photos, MARGIN = 1, FUN = watermark, new_folder = "watermark_20
 # Large Trees - Basal Area ------------------------------------------------
 
 
-Trees <- FilterPACNVeg(data_name = "LgTrees", sample_frame = "Mauna Loa", is_qa_plot = FALSE)
+Trees <- FilterPACNVeg(data_name = "LgTrees", sample_frame = "Muchot", is_qa_plot = FALSE)
 
-SmWoody <- FilterPACNVeg(data_name = "SmWoody", sample_frame = "Mauna Loa", is_qa_plot = FALSE)
+SmWoody <- FilterPACNVeg(data_name = "SmWoody", sample_frame = "Muchot", is_qa_plot = FALSE)
 
 SmWoody %>%
   distinct(Code)

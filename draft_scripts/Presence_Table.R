@@ -1,3 +1,26 @@
+#https://github.com/renkun-ken/formattable/issues/95#issuecomment-792387356
+bg <- function(start, end, color, ...) {
+  paste("linear-gradient(90deg, transparent ",formattable::percent(start),",",
+        color, formattable::percent(start), ",", formattable::percent(end),
+        ", transparent", formattable::percent(end),")")
+}
+
+#https://github.com/renkun-ken/formattable/issues/95#issuecomment-792387356
+pm_color_bar2 <- function(color1 = "pink", color2 = "lightgreen", text_color1 = "darkred", text_color2 = "darkgreen", text_color3 = "grey", transform_fn = function(x) {x}, ...){
+  formattable::formatter("span",
+                         style = function(x) {
+                           x <- transform_fn(x)
+                           formattable::style(
+                             display = "inline-block",
+                             color = ifelse(x > 0,text_color1,ifelse(x < 0,text_color2,text_color3)),
+                             "text-align" = ifelse(x > 0, 'left', ifelse(x < 0, 'right', 'center')),
+                             "width"='100%',
+                             "background" = bg(ifelse(x >= 0, 0.5, 0.5 + (x/2)),
+                                               ifelse(x >= 0, (x/2) + 0.5, 0.5),
+                                               ifelse(x >= 0, color1, color2))
+                           )})
+}
+
 # Create Table for Native species Plot Presence ----
 
 Presence <- FilterPACNVeg("Presence", sample_frame  = "Olaa") %>%
@@ -8,19 +31,41 @@ Presence <- FilterPACNVeg("Presence", sample_frame  = "Olaa") %>%
   dplyr::ungroup() %>%
   dplyr::mutate(Plot_Number = as.factor(Plot_Number))
 
+# For Table, change all "Rotational Alternate" to "Rotational"
+Presence <- Presence %>%
+  dplyr::mutate(Plot_Type = dplyr::case_when(Plot_Type == "Rotational Alternate" ~ "Rotational",
+                                 TRUE ~ as.character(Plot_Type)))
+
 Presence2 <- Presence %>%
   dplyr::select(Unit_Code, Community, Sampling_Frame, Year, Cycle, Plot_Type, Plot_Number, Scientific_Name, Code, Life_Form, Nativity) %>%
   tidyr::unite(col = Cycle_Year, c("Cycle", "Year"))
 
+# Calculate n for fixed, rotational, and all plots per sample_frame per year
+calc_n <- Presence2 %>%
+  dplyr::select(Unit_Code, Community, Sampling_Frame, Cycle_Year, Plot_Number, Plot_Type) %>%
+  dplyr::distinct() %>%
+  dplyr::group_by(Unit_Code, Community, Sampling_Frame, Cycle_Year, Plot_Type) %>%
+  dplyr::summarise(Plot_Type_N = n())
+calc_n2 <- calc_n %>%
+  dplyr::group_by(Unit_Code, Community, Sampling_Frame, Cycle_Year) %>%
+  dplyr::summarize(All = sum(Plot_Type_N)) %>%
+  tidyr::pivot_longer(cols = All, names_to = "Plot_Type", values_to = "Plot_Type_N") %>%
+  dplyr::bind_rows(calc_n) %>%
+  dplyr::ungroup()
+
 Presence2_rotational <- Presence2 %>%
-  dplyr::filter(Plot_Type == "Rotational" |
-                  Plot_Type == "Rotational Alternate") %>%
-  dplyr::group_by(Unit_Code, Community, Sampling_Frame, Cycle_Year, Scientific_Name, Code, Life_Form, Nativity) %>%
-  dplyr::summarise(Rotational_Plots = n())
+  dplyr::filter(Plot_Type == "Rotational") %>%
+  dplyr::group_by(Unit_Code, Community, Sampling_Frame, Cycle_Year, Plot_Type, Scientific_Name, Code, Life_Form, Nativity) %>%
+  dplyr::summarise(Rotational_Plots = n()) %>%
+  dplyr::left_join(calc_n2) %>%
+  dplyr::mutate(Rotational_Prop = Rotational_Plots/Plot_Type_N)
 
 Presence2_all<- Presence2 %>%
   dplyr::group_by(Unit_Code, Community, Sampling_Frame, Cycle_Year, Scientific_Name, Code, Life_Form, Nativity) %>%
-  dplyr::summarise(All_Plots = n())
+  dplyr::summarise(All_Plots = n()) %>%
+  dplyr::mutate(Plot_Type = "All") %>%
+  dplyr::left_join(calc_n2) %>%
+  dplyr::mutate(All_Prop = All_Plots/Plot_Type_N)
 
 fixed <- Presence2 %>%
   dplyr::filter(Plot_Type == "Fixed") %>%
@@ -111,7 +156,7 @@ tbl <- formattable::formattable(presence_table,
                                                                  x <- x/max_x
                                                                },
                                                                na.rm = TRUE))) %>%
-  formattable::as.datatable(rownames = FALSE,
+  formattable::as.datatable(rownames = TRUE,
                selection = "multiple",
                options = list(dom = "tif",
                               paging = FALSE,
