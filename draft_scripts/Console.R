@@ -1,41 +1,13 @@
-install.packages
-
-#WritePACNVeg(dest.folder = "C:/Users/JJGross/OneDrive - DOI/Documents/Certification_Local/Databases/FTPC/writepacnveg")
-
-vegmap_db_paths <- c("C:/Users/JJGross/OneDrive - DOI/Documents/Veg_Map_Data/havodata.accdb",
-                     "C:/Users/JJGross/OneDrive - DOI/Documents/Veg_Map_Data/haledata.accdb",
-                     "C:/Users/JJGross/OneDrive - DOI/Documents/Veg_Map_Data/kahodata.mdb",
-                     "C:/Users/JJGross/OneDrive - DOI/Documents/Veg_Map_Data/kaladata.mdb",
-                     "C:/Users/JJGross/OneDrive - DOI/Documents/Veg_Map_Data/puhedata.mdb",
-                     "C:/Users/JJGross/OneDrive - DOI/Documents/Veg_Map_Data/puhodata.mdb")
-
-#------------------------------------------------------------------------------.
-qc_kipa <- pacnvegetation::qc_presence_complete(sample_frame = "Kipahulu District")
-
 library(pacnvegetation)
+#library(tidyverse)
+#library(magrittr)
+# if need to install packages while on network:
+options(download.file.method = "wininet")
 
-#LoadPACNVeg(data_path = "C:/Users/JJGross/Downloads/pacnveg_data_export_20230530",
-#            data_source = "file")
-library(tidyverse)
-library(magrittr)
-
-# if need to install packages while on network
-#options(download.file.method = "wininet")
-
-# Load Data ----
+#--- 1. Database Loads ----
 eips_database_folder_path <- "C:/Users/JJGross/Documents/Databases_copied_local/EIPS"
 eips_databases <- list.files(eips_database_folder_path,full.names = TRUE)
-
-
-
-
-pacnvegetation::MapPACNVeg2(sample_frame = "Kipahulu District" ,protocol = c("FTPC", "EIPS"))
-
-pacnvegetation::UnderNativityCover.plot.nat_v_non(combine_strata = TRUE, )
-
-#pacnvegetation:::ReadEIPS_2("C:/Users/JJGross/Documents/Databases_copied_local/EIPS/2021_established_invasives_20230119.mdb")
 eips_databases
-
 
 LoadPACNVeg(ftpc_params = "pacnveg",
             eips_paths = eips_databases,
@@ -43,18 +15,32 @@ LoadPACNVeg(ftpc_params = "pacnveg",
             expire_interval_days = 30,
             force_refresh = FALSE)
 
-LoadPACNVeg(ftpc_params = "pacnveg",
-            eips_paths = c("C:/Users/JJGross/OneDrive - DOI/Documents/Certification_Local/Databases/EIPS/established_invasives_BE_master_20220503.mdb",
-                           "C:/Users/JJGross/OneDrive - DOI/Documents/Certification_Local/Databases/EIPS/2021_established_invasives_20221010_20230119.mdb",
-                           "C:/Users/JJGross/OneDrive - DOI/Documents/Certification_Local/Databases/EIPS/2022_established_invasives_20230118_20230119.mdb"),
-            cache = TRUE,
-            expire_interval_days = 30,
-            force_refresh = FALSE)
+#--- 2. Optional Loads ----
 
+# Veg Map Data
+vegmap_db_paths <- c("C:/Users/JJGross/OneDrive - DOI/Documents/Veg_Map_Data/havodata.accdb",
+                     "C:/Users/JJGross/OneDrive - DOI/Documents/Veg_Map_Data/haledata.accdb",
+                     "C:/Users/JJGross/OneDrive - DOI/Documents/Veg_Map_Data/kahodata.mdb",
+                     "C:/Users/JJGross/OneDrive - DOI/Documents/Veg_Map_Data/kaladata.mdb",
+                     "C:/Users/JJGross/OneDrive - DOI/Documents/Veg_Map_Data/puhedata.mdb",
+                     "C:/Users/JJGross/OneDrive - DOI/Documents/Veg_Map_Data/puhodata.mdb")
+
+# Write/Read csv from pacnvegetation package:
+pacnveg_write_path <- "C:/Users/JJGross/OneDrive - DOI/Documents/Certification_Local/Databases/R_WritePACNVeg"
+
+# Write
+write_folder <- paste0(pacnveg_write_path, "/", Sys.Date())
 WritePACNVeg(dest.folder = "C:/Users/JJGross/Downloads/pacnveg_data_export_20230530")
 
+# Read
+path_file_info <- file.info(list.files(pacnveg_write_path, full.names = T))
+latest_folder <- rownames(path_file_info)[which.max(path_file_info$mtime)]
 
-# ----HALE Climate chg meeting ----
+LoadPACNVeg(data_path = latest_folder,
+            data_source = "file")
+
+
+# ---- HALE Climate chg meeting ------------------------------------------------
 pacnvegetation::v_cover_bar_stats(combine_strata = TRUE,
                                   plant_grouping = "Species",
                                   sample_frame = "Haleakala",
@@ -85,7 +71,44 @@ write_csv(NW_Kahuku_spp, "Downloads/test.csv")
 look <- read_csv("Downloads/test.csv")
 look <- read_csv("Downloads/NW_Kahuku_Species_PACN_Veg_monitoring_plots.csv")
 
+
+# ----AGOL Data----
+FTPC_HAVO_2021 <- "https://services1.arcgis.com/fBc8EJBxQRMcHlei/arcgis/rest/services/FTPC_Points_Photos_HAVO_2021/FeatureServer/1"
+FTPC_HAVO_2022 <- "https://services1.arcgis.com/fBc8EJBxQRMcHlei/arcgis/rest/services/HAVO_2022_FTPC_Sampling_Points_Photos/FeatureServer/30"
+FTPC_KAHO_2022 <- "https://services1.arcgis.com/fBc8EJBxQRMcHlei/arcgis/rest/services/KAHO_2022_FTPC_Sampling_Points_Photos/FeatureServer/30"
+FTPC_HALE_2023 <- "https://services1.arcgis.com/fBc8EJBxQRMcHlei/arcgis/rest/services/HALE_2023_FTPC_Sampling_Points_Photos/FeatureServer/89"
+
+EIPS_HAVO_2021 <- "https://services1.arcgis.com/fBc8EJBxQRMcHlei/arcgis/rest/services/EIPS_Points_Photos_HAVO_2021/FeatureServer/1"
+EIPS_HAVO_2022 <- "https://services1.arcgis.com/fBc8EJBxQRMcHlei/arcgis/rest/services/HAVO_2022_EIPS_Sampling_Points_Photos/FeatureServer/32"
+EIPS_HALE_2023 <- "https://services1.arcgis.com/fBc8EJBxQRMcHlei/arcgis/rest/services/HALE_2023_EIPS_Sampling_Points_Photos/FeatureServer/93"
+
+Plants_HAVO_2021 <- "https://services1.arcgis.com/fBc8EJBxQRMcHlei/arcgis/rest/services/HAVO_Vegetation_Sampling_Plant_Photos_HAVO_2021/FeatureServer/1"
+Plants_HAVO_2022 <- "https://services1.arcgis.com/fBc8EJBxQRMcHlei/arcgis/rest/services/HAVO_2022_VEG_Sampling_Plant_Photos/FeatureServer/31"
+Plants_KAHO_2022 <- "https://services1.arcgis.com/fBc8EJBxQRMcHlei/arcgis/rest/services/KAHO_2022_VEG_Sampling_Plant_Photos/FeatureServer/41"
+Plants_HALE_2023 <- "https://services1.arcgis.com/fBc8EJBxQRMcHlei/arcgis/rest/services/HALE_2023_VEG_Sampling_Plant_Photos_v2/FeatureServer/91"
+
+all_photos_layers <- c("FTPC_HAVO_2021", "FTPC_HAVO_2022", "FTPC_KAHO_2022", "FTPC_HALE_2023",
+                       "EIPS_HAVO_2021", "EIPS_HAVO_2022", "EIPS_HALE_2023",
+                       "Plants_HAVO_2021", "Plants_HAVO_2022", "Plants_KAHO_2022", "Plants_HALE_2023")
+
+all_photos_layers
+
+for (layer in all_photos_layers){
+
+  x <- DownloadAGOLAttachments(
+    feature_layer_url = get(layer),
+    agol_username = "pacn_gis",
+    agol_password = keyring::key_get(service = "AGOL", username = "pacn_gis"),
+    test_run = TRUE)
+
+  assign(paste0("look_", as.character(layer)), x)
+
+  print(paste0("look_", as.character(layer)))
+  }
+
+
 # ----Certification----
+
 install.packages("devtools")
 devtools::install_github("matthewjwhittle/getarc")
 library(getarc)
