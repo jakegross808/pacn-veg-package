@@ -145,7 +145,7 @@ LoadPACNVeg <- function(ftpc_params = "pacn", eips_paths, data_path, data_source
 
       ftpc_data <- ReadFTPC(ftpc_conn)
       DBI::dbDisconnect(ftpc_conn)
-      eips_data <- ReadEIPS(eips_paths)
+      eips_data <- ReadEIPS_2(eips_paths)
 
       data <- c(ftpc_data, eips_data)
 
@@ -595,8 +595,8 @@ ReadEIPS <- function(db_paths) {
       dplyr::select(Unit_Code, Sampling_Frame, Start_Date, Year, Cycle, Transect_Type, Transect_Number,
                     Entered_Date, Updated_Date, Verified, Verified_By, Verified_Date,
                     Certified, Certified_By, Certified_Date, Transect_Notes, Event_Notes) %>% #-Start_date
-      dplyr::collect() %>%
-      dplyr::mutate(Sampling_Frame = stringr::str_replace(Sampling_Frame, " / ", "/"))
+      dplyr::collect() #%>%
+      #dplyr::mutate(Sampling_Frame = stringr::str_replace(Sampling_Frame, " / ", "/"))
 
     # Events_extra_xy
     Events_extra_xy_new <- Events_extra %>%
@@ -673,6 +673,209 @@ ReadEIPS <- function(db_paths) {
     Events_extra_other_EIPS <- unique(rbind(Events_extra_other_EIPS, Events_extra_other_new))
     EIPS_image_pts <- unique(rbind(EIPS_image_pts, EIPS_image_pts_new))
     Species_extra_EIPS <- unique(rbind(Species_extra_EIPS, Species_extra_new))
+    EIPS_data <- unique(rbind(EIPS_data, EIPS_data_new))
+
+    DBI::dbDisconnect(conn)
+  } # End for loop
+
+  data <- list(Events_extra_QAQC_EIPS = Events_extra_QAQC_EIPS,
+               Events_extra_xy_EIPS = Events_extra_xy_EIPS,
+               Events_extra_other_EIPS = Events_extra_other_EIPS,
+               EIPS_image_pts = EIPS_image_pts,
+               Species_extra_EIPS = Species_extra_EIPS,
+               EIPS_data = EIPS_data)
+
+  data <- lapply(data, function(df) {
+    dplyr::mutate_if(df, is.character, iconv, "CP1252", "UTF-8")  # Convert to UTF-8 encoding
+  })
+
+  return(data)
+}
+
+# getting error now after dbplyr tries to collect() a table that has been joined (left_joined)
+# I think it has to do with recent updates to dbplyr. Not sure what to do, cannot find help
+# related to error message:
+
+# Error in `dplyr::collect()`:
+#   ! Failed to collect lazy table.
+# Caused by error:
+#   ! nanodbc/nanodbc.cpp:1526: 42000: [Microsoft][ODBC Microsoft Access Driver] Syntax error (missing operator) in query expression '(`...1`.`Transect_ID` = `tbl_Transects`.`Transect_ID`)
+# LEFT JOIN `tbl_Locations`
+#   ON (`tbl_Transects`.`Location_ID` = `tbl_Locations`.`Location_ID`)
+# LEFT JOIN `tbl_Sites`
+#   ON (`tbl_Locations`.`Site_ID` = `tbl_Sites`.`Site_ID`'.
+# Run `rlang::last_trace()` to see where the error occurred.
+
+# This error happens after collecting on line #570 of utils when collecting after the join.
+
+# My solution - run dplyr::collect() after each table tbl() because then it is a data.frame and not a tbl_ACCESS
+# This will probably cause ReadEIPS() to run slower however...
+
+#' Read data from EIPS database(s)
+#'
+#' @param db_paths A path or vector of paths to Access databases containing EIPS data
+#'
+#' @return A list of tibbles
+#'
+
+ReadEIPS_2 <- function(db_paths) {
+  conn_strings <- paste0("Driver={Microsoft Access Driver (*.mdb, *.accdb)};DBQ=", db_paths)
+
+  Events_extra_QAQC_EIPS <- tibble::tibble()
+  Events_extra_xy_EIPS <- tibble::tibble()
+  Events_extra_other_EIPS <- tibble::tibble()
+  EIPS_image_pts <- tibble::tibble()
+  Species_extra_EIPS <- tibble::tibble()
+  EIPS_data <- tibble::tibble()
+
+  for (conn_string in conn_strings) {
+    conn <- DBI::dbConnect(odbc::odbc(), .connection_string = conn_string)
+    #Sites (e.g. Park Codes)
+    #Short
+    tbl_Sites_short <- dplyr::tbl(conn, "tbl_Sites") %>%
+      dplyr::select(Site_ID, Unit_Code) %>%
+      dplyr::collect()
+    #Extra
+    tbl_Sites_extra <- dplyr::tbl(conn, "tbl_Sites") %>%
+      dplyr::select(Site_ID, Unit_Code, Site_Name) %>%
+      dplyr::collect()
+
+    #Locations (e.g. Sampling Frame)
+    #Short
+    tbl_Locations <- dplyr::tbl(conn, "tbl_Locations") %>%
+      dplyr::select(Location_ID, Site_ID, Community = Plant_Community, Sampling_Frame) %>%
+      dplyr::collect() %>%
+      # Remove white space " / " in "Nahuku / East Rift" to match FTPC
+      dplyr::mutate(Sampling_Frame = stringr::str_replace(Sampling_Frame, " / ", "/"))
+
+    # Transects
+    tbl_Transects_short <- dplyr::tbl(conn, "tbl_Transects") %>%
+      dplyr::select(Transect_ID, Location_ID, Transect_Number, Transect_Type) %>%
+      dplyr::collect()
+    tbl_Transects_extra <- dplyr::tbl(conn, "tbl_Transects") %>%
+      dplyr::select(Transect_ID, Location_ID, Transect_Type, Transect_Number, Azimuth_Transect = Azimuth, Lat = Latitude, Lat_Dir = Latitude_Dir, Long = Longitude, Long_Dir = Longitude_Dir, GCS, Transect_Notes) %>%
+      dplyr::collect()
+
+    # Events (e.g. The date the plot was sampled, QA/QC records)
+    # Extra
+    Events_extra <-  dplyr::tbl(conn, "tbl_Events") %>%
+      # add "Year" (year sampled) and "Cycle" (sample cycle)
+      dplyr::mutate(Year = YEAR(Start_Date)) %>%
+      dplyr::mutate(Cycle = ifelse(Year <= 2014, 1,
+                                   ifelse(Year >= 2015 & Year <= 2020, 2,
+                                          ifelse(Year >= 2021, 3, NA)))) %>%
+      dplyr::collect()
+
+    Events_extra <- Events_extra %>%
+      dplyr::left_join(y = tbl_Transects_extra, by = "Transect_ID") %>%
+      dplyr::left_join(tbl_Locations, by = "Location_ID") %>%
+      #Move long text columns to end because of SQL driver error:
+      dplyr::relocate(Event_Notes, .after = last_col()) %>%
+      dplyr::relocate(Transect_Notes, .after = last_col()) %>%
+      dplyr::left_join(tbl_Sites_extra, by = "Site_ID") %>%
+      #Move long text columns to end because of SQL driver error:
+      dplyr::relocate(Event_Notes, .after = last_col()) %>%
+      dplyr::relocate(Transect_Notes, .after = last_col()) %>%
+      dplyr::select(Event_ID, Transect_ID, Unit_Code, Community, Sampling_Frame, Start_Date, Year, Cycle,
+                    Transect_Number, Site_Name, Transect_Type, Transect_Number, Azimuth_Transect, Lat, Long,
+                    GCS, Lat_Dir, Long_Dir, Entered_Date, Updated_Date, Verified, Verified_By, Verified_Date,
+                    Certified, Certified_By, Certified_Date, Transect_Notes, Event_Notes) #-Start_Date
+    # Short
+    Events <- Events_extra %>%
+      dplyr::select(Event_ID, Transect_ID, Unit_Code, Community, Sampling_Frame, Year, Cycle, Transect_Type, Transect_Number, Certified, Verified)
+
+    # Events_extra_QAQC
+    Events_extra_QAQC_new <- Events_extra %>%
+      dplyr::select(Unit_Code, Entered_Date, Updated_Date, Verified, Verified_By, Verified_Date,
+                    Certified, Certified_By, Certified_Date, Transect_Notes, Event_Notes) %>% # -Start_date
+      dplyr::collect()
+
+    # Events_extra_xy
+    Events_extra_xy_new <- Events_extra %>%
+      dplyr::select(Unit_Code, Sampling_Frame, Year, Cycle, Transect_Type, Transect_Number, Azimuth_Transect, Lat, Long, GCS, Lat_Dir, Long_Dir, Certified, Verified) %>%
+      dplyr::collect()
+
+
+    # Events_extra_other
+    Events_extra_other_new <- Events_extra %>%
+      dplyr::select(Unit_Code, Sampling_Frame, Year, Cycle, Transect_Type,
+                    Transect_Number, Site_Name, Certified, Verified) %>%
+      dplyr::collect()
+    #dplyr::mutate(Sampling_Frame = stringr::str_replace(Sampling_Frame, " / ", "/"))
+
+    # Image Points
+    tbl_Image_Points <- dplyr::tbl(conn, "tbl_Image_Points") %>%
+      dplyr::collect()
+    EIPS_image_pts_new <- Events %>%
+      dplyr::right_join(tbl_Image_Points, by = "Event_ID") %>%
+      dplyr::select(Unit_Code, Community, Sampling_Frame, Year, Cycle,
+                    Transect_Type, Transect_Number, Image_Point,
+                    Latitude, Latitude_Dir, Longitude, Longitude_Dir, GCS, GPS_Error) %>%
+      dplyr::collect() #%>%
+    #dplyr::mutate(Sampling_Frame = stringr::str_replace(Sampling_Frame, " / ", "/"))
+
+
+    # Species w/nativity
+
+    # Nativity - Short
+    xref_Park_Species_Nativity_short <- dplyr::tbl(conn, "xref_Park_Species_Nativity") %>%
+      dplyr::select(Species_ID, Park, Nativity = Nativeness) %>%
+      dplyr::collect()
+
+    # Nativity - Extra
+    xref_Park_Species_Nativity_extra <- dplyr::tbl(conn, "xref_Park_Species_Nativity") %>%
+      dplyr::select(Species_ID, Park, Life_form, Nativity = Nativeness, Park_common_name,
+                    Distribution, Conservation_status) %>%
+      dplyr::collect()
+
+    # Species
+    Species <- dplyr::tbl(conn, "tlu_Species") %>%
+      dplyr::select(Species_ID, Scientific_name, Code, Life_form) %>%
+      dplyr::collect()
+    Species <- Species %>%
+      dplyr::right_join(xref_Park_Species_Nativity_short, by = "Species_ID")
+
+    # Species_extra
+    Species_extra <- dplyr::tbl(conn, "tlu_Species") %>%
+      dplyr::select(Species_ID, Scientific_name, Code, Taxonomic_Order, Taxonomic_Family, Genus, Species,
+                    Subdivision, Authority, Synonym, Authority_Source, Citation,
+                    Common_name, Life_cycle, Complete, Update_date, Update_by,
+                    Update_comments) %>%
+      dplyr::collect()
+
+    Species_extra <- Species_extra %>%
+      dplyr::right_join(xref_Park_Species_Nativity_extra, by = "Species_ID") %>%
+      dplyr::rename(Scientific_Name = Scientific_name, Life_Form = Life_form,
+                    Park_Common_Name = Park_common_name, Conservation_Status = Conservation_status,
+                    Common_Name = Common_name, Life_Cycle = Life_cycle, Update_Date = Update_date,
+                    Update_By = Update_by, Update_Comments = Update_comments)
+
+    # EIPS data
+    xref_Cover_Class_Species <- dplyr::tbl(conn, "xref_Cover_Class_Species") %>%
+      dplyr::select(Segment_ID, Event_ID, Species_ID, Cover_class, Dead) %>%
+      dplyr::collect()
+    tbl_Segments <- dplyr::tbl(conn, "tbl_Segments") %>%
+      dplyr::select(Segment_ID, Event_ID, No_Data, Segment_Notes) %>%
+      dplyr::collect()
+
+    tlu_Segment_Points <- dplyr::tbl(conn, "tlu_Segment_Points") %>%
+      dplyr::collect()
+
+    EIPS_data_new <- Events %>%
+      dplyr::right_join(tbl_Segments, by = "Event_ID") %>%
+      dplyr::left_join(tlu_Segment_Points, by = "Segment_ID") %>%
+      dplyr::left_join(xref_Cover_Class_Species, by = c("Segment_ID", "Event_ID")) %>%
+      dplyr::left_join(Species, by = c("Species_ID", "Unit_Code" = "Park")) %>%
+      dplyr::select(Unit_Code, Community, Sampling_Frame, Year, Cycle, Transect_Type, Transect_Number, Segment = Sort_Order, Species_ID, Cover_class, Dead, Code, Scientific_name, Life_form, Nativity, Certified, Verified) %>%
+      #dplyr::collect() %>%
+      dplyr::rename(Cover_Class = Cover_class, Scientific_Name = Scientific_name, Life_Form = Life_form) %>%
+      dplyr::relocate(Certified, Verified, .after = last_col())
+
+    Events_extra_QAQC_EIPS <- unique(rbind(Events_extra_QAQC_EIPS, Events_extra_QAQC_new))
+    Events_extra_xy_EIPS <- unique(rbind(Events_extra_xy_EIPS, Events_extra_xy_new))
+    Events_extra_other_EIPS <- unique(rbind(Events_extra_other_EIPS, Events_extra_other_new))
+    EIPS_image_pts <- unique(rbind(EIPS_image_pts, EIPS_image_pts_new))
+    Species_extra_EIPS <- unique(rbind(Species_extra_EIPS, Species_extra))
     EIPS_data <- unique(rbind(EIPS_data, EIPS_data_new))
 
     DBI::dbDisconnect(conn)

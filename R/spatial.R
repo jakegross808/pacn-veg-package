@@ -890,6 +890,9 @@ add_mgmt_unit <- function(sample_frame){
                   Zone) # Add Mgmt Unit here when available
 
   # Write to R folder in project. Is this best location?
+  new_folder <- paste0(getwd(),"/R")
+  new_folder
+  dir.create(new_folder)
   readr::write_csv(plots_mgmt, file = paste0(getwd(),"/R/Events_extra_xy_mgmt.csv"))
 
 }

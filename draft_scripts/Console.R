@@ -1,3 +1,5 @@
+install.packages
+
 #WritePACNVeg(dest.folder = "C:/Users/JJGross/OneDrive - DOI/Documents/Certification_Local/Databases/FTPC/writepacnveg")
 
 vegmap_db_paths <- c("C:/Users/JJGross/OneDrive - DOI/Documents/Veg_Map_Data/havodata.accdb",
@@ -8,12 +10,12 @@ vegmap_db_paths <- c("C:/Users/JJGross/OneDrive - DOI/Documents/Veg_Map_Data/hav
                      "C:/Users/JJGross/OneDrive - DOI/Documents/Veg_Map_Data/puhodata.mdb")
 
 #------------------------------------------------------------------------------.
+qc_kipa <- pacnvegetation::qc_presence_complete(sample_frame = "Kipahulu District")
 
 library(pacnvegetation)
 
-LoadPACNVeg(data_path = "C:/Users/JJGross/Downloads/pacnveg_data_export_20230530",
-            data_source = "file")
-
+#LoadPACNVeg(data_path = "C:/Users/JJGross/Downloads/pacnveg_data_export_20230530",
+#            data_source = "file")
 library(tidyverse)
 library(magrittr)
 
@@ -21,6 +23,25 @@ library(magrittr)
 #options(download.file.method = "wininet")
 
 # Load Data ----
+eips_database_folder_path <- "C:/Users/JJGross/Documents/Databases_copied_local/EIPS"
+eips_databases <- list.files(eips_database_folder_path,full.names = TRUE)
+
+
+
+
+pacnvegetation::MapPACNVeg2(sample_frame = "Kipahulu District" ,protocol = c("FTPC", "EIPS"))
+
+pacnvegetation::UnderNativityCover.plot.nat_v_non(combine_strata = TRUE, )
+
+#pacnvegetation:::ReadEIPS_2("C:/Users/JJGross/Documents/Databases_copied_local/EIPS/2021_established_invasives_20230119.mdb")
+eips_databases
+
+
+LoadPACNVeg(ftpc_params = "pacnveg",
+            eips_paths = eips_databases,
+            cache = TRUE,
+            expire_interval_days = 30,
+            force_refresh = FALSE)
 
 LoadPACNVeg(ftpc_params = "pacnveg",
             eips_paths = c("C:/Users/JJGross/OneDrive - DOI/Documents/Certification_Local/Databases/EIPS/established_invasives_BE_master_20220503.mdb",
@@ -31,6 +52,99 @@ LoadPACNVeg(ftpc_params = "pacnveg",
             force_refresh = FALSE)
 
 WritePACNVeg(dest.folder = "C:/Users/JJGross/Downloads/pacnveg_data_export_20230530")
+
+
+# ----HALE Climate chg meeting ----
+pacnvegetation::v_cover_bar_stats(combine_strata = TRUE,
+                                  plant_grouping = "Species",
+                                  sample_frame = "Haleakala",
+                                  paired_change = TRUE,
+                                  measurement = "Chg_Prior"
+                                  )
+
+zones <- read.csv(file = "R/Events_extra_xy_mgmt.csv") %>%
+  select(Sampling_Frame, Plot_Number, Zone) %>%
+  distinct()
+
+spp_info <- FilterPACNVeg(data = "Species_extra")
+
+All_spp <- FilterPACNVeg(data_name = "Presence") %>%
+  dplyr::left_join(zones, by = join_by("Sampling_Frame", "Plot_Number")) %>%
+  #dplyr::filter(Zone == "NW Kahuku") %>%
+  dplyr::left_join(spp_info, by = dplyr::join_by("Code", "Unit_Code" == "Park"))
+
+HALE_spp <- All_spp %>%
+  group_by(Sampling_Frame, Species) %>%
+  filter(Unit_Code == "HALE")
+
+HALE_spp_unique <- HALE_spp %>%
+  group_by(Sampling_Frame, Nativity.x) %>%
+  summarize(n = n())
+
+write_csv(NW_Kahuku_spp, "Downloads/test.csv")
+look <- read_csv("Downloads/test.csv")
+look <- read_csv("Downloads/NW_Kahuku_Species_PACN_Veg_monitoring_plots.csv")
+
+# ----Certification----
+install.packages("devtools")
+devtools::install_github("matthewjwhittle/getarc")
+library(getarc)
+
+paste_layer <- "https://services1.arcgis.com/fBc8EJBxQRMcHlei/arcgis/rest/services/FTPC_Points_Photos_HAVO_2021/FeatureServer"
+
+# Set Credentials (once)
+set_credentials(client_id = "xxxx", client_secret = "xxxx", app_name = "My App")
+my_token <- get_token()
+
+## Or:
+generate_token(endpoint = paste_layer, username = "NPS/JJGross", password = "test", expiration = 60)
+
+my_token <- get_token(client_id = "xxxx", client_secret = "xxxx", app_name = "My App")
+
+data <-
+  query_layer(endpoint = private_endpoint,
+              # Pass in token for a secured service
+              my_token = my_token
+  )
+
+head(getarc::endpoints)
+query_layer(endpoint = endpoints$us_fire_occurrence)
+
+
+
+test <- arc.data2sf(arc.select(arc.open(paste_prop_layer)))
+
+
+look <- pacnvegetation::qc_presence_complete(sample_frame = "Mauna Loa")
+
+# ----Get Species in NW Kahuku Zone----
+
+zones <- read.csv(file = "R/Events_extra_xy_mgmt.csv") %>%
+  select(Sampling_Frame, Plot_Number, Zone) %>%
+  distinct()
+
+names(pacnvegetation:::GetColSpec())
+install.packages("tidyverse")
+dplyr::join_by
+
+pacnvegetation::add_mgmt_unit("All")
+
+zones <- read.csv(file = "R/Events_extra_xy_mgmt.csv") %>%
+  select(Sampling_Frame, Plot_Number, Zone) %>%
+  distinct()
+
+names(pacnvegetation:::GetColSpec())
+
+spp_info <- FilterPACNVeg(data = "Species_extra")
+
+NW_Kahuku_spp <- FilterPACNVeg(data_name = "Presence") %>%
+  dplyr::left_join(zones, by = join_by("Sampling_Frame", "Plot_Number")) %>%
+  dplyr::filter(Zone == "NW Kahuku") %>%
+  dplyr::left_join(spp_info, by = dplyr::join_by("Code", "Unit_Code" == "Park"))
+
+write_csv(NW_Kahuku_spp, "Downloads/test.csv")
+look <- read_csv("Downloads/test.csv")
+look <- read_csv("Downloads/NW_Kahuku_Species_PACN_Veg_monitoring_plots.csv")
 
 #----- Large Trees - Basal Area ------------------------------------------------
 

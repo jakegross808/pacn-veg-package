@@ -4,3 +4,4 @@
 ^README\.Rmd$
 ^scratchpad$
 ^draft_scripts$
+^\.httr-oauth$
