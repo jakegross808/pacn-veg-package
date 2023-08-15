@@ -967,6 +967,8 @@ DownloadAGOLAttachments <- function(feature_layer_url,
   data <- data$features$attributes %>%
     tibble::as_tibble()
 
+
+
   # Get attachment info
   attrs <- httr::GET(paste0(feature_layer_url, "/queryAttachments"),
                      query = list(f="JSON",
@@ -981,6 +983,20 @@ DownloadAGOLAttachments <- function(feature_layer_url,
   attachments <- attrs$attachmentGroups %>%
     tibble::as_tibble() %>%
     tidyr::unnest(cols = attachmentInfos)
+
+  # Pull photo date out of the nested Exif and add as formatted column
+  # attachments <- attachments %>%
+  #   select(exifInfo) %>%
+  #   unnest(cols = c(exifInfo)) %>%
+  #   filter(name == "Exif IFD0") %>%
+  #   select(tags) %>%
+  #   unnest(cols = c(tags)) %>%
+  #   filter(name == "Date/Time") %>%
+  #   select(value) %>%
+  #   mutate(value2 = as.character(str_replace_all(value, ":", ""))) %>%
+  #   mutate(photo_day_time = as.character(str_replace_all(value2, " ", "_"))) %>%
+  #   select(photo_day_time) %>%
+  #   bind_cols(attachments)
 
   # Join attachment table data to attachment info
   if (is.null(join_cols)) {
@@ -1000,11 +1016,62 @@ DownloadAGOLAttachments <- function(feature_layer_url,
   if (!append_id) {
     sep <- ""  # Make separator blank if not appending ID to photo name
   }
+
+  # Make Subject column compatible for all layers
+
+  # Change Subject_FTPC and Subject_EIPS to just "Subject"
+  lookup <- c(Subject = "Subject_FTPC", Subject = "Subject_EIPS")
+  attachments <- dplyr::rename(attachments, tidyselect::any_of(lookup))
+
+  # If "Plant" layer use Code from Photo_Taxon as "Subject"
+  if (any(names(attachments) %in% c("Photo_Taxon"))) {
+    attachments$Subject <- stringr::str_extract(attachments$Photo_Taxon, "(?<=\\().*?(?=\\))")
+  }
+
+  # remove all special characters from Subject_other & append to any Subject == other
+  if (any(names(attachments) %in% c("Subject_other"))) {
+    attachments <- attachments %>%
+      dplyr::mutate(Sub_other = stringr::str_remove(Subject_other, "[[:punct:]]")) %>%
+      dplyr::mutate(Sub_other = stringr::str_replace_all(Sub_other," ", "_")) %>%
+      dplyr::mutate(Subject = dplyr::case_when(Subject == "Other" ~ paste(Subject, Sub_other, sep = "_"),
+                                               .default = as.character(Subject)))
+  }
+
+  # utilize numeric count of photos from Field Maps
+  attachments$photo_cnt <- stringr::str_extract(string = attachments$name, pattern = "(\\d)+")
+
+  # utilize date column from point created in field maps
+  attachments <- attachments %>%
+    dplyr::mutate(pt_date = as.character(as.POSIXct(created_date/1000,
+                                                    origin="1970-01-01"))) %>%
+    #tidyr::separate_wider_delim(pt_date, " ",
+    #                            names = c("pt_date_file", NA),
+    #                            cols_remove = FALSE) %>%
+    #dplyr::mutate(pt_date_file = stringr::str_remove_all(pt_date_file,
+    #                                                     pattern = "-")) %>%
+    dplyr::mutate(pt_date_file = stringr::str_remove_all(string = pt_date,
+                                                        pattern = "[-:]")) %>%
+    dplyr::mutate(pt_date_file = stringr::str_replace(string = pt_date_file,
+                                                     pattern = " ",
+                                                     replacement = "_")) %>%
+    # Drop seconds from pt_date_file
+    dplyr::mutate(pt_date_file = stringr::str_sub(pt_date_file, end = -3)) %>%
+    # Separate Site_numb column into protocol and site columns
+    tidyr::separate_wider_delim(Site_numb, " ",
+                                names = c("protocol", "site_typenum"),
+                                cols_remove = FALSE,
+                                too_many = "merge")
+
+  # Create new name utilizing columns above
+  attachments <- attachments %>%
+    dplyr::mutate(new_name = paste(pt_date_file, id, site_typenum, Subject, sep = "_")) #photo_cnt removed because was not unique sometimes!
+
   attachments <- attachments %>%
     dplyr::mutate(customFileName = custom_name,
                   appendID = append_id,
                   fileExt = paste0(".", tools::file_ext(name)),  # Get file extension
-                  fileName = ifelse(customFileName, paste({{prefix}}, ifelse(appendID, id, ""), sep = sep), tools::file_path_sans_ext(name)),  # If custom_name is FALSE, just use the original filename
+                  fileName = ifelse(customFileName, paste(new_name, ifelse(appendID, id, ""), sep = sep), tools::file_path_sans_ext(name)),
+                  #fileName = ifelse(customFileName, paste({{prefix}}, ifelse(appendID, id, ""), sep = sep), tools::file_path_sans_ext(name)),  # If custom_name is FALSE, just use the original filename
                   fileDest = file.path(dest_folder, paste0(fileName, fileExt))) %>%  # Full file path
     dplyr::select(-fileExt, -fileName, -customFileName)
 

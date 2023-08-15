@@ -1,10 +1,26 @@
+# Packages:
+
 library(pacnvegetation)
 #library(tidyverse)
 #library(magrittr)
 # if need to install packages while on network:
-options(download.file.method = "wininet")
+#options(download.file.method = "wininet")
 
-#--- 1. Database Loads ----
+#--- 1. Read latest cache ----
+
+# Write/Read csv from pacnvegetation package:
+pacnveg_cache_path <- "C:/Users/JJGross/OneDrive - DOI/Documents/Certification_Local/Databases/R_WritePACNVeg"
+
+# Read
+path_file_info <- file.info(list.files(pacnveg_cache_path, full.names = T))
+latest_folder <- rownames(path_file_info)[which.max(path_file_info$mtime)]
+
+LoadPACNVeg(data_path = latest_folder,
+            data_source = "file")
+
+#--- 2. Update and Write Data ----
+
+# ..........Update Data ----
 eips_database_folder_path <- "C:/Users/JJGross/Documents/Databases_copied_local/EIPS"
 eips_databases <- list.files(eips_database_folder_path,full.names = TRUE)
 eips_databases
@@ -15,9 +31,14 @@ LoadPACNVeg(ftpc_params = "pacnveg",
             expire_interval_days = 30,
             force_refresh = FALSE)
 
-#--- 2. Optional Loads ----
+# ..........Write Data ----
+write_folder <- paste0(pacnveg_cache_path, "/", Sys.Date())
+write_folder
+WritePACNVeg(dest.folder = write_folder, create.folders = TRUE)
 
-# Veg Map Data
+#--- 3. Optional Loads ----
+
+# ..........Veg Map Data ----
 vegmap_db_paths <- c("C:/Users/JJGross/OneDrive - DOI/Documents/Veg_Map_Data/havodata.accdb",
                      "C:/Users/JJGross/OneDrive - DOI/Documents/Veg_Map_Data/haledata.accdb",
                      "C:/Users/JJGross/OneDrive - DOI/Documents/Veg_Map_Data/kahodata.mdb",
@@ -25,20 +46,381 @@ vegmap_db_paths <- c("C:/Users/JJGross/OneDrive - DOI/Documents/Veg_Map_Data/hav
                      "C:/Users/JJGross/OneDrive - DOI/Documents/Veg_Map_Data/puhedata.mdb",
                      "C:/Users/JJGross/OneDrive - DOI/Documents/Veg_Map_Data/puhodata.mdb")
 
-# Write/Read csv from pacnvegetation package:
-pacnveg_write_path <- "C:/Users/JJGross/OneDrive - DOI/Documents/Certification_Local/Databases/R_WritePACNVeg"
 
-# Write
-write_folder <- paste0(pacnveg_write_path, "/", Sys.Date())
-WritePACNVeg(dest.folder = "C:/Users/JJGross/Downloads/pacnveg_data_export_20230530")
 
-# Read
-path_file_info <- file.info(list.files(pacnveg_write_path, full.names = T))
-latest_folder <- rownames(path_file_info)[which.max(path_file_info$mtime)]
+# ..........AGOL Data ----
 
-LoadPACNVeg(data_path = latest_folder,
-            data_source = "file")
+# AGOL layer service urls
+FTPC_HAVO_2021 <- "https://services1.arcgis.com/fBc8EJBxQRMcHlei/arcgis/rest/services/FTPC_Points_Photos_HAVO_2021/FeatureServer/1"
+FTPC_HAVO_2022 <- "https://services1.arcgis.com/fBc8EJBxQRMcHlei/arcgis/rest/services/HAVO_2022_FTPC_Sampling_Points_Photos/FeatureServer/30"
+FTPC_KAHO_2022 <- "https://services1.arcgis.com/fBc8EJBxQRMcHlei/arcgis/rest/services/KAHO_2022_FTPC_Sampling_Points_Photos/FeatureServer/30"
+FTPC_HALE_2023 <- "https://services1.arcgis.com/fBc8EJBxQRMcHlei/arcgis/rest/services/HALE_2023_FTPC_Sampling_Points_Photos/FeatureServer/89"
 
+EIPS_HAVO_2021 <- "https://services1.arcgis.com/fBc8EJBxQRMcHlei/arcgis/rest/services/EIPS_Points_Photos_HAVO_2021/FeatureServer/1"
+EIPS_HAVO_2022 <- "https://services1.arcgis.com/fBc8EJBxQRMcHlei/arcgis/rest/services/HAVO_2022_EIPS_Sampling_Points_Photos/FeatureServer/32"
+EIPS_HALE_2023 <- "https://services1.arcgis.com/fBc8EJBxQRMcHlei/arcgis/rest/services/HALE_2023_EIPS_Sampling_Points_Photos/FeatureServer/93"
+
+Plants_HAVO_2021 <- "https://services1.arcgis.com/fBc8EJBxQRMcHlei/arcgis/rest/services/HAVO_Vegetation_Sampling_Plant_Photos_HAVO_2021/FeatureServer/1"
+Plants_HAVO_2022 <- "https://services1.arcgis.com/fBc8EJBxQRMcHlei/arcgis/rest/services/HAVO_2022_VEG_Sampling_Plant_Photos/FeatureServer/31"
+Plants_KAHO_2022 <- "https://services1.arcgis.com/fBc8EJBxQRMcHlei/arcgis/rest/services/KAHO_2022_VEG_Sampling_Plant_Photos/FeatureServer/41"
+Plants_HALE_2023 <- "https://services1.arcgis.com/fBc8EJBxQRMcHlei/arcgis/rest/services/HALE_2023_VEG_Sampling_Plant_Photos_v2/FeatureServer/91"
+
+# Get Data For All Layers
+all_photos_layers <- c("FTPC_HAVO_2021", "FTPC_HAVO_2022", "FTPC_KAHO_2022", "FTPC_HALE_2023",
+                       "EIPS_HAVO_2021", "EIPS_HAVO_2022", "EIPS_HALE_2023",
+                       "Plants_HAVO_2021", "Plants_HAVO_2022", "Plants_KAHO_2022", "Plants_HALE_2023")
+
+all_photos_layers
+
+for (layer in all_photos_layers){
+
+  x <- DownloadAGOLAttachments(
+    feature_layer_url = get(layer),
+    custom_name = TRUE,
+    append_id = FALSE,
+    agol_username = "pacn_gis",
+    agol_password = keyring::key_get(service = "AGOL", username = "pacn_gis"),
+    test_run = TRUE,
+    dest_folder = "C:/Users/JJGross/Downloads/EIPS_HALE_test")
+
+  assign(paste0("look_", as.character(layer)), x)
+
+  print(layer)
+
+}
+
+# Get Specific Layer
+x <- DownloadAGOLAttachments(
+  feature_layer_url = EIPS_HALE_2023,
+  custom_name = TRUE,
+  append_id = FALSE,
+  agol_username = "pacn_gis",
+  agol_password = keyring::key_get(service = "AGOL", username = "pacn_gis"),
+  test_run = FALSE,
+  dest_folder = "C:/Users/JJGross/Downloads/EIPS_HALE_test")
+
+
+
+
+# ---Experimenting with Download AGOL Attachments ----
+
+a <- c("20230814_143023", "20230814_143023")
+b <- c("Bob", "Schtu")
+df <- data.frame(a,b)
+str(df)
+#df$x <- substr(df$x, 1, nchar(x)-2)
+
+df %>%
+  dplyr::mutate(a = stringr::str_sub(a, end = -3))
+
+
+
+
+test_FTPC_HAVO_att <- DownloadAGOLAttachments(
+  feature_layer_url = FTPC_HAVO_2022,
+  custom_name = TRUE,
+  append_id = FALSE,
+  agol_username = "pacn_gis",
+  agol_password = keyring::key_get(service = "AGOL", username = "pacn_gis"),
+  test_run = TRUE,
+  dest_folder = "C:/Users/JJGross/Downloads/EIPS_HALE_test"
+)
+
+test_EIPS_HALE_att <- DownloadAGOLAttachments(
+  feature_layer_url = EIPS_HALE_2023,
+  custom_name = TRUE,
+  append_id = TRUE,
+  agol_username = "pacn_gis",
+  agol_password = keyring::key_get(service = "AGOL", username = "pacn_gis"),
+  test_run = TRUE,
+  dest_folder = "C:/Users/JJGross/Downloads/EIPS_HALE_test"
+)
+
+
+
+
+
+test_FTPC_HALE_att <- DownloadAGOLAttachments(
+  feature_layer_url = FTPC_HALE_2023,
+  agol_username = "pacn_gis",
+  agol_password = keyring::key_get(service = "AGOL", username = "pacn_gis"),
+  test_run = TRUE,
+  dest_folder = "C:/Users/JJGross/Downloads/EIPS_HALE_test"
+)
+
+test_Plants_HALE_att <- DownloadAGOLAttachments(
+  feature_layer_url = Plants_HALE_2023, #FTPC_HALE_2023, #EIPS_HALE_2023,
+  agol_username = "pacn_gis",
+  agol_password = keyring::key_get(service = "AGOL", username = "pacn_gis"),
+  test_run = TRUE,
+  dest_folder = "C:/Users/JJGross/Downloads/EIPS_HALE_test",
+  custom_name = TRUE,
+  prefix = paste(photo_day_time, "EI", Samp_Frame, Site_numb, Subject_FTPC, sep = "_"),
+  sep = "_",
+  append_id = FALSE
+  )
+
+test_x <- test_Plants_HALE_att
+test_x <- test_FTPC_HALE_att
+test_x <- test_EIPS_HALE_att
+
+
+# utilize date column from point created in field maps
+test_x <- test_x %>%
+  dplyr::mutate(pt_date_new = stringr::str_remove_all(string = pt_date,
+                                                       pattern = "[-:]")) %>%
+  dplyr::mutate(pt_date_new = stringr::str_replace(string = pt_date_new,
+                                                   pattern = " ",
+                                                   replacement = "_"))
+
+# Make Subject column compatible for all layers
+
+# Change Subject_FTPC and Subject_EIPS to just "Subject"
+lookup <- c(Subject = "Subject_FTPC", Subject = "Subject_EIPS")
+test_x <- dplyr::rename(test_x, tidyselect::any_of(lookup))
+
+# If "Plant" layer use Code from Photo_Taxon as "Subject"
+if (any(names(test_x) %in% c("Photo_Taxon"))) {
+  test_x$Subject <- stringr::str_extract(test_x$Photo_Taxon, "(?<=\\().*?(?=\\))")
+}
+
+# remove all special characters from Subject_other & append to any Subject == other
+if (any(names(test_x) %in% c("Subject_other"))) {
+  test_x <- test_x %>%
+    dplyr::mutate(Sub_other = stringr::str_remove(Subject_other, "[[:punct:]]")) %>%
+    dplyr::mutate(Sub_other = stringr::str_replace_all(Sub_other," ", "_")) %>%
+    dplyr::mutate(Subject = dplyr::case_when(Subject == "Other" ~ paste(Subject, Sub_other, sep = "_"),
+                                             .default = as.character(Subject)))
+}
+
+# utilize numeric count of photos from Field Maps
+test_x$photo_cnt <- stringr::str_extract(string = test_x$name, pattern = "(\\d)+")
+
+# utilize date column from point created in field maps
+test_x <- test_x %>%
+  dplyr::mutate(pt_date = as.character(as.POSIXct(created_date/1000,
+                                                  origin="1970-01-01"))) %>%
+  tidyr::separate_wider_delim(pt_date, " ",
+                              names = c("pt_date_file", NA),
+                              cols_remove = FALSE) %>%
+  dplyr::mutate(pt_date_file = stringr::str_remove_all(pt_date_file,
+                                                       pattern = "-")) %>%
+  tidyr::separate_wider_delim(Site_numb, " ",
+                              names = c("protocol", "site_typenum"),
+                              cols_remove = FALSE,
+                              too_many = "merge")
+
+# Create new name utilizing columns above
+test_x <- test_x %>%
+  dplyr::mutate(new_name = paste(pt_date_file, site_typenum, Subject, photo_cnt, sep = "_"))
+
+
+
+
+
+
+test_x %>%
+  dplyr::mutate(Sub_other = stringr::str_remove(Subject_other, "[[:punct:]]")) %>%
+  dplyr::mutate(Sub_other = stringr::str_replace_all(Sub_other," ", "_"))
+
+stringr::str_remove_all(test_x$Subject_other, "[[:punct:]]") %>%
+  stringr::str_replace_all(" ", "_")
+
+lookup <- c(Subject = "Subject_FTPC", Subject = "Subject_EIPS")
+test_x <- dplyr::rename(test_x, tidyselect::any_of(lookup))
+
+any(names(test_x) %in% c("Photo_Taxon"))
+
+if (any(names(test_x) %in% c("Photo_Taxon"))) {
+  test_x$Subject <- stringr::str_extract(test_x$Photo_Taxon, "(?<=\\().*?(?=\\))")
+}
+
+
+
+
+
+
+
+
+# includes parentheses:
+stringr::str_extract(test_x$Photo_Taxon, "\\((.*?)\\)")
+
+# excludes parentheses:
+stringr::str_extract(test_x$Photo_Taxon, "(?<=\\().*?(?=\\))")
+
+
+
+test_x %>%
+  dplyr::select(Photo_Taxon) %>%
+  dplyr::pull() %>%
+  #stringr::str_extract(
+  stringr::str_extract("")
+
+
+any(names(test_x) %in% c("Subject_FTPC", "Subject_EIPS"))
+
+test_x %>%
+  dplyr::select(tidyselect::starts_with("Subject") & !tidyselect::ends_with("other"))
+
+lookup <- c(Subject = "Subject_FTPC", Subject = "Subject_EIPS")
+test_x <- dplyr::rename(test_x, tidyselect::any_of(lookup))
+
+dplyr::rename(test_x,
+              .cols = tidyselect::starts_with("Subject") & !tidyselect::ends_with("other"),
+              ~ "Subject")
+
+any(names(test_FTPC_HALE_att) == "Subject_FTPC" |
+      any(names(test_FTPC_HALE_att) == "Subject_EIPS"))
+
+any(names(test_FTPC_HALE_att) %in% c("Subject_FTPC", "Subject_EIPS"))
+
+any(names(test_EIPS_HALE_att) == "Subject_FTPC" |
+      any(names(test_EIPS_HALE_att) == "Subject_EIPS"))
+
+any(names(test_Plants_HALE_att) == "Subject_FTPC" |
+      any(names(test_Plants_HALE_att) == "Subject_EIPS"))
+
+
+
+test_Plants <- test_Plants_HALE_att %>%
+  dplyr::mutate(pt_date = as.character(as.POSIXct(created_date/1000,
+                                                  origin="1970-01-01"))) %>%
+  tidyr::separate_wider_delim(pt_date, " ",
+                              names = c("pt_date_file", NA),
+                              cols_remove = FALSE) %>%
+  dplyr::mutate(pt_date_file = stringr::str_remove_all(pt_date_file,
+                                                       pattern = "-")) %>%
+  tidyr::separate_wider_delim(Site_numb, " ",
+                              names = c("protocol", "site_typenum"),
+                              cols_remove = FALSE,
+                              too_many = "merge") %>%
+  dplyr::mutate(paste_name = paste(pt_date_file, site_typenum, Subject_FTPC, sep = "_"))
+
+
+
+
+
+test_FTPC <- test_FTPC_HALE_att %>%
+    dplyr::mutate(pt_date = as.character(as.POSIXct(created_date/1000, origin="1970-01-01"))) %>%
+    tidyr::separate_wider_delim(pt_date, " ", names = c("pt_date_file", NA), cols_remove = FALSE) %>%
+    dplyr::mutate(pt_date_file = stringr::str_remove_all(pt_date_file, pattern = "-")) %>%
+    tidyr::separate_wider_delim(Site_numb, " ", names = c("protocol", "site_typenum"), cols_remove = FALSE,too_many = ) #%>%
+  #dplyr::mutate(paste_name = paste(pt_date_file, "EI", Samp_Frame, Site_numb, Subject_FTPC, sep = "_"))
+
+
+
+
+
+ #Get Exif Date/Time - problem is some photos don't have this! (weird!)
+test <- test_Plants_HALE_att[1,] %>%
+  select(exifInfo) %>%
+  unnest(cols = c(exifInfo)) %>%
+  #filter(name %in% c("Exif IFD0", "Exif SubIFD")) %>%
+  mutate(tags = map(tags, ~ mutate(.x, value = as.character(value)))) %>%
+  unnest(cols = c(tags), names_sep = "_", keep_empty = TRUE) %>%
+  filter(tags_name == "Date/Time")
+
+chk_date1 <- test_Plants_HALE_att[1,]
+chk_date <- test_Plants_HALE_att$created_date[1]
+
+chk_date2 <- test_Plants_HALE_att %>%
+  filter(Samp_Frame == "HA") #%>%
+  pull(created_date)
+
+chk2 <- chk_date2[1]
+
+
+format(chk_date, scientific = FALSE)
+
+as.POSIXct(chk2/1000, origin="1970-01-01")
+
+
+format(round(chk_date, 2), nsmall = 2)
+date
+  mutate(tags = map(tags, mutate(.x, value = as.charcter(value))))
+  unnest(cols = c(tags))
+test[[2]]$value
+x.1Plants_HAVO21[1,][[2]]$value
+
+
+look <- test %>%
+  mutate(tags = map(tags, ~ mutate(.x, value = as.character(value)))) %>%
+  unnest(cols = c(tags), names_sep = "_")
+
+#%>%
+test
+  unlist()
+str(test)
+test
+
+dat <- c("Clyde" = "1", "Susy" = "2", "Frank" = "3", "John" = "4")
+str(dat)
+
+x.3Plants_HAVO21 <- x.1Plants_HAVO21 %>%
+  #mutate(data = map(data, ~ .x %>% mutate_all(as.character))) #%>%
+  select(exifInfo) %>%
+  unnest(cols = c(exifInfo)) %>%
+  #map(~filter(.,name=="Date/Time"))
+  filter(name == "Exif IFD0",
+         name == "Edif SubiFD") %>%
+  select(tags) %>%
+  unlist() #%>%
+  #unnest(cols = c(tags)) #%>%
+
+x.3Plants_HAVO21
+
+  filter(name == "Date/Time") %>%
+    select(value) %>%
+
+
+  #mutate(tags = as.character(tags)) #%>%
+  #mutate(across(everything(), as.character)) #%>%
+  #mutate(data = map(data,~
+  #                    .x %>%
+  #                    mutate(across(everything(), as.character)))) %>%
+  unnest(cols = c(tags)) #%>%
+  filter(name == "Date/Time") %>%
+  select(value) %>%
+  mutate(value2 = as.character(str_replace_all(value, ":", ""))) %>%
+  mutate(photo_day_time = as.character(str_replace_all(value2, " ", "_"))) %>%
+  select(photo_day_time) %>%
+  bind_cols(x.1Plants_HALE)
+look <- x.1Plants_HALE2
+
+x.1 %>%
+  select(exifInfo) %>%
+  slice(1) %>%
+  pull(1) %>%
+  pluck(1)
+
+x.1$exifInfo %>% dplyr::slice(1)
+
+%>% purrr::pluck('Exif IFD0') #%>% purrr::map_df(.f = as_tibble)
+
+
+purrr::pluck(x.1$exifInfo, name=="Exif IFD0")
+
+purrr::pluck(x.1$exifInfo, 2)
+
+x$exifInfo %>%
+  purrr::pluc
+
+x$exifInfo[[1]][[2]]
+
+x$exifInfo[][[2]]
+
+str(x$exifInfo)
+
+
+
+t <- (x$exifInfo[[1]][[2]])[[1]]$value[8]
+t
+
+gsub(" ", "_", gsub(':',"", t))
+
+gsub(" ", "_", gsub(':',"", (x$exifInfo[[2]][[2]])[[1]]$value[8]))
+
+gsub(" ", "_", gsub(':',"", (x$exifInfo[[2]])[[1]]$value[8]))
 
 # ---- HALE Climate chg meeting ------------------------------------------------
 pacnvegetation::v_cover_bar_stats(combine_strata = TRUE,
@@ -70,42 +452,6 @@ HALE_spp_unique <- HALE_spp %>%
 write_csv(NW_Kahuku_spp, "Downloads/test.csv")
 look <- read_csv("Downloads/test.csv")
 look <- read_csv("Downloads/NW_Kahuku_Species_PACN_Veg_monitoring_plots.csv")
-
-
-# ----AGOL Data----
-FTPC_HAVO_2021 <- "https://services1.arcgis.com/fBc8EJBxQRMcHlei/arcgis/rest/services/FTPC_Points_Photos_HAVO_2021/FeatureServer/1"
-FTPC_HAVO_2022 <- "https://services1.arcgis.com/fBc8EJBxQRMcHlei/arcgis/rest/services/HAVO_2022_FTPC_Sampling_Points_Photos/FeatureServer/30"
-FTPC_KAHO_2022 <- "https://services1.arcgis.com/fBc8EJBxQRMcHlei/arcgis/rest/services/KAHO_2022_FTPC_Sampling_Points_Photos/FeatureServer/30"
-FTPC_HALE_2023 <- "https://services1.arcgis.com/fBc8EJBxQRMcHlei/arcgis/rest/services/HALE_2023_FTPC_Sampling_Points_Photos/FeatureServer/89"
-
-EIPS_HAVO_2021 <- "https://services1.arcgis.com/fBc8EJBxQRMcHlei/arcgis/rest/services/EIPS_Points_Photos_HAVO_2021/FeatureServer/1"
-EIPS_HAVO_2022 <- "https://services1.arcgis.com/fBc8EJBxQRMcHlei/arcgis/rest/services/HAVO_2022_EIPS_Sampling_Points_Photos/FeatureServer/32"
-EIPS_HALE_2023 <- "https://services1.arcgis.com/fBc8EJBxQRMcHlei/arcgis/rest/services/HALE_2023_EIPS_Sampling_Points_Photos/FeatureServer/93"
-
-Plants_HAVO_2021 <- "https://services1.arcgis.com/fBc8EJBxQRMcHlei/arcgis/rest/services/HAVO_Vegetation_Sampling_Plant_Photos_HAVO_2021/FeatureServer/1"
-Plants_HAVO_2022 <- "https://services1.arcgis.com/fBc8EJBxQRMcHlei/arcgis/rest/services/HAVO_2022_VEG_Sampling_Plant_Photos/FeatureServer/31"
-Plants_KAHO_2022 <- "https://services1.arcgis.com/fBc8EJBxQRMcHlei/arcgis/rest/services/KAHO_2022_VEG_Sampling_Plant_Photos/FeatureServer/41"
-Plants_HALE_2023 <- "https://services1.arcgis.com/fBc8EJBxQRMcHlei/arcgis/rest/services/HALE_2023_VEG_Sampling_Plant_Photos_v2/FeatureServer/91"
-
-all_photos_layers <- c("FTPC_HAVO_2021", "FTPC_HAVO_2022", "FTPC_KAHO_2022", "FTPC_HALE_2023",
-                       "EIPS_HAVO_2021", "EIPS_HAVO_2022", "EIPS_HALE_2023",
-                       "Plants_HAVO_2021", "Plants_HAVO_2022", "Plants_KAHO_2022", "Plants_HALE_2023")
-
-all_photos_layers
-
-for (layer in all_photos_layers){
-
-  x <- DownloadAGOLAttachments(
-    feature_layer_url = get(layer),
-    agol_username = "pacn_gis",
-    agol_password = keyring::key_get(service = "AGOL", username = "pacn_gis"),
-    test_run = TRUE)
-
-  assign(paste0("look_", as.character(layer)), x)
-
-  print(paste0("look_", as.character(layer)))
-  }
-
 
 # ----Certification----
 

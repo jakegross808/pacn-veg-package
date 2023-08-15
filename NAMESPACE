@@ -2,6 +2,7 @@
 
 export("%>%")
 export(ClearPACNVegCache)
+export(DownloadAGOLAttachments)
 export(FilterPACNVeg)
 export(FormatPlot)
 export(LoadPACNVeg)
