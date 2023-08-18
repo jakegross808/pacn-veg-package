@@ -1077,3 +1077,42 @@ DownloadAGOLAttachments <- function(feature_layer_url,
 
   return(attachments)
 }
+
+#' Download FTPC, EIPS, and Plant Photos and attributes from AGOL layers
+#'
+#' Make sure to get keyring for AGOL headless account from sharepoint:
+#' https://doimspp.sharepoint.com/sites/nps-PWR-PACNIM/vital_signs/05_focal_terr_plant_communities/Spatial_info/AGOL_headless
+#'
+#' @param agol_photo_layers A vector of named objects already loaded in the Global Environment. Each object should have only 1 value assigned to it - which is the URL for point layer in AGOL. For example one object in the vector may be "EIPS_HALE_2023" with the assigned value: "https://services1.arcgis.com/fBc8EJBxQRMcHlei/arcgis/rest/services/HALE_2023_EIPS_Sampling_Points_Photos/FeatureServer/93"
+#' @param temp_dest The temporary location on your local computer where the folder of downloaded images and csv will be saved to.
+#'
+#' @return All the photos from a AGOL layer (example EIPS, FTPC, and Plant Photo layers) along with a csv of attributes and metadata.
+#' @export
+#'
+download_agol <- function(photo_layers, temp_dest){
+  for (layer in photo_layers){
+    print(paste("starting download for", layer))
+
+    file_date <- gsub("-", "", as.character(Sys.Date()))
+
+    layer_dest <- paste0(temp_dest, as.character(layer), "_", file_date)
+
+    layer_df <- DownloadAGOLAttachments(
+      feature_layer_url = get(layer),
+      custom_name = TRUE,
+      append_id = FALSE,
+      agol_username = "pacn_gis",
+      agol_password = keyring::key_get(service = "AGOL", username = "pacn_gis"),
+      test_run = FALSE,
+      dest_folder = layer_dest)
+
+    csv_location <- paste0(layer_dest, "/", as.character(layer), "_", file_date, ".csv")
+
+    readr::write_csv(layer_df, csv_location)
+
+    print(layer_dest)
+    print(csv_location)
+    print(paste(layer, "complete"))
+
+  }
+}
