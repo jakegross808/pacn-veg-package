@@ -46,6 +46,10 @@ vegmap_db_paths <- c("C:/Users/JJGross/OneDrive - DOI/Documents/Veg_Map_Data/hav
                      "C:/Users/JJGross/OneDrive - DOI/Documents/Veg_Map_Data/puhedata.mdb",
                      "C:/Users/JJGross/OneDrive - DOI/Documents/Veg_Map_Data/puhodata.mdb")
 
+# ..........Veg Species Database ----
+veg_species_db_path <-  "C:/Users/JJGross/Documents/Databases_copied_local/Veg_species_db"
+veg_species_db <- list.files(veg_species_db_path,full.names = TRUE)
+veg_species_db
 
 
 # ..........AGOL Data ----
@@ -63,31 +67,47 @@ EIPS_HALE_2023 <- "https://services1.arcgis.com/fBc8EJBxQRMcHlei/arcgis/rest/ser
 Plants_HAVO_2021 <- "https://services1.arcgis.com/fBc8EJBxQRMcHlei/arcgis/rest/services/HAVO_Vegetation_Sampling_Plant_Photos_HAVO_2021/FeatureServer/1"
 Plants_HAVO_2022 <- "https://services1.arcgis.com/fBc8EJBxQRMcHlei/arcgis/rest/services/HAVO_2022_VEG_Sampling_Plant_Photos/FeatureServer/31"
 Plants_KAHO_2022 <- "https://services1.arcgis.com/fBc8EJBxQRMcHlei/arcgis/rest/services/KAHO_2022_VEG_Sampling_Plant_Photos/FeatureServer/41"
-Plants_HALE_2023 <- "https://services1.arcgis.com/fBc8EJBxQRMcHlei/arcgis/rest/services/HALE_2023_VEG_Sampling_Plant_Photos_v2/FeatureServer/91"
+Plants_HALE_2023v1 <-"https://services1.arcgis.com/fBc8EJBxQRMcHlei/arcgis/rest/services/HALE_2023_VEG_Sampling_Plant_Photos/FeatureServer/91"
+Plants_HALE_2023v2 <- "https://services1.arcgis.com/fBc8EJBxQRMcHlei/arcgis/rest/services/HALE_2023_VEG_Sampling_Plant_Photos_v2/FeatureServer/91"
 
 # Get Data For All Layers
 all_photos_layers <- c("FTPC_HAVO_2021", "FTPC_HAVO_2022", "FTPC_KAHO_2022", "FTPC_HALE_2023",
                        "EIPS_HAVO_2021", "EIPS_HAVO_2022", "EIPS_HALE_2023",
-                       "Plants_HAVO_2021", "Plants_HAVO_2022", "Plants_KAHO_2022", "Plants_HALE_2023")
+                       "Plants_HAVO_2021", "Plants_HAVO_2022", "Plants_KAHO_2022", "Plants_HALE_2023v1", "Plants_HALE_2023v2")
 
-all_photos_layers
+subset_photos_layers <- c("Plants_HALE_2023v2")
 
-for (layer in all_photos_layers){
+temp_dest <- "C:/Users/JJGross/Downloads/"
 
-  x <- DownloadAGOLAttachments(
+for (layer in subset_photos_layers){
+  print(paste("starting download for", layer))
+
+  file_date <- gsub("-", "", as.character(Sys.Date()))
+
+  layer_dest <- paste0(temp_dest, as.character(layer), "_", file_date)
+
+  layer_df <- DownloadAGOLAttachments(
     feature_layer_url = get(layer),
     custom_name = TRUE,
     append_id = FALSE,
     agol_username = "pacn_gis",
     agol_password = keyring::key_get(service = "AGOL", username = "pacn_gis"),
-    test_run = TRUE,
-    dest_folder = "C:/Users/JJGross/Downloads/EIPS_HALE_test")
+    test_run = FALSE,
+    dest_folder = layer_dest)
 
-  assign(paste0("look_", as.character(layer)), x)
+  csv_location <- paste0(layer_dest, "/", as.character(layer), "_", file_date, ".csv")
 
-  print(layer)
+  readr::write_csv(layer_df, csv_location)
+  #assign(paste0("look_", as.character(layer)), x)
+
+
+  print(layer_dest)
+  print(csv_location)
+  print(paste(layer, "complete"))
 
 }
+
+temp_dest <- "C:/Users/JJGross/Downloads/HALE_Plants_test"
 
 # Get Specific Layer
 x <- DownloadAGOLAttachments(
@@ -96,11 +116,10 @@ x <- DownloadAGOLAttachments(
   append_id = FALSE,
   agol_username = "pacn_gis",
   agol_password = keyring::key_get(service = "AGOL", username = "pacn_gis"),
-  test_run = FALSE,
-  dest_folder = "C:/Users/JJGross/Downloads/EIPS_HALE_test")
+  test_run = TRUE,
+  dest_folder = "Plants_HALE_2023")
 
-
-
+readr::write_csv(x,  "C:/Users/JJGross/Downloads/EIPS_HALE_test/test_csv.csv")
 
 # ---Experimenting with Download AGOL Attachments ----
 

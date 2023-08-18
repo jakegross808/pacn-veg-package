@@ -984,20 +984,6 @@ DownloadAGOLAttachments <- function(feature_layer_url,
     tibble::as_tibble() %>%
     tidyr::unnest(cols = attachmentInfos)
 
-  # Pull photo date out of the nested Exif and add as formatted column
-  # attachments <- attachments %>%
-  #   select(exifInfo) %>%
-  #   unnest(cols = c(exifInfo)) %>%
-  #   filter(name == "Exif IFD0") %>%
-  #   select(tags) %>%
-  #   unnest(cols = c(tags)) %>%
-  #   filter(name == "Date/Time") %>%
-  #   select(value) %>%
-  #   mutate(value2 = as.character(str_replace_all(value, ":", ""))) %>%
-  #   mutate(photo_day_time = as.character(str_replace_all(value2, " ", "_"))) %>%
-  #   select(photo_day_time) %>%
-  #   bind_cols(attachments)
-
   # Join attachment table data to attachment info
   if (is.null(join_cols)) {
     if ("parentGlobalId" %in% names(attachments) && length(global_id) == 1) {
@@ -1044,11 +1030,6 @@ DownloadAGOLAttachments <- function(feature_layer_url,
   attachments <- attachments %>%
     dplyr::mutate(pt_date = as.character(as.POSIXct(created_date/1000,
                                                     origin="1970-01-01"))) %>%
-    #tidyr::separate_wider_delim(pt_date, " ",
-    #                            names = c("pt_date_file", NA),
-    #                            cols_remove = FALSE) %>%
-    #dplyr::mutate(pt_date_file = stringr::str_remove_all(pt_date_file,
-    #                                                     pattern = "-")) %>%
     dplyr::mutate(pt_date_file = stringr::str_remove_all(string = pt_date,
                                                         pattern = "[-:]")) %>%
     dplyr::mutate(pt_date_file = stringr::str_replace(string = pt_date_file,
