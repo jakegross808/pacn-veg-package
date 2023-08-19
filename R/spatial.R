@@ -1080,13 +1080,16 @@ DownloadAGOLAttachments <- function(feature_layer_url,
 
 #' Download FTPC, EIPS, and Plant Photos and attributes from AGOL layers
 #'
-#' Make sure to get keyring for AGOL headless account from sharepoint:
-#' https://doimspp.sharepoint.com/sites/nps-PWR-PACNIM/vital_signs/05_focal_terr_plant_communities/Spatial_info/AGOL_headless
+#' This function is a customized version of DownloadAGOLAttachments() function from MOJN for specific use with PACN vegetation protocols, specifically FTPC photos, EIPS photos, and Plant photos spatial layers hosted on ArcGIS Online.
 #'
-#' @param agol_photo_layers A vector of named objects already loaded in the Global Environment. Each object should have only 1 value assigned to it - which is the URL for point layer in AGOL. For example one object in the vector may be "EIPS_HALE_2023" with the assigned value: "https://services1.arcgis.com/fBc8EJBxQRMcHlei/arcgis/rest/services/HALE_2023_EIPS_Sampling_Points_Photos/FeatureServer/93"
+#' This function will not work unless you have access to the PACN AGOL headless account
+#' Make sure to download and run keyring script for AGOL headless account from sharepoint:
+#' https://doimspp.sharepoint.com/sites/nps-PWR-PACNIM/vital_signs/05_focal_terr_plant_communities/Spatial_info/AGOL_headless/keyring_agol_headless.R
+#'
+#' @param agol_photo_layers A vector of named objects already loaded in the Global Environment. Each object should have only 1 value assigned to it - which is the URL for a specific point layer in AGOL. For example one object in the vector may be "EIPS_HALE_2023" with the assigned value: "https://services1.arcgis.com/fBc8EJBxQRMcHlei/arcgis/rest/services/HALE_2023_EIPS_Sampling_Points_Photos/FeatureServer/93"
 #' @param temp_dest The temporary location on your local computer where the folder of downloaded images and csv will be saved to.
 #'
-#' @return All the photos from a AGOL layer (example EIPS, FTPC, and Plant Photo layers) along with a csv of attributes and metadata.
+#' @return All the photos from a AGOL layer (EIPS photos, FTPC photos, and Plant Photo layers) along with a .csv of the point attributes and metadata.
 #' @export
 #'
 download_agol <- function(photo_layers, temp_dest){

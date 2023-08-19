@@ -1,0 +1,95 @@
+---
+title: "chk_understory_spp_across_cycles"
+author: "JG"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r include=FALSE}
+library(pacnvegetation)
+library(tidyverse)
+library(DT)
+#--- 1. Read latest cache ----
+
+# Write/Read csv from pacnvegetation package:
+pacnveg_cache_path <- "C:/Users/JJGross/OneDrive - DOI/Documents/Certification_Local/Databases/R_WritePACNVeg"
+
+# Read
+path_file_info <- file.info(list.files(pacnveg_cache_path, full.names = T))
+latest_folder <- rownames(path_file_info)[which.max(path_file_info$mtime)]
+
+LoadPACNVeg(data_path = latest_folder,
+            data_source = "file")
+
+
+```
+
+##Check HALE Subalpine Understory
+
+```{r echo=FALSE}
+under_spp_chg <- summarize_understory(plant_grouping = "Species",
+                                  sample_frame = "Haleakala",
+                                  combine_strata = TRUE,
+                                  paired_change = FALSE,
+                                  cycle = c("1","2","3"))
+
+under_spp_chg <- under_spp_chg %>%
+  mutate(Plot = Plot_Number,
+         Type = Plot_Type,
+         Cover = round(Cover,digits = 2)) %>%
+  select(Year, Plot, Nativity, Life_Form, Scientific_Name, Code, Cover) 
+
+DT::datatable(
+  under_spp_chg, rownames = FALSE, filter = 'top',
+  extensions = 'FixedColumns',
+  options = list(
+  dom = 't',
+  scrollX = TRUE, 
+  scrollY = "800px",
+  scrollCollapse = TRUE
+))
+
+
+```
+
+
+# Plot 1
+```{r echo=FALSE, message=FALSE, warning=FALSE, out.width="100%", out.height= "100%"}
+# Plot 1 has been visited in 2023 so can check against other cycles:
+pacnvegetation::v_cover_bar_stats(plant_grouping = "Species",
+                                  sample_frame = "Haleakala",
+                                  combine_strata = TRUE,
+                                  cycle = c(1,2,3),
+                                  plot_number = 1)
+```
+
+# Plot 3
+
+```{r echo=FALSE, message=FALSE, warning=FALSE, out.width="100%"}
+pacnvegetation::v_cover_bar_stats(plant_grouping = "Species",
+                                  sample_frame = "Haleakala",
+                                  combine_strata = TRUE,
+                                  cycle = c(1,2,3),
+                                  plot_number = 3)
+```
+
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+```{r cars}
+summary(cars)
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+plot(pressure)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.

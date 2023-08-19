@@ -504,10 +504,11 @@ summarize_understory <- function(combine_strata = FALSE, plant_grouping, paired_
   var_nest2 <- c("Stratum", new_vars)
 
   understory3 <- understory2 %>%
-    dplyr::group_by(dplyr::across(all_vars)) %>%
+    #dplyr::group_by(dplyr::across(all_vars)) %>%
+    dplyr::group_by(dplyr::across(dplyr::all_of(all_vars))) %>%
     dplyr::summarise(Hits = dplyr::n(), .groups = 'drop') %>%
     # group hits by plot (remove Point from grouping variable)
-    dplyr::group_by(dplyr::across(all_vars_minus_point)) %>%
+    dplyr::group_by(dplyr::across(dplyr::all_of(all_vars_minus_point))) %>%
     # Total hits at each point for each strata for entire plot
     #   (can be > 300 points or >100% because more than one 'Hit' can be present per point-strata)
     dplyr::summarise(Cover = (sum(Hits)) / 300 * 100, .groups = 'drop') %>%
@@ -537,7 +538,7 @@ summarize_understory <- function(combine_strata = FALSE, plant_grouping, paired_
     understory4 <- understory4 %>%
       # Arrange table so that difference in cover between cycles can be calculated easily (example - cycle 1 value for
       #   cover is followed by cycle 2 value for cover).
-      dplyr::group_by(dplyr::across(arrange_vars)) %>%
+      dplyr::group_by(dplyr::across(dplyr::all_of(arrange_vars))) %>%
       dplyr::arrange(Cycle, Year, .by_group = TRUE) %>%
       # Calculate the change in cover per cycle
       dplyr::mutate(Chg_Prior = Cover - dplyr::lag(Cover, order_by = Cycle)) %>%
@@ -637,7 +638,7 @@ add_stats <- function(.data, ...){
 
 v_cover_bar_stats <- function(combine_strata = FALSE, plant_grouping = "Nativity", species_filter,
                               paired_change = FALSE, measurement = "Cover", park, sample_frame, community,
-                              year, cycle, plot_type, plot_number, filter_Code, silent = FALSE, return_n = FALSE) {
+                              year, cycle, plot_type, plot_number, filter_Code, silent = FALSE, show_n = TRUE) {
 
 
   # Set plant_grouping_vars used for calculating stats based on plant_grouping argument
@@ -737,14 +738,21 @@ v_cover_bar_stats <- function(combine_strata = FALSE, plant_grouping = "Nativity
     stringr::str_replace_all(", ;", ";")
   sample_size
 
-  if (return_n == TRUE){
-    return(sample_size)
+  if (show_n == FALSE){
+    sample_size <- ""
   }
 
   #........BAR YEARLY MEANS
 
 
   label_param <- stringr::str_replace_all(measurement, "_", " ")
+
+  # If only one plot than make SD, ERR, L, and R columns 0 (instead of NA)
+  understory_stats <- understory_stats %>%
+    mutate(SD = dplyr::case_when(NPLOTS == 1 ~ 0, .default = as.numeric(SD)),
+           ERR = dplyr::case_when(NPLOTS == 1 ~ 0, .default = as.numeric(ERR)),
+           L = dplyr::case_when(NPLOTS == 1 ~ 0, .default = as.numeric(L)),
+           R = dplyr::case_when(NPLOTS == 1 ~ 0, .default = as.numeric(R)))
 
   understory_stats <- understory_stats[complete.cases(understory_stats),]
 
@@ -932,7 +940,7 @@ v_cover_bar_spp_plot <- function(sample_frame, crosstalk_filters = TRUE, crossta
     dplyr::filter(!is.na(Scientific_Name))
 
   message_nas <- sum_und2 %>%
-    dplyr::filter_all(any_vars(is.na(.)))
+    dplyr::filter_all(dplyr::any_vars(is.na(.)))
 
   if (nrow(message_nas) > 0) {
     warning(paste(nrow(message_nas), "rows with 'NA' in dataset", sep = " "))
