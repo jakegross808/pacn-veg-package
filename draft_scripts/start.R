@@ -1,7 +1,10 @@
 # Startup script to get going on pacnvegetation package.
+#install.packages("devtools")
+#devtools::install_github("jakegross808/pacn-veg-package")
 
 library(pacnvegetation)
-#library(tidyverse)
+
+library(tidyverse)
 #library(magrittr)
 # if need to install packages while on network:
 #options(download.file.method = "wininet")
@@ -49,9 +52,22 @@ hi_vegmap_db_paths <- c("C:/Users/JJGross/OneDrive - DOI/Documents/Veg_Map_Data/
 
 hi_vegmap_data <- pacnvegetation::read_vegmap_db(hi_vegmap_db_paths)
 
-hi_vegmap_grass_example <- hi_vegmap_data %>%
+selected_spp <- c(
+  "Tibouchina herbacea","Leptospermum scoparium","Toona ciliata",
+  "Pinus luchuensis","Pinus spp.", "Angiopteris evecta","Sphaeropteris cooperi = (Cyathea cooperi)",
+  "Pterolepis glomerata","Elephantopus mollis","Melochia umbellata",
+  "Spathodea campanulata","Rhodomyrtus tomentosa",
+  "Erigeron karvinskianus","Hedychium gardnerianum","Oxyspora paniculata",
+  "Alstonia macrophylla")
+
+# Not_found <- "Leptospermum scoparium" ,"Toona ciliata", "Pinus luchuensis",
+# "Angiopteris evecta", "Pterolepis glomerata", "Melochia umbellata", "Rhodomyrtus tomentosa",
+# "Oxyspora paniculata", "Alstonia macrophylla"
+
+# 93 species occurrences from veg map:
+hi_vegmap_spp <- hi_vegmap_data %>%
   filter(!is.na(lat), !is.na(long)) %>%
-  filter(Family == "Poaceae")
+  filter(Sci_Name %in% c(selected_spp))
 
 # ..........Veg Species Database ----
 veg_species_db_path <-  "C:/Users/JJGross/Documents/Databases_copied_local/Veg_species_db"
@@ -102,14 +118,17 @@ all_photos_layers <- c("FTPC_HAVO_2021", "FTPC_HAVO_2022", "FTPC_KAHO_2022", "FT
                        "EIPS_HAVO_2021", "EIPS_HAVO_2022", "EIPS_HALE_2023",
                        "Plants_HAVO_2021", "Plants_HAVO_2022", "Plants_KAHO_2022", "Plants_HALE_2023v1", "Plants_HALE_2023v2")
 
-subset_photos_layers <- c("EIPS_HALE_2023", "Plants_HALE_2023v2")
+subset_photos_layers <- c("Plants_HALE_2023v1")
 
 temp_dest <- "C:/Users/JJGross/Downloads/"
 
-download_agol(subset_photos_layers, temp_dest)
+test_first <- download_agol(subset_photos_layers, temp_dest, test_run = TRUE)
 
 
-
+# ..........Local Geodatabase Data ----
+gdb <- "C:/Users/JJGross/Downloads/ED_HAVO_2022_new/ED_HAVO_2022_new.gdb"
+gdb_layer <- "ED_HAVO_2022"
+ED_HAVO_2022 <- sf::read_sf(gdb, gdb_layer)
 
 
 

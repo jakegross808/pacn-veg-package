@@ -4,7 +4,7 @@
 \alias{download_agol}
 \title{Download FTPC, EIPS, and Plant Photos and attributes from AGOL layers}
 \usage{
-download_agol(photo_layers, temp_dest)
+download_agol(photo_layers, temp_dest, test_run = FALSE)
 }
 \arguments{
 \item{temp_dest}{The temporary location on your local computer where the folder of downloaded images and csv will be saved to.}

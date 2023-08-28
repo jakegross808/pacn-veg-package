@@ -40,7 +40,6 @@ under_spp <- summarize_understory(plant_grouping = "Species",
 under_hits_box <- under_hits %>%
   ggplot(aes(x = Year, y = Cover)) +
   geom_boxplot()
-
 under_hits_box
 
 under_hits_col <- under_hits %>%
@@ -65,6 +64,11 @@ pacnvegetation::v_cover_bar_stats(plant_grouping = "Life_Form",
                                   combine_strata = TRUE,
                                   cycle = c(1,2))
 
+pacnvegetation::v_cover_bar_stats(plant_grouping = "Life_Form",
+                                  sample_frame = "Haleakala",
+                                  combine_strata = TRUE,
+                                  cycle = c(1,2))
+
 pacnvegetation::v_cover_bar_stats(plant_grouping = "Species",
                                   sample_frame = "Haleakala",
                                   combine_strata = TRUE,
@@ -75,7 +79,7 @@ pacnvegetation::v_cover_bar_stats(plant_grouping = "Species",
                                   sample_frame = "Haleakala",
                                   combine_strata = TRUE,
                                   cycle = c(1,2,3),
-                                  plot_number = 3)
+                                  plot_number = 1)
 
 # Plot 1 has been visited in 2023 so can check against other cycles:
 pacnvegetation::v_cover_bar_stats(plant_grouping = "Species",
@@ -84,7 +88,7 @@ pacnvegetation::v_cover_bar_stats(plant_grouping = "Species",
                                   cycle = c(1,2,3),
                                   plot_number = 1)
 
-?v_cover_bar_stats
+qc <- pacnvegetation::qc_presence_complete(all_records = TRUE, sample_frame = "Haleakala")
 
 # Change within 1 plot
 pacnvegetation::v_cover_bar_stats(plant_grouping = "Species",
@@ -117,29 +121,8 @@ pacnvegetation::v_cover_bar_stats(plant_grouping = "Species",
                                   measurement = "Cover",
                                   plot_number = "1")
 
-under_spp_chg3 <- summarize_understory(plant_grouping = "Species",
-                                      sample_frame = "Haleakala",
-                                      combine_strata = TRUE,
-                                      paired_change = TRUE,
-                                      cycle = c("1","2"),
-                                      plot_number = "3")
-
-plot_under_spp_chg3 <- under_spp_chg3 %>%
-  filter(!is.na(Chg_Prior)) %>%
-  mutate(Scientific_Name = fct_reorder(Scientific_Name, desc(Chg_Prior))) %>%
-  ggplot(aes(x = Scientific_Name, y = Chg_Prior)) +
-  coord_flip() +
-  geom_col()
-plot_under_spp_chg3
-plot_under_spp_chg2
-plot_under_spp_chg1
 
 
-
-pacnvegetation::v_cover_bar_spp_plot(sample_frame = "Haleakala", crosstalk_group = "grp")
-
-
-?any_vars
 # Presence ----
 
 presence <- FilterPACNVeg(data_name = "Presence",

@@ -1092,7 +1092,7 @@ DownloadAGOLAttachments <- function(feature_layer_url,
 #' @return All the photos from a AGOL layer (EIPS photos, FTPC photos, and Plant Photo layers) along with a .csv of the point attributes and metadata.
 #' @export
 #'
-download_agol <- function(photo_layers, temp_dest){
+download_agol <- function(photo_layers, temp_dest, test_run = FALSE){
   for (layer in photo_layers){
     print(paste("starting download for", layer))
 
@@ -1106,8 +1106,12 @@ download_agol <- function(photo_layers, temp_dest){
       append_id = FALSE,
       agol_username = "pacn_gis",
       agol_password = keyring::key_get(service = "AGOL", username = "pacn_gis"),
-      test_run = FALSE,
+      test_run = test_run,
       dest_folder = layer_dest)
+
+    if (test_run == "TRUE") {
+      return (layer_df)
+    }
 
     csv_location <- paste0(layer_dest, "/", as.character(layer), "_", file_date, ".csv")
 

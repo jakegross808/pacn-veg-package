@@ -1433,7 +1433,7 @@ read_spp_db <- function(db_paths) {
 
   # Join Park Species checklists to with the additional species information
   pacnveg_master_spp_list <- tlu_Species %>%
-    dplyr::right_join(xref_Park_Species, by = c("Species_ID", "TSN"), suffix = c("","_park"))
+    dplyr::right_join(xref_Park_Species, by = c("Species_ID"), suffix = c("","_park"))
 
   DBI::dbDisconnect(conn)
 

@@ -638,7 +638,7 @@ add_stats <- function(.data, ...){
 
 v_cover_bar_stats <- function(combine_strata = FALSE, plant_grouping = "Nativity", species_filter,
                               paired_change = FALSE, measurement = "Cover", park, sample_frame, community,
-                              year, cycle, plot_type, plot_number, filter_Code, silent = FALSE, show_n = TRUE) {
+                              year, cycle, plot_type, plot_number, filter_Code, silent = FALSE, return_n = FALSE) {
 
 
   # Set plant_grouping_vars used for calculating stats based on plant_grouping argument
@@ -738,8 +738,8 @@ v_cover_bar_stats <- function(combine_strata = FALSE, plant_grouping = "Nativity
     stringr::str_replace_all(", ;", ";")
   sample_size
 
-  if (show_n == FALSE){
-    sample_size <- ""
+  if (return_n == TRUE){
+    return(sample_size)
   }
 
   #........BAR YEARLY MEANS

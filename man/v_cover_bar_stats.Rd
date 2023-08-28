@@ -19,7 +19,7 @@ v_cover_bar_stats(
   plot_number,
   filter_Code,
   silent = FALSE,
-  show_n = TRUE
+  return_n = FALSE
 )
 }
 \arguments{
