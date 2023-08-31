@@ -50,6 +50,23 @@ hi_vegmap_db_paths <- c("C:/Users/JJGross/OneDrive - DOI/Documents/Veg_Map_Data/
                      "C:/Users/JJGross/OneDrive - DOI/Documents/Veg_Map_Data/puhedata.mdb",
                      "C:/Users/JJGross/OneDrive - DOI/Documents/Veg_Map_Data/puhodata.mdb")
 
+
+# Veg map & species locations ----
+
+Hawaii_vegmap_data <- read_vegmap_db(vegmap_db_paths)
+
+hi_poaceae_vegmap <- Hawaii_vegmap_data %>%
+  filter(!is.na(lat), !is.na(long)) %>%
+  filter(Family == "Poaceae")
+
+names(FilterPACNVeg())
+
+look <- FilterPACNVeg(data_name = "Understory")
+
+read_vegmap_db()
+
+# Most recent query for Kevin:
+
 hi_vegmap_data <- pacnvegetation::read_vegmap_db(hi_vegmap_db_paths)
 
 selected_spp <- c(
@@ -69,31 +86,24 @@ hi_vegmap_spp <- hi_vegmap_data %>%
   filter(!is.na(lat), !is.na(long)) %>%
   filter(Sci_Name %in% c(selected_spp))
 
+
+
+
 # ..........Veg Species Database ----
-veg_species_db_path <-  "C:/Users/JJGross/Documents/Databases_copied_local/Veg_species_db"
-veg_species_db <- list.files(veg_species_db_path,full.names = TRUE)
-veg_species_db
 
-pacnveg_master_spp_list <- read_spp_db(veg_species_db)
 
-pacnveg_master_spp_list <- pacnveg_master_spp_list %>%
-  dplyr::arrange(Taxonomic_Family, Genus, Species)
+# Local Path to Veg Spp database
+veg_species_db_folder <-  "C:/Users/JJGross/Documents/Databases_copied_local/Veg_species_db"
+# If only one database in folder, this will grab full path:
+veg_species_db_full_path <- list.files(veg_species_db_path,full.names = TRUE)
 
-readr::write_csv(pacnveg_master_spp_list, paste0("C:/Users/JJGross/Downloads/pacnveg_master_spp_list_", Sys.Date(), ".csv"))
+# Get master species list
+spp_list <- master_spp_list(veg_species_db_full_path, park = "HALE")
 
-# Veg map & species locations ----
+# Write master species list
+readr::write_csv(spp_list, paste0("C:/Users/JJGross/Downloads/HALE_master_spp_list_", Sys.Date(), ".csv"))
 
-Hawaii_vegmap_data <- read_vegmap_db(vegmap_db_paths)
 
-hi_poaceae_vegmap <- Hawaii_vegmap_data %>%
-  filter(!is.na(lat), !is.na(long)) %>%
-  filter(Family == "Poaceae")
-
-names(FilterPACNVeg())
-
-look <- FilterPACNVeg(data_name = "Understory")
-
-read_vegmap_db()
 
 # ..........AGOL Data ----
 

@@ -1,3 +1,146 @@
+#' PACN Master Plant Species List
+#'
+#' Create a master species list with FTPC species occurrence by plot
+#' Column "Field_ID" is also generated in table and can be used in Field Maps Plant Layer
+#'
+#' @details park filter is required. All other filters are optional. To ignore a filter, omit it or set it to NA.
+#'
+#' @inheritParams FilterOne
+#' @param veg_species_db_path Full path to local copy of PACN_veg_species_list.accdb
+#' @param park Four letter unit code of park or can be "All"
+#' @param presence_matrix stop function early to return sampling frame vs. species occurrence matrix
+#' @param sample_frame Name of sample frame
+#' @param community Name of plant community
+#' @param year Monitoring year
+#' @param cycle Monitoring cycle
+#' @param plot_type Type of plot (fixed vs. rotational)
+#' @param plot_number Plot number
+#' @param nativity Whether species are native (TRUE/FALSE)
+#'
+#' @return A tibble
+#' @export
+#'
+#' @examples
+#' \dontrun{
+#' HALE_pacn_veg_spp_list <- master_spp_list(park = "HALE")
+#' native_kaho_spp <- master_spp_list(park = "KAHO", nativity = "Native")
+#' HAVO_spp_olaa_only <- master_spp_list(park = "HAVO", sample_frame = "Olaa")
+#' }
+
+master_spp_list <- function(db_path, park, presence_matrix = FALSE, sample_frame, community, year, cycle, plot_type, plot_number, nativity) {
+  if (missing(park)) {
+    stop("'park' argument must be supplied, can be set to park = 'All' or park = 'HAVO', etc.")
+  }
+
+  if (park == "All") {
+    filter_park = NA
+    #filter_park = c("AMME", "HALE", "HAVO", "KAHO", "KALE", "NPSA", "PUHE", "PUHO", "WAPA")
+  } else {
+    filter_park = park
+  }
+
+  #if (length(park)>1) {
+  #  stop("only 1 park can be queried at a time")
+  #}
+
+  # Create Abbrev Dataframe
+  Sampling_Frame <- c("Olaa", "Nahuku/East Rift", "Mauna Loa", "Kahuku", "Kaloko-Honokohau",
+                      "Kipahulu District", "Haleakala", "Puu Alii", "Kalawao", "Hoolehua",
+                      "Tutuila", "Tau", "Guam", "Muchot")
+  SF_Abbrev <- c("OL", "ER",	"ML",	"KU",	"KH",	"KD",	"HA",	"PA",	"KW",	"HO",	"TT",	"TA",	"GU",	"MU")
+
+  Abbrev <- data.frame(Sampling_Frame, SF_Abbrev)
+
+  # Code occurrence by Plant Community
+  ftpc_occ <- pacnvegetation::FilterPACNVeg(data_name = "Presence", park = filter_park, sample_frame = sample_frame, community = community, year = year, cycle = cycle, plot_type = plot_type, plot_number = plot_number, is_qa_plot = FALSE, nativity = nativity) %>%
+    dplyr::left_join(Abbrev, by = join_by(Sampling_Frame)) %>%
+    dplyr::mutate(SF = SF_Abbrev) %>%
+    dplyr::select(SF, Sampling_Frame, Plot_Number, Cycle, Code) %>%
+    # Only count a species once for a fixed plot
+    dplyr::group_by(SF, Sampling_Frame, Code, Plot_Number) %>%
+    dplyr::summarise(count = dplyr::n_distinct(Code), .groups = "drop") %>%
+    # Get total across each plant community per park
+    dplyr::group_by(SF, Code) %>%
+    dplyr::summarise(plots = dplyr::n(), .groups = "drop") %>%
+    tidyr::pivot_wider(names_from = SF, values_from = plots, values_fill = 0)
+
+  # Get master_list from Veg Spp DB using park (Unit_Code)
+
+  pacnveg_master_spp_list <- read_spp_db(db_path)
+
+  # handling all species records:
+  if (park == "All") {
+    master_list <- pacnveg_master_spp_list %>%
+      dplyr::arrange(desc(Update_date_park)) %>%
+      dplyr::distinct(Species_ID, .keep_all = TRUE)
+    warning("dupicate species records removed, if species is present in more than one park, only the most recently edited record is selected. for example, common name in table may be specific to NPSA and missing Hawaii common name")
+  } else {
+    master_list <- pacnveg_master_spp_list %>%
+      dplyr::filter(Park == park)
+  }
+
+  master_list <- master_list %>%
+    dplyr::arrange(Taxonomic_Family, Genus, Species) %>%
+    dplyr::left_join(ftpc_occ, by = "Code")
+
+  # optionally return sampling frame occurrence matrix:
+  if (presence_matrix == TRUE) {
+    return(master_list)
+  }
+
+  # get new ftpc occurrence columns as a vector
+  new_cols <- dplyr::setdiff(names(master_list), names(pacnveg_master_spp_list))
+  new_cols
+
+  master_list2 <- master_list %>%
+    dplyr::mutate_at(.vars = new_cols, ~ replace_na(., 0)) %>%
+    # Take first common name
+    tidyr::separate(col = Park_common_name, into = "common1", sep = ",",
+                    extra = "drop", remove = FALSE ) %>%
+    dplyr::mutate(LF = tidyr::replace_na(Life_form_park, replace = "_NO LIFEFORM_")) %>%
+    dplyr::mutate(presence_rank = rowSums(across(all_of(new_cols)))) #%>%
+  #dplyr::mutate(pres_rank_text = stringr::str_pad(presence_rank, 3, pad = "0"))
+
+
+  # Add column name to each value of each occurrence column
+
+  # var <- "mpg"
+  # Doesn't work: mtcars$var
+  # These both work, but note that what they return is different
+  # the first is a vector, the second is a data.frame
+  # mtcars[[var]]   dataframe
+  # mtcars[var]     vector
+
+  for (col in new_cols) {
+    master_list2[new_cols][col] <- paste0(col, ":", master_list2[new_cols][[col]])
+  }
+
+  # Unit the new ftpc occurrence columns into one column:
+  master_list3 <- master_list2 %>%
+    tidyr::unite("PC_presence", all_of(new_cols), sep = ", ")
+
+
+  if (length(new_cols) > 1) {
+    master_list4 <- master_list3 %>%
+      dplyr::mutate(FTPC_pres = paste0(presence_rank, " (", PC_presence, ")"))
+  } else {
+    master_list4 <- master_list3 %>%
+      dplyr::mutate(FTPC_pres = paste0(" (", PC_presence, ")"))
+  }
+
+  master_list5 <- master_list4 %>%
+    dplyr::mutate(Field_ID = paste0(Scientific_name, " (", Code, ") ",
+                                    Taxonomic_Family, " / ", Nativeness, " / ", LF,
+                                    " / " , common1, " / ", FTPC_pres, " [syn: ", Synonym, "]")) %>%
+    dplyr::arrange(desc(presence_rank), Field_ID) %>%
+    dplyr::select(-Species_ID, -TSN, -common1, -Life_form, -Life_cycle, -Omit_in_NPSpecies, -Complete,
+                  -TSN_park, -PC_presence, -LF)
+
+  master_list5
+
+  }
+
+
 #' FTPC Species Presence Table
 #'
 #' Species presence per plot per year for all years available within a sampling frame.
