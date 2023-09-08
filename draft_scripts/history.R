@@ -1,5 +1,87 @@
 
-# ----
+# QA/QC ----
+spp_list_HAVO <- master_spp_list(veg_species_db_full_path, park = "HAVO")
+
+pacnvegetation::qc_presence_complete(sample_frame = "Olaa")
+pacnvegetation::qc_presence_complete(sample_frame = "Nahuku/East Rift")
+pacnvegetation::qc_presence_complete(sample_frame = "Mauna Loa")
+pacnvegetation::qc_presence_complete(sample_frame = "Kahuku")
+
+# ---- Understory spp consistency chk ---
+pacnvegetation::v_cover_bar_stats(plant_grouping = "Species",
+                                  sample_frame = "Olaa",
+                                  combine_strata = TRUE,
+                                  cycle = c(1,2,3),
+                                  plot_number = 1)
+
+# ---- Presence spp consistency chk ---
+chk_pres <- pacnvegetation::FilterPACNVeg(data_name = "Presence",
+                              sample_frame = "Olaa",
+                              plot_number = 2)
+
+chk_pres <- chk_pres %>%
+  mutate(Cycle = as.integer(Cycle)) %>%
+  arrange(Scientific_Name)
+
+# find the middle of the data set
+df_length <- length(chk_pres$Scientific_Name)
+df_middle <- df_length/2
+
+# Which species is in the middle of the dataset
+split_at_sp <- chk_pres$Code[df_middle]
+
+# select the row after the last record for that species to split evenly accross species
+split_at <- max(which(chk_pres$Code == split_at_sp)) + 1
+split_at
+
+chk_pres$split <- "first"
+chk_pres$split[split_at:df_length] <- "second"
+
+# Plot
+# A function factory for getting integer y-axis values.
+integer_breaks <- function(n = 5, ...) {
+  fxn <- function(x) {
+    breaks <- floor(pretty(x, n, ...))
+    names(breaks) <- attr(breaks, "labels")
+    breaks
+  }
+  return(fxn)
+}
+
+# Nativity discrete scale Colors:
+nativity_colors <- c("Native" = "#1b9e77",
+                     "No_Veg" = "grey",
+                     "Non-Native" = "#d95f02",
+                     "Unknown" = "#7570b3")
+
+
+ggplot(chk_pres, aes(x= Scientific_Name, y=Cycle, color = Nativity)) +
+  geom_point(size=4) +   # Draw points
+  geom_segment(aes(x=Scientific_Name,
+                   xend=Scientific_Name,
+                   y=min(Cycle),
+                   yend=max(Cycle)),
+               linetype="dashed",
+               size=0.1) +   # Draw dashed lines
+  labs(title="Check Presence",
+       subtitle= (paste0(chk_pres$Sampling_Frame[1], " Plot ", chk_pres$Plot_Number[1])),
+       caption= (paste0("QA/QC"))) +
+  scale_color_manual(values = nativity_colors) +
+  scale_x_discrete(limits = rev) +
+  scale_y_continuous(breaks = integer_breaks()) +
+  coord_flip() +
+  facet_wrap(scales = "free", vars(chk_pres$split)) +
+  theme(strip.background = element_blank(),
+    strip.text.x = element_blank())
+
+
+
+
+
+
+
+
+# master_spp_list ----
 
 
 # Local Path to Veg Spp database
