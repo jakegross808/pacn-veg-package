@@ -95,13 +95,17 @@ hi_vegmap_spp <- hi_vegmap_data %>%
 # Local Path to Veg Spp database
 veg_species_db_folder <-  "C:/Users/JJGross/Documents/Databases_copied_local/Veg_species_db"
 # If only one database in folder, this will grab full path:
-veg_species_db_full_path <- list.files(veg_species_db_path,full.names = TRUE)
+veg_species_db_full_path <- list.files(veg_species_db_folder,full.names = TRUE)
+veg_species_db_full_path
+# Get raw data from Veg Species Database:
+raw_spp_data <- read_spp_db(veg_species_db_full_path)
 
-# Get master species list
-spp_list <- master_spp_list(veg_species_db_full_path, park = "HALE")
+# Get master species list for a park (with ID_Field for field maps):
+spp_list_HALE <- master_spp_list(veg_species_db_full_path, park = "HALE")
+readr::write_excel_csv(spp_list_HALE, paste0("C:/Users/JJGross/Downloads/spp_list_HALE_", Sys.Date(), ".csv"))
 
 # Write master species list
-readr::write_csv(spp_list, paste0("C:/Users/JJGross/Downloads/HALE_master_spp_list_", Sys.Date(), ".csv"))
+readr::write_csv(raw_spp_data, paste0("C:/Users/JJGross/Downloads/raw_spp_data", Sys.Date(), ".csv"))
 
 
 
@@ -128,7 +132,7 @@ all_photos_layers <- c("FTPC_HAVO_2021", "FTPC_HAVO_2022", "FTPC_KAHO_2022", "FT
                        "EIPS_HAVO_2021", "EIPS_HAVO_2022", "EIPS_HALE_2023",
                        "Plants_HAVO_2021", "Plants_HAVO_2022", "Plants_KAHO_2022", "Plants_HALE_2023v1", "Plants_HALE_2023v2")
 
-subset_photos_layers <- c("Plants_HALE_2023v1")
+subset_photos_layers <- c("Plants_HALE_2023v2")
 
 temp_dest <- "C:/Users/JJGross/Downloads/"
 

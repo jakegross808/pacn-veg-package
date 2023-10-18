@@ -1,9 +1,248 @@
+herbarium_data2
+
+
+
+# --- check photo processing ----
+
+# Can pull directly from AGOL with headless account set up
+Plants_HALE_2023v1 <-"https://services1.arcgis.com/fBc8EJBxQRMcHlei/arcgis/rest/services/HALE_2023_VEG_Sampling_Plant_Photos/FeatureServer/91"
+#Plants_HALE_2023v2 <- "https://services1.arcgis.com/fBc8EJBxQRMcHlei/arcgis/rest/services/HALE_2023_VEG_Sampling_Plant_Photos_v2/FeatureServer/91"
+#subset_photos_layers <- c("Plants_HALE_2023v1")
+temp_dest <- "C:/Users/JJGross/Downloads/"
+test_first <- download_agol(Plants_HALE_2023v1, temp_dest, test_run = TRUE)
+
+# I haven't incorporated headless pull into process_photos function yet,
+# So for now just download .gdb and run following:
+
+# Run with return_table = TRUE first to see if working:
+table <- process_photos(AGOL_Layer = "FTPC",
+               gdb_name = "get_AGOL_layers.gdb",
+               gdb_location = "C:/Users/JJGross/Documents/ArcGIS/Projects/get_AGOL_layers",
+               gdb_layer = "FTPC_ERF14_OLF01",
+               return_table = TRUE)
+
+# Then change to FALSE and remove assignment to object
+process_photos(AGOL_Layer = "FTPC",
+               gdb_name = "get_AGOL_layers.gdb",
+               gdb_location = "C:/Users/JJGross/Documents/ArcGIS/Projects/get_AGOL_layers",
+               gdb_layer = "FTPC_ERF14_OLF01",
+               return_table = FALSE)
+
+# --- Clean! Presence spp consistency chk ----
+chk_pres <- pacnvegetation::FilterPACNVeg(data_name = "Presence",
+                                          sample_frame = "Olaa",
+                                          plot_number = 1)
+
+
+rare <- pacnvegetation::FilterPACNVeg(data_name = "Presence",
+                                      sample_frame = "Olaa") %>%
+  group_by(Sampling_Frame, Scientific_Name, Code, Plot_Number) %>%
+  summarize(observed = n(), .groups = "drop") %>%
+  # only count one time if found more than once in a fixed
+  mutate(observed = 1) %>%
+  group_by(Sampling_Frame, Code, Scientific_Name) %>%
+  summarize(plots_observed = n()) %>%
+  # "rare" will be 4 plots_observed or less
+  filter(plots_observed < 5) %>%
+  mutate(less_than_5_plots = TRUE) %>%
+  right_join(chk_pres) %>%
+  filter(less_than_5_plots == TRUE)
+
+# Join rare species flags to Presence
+chk_pres1 <- chk_pres %>%
+  left_join(rare)
+
+chk_pres2 <- chk_pres1 %>%
+  mutate(Cycle = as.integer(Cycle)) %>%
+  arrange(Scientific_Name)
+
+# Code below was to split graph in half but doesn't work with geom_point filtering
+# find the middle of the data set
+#df_length <- length(chk_pres2$Scientific_Name)
+#df_middle <- df_length/2
+
+# Which species is in the middle of the dataset
+#split_at_sp <- chk_pres2$Code[df_middle]
+
+# select the row after the last record for that species to split evenly accross species
+#split_at <- max(which(chk_pres2$Code == split_at_sp)) + 1
+#split_at
+
+# Splits dataset equally in half:
+#chk_pres2$split <- "first"
+#chk_pres2$split[split_at:df_length] <- "second"
+
+
+# Nativity discrete scale Colors:
+nativity_colors <- c("Native" = "#1b9e77",
+                     "No_Veg" = "grey",
+                     "Non-Native" = "#d95f02",
+                     "Unknown" = "#7570b3")
+
+select_rare <- function(condition){
+  function(d) d %>% filter_(condition)
+}
+
+select_out <- function(condition){
+  function(d) d %>% filter_(condition)
+}
+
+chk_pres2 %>%
+  ggplot(aes(x= Scientific_Name, y=Cycle)) +
+  geom_segment(aes(x=Scientific_Name,
+                   xend=Scientific_Name,
+                   y=min(Cycle),
+                   yend=max(Cycle),
+                   color = Nativity),
+               linetype="dashed",
+               linewidth=0.1) +
+  # Draw points
+  geom_point(size = 8, data = ~filter(.x, less_than_5_plots == TRUE), color = "yellow") +
+  geom_point(size = 5, aes(color = Nativity)) +
+  geom_point(size = 2, data = ~filter(.x, Outside_Plot == TRUE), color = "black") +
+  labs(title="Check Presence",
+       subtitle= (paste0(chk_pres2$Sampling_Frame[1], " Plot ", chk_pres2$Plot_Number[1])),
+       caption= (paste0("QA/QC"))) +
+  scale_color_manual(values = nativity_colors) +
+  scale_x_discrete(limits = rev) +
+  scale_y_continuous(limits = c(0, max(chk_pres2$Cycle)+1)) + #breaks = integer_breaks(),
+  coord_flip() +
+  #facet_wrap(scales = "free", vars(chk_pres2$split)) +
+  theme(strip.background = element_blank(),
+        strip.text.x = element_blank()) +
+  theme(aspect.ratio=18)
+
+
+
+
+
+# --- Presence spp consistency chk ----
+chk_pres <- pacnvegetation::FilterPACNVeg(data_name = "Presence",
+                                          sample_frame = "Olaa",
+                                          plot_number = 1)
+
+
+rare <- pacnvegetation::FilterPACNVeg(data_name = "Presence",
+                                      sample_frame = "Olaa") %>%
+  group_by(Sampling_Frame, Scientific_Name, Code, Plot_Number) %>%
+  summarize(observed = n(), .groups = "drop") %>%
+  # only count one time if found more than once in a fixed
+  mutate(observed = 1) %>%
+  group_by(Sampling_Frame, Code, Scientific_Name) %>%
+  summarize(plots_observed = n()) %>%
+  # "rare" will be 4 plots_observed or less
+  filter(plots_observed < 5) %>%
+  mutate(less_than_5_plots = TRUE) %>%
+  right_join(chk_pres) %>%
+  filter(less_than_5_plots == TRUE) %>%
+  mutate(rare_color = "yellow")
+
+any_rare <- any(!is.na(rare$less_than_5_plots))
+rare
+
+chk_pres1 <- chk_pres %>%
+  left_join(rare)
+
+chk_pres2 <-  chk_pres1%>%
+  mutate(outside_color = case_when(
+    Outside_Plot == TRUE ~ "black",
+    .default = ""))
+
+chk_pres2 <- chk_pres2 %>%
+  mutate(Cycle = as.integer(Cycle)) %>%
+  arrange(Scientific_Name)
+
+#chk_pres2$Outside_Plot[3] <- TRUE
+
+# find the middle of the data set
+df_length <- length(chk_pres2$Scientific_Name)
+df_middle <- df_length/2
+
+# Which species is in the middle of the dataset
+split_at_sp <- chk_pres2$Code[df_middle]
+
+# select the row after the last record for that species to split evenly accross species
+split_at <- max(which(chk_pres2$Code == split_at_sp)) + 1
+split_at
+
+chk_pres2$split <- "first"
+chk_pres2$split[split_at:df_length] <- "second"
+
+#chk_pres1 <- chk_pres %>%
+#  left_join(rare)
+
+# Plot
+# A function factory for getting integer y-axis values.
+integer_breaks <- function(n = 5, ...) {
+  fxn <- function(x) {
+    breaks <- floor(pretty(x, n, ...))
+    names(breaks) <- attr(breaks, "labels")
+    breaks
+  }
+  return(fxn)
+}
+
+# Nativity discrete scale Colors:
+nativity_colors <- c("Native" = "#1b9e77",
+                     "No_Veg" = "grey",
+                     "Non-Native" = "#d95f02",
+                     "Unknown" = "#7570b3")
+
+select_rare <- function(condition){
+  function(d) d %>% filter_(condition)
+}
+
+select_out <- function(condition){
+  function(d) d %>% filter_(condition)
+}
+
+chk_pres2 %>%
+  ggplot(aes(x= Scientific_Name, y=Cycle)) +
+  geom_segment(aes(x=Scientific_Name,
+                   xend=Scientific_Name,
+                   y=min(Cycle),
+                   yend=max(Cycle),
+                   color = Nativity),
+               linetype="dashed",
+               linewidth=0.1) +
+  #{if(any_rare)geom_point(size=8, x = rare$Scientific_Name,
+  #                       y = rare$Cycle,
+  #                       color = rare$less_than_5_plots)} +
+  #geom_point(fill = chk_pres$less_than_5_plots, size=6) +
+  #geom_point(aes(color = rare_color)) +   # Draw points
+  geom_point(size = 8, data = ~filter(.x, less_than_5_plots == TRUE), color = "yellow") +
+  #geom_point(data = ~filter(.x, Species == "versicolor"), shape = 5)
+  geom_point(size = 5, aes(color = Nativity)) +   # Draw points
+  geom_point(size = 2, data = ~filter(.x, Outside_Plot == TRUE), color = "black") +
+  #geom_point(aes(size = 2, shape=21, fill = outside_color)) +   # Draw points
+  #{if(any_out)geom_point(size=1, aes(x = out$Scientific_Name, y = out$Cycle), color = out$out_color)} +
+  #{if(any_out)geom_point(size=1, x = out$Scientific_Name,
+  #                       y = out$Cycle,
+  #                       color = out$out_color)} +
+  #geom_point(size=1, aes(x = out$Scientific_Name, y = out$Cycle), color = "black") +
+  # Draw dashed lines
+  labs(title="Check Presence",
+       subtitle= (paste0(chk_pres2$Sampling_Frame[1], " Plot ", chk_pres2$Plot_Number[1])),
+       caption= (paste0("QA/QC"))) +
+  scale_color_manual(values = nativity_colors) +
+  #scale_shape_manual(values = c('Women' = 17, 'Men' = 16))
+  scale_x_discrete(limits = rev) +
+  scale_y_continuous(breaks = integer_breaks(), limits = c(0, max(chk_pres2$Cycle)+1)) +
+  coord_flip() +
+  #facet_wrap(scales = "free", vars(chk_pres2$split)) +
+  theme(strip.background = element_blank(),
+        strip.text.x = element_blank())
+
+
+
+
 
 # QA/QC ----
 spp_list_HAVO <- master_spp_list(veg_species_db_full_path, park = "HAVO")
 
-pacnvegetation::qc_presence_complete(sample_frame = "Olaa")
-pacnvegetation::qc_presence_complete(sample_frame = "Nahuku/East Rift")
+# Check 2021 again after 2023 Olaa QC F1 and Nahuku F14 plots entered:
+# Complelte: pacnvegetation::qc_presence_complete(sample_frame = "Olaa")
+# Complelte: pacnvegetation::qc_presence_complete(sample_frame = "Nahuku/East Rift")
 pacnvegetation::qc_presence_complete(sample_frame = "Mauna Loa")
 pacnvegetation::qc_presence_complete(sample_frame = "Kahuku")
 
@@ -12,16 +251,39 @@ pacnvegetation::v_cover_bar_stats(plant_grouping = "Species",
                                   sample_frame = "Olaa",
                                   combine_strata = TRUE,
                                   cycle = c(1,2,3),
-                                  plot_number = 1)
+                                  plot_number = 11)
+
+
 
 # ---- Presence spp consistency chk ---
 chk_pres <- pacnvegetation::FilterPACNVeg(data_name = "Presence",
-                              sample_frame = "Olaa",
-                              plot_number = 2)
+                                          sample_frame = "Olaa",
+                                          plot_number = 1)
+
+
+rare <- pacnvegetation::FilterPACNVeg(data_name = "Presence",
+                                      sample_frame = "Olaa") %>%
+  group_by(Sampling_Frame, Scientific_Name, Code, Plot_Number) %>%
+  summarize(observed = n(), .groups = "drop") %>%
+  # only count one time if found more than once in a fixed
+  mutate(observed = 1) %>%
+  group_by(Sampling_Frame, Code, Scientific_Name) %>%
+  summarize(plots_observed = n()) %>%
+  # "rare" will be 4 plots_observed or less
+  filter(plots_observed < 5) %>%
+  mutate(less_than_5_plots = TRUE) %>%
+  right_join(chk_pres) %>%
+  filter(less_than_5_plots == TRUE) %>%
+  mutate(out_color = "yellow")
+
+any_rare <- any(!is.na(rare$less_than_5_plots))
+rare
 
 chk_pres <- chk_pres %>%
   mutate(Cycle = as.integer(Cycle)) %>%
   arrange(Scientific_Name)
+
+chk_pres$Outside_Plot[3] <- TRUE
 
 # find the middle of the data set
 df_length <- length(chk_pres$Scientific_Name)
@@ -36,6 +298,9 @@ split_at
 
 chk_pres$split <- "first"
 chk_pres$split[split_at:df_length] <- "second"
+
+#chk_pres1 <- chk_pres %>%
+#  left_join(rare)
 
 # Plot
 # A function factory for getting integer y-axis values.
@@ -55,20 +320,69 @@ nativity_colors <- c("Native" = "#1b9e77",
                      "Unknown" = "#7570b3")
 
 
-ggplot(chk_pres, aes(x= Scientific_Name, y=Cycle, color = Nativity)) +
-  geom_point(size=4) +   # Draw points
+
+out <- chk_pres %>%
+  filter(Outside_Plot == TRUE) %>%
+  mutate(out_color = "black")
+out
+any_out <- any(!is.na(chk_pres$Outside_Plot))
+
+chk_pres %>%
+ggplot(aes(x= Scientific_Name, y=Cycle, color = Nativity)) +
   geom_segment(aes(x=Scientific_Name,
                    xend=Scientific_Name,
                    y=min(Cycle),
                    yend=max(Cycle)),
                linetype="dashed",
-               size=0.1) +   # Draw dashed lines
+               linewidth=0.1) +
+  #{if(any_rare)geom_point(size=8, x = rare$Scientific_Name,
+  #                       y = rare$Cycle,
+  #                       color = rare$less_than_5_plots)} +
+  #geom_point(fill = chk_pres$less_than_5_plots, size=6) +
+  geom_point(size=4) +   # Draw points
+  #{if(any_out)geom_point(size=1, aes(x = out$Scientific_Name, y = out$Cycle), color = out$out_color)} +
+  {if(any_out)geom_point(size=1, x = out$Scientific_Name,
+                         y = out$Cycle,
+                         color = out$out_color)} +
+  #geom_point(size=1, aes(x = out$Scientific_Name, y = out$Cycle), color = "black") +
+  # Draw dashed lines
   labs(title="Check Presence",
        subtitle= (paste0(chk_pres$Sampling_Frame[1], " Plot ", chk_pres$Plot_Number[1])),
        caption= (paste0("QA/QC"))) +
   scale_color_manual(values = nativity_colors) +
+  #scale_shape_manual(values = c('Women' = 17, 'Men' = 16))
   scale_x_discrete(limits = rev) +
-  scale_y_continuous(breaks = integer_breaks()) +
+  scale_y_continuous(breaks = integer_breaks(), limits = c(0, max(chk_pres$Cycle)+1)) +
+  coord_flip() +
+  facet_wrap(scales = "free", vars(chk_pres$split)) +
+  theme(strip.background = element_blank(),
+        strip.text.x = element_blank())
+
+
+
+# Old one for backup:
+ggplot(chk_pres, aes(x= Scientific_Name, y=Cycle, color = Nativity)) +
+  geom_segment(aes(x=Scientific_Name,
+                   xend=Scientific_Name,
+                   y=min(Cycle),
+                   yend=max(Cycle)),
+               linetype="dashed",
+               linewidth=0.1) +
+  geom_point(aes(fill = less_than_5_plots, size=6)) +
+  geom_point(size=4) +   # Draw points
+  #{if(any_out)geom_point(size=1, aes(x = out$Scientific_Name, y = out$Cycle), color = out$out_color)} +
+  {if(any_out)geom_point(size=1, x = out$Scientific_Name,
+                         y = out$Cycle,
+                         color = out$out_color)} +
+  #geom_point(size=1, aes(x = out$Scientific_Name, y = out$Cycle), color = "black") +
+    # Draw dashed lines
+  labs(title="Check Presence",
+       subtitle= (paste0(chk_pres$Sampling_Frame[1], " Plot ", chk_pres$Plot_Number[1])),
+       caption= (paste0("QA/QC"))) +
+  scale_color_manual(values = nativity_colors) +
+  #scale_shape_manual(values = c('Women' = 17, 'Men' = 16))
+  scale_x_discrete(limits = rev) +
+  scale_y_continuous(breaks = integer_breaks(), limits = c(0, max(chk_pres$Cycle)+1)) +
   coord_flip() +
   facet_wrap(scales = "free", vars(chk_pres$split)) +
   theme(strip.background = element_blank(),

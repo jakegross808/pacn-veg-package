@@ -596,10 +596,10 @@ add_stats <- function(.data, ...){
       dplyr::summarise(NPLOTS = sum(!is.na(.data[[param]])),
                 MEAN = round(mean(.data[[param]], na.rm = TRUE),3),
                 MED = round(median(.data[[param]], na.rm = TRUE),3),
-                MIN = round(min(.data[[param]], na.rm = TRUE),3),
-                MAX = round(max(.data[[param]], na.rm = TRUE),3),
+                MIN = suppressWarnings(round(min(.data[[param]], na.rm = TRUE),3)),
+                MAX = suppressWarnings(round(max(.data[[param]], na.rm = TRUE),3)),
                 SD = sd(.data[[param]], na.rm = TRUE),
-                ERR = qt(0.975,df=NPLOTS-1)*(SD/sqrt(NPLOTS)),
+                ERR = suppressWarnings(qt(0.975,df=NPLOTS-1)*(SD/sqrt(NPLOTS))),
                 L = MEAN - ERR,
                 R = MEAN + ERR) %>%
       dplyr::mutate(Parameter = param)

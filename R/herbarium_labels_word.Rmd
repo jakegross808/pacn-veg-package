@@ -1,0 +1,183 @@
+---
+title: Herbarium Labels
+output: word_document
+---
+```{r include=FALSE}
+knitr::opts_chunk$set(comment = NA, echo = FALSE)
+```
+
+```{r packages, message=FALSE, include=FALSE}
+
+library(sf)
+library(tidyverse)
+library(pacnvegetation)
+library(flextable)
+library(officer)
+library(knitr)
+library(ftExtra)
+
+```
+
+
+```{r user input, echo=TRUE, warning=TRUE}
+Park <- "HAVO"
+ED_Database <- "C:/Users/JJGross/Downloads/ED_2022.gdb"
+Species_Database_Folder <- "C:/Users/JJGross/Documents/Databases_copied_local/Veg_species_db"
+```
+
+```{r ED Database properties, echo=FALSE, message=FALSE, warning=TRUE, results='asis'}
+# read database as a spatial object using sf::st_layers
+gd_ft <- flextable(as.data.frame(print(st_layers(ED_Database)))) |>
+    flextable::width(j = 1, width = 2.5) |>
+    flextable::width(j = 2, width = 1.5) 
+out <- cat("\n", knitr::knit_print(gd_ft), "\n\\pagebreak") 
+  
+```
+
+
+```{r Early Detection Data Check, message=FALSE, warning=TRUE, include=FALSE}
+
+# Read in ED database as spatial object
+ED_gdb <- st_read(ED_Database, layer = "ED_HAVO_2022")
+
+specimens <- ED_gdb |>
+  filter(Specimen == "Yes") |> # select only records marked as specimens
+  mutate(Unit_Code = Park) |>
+  # pull everything in front of first '(' to get just the species name in 'Photo_Taxon'
+  separate(Photo_Taxon, c("Photo_Taxon_sp"), sep = "\\s*\\(.*", remove = FALSE) |>  
+  # If'New_sp_name' is blank & full species name is entered in Photo_Taxon 
+  # with a level of confidence is "5", then, use that as species name: 
+  mutate(New_sp_name = case_when(is.na(New_sp_name) & Taxon_LOC == 5 ~ Photo_Taxon_sp,
+                              .default = as.character(New_sp_name)))
+
+# Check species without 'New_sp_name' that have level of confidence <5:  
+need_fix <- specimens |>
+  filter(is.na(New_sp_name)) 
+
+if (nrow(need_fix) > 0) {
+  print(paste("check species with low confidence", need_fix, sep = "\n"))}
+
+```
+
+
+```{r prep table, echo=FALSE, warning=TRUE}
+# If only one database in folder, this will grab full path:
+veg_species_db_full_path <- list.files(Species_Database_Folder, full.names = TRUE)
+
+# Get raw data from Veg Species Database:
+raw_spp_data <- read_spp_db(veg_species_db_full_path) 
+
+raw_HAVO_spp_data <- raw_spp_data %>%
+  filter(Park == "HAVO") 
+
+# Read PACN_veg_names.xlsx - which contains correct spelling of Hawaiian place names
+names <- readxl::read_xlsx(here::here("R", "PACN_veg_names.xlsx")) %>%
+  select(Unit_Code, Park_Name, Island, State_Territory) %>%
+  mutate(Unit_Code = str_trim(Unit_Code)) %>%
+  distinct()
+
+# Join formal names csv file and additional species info from PACN veg species database
+specimens_sppDB <- specimens %>%
+  left_join(names, by = join_by(Unit_Code == Unit_Code)) %>%
+  left_join(raw_HAVO_spp_data, by = join_by(New_sp_name == Scientific_name)) 
+
+# Prepare all columns for use in a herbarium label  
+specimens_label_check <- specimens_sppDB %>%
+  mutate(Title = paste(Park_Name, "Herbarium")) %>%
+  #mutate(Island = paste(Island, State_Territory, sep = ", ")) %>% 
+  mutate(Species = paste(New_sp_name, Authority)) %>%
+  mutate(Family = Taxonomic_Family) %>%
+  separate(Park_common_name, c("Common"), sep = ',', extra = "drop") %>%
+  mutate(altitude = as.character(round(ESRIGNSS_ALTITUDE))) %>%
+  mutate(altitude = replace_na(altitude, "")) %>%
+  mutate(altitude = case_when(altitude != "" ~ paste(altitude, "m"),
+                              .default = as.character(altitude))) %>%
+  mutate(Coords = paste0("(",round(ESRIGNSS_LATITUDE, 6), ", ", 
+                              round(ESRIGNSS_LONGITUDE, 6), ") ", 
+                              altitude)) %>%
+  mutate(Notes = replace_na(Xtra_Voucher_Notes, "")) %>%
+  mutate(Project = paste("PACN I&M - Early Detection of Plant Species")) %>%
+  mutate(Collector = Staff_List) %>%
+  mutate(Col_Date = paste(day(created_date), month(created_date, label = TRUE), 
+                          year(created_date), 
+                          paste0(format(created_date, "%H:%M")))) %>%
+  mutate(Det_Date = paste(day(created_date), month(created_date, label = TRUE), 
+                          year(created_date))) %>%
+  mutate(Coll = paste0(Staff_List, " (", Col_Date, ")")) %>%
+  mutate(Det = paste0(Det, " (", Det_Date, ")")) %>%
+  as_tibble() %>%
+  select(Photo_Taxon, New_sp_name, Col_Date, Title, Island, Species, Family, Common, Locality, Coords, Habitat, Project, Coll, Det, Notes, created_date) 
+
+# This is table that will be used to create the labels below
+specimens_label_print <- specimens_label_check %>%
+  select(-Photo_Taxon, -New_sp_name, -Col_Date) 
+
+# Last check before pairing table down to just herbarium label components
+spp_chklist <- specimens_label_check %>%
+  select(created_date, Col_Date, Species) %>%
+  arrange(created_date) %>%
+  select(-created_date)
+
+# Create a sort of table of contents of species labels
+spp_chklist <- flextable(spp_chklist) |>
+  width(j = 1, width = 2) |>
+  width(j = 2, width = 3.5)
+
+spp_chklist
+
+```
+\newpage
+
+```{r create labels, echo=FALSE, message=FALSE, warning=TRUE, results='asis'}
+# Function takes each tibble in list, transposes it, turns it into data.frame 
+# (needed for flextable function) then creates formated flextable herbarium label 
+herb_labeler <- function(input_list) {
+  # transpose an element in list, and make it a data frame
+  df <- as.data.frame(t(input_list))
+  # name each row using the previous column names (turns into herbarium label format)
+  label_table <- df %>%
+    tibble::rownames_to_column()
+  
+  # set defaults for flextable
+  set_flextable_defaults(
+    font.size = 10, theme_fun = theme_alafoli,
+    padding = 6, background.color = "#EFEFEF")
+  
+  # use officer package to make border around label
+  big_border <- officer::fp_border(color="gray", width = 2)
+  
+  # take table and turn it into a nice formatted flextable that looks like
+  # an herbarium label
+  label <- flextable(label_table) |>
+    delete_part(part = "header") |>
+    compose(i = 1, j = 1, as_paragraph(as_chunk(''))) |>
+    height(i = 1, height = 1, part = "body", unit = "in") |>
+    fontsize(i = 1, j = 2, size = 12) |>
+    compose(i = 12, j = 1, as_paragraph(as_chunk(''))) |>
+    width(j = 1, width = 0.75) |>
+    width(j = 2, width = 4) |>
+    valign(j = 1, valign = "top") |>
+    color(j = c(1,2), color = "black", part = "body") |>
+    border_outer(border = big_border) |>
+    bold(i = 3, j = 2, bold = TRUE, part = "body")
+  
+  # 'cat' function is base R. it concatenates and prints 
+  # and performs much less conversion than "print" function
+  out <- cat(knitr::knit_print(label), "\n\\pagebreak")
+  out
+}
+
+# Create a list of tibbles based on created date
+# ie each created date contains a tibble of data
+tib_list <- split(specimens_label_print, f = specimens_label_print$created_date)
+
+# Remove created date column from each tibble in list
+tib_list <- tib_list %>%
+  map(function(x) subset(x, select=-created_date))
+
+# Turn each tibble into a flextable using 'herb_labeler' function created above
+# used invisible() wrapper to prevent cat() in function from printing NULL for 
+# every label at end of loop. 
+invisible(purrr::map(tib_list, herb_labeler)) 
+
+```
