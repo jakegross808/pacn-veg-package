@@ -678,9 +678,9 @@ MapPACNVeg2 <- function(protocol = c("FTPC", "EIPS"), crosstalk = FALSE, crossta
   agol_request <- httr::build_url(url)
   agol_sf <- sf::st_read(agol_request, quiet = TRUE)
 
-  if (is.na(agol_sf$Zone)) {
-    agol_sf$Zone <- agol_sf$Sampling_Frame
-  }
+  # if na's present replace with 'No Zone Assigned':
+  agol_sf <- agol_sf %>%
+    mutate(Zone = tidyr::replace_na(Zone, "No Zone Assigned"))
 
   factpal <- leaflet::colorFactor(c("#F8573A", "#F4C47B", "#28468B", "#AED5CB"),
                                   agol_sf$Zone) # Colors for polygons factors
@@ -688,7 +688,7 @@ MapPACNVeg2 <- function(protocol = c("FTPC", "EIPS"), crosstalk = FALSE, crossta
   #leaflet::addPolygons(color =  ~factpal(Zone), label = ~Zone)
 
   # Set up icons
-  custom_icons <- pchIcons(pch = pts$map_symb,
+  custom_icons <- pacnvegetation:::pchIcons(pch = pts$map_symb,
                            width = pts$symb_w,
                            height = pts$symb_h,
                            bg = colorspace::darken(pts$symb_color),
@@ -911,6 +911,7 @@ add_mgmt_unit <- function(sample_frame){
 #' @param custom_name Use prefix and sep to create filenames from attachment ID's? If `FALSE`, will use the filename as stored in AGOL. If you are not customizing your filenames when saving attachments, this may cause problems due to duplicate filenames.
 #' @param append_id Append attachment id to custom prefix? Ignored if `custom_name == FALSE`
 #' @param join_cols Named vector in the format `c("foreign key column to data table in attachment table" = "primary key column of data table")` where the attachment table is the table that stores attachments only (this is mostly hidden from view in AGOL) and the data table is the table for which attachments have been enabled. If you aren't sure what the foreign key column is called, leave this argument empty and set `test_run = TRUE`. The function will try to guess the join columns, but if it gets it wrong, it will return the attachment table without the accompanying data table. At that point, you can check the name(s) of the foreign key column(s) and re-run your code with the join columns specified. They should be something along the lines of "parentGlobalId" or "parentObjectId".
+#' @param after_date_filter POSIXct date object. Only records after date will be returned.
 #'
 #' @return Tibble of attachment data, including paths to saved files.
 #' @export
@@ -935,6 +936,8 @@ DownloadAGOLAttachments <- function(feature_layer_url,
                                     append_id = TRUE,
                                     sep = "_",
                                     join_cols = c(),
+                                    after_date_filter = NA,
+                                    only_staff = FALSE,
                                     test_run = FALSE) {
 
   # Format destination folder path properly and create it if it doesn't exist
@@ -1060,6 +1063,21 @@ DownloadAGOLAttachments <- function(feature_layer_url,
     stop("Cannot save photos due to duplicate filenames. Try setting `custom_name = TRUE`.")
   }
 
+  # If after_date_filter is not NA then filter by the POSIXct mdy_hms provided
+  if (!is.na(after_date_filter)){
+    # stop code if 'after_date_filter' argument is not POSIXct
+    if(is.POSIXct(m_last_date_tz_1) == FALSE) {
+      stop("'after_date_filter' must be POSIXct object")
+    }
+    attachments <- attachments[attachments$pt_date > after_date_filter, ]
+  }
+
+  if (only_staff){
+    # stop code if 'after_date_filter' argument is not POSIXct
+    attachments <- attachments %>%
+      filter(str_detect(Subject, "Staff"))
+  }
+
   if (!test_run) {
     apply(attachments, 1, function(att) {
       dat <- httr::GET(att$url,
@@ -1114,6 +1132,118 @@ download_agol <- function(photo_layers, temp_dest, test_run = FALSE){
     }
 
     csv_location <- paste0(layer_dest, "/", as.character(layer), "_", file_date, ".csv")
+
+    readr::write_csv(layer_df, csv_location)
+
+    print(layer_dest)
+    print(csv_location)
+    print(paste(layer, "complete"))
+
+  }
+}
+
+#' Download FTPC, EIPS, and Plant Photos and attributes from AGOL layers
+#'
+#' This function is a customized version of DownloadAGOLAttachments() function from MOJN for specific use with PACN vegetation protocols, specifically FTPC photos, EIPS photos, and Plant photos spatial layers hosted on ArcGIS Online.
+#'
+#' This function will not work unless you have access to the PACN AGOL headless account
+#' Make sure to download and run keyring script for AGOL headless account from sharepoint:
+#' https://doimspp.sharepoint.com/sites/nps-PWR-PACNIM/vital_signs/05_focal_terr_plant_communities/Spatial_info/AGOL_headless/keyring_agol_headless.R
+#'
+#' @param agol_photo_layers A vector of named objects already loaded in the Global Environment. Each object should have only 1 value assigned to it - which is the URL for a specific point layer in AGOL. For example one object in the vector may be "EIPS_HALE_2023" with the assigned value: "https://services1.arcgis.com/fBc8EJBxQRMcHlei/arcgis/rest/services/HALE_2023_EIPS_Sampling_Points_Photos/FeatureServer/93"
+#' @param temp_dest The temporary location on your local computer where the folder of downloaded images and csv will be saved to.
+#'
+#' @return All the photos from a AGOL layer (EIPS photos, FTPC photos, and Plant Photo layers) along with a .csv of the point attributes and metadata.
+#' @export
+#'
+download_agol2 <- function(photo_layers, temp_dest, master_spreadsheet_folder, after_date_filter = NA, only_staff = FALSE, test_run = FALSE){
+  for (layer in photo_layers){
+    print(paste("starting download for", layer))
+
+    file_date <- gsub("-", "", as.character(Sys.Date()))
+
+    layer_dest <- paste0(temp_dest, as.character(layer), "_", file_date)
+
+    # Use master_spreadsheet_folder if wanting to append new table to previous
+    # Excel master spreadsheet
+
+    # Currently not set up to combine with Plants, FTCP, and EIPS
+    #(must do one spreadsheet for each download)
+
+    # This first part is just to filter by last date of master spreadsheet
+    if (!missing(master_spreadsheet_folder)) {
+      mfolder <- master_spreadsheet_folder
+      mfile <- list.files(mfolder, pattern = "\\.xlsx$")
+      mpath <- paste0(mfolder, "/", mfile)
+      mpath
+      mtable <- readxl::read_xlsx(mpath)
+
+      mtable <- mtable %>%
+        mutate(ESRIGNSS_LATITUDE = suppressWarnings(as.double(ESRIGNSS_LATITUDE))) %>%
+        mutate(ESRIGNSS_LONGITUDE = suppressWarnings(as.double(ESRIGNSS_LONGITUDE))) %>%
+        mutate(ESRIGNSS_ALTITUDE = suppressWarnings(as.double(ESRIGNSS_ALTITUDE))) %>%
+        mutate(ESRIGNSS_H_RMS = suppressWarnings(as.double(ESRIGNSS_H_RMS))) %>%
+        mutate(photo_cnt = suppressWarnings(as.character(photo_cnt))) %>%
+        mutate(pt_date = suppressWarnings(as.character(pt_date)))
+
+      mpark <- mtable$Unit_Code %>%
+        unique()
+
+      park <- c("AMME", "HALE", "HAVO", "KAHO", "KALA", "NPSA", "WAPA")
+      park_time_zones <- c("Pacific/Guam", "HST", "HST", "HST", "HST", "US/Samoa", "Pacific/Guam" )
+      all_tz <- data.frame(park, park_time_zones)
+
+      park_tz <- all_tz %>%
+        filter(park %in% mpark) %>%
+        pull(park_time_zones)
+
+      m_last_date <- mtable %>%
+        mutate(pt_date = suppressWarnings(as.POSIXct(pt_date))) %>%
+        select(pt_date) %>%
+        pull() %>%
+        max(na.rm = TRUE)
+
+      # Add time zone to last date because gets imported as "UTC"
+      m_last_date_tz <- ymd_hms(m_last_date, tz = park_tz)
+      # Add one minute because excel did not import seconds for some reason:
+      m_last_date_tz_1 <- m_last_date_tz + 60
+
+      after_date_filter <- m_last_date_tz_1
+    }
+
+    layer_df <- DownloadAGOLAttachments(
+      feature_layer_url = get(layer),
+      custom_name = TRUE,
+      append_id = FALSE,
+      agol_username = "pacn_gis",
+      agol_password = keyring::key_get(service = "AGOL", username = "pacn_gis"),
+      test_run = test_run,
+      dest_folder = layer_dest,
+      after_date_filter = after_date_filter,
+      only_staff = only_staff)
+
+    # add sharepoint path
+    #layer_df <- layer_df %>%
+    #  mutate(SP_Folder = "https://doimspp.sharepoint.com/sites/nps-PWR-PACNIM/vital_signs/05_focal_terr_plant_communities/Images/2023/HALE/Plant_photos/")
+
+    if (test_run == "TRUE" && missing(master_spreadsheet_folder)) {
+      return (layer_df)
+    }
+
+    csv_location <- paste0(layer_dest, "/", as.character(layer), "_", file_date, ".csv")
+
+    # If master_spreadsheet_folder provided then append new records to old records
+    if (test_run == "TRUE" && !missing(master_spreadsheet_folder)) {
+      layer_df <- bind_rows(mtable, layer_df) %>%
+        arrange(pt_date)
+      return (layer_df)
+    }
+    if (test_run == "FALSE" && !missing(master_spreadsheet_folder)) {
+      layer_df <- bind_rows(mtable, layer_df) %>%
+        arrange(pt_date)
+      xl_csv_location <- paste0(temp_dest, as.character(tools::file_path_sans_ext(mfile)), ".csv")
+      readr::write_excel_csv(layer_df, file = xl_csv_location)
+    }
 
     readr::write_csv(layer_df, csv_location)
 

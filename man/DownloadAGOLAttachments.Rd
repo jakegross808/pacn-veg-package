@@ -14,6 +14,8 @@ DownloadAGOLAttachments(
   append_id = TRUE,
   sep = "_",
   join_cols = c(),
+  after_date_filter = NA,
+  only_staff = FALSE,
   test_run = FALSE
 )
 }
@@ -35,6 +37,8 @@ DownloadAGOLAttachments(
 \item{sep}{Separator character to use between prefix and photo ID in file names. Ignored if \code{custom_name} == FALSE}
 
 \item{join_cols}{Named vector in the format \code{c("foreign key column to data table in attachment table" = "primary key column of data table")} where the attachment table is the table that stores attachments only (this is mostly hidden from view in AGOL) and the data table is the table for which attachments have been enabled. If you aren't sure what the foreign key column is called, leave this argument empty and set \code{test_run = TRUE}. The function will try to guess the join columns, but if it gets it wrong, it will return the attachment table without the accompanying data table. At that point, you can check the name(s) of the foreign key column(s) and re-run your code with the join columns specified. They should be something along the lines of "parentGlobalId" or "parentObjectId".}
+
+\item{after_date_filter}{POSIXct date object. Only records after date will be returned.}
 
 \item{test_run}{If \code{TRUE}, returns attachment data and proposed file locations without actually downloading and saving attachments.}
 }

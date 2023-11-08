@@ -101,8 +101,8 @@ specimens_label_check <- specimens_sppDB %>%
   mutate(Col_Date = paste(day(created_date), month(created_date, label = TRUE), 
                           year(created_date), 
                           paste0(format(created_date, "%H:%M")))) %>%
-  mutate(Det_Date = paste(day(created_date), month(created_date, label = TRUE), 
-                          year(created_date))) %>%
+  mutate(Det_Date = paste(day(Det_Date), month(Det_Date, label = TRUE), 
+                          year(Det_Date))) %>%
   mutate(Coll = paste0(Staff_List, " (", Col_Date, ")")) %>%
   mutate(Det = paste0(Det, " (", Det_Date, ")")) %>%
   as_tibble() %>%

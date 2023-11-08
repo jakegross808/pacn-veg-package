@@ -1,4 +1,126 @@
-herbarium_data2
+
+
+
+library(pacnvegetation)
+library(tidyverse)
+
+FTPC_HALE_2023 <- "https://services1.arcgis.com/fBc8EJBxQRMcHlei/arcgis/rest/services/HALE_2023_FTPC_Sampling_Points_Photos/FeatureServer/89"
+EIPS_HALE_2023 <- "https://services1.arcgis.com/fBc8EJBxQRMcHlei/arcgis/rest/services/HALE_2023_EIPS_Sampling_Points_Photos/FeatureServer/93"
+Plants_HALE_2023v1 <-"https://services1.arcgis.com/fBc8EJBxQRMcHlei/arcgis/rest/services/HALE_2023_VEG_Sampling_Plant_Photos/FeatureServer/91"
+Plants_HALE_2023v2 <- "https://services1.arcgis.com/fBc8EJBxQRMcHlei/arcgis/rest/services/HALE_2023_VEG_Sampling_Plant_Photos_v2/FeatureServer/91"
+
+subset_photos_layers <- c("FTPC_HALE_2023", "EIPS_HALE_2023")
+
+temp_dest <- "C:/Users/JJGross/Downloads/"
+
+download_agol2(subset_photos_layers,
+               #master_spreadsheet_folder = mfolder,
+               #after_date_filter = m_last_date_tz_1,
+               temp_dest,
+               test_run = FALSE,
+               only_staff = TRUE)
+
+test_first6 <- download_agol2(subset_photos_layers,
+                              #master_spreadsheet_folder = mfolder,
+                              #after_date_filter = m_last_date_tz_1,
+                              temp_dest,
+                              only_staff = TRUE,
+                              test_run = TRUE)
+
+tstaff <- test_first5 %>%
+  filter(str_detect(Subject,"Staff"))
+
+
+
+xlsx_location <- paste0(temp_dest, as.character(mfile))
+xl_csv_location <- paste0(temp_dest, as.character(tools::file_path_sans_ext(mfile)), ".csv")
+xlsx_location
+xl_csv_location
+openxlsx::write.xlsx(iris, file = xlsx_location)
+openxlsx::write.xlsx(test_first5, file = xlsx_location)
+readr::write_excel_csv(test_first5, file = xl_csv_location)
+
+# Get R to read a sharepoint xlsx file:
+mfolder <- "C:/Users/JJGross/OneDrive - DOI/HALE_2023_Plants_Master_Spreadsheet"
+mfile <- list.files(mfolder, pattern = "\\.xlsx$")
+mpath <- paste0(mfolder, "/", mfile)
+mpath
+mtable1 <- readxl::read_xlsx(mpath, col_types = )
+
+mtable2 <- mtable1 %>%
+  mutate(ESRIGNSS_LATITUDE = suppressWarnings(as.double(ESRIGNSS_LATITUDE))) %>%
+  mutate(ESRIGNSS_LONGITUDE = suppressWarnings(as.double(ESRIGNSS_LONGITUDE))) %>%
+  mutate(ESRIGNSS_ALTITUDE = suppressWarnings(as.double(ESRIGNSS_ALTITUDE))) %>%
+  mutate(ESRIGNSS_H_RMS = suppressWarnings(as.double(ESRIGNSS_H_RMS))) %>%
+  mutate(photo_cnt = suppressWarnings(as.character(photo_cnt))) %>%
+  mutate(pt_date = suppressWarnings(as.character(pt_date)))
+
+
+mpark <- mtable$Unit_Code %>%
+  unique()
+
+park <- c("AMME", "HALE", "HAVO", "KAHO", "KALA", "NPSA", "WAPA")
+park_time_zones <- c("Pacific/Guam", "HST", "HST", "HST", "HST", "US/Samoa", "Pacific/Guam" )
+all_tz <- data.frame(park, park_time_zones)
+
+park_tz <- all_tz %>%
+  filter(park %in% mpark) %>%
+  pull(park_time_zones)
+
+m_last_date <- mtable %>%
+  select(pt_date) %>%
+  pull() %>%
+  max(na.rm = TRUE)
+
+# Add time zone to last date because gets imported as "UTC"
+m_last_date_tz <- ymd_hms(m_last_date, tz = park_tz)
+# Add one minute because excel did not import seconds for some reason:
+m_last_date_tz_1 <- m_last_date_tz + 60
+
+
+# Download table to see dates of recent photos
+test_first4 <- download_agol2(subset_photos_layers,
+                              master_spreadsheet_folder = mfolder,
+                              #after_date_filter = m_last_date_tz_1,
+                              temp_dest,
+                              test_run = TRUE)
+
+# subset table to only include records after last download
+recent_photos <- test_first3[test_first3$pt_date > m_last_date_tz_1, ]
+
+look <- bind_rows(mtable2, recent_photos) %>%
+  arrange(pt_date)
+
+
+
+# ---- check brief .Rmd to get it working again
+
+# getting following error:
+
+# processing file: no_text_20230508.Rmd
+# |............                                |  27% [sampling-map]
+# Quitting from lines 154-155 [sampling-map] (no_text_20230508.Rmd)
+# Error in `if (is.na(agol_sf$Zone)) ...`:
+#   ! the condition has length > 1
+# Backtrace:
+#   1. pacnvegetation::MapPACNVeg2(...)
+#
+# Execution halted
+
+# Ran chucks until line 153, then:
+MapPACNVeg2(sample_frame = "Muchot", protocol = "FTPC")
+# Had to change to replace_na with "no zone assigned"
+
+
+
+
+
+
+
+
+
+# ----  herbarium_data ----
+# currently saved the .Rmd in R folder: herbarium_labels_word_ftExtra.Rmd
 
 
 

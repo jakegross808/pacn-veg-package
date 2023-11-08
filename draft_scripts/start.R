@@ -136,8 +136,6 @@ subset_photos_layers <- c("Plants_HALE_2023v2")
 
 temp_dest <- "C:/Users/JJGross/Downloads/"
 
-test_first <- download_agol(subset_photos_layers, temp_dest, test_run = TRUE)
-
 
 # ..........Local Geodatabase Data ----
 gdb <- "C:/Users/JJGross/Downloads/ED_HAVO_2022_new/ED_HAVO_2022_new.gdb"
