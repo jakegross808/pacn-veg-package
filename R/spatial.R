@@ -912,7 +912,7 @@ add_mgmt_unit <- function(sample_frame){
 #' @param append_id Append attachment id to custom prefix? Ignored if `custom_name == FALSE`
 #' @param join_cols Named vector in the format `c("foreign key column to data table in attachment table" = "primary key column of data table")` where the attachment table is the table that stores attachments only (this is mostly hidden from view in AGOL) and the data table is the table for which attachments have been enabled. If you aren't sure what the foreign key column is called, leave this argument empty and set `test_run = TRUE`. The function will try to guess the join columns, but if it gets it wrong, it will return the attachment table without the accompanying data table. At that point, you can check the name(s) of the foreign key column(s) and re-run your code with the join columns specified. They should be something along the lines of "parentGlobalId" or "parentObjectId".
 #' @param after_date_filter POSIXct date object. Only records after date will be returned.
-#'
+#' @param only_staff if true, downloads just the staff photos.
 #' @return Tibble of attachment data, including paths to saved files.
 #' @export
 #'
@@ -1073,7 +1073,7 @@ DownloadAGOLAttachments <- function(feature_layer_url,
   }
 
   if (only_staff){
-    # stop code if 'after_date_filter' argument is not POSIXct
+    # if true, keep only the staff photos
     attachments <- attachments %>%
       filter(str_detect(Subject, "Staff"))
   }
@@ -1150,8 +1150,12 @@ download_agol <- function(photo_layers, temp_dest, test_run = FALSE){
 #' Make sure to download and run keyring script for AGOL headless account from sharepoint:
 #' https://doimspp.sharepoint.com/sites/nps-PWR-PACNIM/vital_signs/05_focal_terr_plant_communities/Spatial_info/AGOL_headless/keyring_agol_headless.R
 #'
-#' @param agol_photo_layers A vector of named objects already loaded in the Global Environment. Each object should have only 1 value assigned to it - which is the URL for a specific point layer in AGOL. For example one object in the vector may be "EIPS_HALE_2023" with the assigned value: "https://services1.arcgis.com/fBc8EJBxQRMcHlei/arcgis/rest/services/HALE_2023_EIPS_Sampling_Points_Photos/FeatureServer/93"
+#' @param photo_layers A vector of named objects already loaded in the Global Environment. Each object should have only 1 value assigned to it - which is the URL for a specific point layer in AGOL. For example one object in the vector may be "EIPS_HALE_2023" with the assigned value: "https://services1.arcgis.com/fBc8EJBxQRMcHlei/arcgis/rest/services/HALE_2023_EIPS_Sampling_Points_Photos/FeatureServer/93"
 #' @param temp_dest The temporary location on your local computer where the folder of downloaded images and csv will be saved to.
+#' @param master_spreadsheet_folder Location of current excel spreadsheet if appending table data from new downloads to it. Needs to be only one excel spreadsheet in the folder.
+#' @param after_date_filter POSIXct date object. Only records after date will be returned.
+#' @param only_staff if true, downloads just the staff photos.
+#' @param test_run If `TRUE`, returns attachment data as R object and proposed file locations without actually downloading, saving attachments, or exporting .csv.
 #'
 #' @return All the photos from a AGOL layer (EIPS photos, FTPC photos, and Plant Photo layers) along with a .csv of the point attributes and metadata.
 #' @export
