@@ -23,6 +23,10 @@ library(ftExtra)
 Park <- "HAVO"
 ED_Database <- "C:/Users/JJGross/Downloads/ED_2022.gdb"
 Species_Database_Folder <- "C:/Users/JJGross/Documents/Databases_copied_local/Veg_species_db"
+
+ED_Database <- "C:/Users/JJGross/Documents/ArcGIS/Projects/ED/Early_Detection_20231109.gdb"
+#C:/Users/JJGross/Documents/ArcGIS/Projects/ED/Early_Detection_20231109.gdb
+Species_Database_Folder <- "C:/Users/JJGross/Documents/Databases_copied_local/Veg_species_db"
 ```
 
 ```{r ED Database properties, echo=FALSE, message=FALSE, warning=TRUE, results='asis'}

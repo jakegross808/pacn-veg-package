@@ -109,6 +109,17 @@ readr::write_csv(raw_spp_data, paste0("C:/Users/JJGross/Downloads/raw_spp_data",
 
 
 
+ECHCOL_list <- master_spp_list(veg_species_db_full_path, park = "HAVO") |>
+  filter(Scientific_name == "Echinochloa colona")
+
+ECHCOL <- FilterPACNVeg(data_name = "Presence") |>
+  filter(Unit_Code == "HAVO") |>
+  filter(Scientific_Name == "Echinochloa colona")
+
+ECHCOL_und <- FilterPACNVeg(data_name = "Understory") |>
+  filter(Unit_Code == "HAVO") |>
+  filter(Scientific_Name == "Echinochloa colona")
+
 # ..........AGOL Data ----
 
 # AGOL layer service urls

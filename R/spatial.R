@@ -1066,7 +1066,7 @@ DownloadAGOLAttachments <- function(feature_layer_url,
   # If after_date_filter is not NA then filter by the POSIXct mdy_hms provided
   if (!is.na(after_date_filter)){
     # stop code if 'after_date_filter' argument is not POSIXct
-    if(is.POSIXct(m_last_date_tz_1) == FALSE) {
+    if(is.POSIXct(after_date_filter) == FALSE) {
       stop("'after_date_filter' must be POSIXct object")
     }
     attachments <- attachments[attachments$pt_date > after_date_filter, ]
