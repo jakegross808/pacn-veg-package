@@ -1188,7 +1188,8 @@ download_agol2 <- function(photo_layers, temp_dest, master_spreadsheet_folder, a
         mutate(ESRIGNSS_ALTITUDE = suppressWarnings(as.double(ESRIGNSS_ALTITUDE))) %>%
         mutate(ESRIGNSS_H_RMS = suppressWarnings(as.double(ESRIGNSS_H_RMS))) %>%
         mutate(photo_cnt = suppressWarnings(as.character(photo_cnt))) %>%
-        mutate(pt_date = suppressWarnings(as.character(pt_date)))
+        mutate(pt_date = suppressWarnings(as.character(pt_date))) %>%
+        mutate(Samp_Year = suppressWarnings(as.integer(Samp_Year)))
 
       mpark <- mtable$Unit_Code %>%
         unique()
