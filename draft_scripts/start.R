@@ -53,7 +53,7 @@ hi_vegmap_db_paths <- c("C:/Users/JJGross/OneDrive - DOI/Documents/Veg_Map_Data/
 
 # Veg map & species locations ----
 
-Hawaii_vegmap_data <- read_vegmap_db(vegmap_db_paths)
+Hawaii_vegmap_data <- read_vegmap_db(hi_vegmap_db_paths)
 
 hi_poaceae_vegmap <- Hawaii_vegmap_data %>%
   filter(!is.na(lat), !is.na(long)) %>%
@@ -125,7 +125,8 @@ ECHCOL_und <- FilterPACNVeg(data_name = "Understory") |>
 # AGOL layer service urls
 #FTPC_HAVO_2021 <- "https://services1.arcgis.com/fBc8EJBxQRMcHlei/arcgis/rest/services/FTPC_Points_Photos_HAVO_2021/FeatureServer/1"
 #FTPC_HAVO_2022 <- "https://services1.arcgis.com/fBc8EJBxQRMcHlei/arcgis/rest/services/HAVO_2022_FTPC_Sampling_Points_Photos/FeatureServer/30"
-#FTPC_KAHO_2022 <- "https://services1.arcgis.com/fBc8EJBxQRMcHlei/arcgis/rest/services/KAHO_2022_FTPC_Sampling_Points_Photos/FeatureServer/30"
+FTPC_KAHO_2022 <- "https://services1.arcgis.com/fBc8EJBxQRMcHlei/arcgis/rest/services/KAHO_2022_FTPC_Sampling_Points_Photos/FeatureServer/30"
+FTPC_KAHO_2022pa11 <-"https://services1.arcgis.com/fBc8EJBxQRMcHlei/arcgis/rest/services/KAHO_2022_FTPC_Sampling_Points_PA11/FeatureServer/43"
 FTPC_HALE_2023 <- "https://services1.arcgis.com/fBc8EJBxQRMcHlei/arcgis/rest/services/HALE_2023_FTPC_Sampling_Points_Photos/FeatureServer/89"
 
 #EIPS_HAVO_2021 <- "https://services1.arcgis.com/fBc8EJBxQRMcHlei/arcgis/rest/services/EIPS_Points_Photos_HAVO_2021/FeatureServer/1"
@@ -134,7 +135,7 @@ EIPS_HALE_2023 <- "https://services1.arcgis.com/fBc8EJBxQRMcHlei/arcgis/rest/ser
 
 #Plants_HAVO_2021 <- "https://services1.arcgis.com/fBc8EJBxQRMcHlei/arcgis/rest/services/HAVO_Vegetation_Sampling_Plant_Photos_HAVO_2021/FeatureServer/1"
 #Plants_HAVO_2022 <- "https://services1.arcgis.com/fBc8EJBxQRMcHlei/arcgis/rest/services/HAVO_2022_VEG_Sampling_Plant_Photos/FeatureServer/31"
-#Plants_KAHO_2022 <- "https://services1.arcgis.com/fBc8EJBxQRMcHlei/arcgis/rest/services/KAHO_2022_VEG_Sampling_Plant_Photos/FeatureServer/41"
+Plants_KAHO_2022 <- "https://services1.arcgis.com/fBc8EJBxQRMcHlei/arcgis/rest/services/KAHO_2022_VEG_Sampling_Plant_Photos/FeatureServer/41"
 Plants_HALE_2023v1 <-"https://services1.arcgis.com/fBc8EJBxQRMcHlei/arcgis/rest/services/HALE_2023_VEG_Sampling_Plant_Photos/FeatureServer/91"
 Plants_HALE_2023v2 <- "https://services1.arcgis.com/fBc8EJBxQRMcHlei/arcgis/rest/services/HALE_2023_VEG_Sampling_Plant_Photos_v2/FeatureServer/91"
 
@@ -143,13 +144,40 @@ all_photos_layers <- c("FTPC_HAVO_2021", "FTPC_HAVO_2022", "FTPC_KAHO_2022", "FT
                        "EIPS_HAVO_2021", "EIPS_HAVO_2022", "EIPS_HALE_2023",
                        "Plants_HAVO_2021", "Plants_HAVO_2022", "Plants_KAHO_2022", "Plants_HALE_2023v1", "Plants_HALE_2023v2")
 
-subset_photos_layers <- c("Plants_HALE_2023v2")
+subset_photos_layers1 <- c("FTPC_KAHO_2022")
+subset_photos_layers2 <- c("FTPC_KAHO_2022pa11")
 
-temp_dest <- "C:/Users/JJGross/Downloads/"
+# Test download_agol2
+look1 <- download_agol2(photo_layers = subset_photos_layers1,
+               temp_dest = "C:/Users/JJGross/Downloads/KAHO_FTPC/",
+               test_run = TRUE)
+
+download_agol2(photo_layers = subset_photos_layers1,
+               temp_dest = "C:/Users/JJGross/Downloads/KAHO_FTPC/")
+
+look2 <- download_agol2(photo_layers = subset_photos_layers2,
+               temp_dest = "C:/Users/JJGross/Downloads/KAHO_FTPC/",
+               test_run = TRUE)
+
+download_agol2(photo_layers = subset_photos_layers2,
+               temp_dest = "C:/Users/JJGross/Downloads/KAHO_FTPC/")
+
 
 
 # ..........Local Geodatabase Data ----
 gdb <- "C:/Users/JJGross/Downloads/ED_HAVO_2022_new/ED_HAVO_2022_new.gdb"
+gdb_layer <- "ED_HAVO_2022"
+ED_HAVO_2022 <- sf::read_sf(gdb, gdb_layer)
+
+gdb <- "C:/Users/JJGross/Downloads/KAHO_2022_FTPC_Sampling_Points_Photos/KAHO_2022_FTPC_Sampling_Points_Photos.gdb"
+sf::st_layers(dsn = gdb)
+
+look <- process_photos(AGOL_Layer = "FTPC",
+               gdb_name = "KAHO_2022_FTPC_Sampling_Points_Photos.gdb",
+               gdb_location = "C:/Users/JJGross/Downloads/KAHO_2022_FTPC_Sampling_Points_Photos",
+               gdb_layer = "KAHO_2022_FTPC_Sampling_Points_Photos",
+               return_table = TRUE)
+
 gdb_layer <- "ED_HAVO_2022"
 ED_HAVO_2022 <- sf::read_sf(gdb, gdb_layer)
 

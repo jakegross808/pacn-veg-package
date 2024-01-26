@@ -65,12 +65,22 @@ process_photos <- function(AGOL_Layer, gdb_name, gdb_location, gdb_layer, return
     dplyr::mutate(Protocol = AGOL_Layer) %>%
     dplyr::mutate(Unit_Name = dplyr::case_when(Unit_Code == "Hawaii Volcanoes National Park" ~
                                                  paste0("Hawai", okina, "i Volcanoes National Park"))) %>%
+    dplyr::mutate(Unit_Name = dplyr::case_when(Samp_Frame == "KH" ~ paste0(Kaloko., " National Historical Park"))) %>%
     dplyr::mutate(Sampling_Frame = dplyr::case_when(is.na(Samp_Frame) ~ "NA",
                                                     Samp_Frame == "ER" ~ Nahuku.,
+                                                    Samp_Frame == "KH" ~ Kaloko.,
                                                     Samp_Frame == "SA" ~ "Subalpine Shrubland",
                                                     Samp_Frame == "KU" ~ "Kahuku",
                                                     Samp_Frame == "OL" ~ Olaa.,
     )) %>%
+    dplyr::mutate(Community = dplyr::case_when(is.na(Community) ~ "NA",
+                                               Community == "W" ~ "Wet Forest",
+                                               Community == "S" ~ "Subalpine Shrubland",
+                                               Community == "L" ~ "Limestone Forest",
+                                               Community == "M" ~ "Mangrove Wetland",
+                                               Community == "C" ~ "Coastal Strand",
+    )) %>%
+
     dplyr::mutate(Comm = dplyr::case_when(is.na(Community) ~ "NA",
                                           Community == "Wet Forest" ~ "W",
                                           Community == "Subalpine Shrubland" ~ "S",
@@ -78,6 +88,8 @@ process_photos <- function(AGOL_Layer, gdb_name, gdb_location, gdb_layer, return
                                           Community == "Mangrove Wetland" ~ "M",
                                           Community == "Coastal Strand" ~ "C",
     )) %>%
+
+
     dplyr::mutate(Site_Number = readr::parse_number(Site_numb)) %>%
     dplyr::mutate(Site_Type = dplyr::case_when(Protocol == "FTPC" & Site_Number <= 15 & Community == "Wet Forest" ~ "Fixed",
                                                Protocol == "FTPC" & Site_Number <= 15 & Community == "Subalpine Shrubland" ~ "Fixed",

@@ -652,8 +652,8 @@ MapPACNVeg2 <- function(protocol = c("FTPC", "EIPS"), crosstalk = FALSE, crossta
   if (sample_frame == "Mauna Loa") {
     agol_sample_frame <- "Subalpine Shrubland"
 
-  } else if (sample_frame == "Guam") {
-    agol_sample_frame <- "Limestone Forest"
+#  } else if (sample_frame == "Guam") {
+#    agol_sample_frame <- "Limestone Forest"
 
   } else if (sample_frame == "Kipahulu District") {
     agol_sample_frame <- "Kīpahulu District"
@@ -661,8 +661,8 @@ MapPACNVeg2 <- function(protocol = c("FTPC", "EIPS"), crosstalk = FALSE, crossta
   } else if (sample_frame == "Nahuku/East Rift") {
     agol_sample_frame <- "Thurston/East Rift"
 
-  } else if (sample_frame == "Hoolehua" | sample_frame == "Kalawao") {
-    agol_sample_frame <- "KALA Coast"
+# } else if (sample_frame == "Hoolehua" | sample_frame == "Kalawao") {
+#    agol_sample_frame <- "KALA Coast"
 
   } else {
     agol_sample_frame <- sample_frame
