@@ -1,3 +1,20 @@
+#' Create boxplots of understory cover for all Sampling Frames in Dataset
+#'
+#' @param df Dataframe from summarize_understory()
+#' @param y y-variable from dataframe used for boxplot
+#' @param nativity default = "Native"; can be changed to "Non-Native"
+#' @param cycle default = 2; select one cycle, can be 2 or 3
+#' @param no_y_labs default = FALSE; if true, removes y-axis tick marks and labels
+#'
+#' @return ggplot boxplot
+#' @export
+#'
+#' @examples
+#' \dontrun{
+#' ncyc3 <- understory_cover_boxplot(nat_chg_und, nativity = "Non-Native", cycle = 3, no_y_labs = TRUE)
+#'
+#' }
+
 understory_cover_boxplot <- function(df, y = "Chg_Prior", nativity = "Native", cycle = 2, no_y_labs = FALSE) {
 
   nat_chg_und <- df %>%
