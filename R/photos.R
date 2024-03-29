@@ -5,7 +5,12 @@
 #' @param gdb_name Name of the geodatabase (Example: "EIPS_Olaa_Nahuku_20220323.gdb")
 #' @param gdb_location File path to the geodatabase (Example: "C:/Users/JJGross/Documents/RData/PROJECTS/pacnvegetation/geodatabase")
 #' @param gdb_layer The layer file inside the geodatabase (Example: "EIPS_Olaa_Nahuku_20220323")
-#' @param return_table FALSE = process photos; TRUE = do not process photos, and return table instead
+#' @param return_first_table `default = FALSE` do not return table, process photos as normal; `return_table = TRUE` do not process photos, and return table instead.
+#' @param insert_first_table `default = NULL` insert first table created in function. If R object supplied to `insert_first_table = `, then user supplied table will be utilized in function instead of initial geodatabase.
+#' @param add_watermark `default = FALSE` no watermark added
+#' @param return_last_table `default = FALSE` do not return table, process photos as normal; `return_table = TRUE` do not process photos, and return table instead.
+#' @param insert_last_table `default = NULL` insert final table created in function. If R object supplied to `insert_last_table = `, then user supplied table will be used utilized in function instead of geodatabase.
+#'
 #'
 #' @return watermarked photos are saved to a folder "watermarked" inside the working directory. Use here() to determine current working directory.
 #' @export
@@ -15,29 +20,47 @@
 #' process_photos(AGOL_Layer = "EIPS", gdb_name = "EIPS_Olaa_Nahuku_20220323.gdb", gdb_location = "C:/Users/JJGross/Documents/RData/PROJECTS/pacnvegetation/geodatabase", gdb_layer = "EIPS_Olaa_Nahuku_20220323")
 #' }
 
-process_photos <- function(AGOL_Layer, gdb_name, gdb_location, gdb_layer, return_table = FALSE) {
+process_photos <- function(AGOL_Layer, gdb_name, gdb_location, gdb_layer,
+                           return_first_table = FALSE,
+                           insert_first_table = NULL,
+                           add_watermark = FALSE,
+                           return_last_table = FALSE,
+                           insert_last_table = NULL) {
 
-  # Get joined GIS table + attachment table:
-  gdb <- paste0(gdb_location, "/", gdb_name)
+  if(!is.null(insert_first_table)){
 
-  # Layer File with attributes
-  attributes <- sf::read_sf(gdb, gdb_layer)
+    GIS_Table <- insert_first_table
 
-  # Attachments Table containing photos
-  layer_attach <- paste0(gdb_layer,"__ATTACH")
-  attachments <- sf::read_sf(gdb, layer_attach)
-  # The 'DATA' column of the attachments table contains the photos. Each row in
-  # the attachments table corresponds to one photo.
-  # photo_in_first_row <- attachments$DATA[[1]]
+  } else {
 
-  # (optional) If you tell R that the field is a BLOB, then you can view table in Rstudio
-  attachments$DATA <- blob::as_blob(attachments$DATA)
-  # ... However, if using automation the apply() function doesn't like blobs
-  # so make sure to change column back to a list before feeding into apply()
-  # attachments$DATA <- as.list(attachments$DATA)
+    # Get joined GIS table + attachment table:
+    gdb <- paste0(gdb_location, "/", gdb_name)
+    # Layer File with attributes
+    attributes <- sf::read_sf(gdb, gdb_layer)
 
-  GIS_Table <- attachments %>%
-    dplyr::left_join(attributes, by = c("REL_GLOBALID" = "GlobalID"))
+    # Attachments Table containing photos
+    layer_attach <- paste0(gdb_layer,"__ATTACH")
+    attachments <- sf::read_sf(gdb, layer_attach)
+    # The 'DATA' column of the attachments table contains the photos. Each row in
+    # the attachments table corresponds to one photo.
+    # photo_in_first_row <- attachments$DATA[[1]]
+
+    # (optional) If you tell R that the field is a BLOB, then you can view table in Rstudio
+    attachments$DATA <- blob::as_blob(attachments$DATA)
+    # ... However, if using automation the apply() function doesn't like blobs
+    # so make sure to change column back to a list before feeding into apply()
+    # attachments$DATA <- as.list(attachments$DATA)
+
+    GIS_Table <- attachments %>%
+      dplyr::left_join(attributes, by = c("REL_GLOBALID" = "GlobalID"))
+  }
+
+
+  if(return_first_table == TRUE){
+    return(GIS_Table)
+  }
+
+
 
   # Hawaiian Diacritics
   A. <- "\U0100"
@@ -63,34 +86,40 @@ process_photos <- function(AGOL_Layer, gdb_name, gdb_location, gdb_layer, return
 
   GIS_Table1 <- GIS_Table %>%
     dplyr::mutate(Protocol = AGOL_Layer) %>%
-    dplyr::mutate(Unit_Name = dplyr::case_when(Unit_Code == "Hawaii Volcanoes National Park" ~
-                                                 paste0("Hawai", okina, "i Volcanoes National Park"))) %>%
-    dplyr::mutate(Unit_Name = dplyr::case_when(Samp_Frame == "KH" ~ paste0(Kaloko., " National Historical Park"))) %>%
+    dplyr::mutate(Unit_Name = dplyr::case_when(
+      Unit_Code == "Hawaii Volcanoes National Park" | Unit_Code == "HAVO"
+      ~ paste0("Hawai", okina, "i Volcanoes National Park"),
+      Unit_Code  == "KAHO"
+      ~ paste0(Kaloko., " National Historical Park"),
+      #Samp_Frame == "KH" ~ paste0(Kaloko., " National Historical Park"),
+      #Samp_Frame == "ML" ~ paste0("Hawai", okina, "i Volcanoes National Park"),
+      #Samp_Frame == "KU" ~ paste0("Hawai", okina, "i Volcanoes National Park")
+      )) %>%
     dplyr::mutate(Sampling_Frame = dplyr::case_when(is.na(Samp_Frame) ~ "NA",
                                                     Samp_Frame == "ER" ~ Nahuku.,
                                                     Samp_Frame == "KH" ~ Kaloko.,
                                                     Samp_Frame == "SA" ~ "Subalpine Shrubland",
                                                     Samp_Frame == "KU" ~ "Kahuku",
+                                                    Samp_Frame == "ML" ~ "Mauna Loa",
                                                     Samp_Frame == "OL" ~ Olaa.,
     )) %>%
     dplyr::mutate(Community = dplyr::case_when(is.na(Community) ~ "NA",
-                                               Community == "W" ~ "Wet Forest",
-                                               Community == "S" ~ "Subalpine Shrubland",
-                                               Community == "L" ~ "Limestone Forest",
-                                               Community == "M" ~ "Mangrove Wetland",
-                                               Community == "C" ~ "Coastal Strand",
-    )) %>%
+                                               Community == "WF" | Community == "W" ~ "Wet Forest",
+                                               Community == "SS" | Community == "S" ~ "Subalpine Shrubland",
+                                               Community == "LF" | Community == "L" ~ "Limestone Forest",
+                                               Community == "MF" | Community == "M" ~ "Mangrove Forest",
+                                               Community == "CS" | Community == "C" ~ "Coastal Strand",
+                                               TRUE ~ as.character(Community))) %>%
 
     dplyr::mutate(Comm = dplyr::case_when(is.na(Community) ~ "NA",
                                           Community == "Wet Forest" ~ "W",
                                           Community == "Subalpine Shrubland" ~ "S",
                                           Community == "Limestone Forest" ~ "L",
-                                          Community == "Mangrove Wetland" ~ "M",
-                                          Community == "Coastal Strand" ~ "C",
-    )) %>%
+                                          Community == "Mangrove Forest" ~ "M",
+                                          Community == "Coastal Strand" ~ "C")) %>%
 
 
-    dplyr::mutate(Site_Number = readr::parse_number(Site_numb)) %>%
+    dplyr::mutate(Site_Number = readr::parse_number(Site_numb, na = c("Misc Other", "EIPS no transect", "EIPS other", "FTPC No Plot", "FTPC Other"))) %>%
     dplyr::mutate(Site_Type = dplyr::case_when(Protocol == "FTPC" & Site_Number <= 15 & Community == "Wet Forest" ~ "Fixed",
                                                Protocol == "FTPC" & Site_Number <= 15 & Community == "Subalpine Shrubland" ~ "Fixed",
                                                Protocol == "FTPC" & Site_Number <= 10 & Community == "Coastal Strand" ~ "Fixed",
@@ -99,8 +128,7 @@ process_photos <- function(AGOL_Layer, gdb_name, gdb_location, gdb_layer, return
                                                Protocol == "EIPS" & Unit_Code == "AMME" ~ "Fixed",
                                                Protocol == "EIPS" & Unit_Code != "AMME" & Site_Number <= 15 & Sampling_Frame == "Kahuku" ~ "Fixed",
                                                Protocol == "EIPS" & Unit_Code != "AMME" & Site_Number <= 10 & Sampling_Frame != "Kahuku" ~ "Fixed",
-                                               TRUE ~ "Rotational"
-    ))
+                                               TRUE ~ "Rotational"))
 
 
   if(AGOL_Layer == "FTPC"){
@@ -206,9 +234,13 @@ process_photos <- function(AGOL_Layer, gdb_name, gdb_location, gdb_layer, return
 
   GIS_Table4$created_date <- as.character(GIS_Table4$created_date)
 
-  if(return_table == TRUE){
+  if(return_last_table == TRUE){
     return(GIS_Table4)
-    }
+  }
+
+  if(!is.null(insert_last_table)){
+    GIS_Table4 <- insert_last_table
+  }
 
 
   # Fix additional photos using changes here:
@@ -220,11 +252,11 @@ process_photos <- function(AGOL_Layer, gdb_name, gdb_location, gdb_layer, return
   GIS_Table4$DATA <- as.list(GIS_Table4$DATA)
 
   # applyr the "watermark" function to each record (ie photo)
-  if(AGOL_Layer != "Plants"){
+  if(add_watermark == TRUE){
     apply(X = GIS_Table4, MARGIN = 1, FUN = watermark, new_folder = "watermarked")
   }
 
-  if(AGOL_Layer == "Plants"){
+  if(add_watermark == FALSE){
     apply(X = GIS_Table4, MARGIN = 1, FUN = watermark_no, new_folder = "no_watermark")
   }
 
@@ -256,6 +288,9 @@ watermark <- function(x, new_folder) {
   p.protocol <- x["Protocol"]
   p.community <- x["Community"]
   p.sf <- x["Sampling_Frame"]
+  if (p.sf == "Kaloko-Honok\U014Dhau") {
+    p.sf <- p.community
+  }
   p.tran <- x["Trans_Num"]
   p.site_folder <- x["Folder_Name"]
   p.type_num <- x["TNum_3"]
