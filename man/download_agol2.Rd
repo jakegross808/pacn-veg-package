@@ -9,13 +9,22 @@ download_agol2(
   temp_dest,
   master_spreadsheet_folder,
   after_date_filter = NA,
+  only_staff = FALSE,
   test_run = FALSE
 )
 }
 \arguments{
+\item{photo_layers}{A vector of named objects already loaded in the Global Environment. Each object should have only 1 value assigned to it - which is the URL for a specific point layer in AGOL. For example one object in the vector may be "EIPS_HALE_2023" with the assigned value: "https://services1.arcgis.com/fBc8EJBxQRMcHlei/arcgis/rest/services/HALE_2023_EIPS_Sampling_Points_Photos/FeatureServer/93"}
+
 \item{temp_dest}{The temporary location on your local computer where the folder of downloaded images and csv will be saved to.}
 
-\item{agol_photo_layers}{A vector of named objects already loaded in the Global Environment. Each object should have only 1 value assigned to it - which is the URL for a specific point layer in AGOL. For example one object in the vector may be "EIPS_HALE_2023" with the assigned value: "https://services1.arcgis.com/fBc8EJBxQRMcHlei/arcgis/rest/services/HALE_2023_EIPS_Sampling_Points_Photos/FeatureServer/93"}
+\item{master_spreadsheet_folder}{Location of current excel spreadsheet if appending table data from new downloads to it. Needs to be only one excel spreadsheet in the folder.}
+
+\item{after_date_filter}{POSIXct date object. Only records after date will be returned.}
+
+\item{only_staff}{if true, downloads just the staff photos.}
+
+\item{test_run}{If \code{TRUE}, returns attachment data as R object and proposed file locations without actually downloading, saving attachments, or exporting .csv.}
 }
 \value{
 All the photos from a AGOL layer (EIPS photos, FTPC photos, and Plant Photo layers) along with a .csv of the point attributes and metadata.

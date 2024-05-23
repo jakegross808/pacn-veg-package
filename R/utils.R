@@ -326,7 +326,7 @@ ReadFTPC <- function(conn) {
 
   # . . Events_extra_other
   Events_extra_other <- Events_extra %>%
-    dplyr::select(Unit_Code, Sampling_Frame, Year, Cycle, Plot_Type, QA_Plot,
+    dplyr::select(Event_ID, Unit_Code, Community, Sampling_Frame, Year, Cycle, Plot_Type, QA_Plot,
                   Plot_Number, Max_Veg_Ht, Site_Name, Images, Certified, Verified) %>%
     dplyr::collect()
 
@@ -1181,8 +1181,8 @@ FilterOne <- function(data, data_name, filter_cols, case_sensitive, silent) {
 #' LoadPACNVeg("pacnveg", "path/to/access.mdb")
 #' WritePACNVeg("folder/for/csv/data", create.folders = TRUE)
 #' }
-WritePACNVeg <- function(dest.folder, create.folders = FALSE, overwrite = FALSE, park, sample_frame, community, certified, verified, is_qa_plot = FALSE) {
-  data <- FilterPACNVeg(park = park, sample_frame = sample_frame, community = community, certified = certified, verified = verified, is_qa_plot = is_qa_plot)
+WritePACNVeg <- function(dest.folder, create.folders = FALSE, overwrite = FALSE, park, sample_frame, community, certified, verified) {
+  data <- FilterPACNVeg(park = park, sample_frame = sample_frame, community = community, certified = certified, verified = verified)
   dest.folder <- normalizePath(dest.folder, mustWork = FALSE)
   col.spec <- GetColSpec()
   file.paths <- file.path(dest.folder, paste0(names(col.spec), ".csv"))

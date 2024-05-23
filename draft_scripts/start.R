@@ -3,7 +3,6 @@
 #devtools::install_github("jakegross808/pacn-veg-package")
 
 library(pacnvegetation)
-
 library(tidyverse)
 #library(magrittr)
 # if need to install packages while on network:
@@ -20,6 +19,18 @@ latest_folder <- rownames(path_file_info)[which.max(path_file_info$mtime)]
 
 LoadPACNVeg(data_path = latest_folder,
             data_source = "file")
+
+names(FilterPACNVeg())
+
+select_dataset <- FilterPACNVeg(data_name = "Enter Dataset Name Here")
+
+Events_FTPC <- FilterPACNVeg(data_name = "Events_extra_xy")
+Events_EIPS <- FilterPACNVeg(data_name = "Events_extra_other_EIPS")
+Species_FTPC <- FilterPACNVeg(data_name = "Presence") #%>%
+  select(Scientific_Name) %>%
+  distinct()
+
+
 
 #--- 2. Update and Write Data ----
 
@@ -50,10 +61,22 @@ hi_vegmap_db_paths <- c("C:/Users/JJGross/OneDrive - DOI/Documents/Veg_Map_Data/
                      "C:/Users/JJGross/OneDrive - DOI/Documents/Veg_Map_Data/puhedata.mdb",
                      "C:/Users/JJGross/OneDrive - DOI/Documents/Veg_Map_Data/puhodata.mdb")
 
+WAPA_vegmap_db_paths <- c("C:/Users/JJGross/Documents/Veg_Map_Data/wapadata.mdb")
+
 
 # Veg map & species locations ----
 
-Hawaii_vegmap_data <- read_vegmap_db(hi_vegmap_db_paths)
+Hawaii_vegmap_data2 <- read_vegmap_db(hi_vegmap_db_paths)
+
+WAPA_vegmap_data <- read_vegmap_db(WAPA_vegmap_db_paths)
+
+leaflet::addCircleMarkers()
+
+leaflet::leaflet(data = WAPA_vegmap_data) %>%
+  leaflet::addTiles() %>%
+  leaflet::addMarkers(~long, ~lat, popup = ~as.character(Plot_Code), label = ~as.character(Sci_Name))
+
+
 
 hi_poaceae_vegmap <- Hawaii_vegmap_data %>%
   filter(!is.na(lat), !is.na(long)) %>%
@@ -101,8 +124,40 @@ veg_species_db_full_path
 raw_spp_data <- read_spp_db(veg_species_db_full_path)
 
 # Get master species list for a park (with ID_Field for field maps):
-spp_list_HALE <- master_spp_list(veg_species_db_full_path, park = "HALE")
-readr::write_excel_csv(spp_list_HALE, paste0("C:/Users/JJGross/Downloads/spp_list_HALE_", Sys.Date(), ".csv"))
+spp_list_master <- master_spp_list(veg_species_db_full_path, park = 'All')
+
+spp_list_KALA <- master_spp_list(veg_species_db_full_path, park = "KALA")
+readr::write_excel_csv(spp_list_KALA, paste0("C:/Users/JJGross/Downloads/spp_list_KALA_", Sys.Date(), ".csv"))
+
+spp_list_KALA_coast <- master_spp_list(veg_species_db_full_path, park = "KALA", sample_frame = c("Hoolehua", "Kalawao"))
+
+spp_list_KALA_coast_EIPS <- spp_list_KALA_coast %>%
+  filter(Nativeness != "Native")
+
+readr::write_excel_csv(spp_list_KALA_coast_EIPS, paste0("C:/Users/JJGross/Downloads/spp_list_KALA_coast_EIPS_", Sys.Date(), ".csv"))
+
+
+
+# This is pain, not going to use it:
+spp_list_KALA_SF <- spp_list_KALA %>%
+  separate_wider_delim(FTPC_pres, "(", names = c(NA, "SF")) %>%
+  mutate(SF = str_sub(SF, end = -2)) %>%
+  separate_wider_delim(SF, ",", names = c("HO", "KW", "PA")) %>%
+  mutate(HO = as.numeric(str_sub(HO, 4, -1))) %>%
+  mutate(KW = as.numeric(str_sub(KW, 5, -1))) %>%
+  mutate(PA = as.numeric(str_sub(PA, 5, -1)))
+
+readr::write_excel_csv(spp_list_KALA_SF, paste0("C:/Users/JJGross/Downloads/spp_list_KALA_SF", Sys.Date(), ".csv"))
+
+drop_these_rows <- spp_list_KALA_remove_puu_only %>%
+  filter(HO == 0, KW == 0, PA > 0)
+
+spp_list_KALA_remove_puu_only <- spp_list_KALA_SF %>%
+  filter(!Scientific_name %in% drop_these_rows)
+
+
+
+
 
 # Write master species list
 readr::write_csv(raw_spp_data, paste0("C:/Users/JJGross/Downloads/raw_spp_data", Sys.Date(), ".csv"))

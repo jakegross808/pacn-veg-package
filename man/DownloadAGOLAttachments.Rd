@@ -40,6 +40,8 @@ DownloadAGOLAttachments(
 
 \item{after_date_filter}{POSIXct date object. Only records after date will be returned.}
 
+\item{only_staff}{if true, downloads just the staff photos.}
+
 \item{test_run}{If \code{TRUE}, returns attachment data and proposed file locations without actually downloading and saving attachments.}
 }
 \value{

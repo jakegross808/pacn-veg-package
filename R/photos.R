@@ -33,6 +33,14 @@ process_photos <- function(AGOL_Layer, gdb_name, gdb_location, gdb_layer,
 
   } else {
 
+    # Function to get Date and Time from exif within photo
+    exif_datetime <- function(x){
+      x_magick <- magick::image_read(x)
+      x_att <- magick::image_attributes(x_magick)
+      x_date <- x_att$value[x_att$property == "exif:DateTime"]
+      return(x_date)
+    }
+
     # Get joined GIS table + attachment table:
     gdb <- paste0(gdb_location, "/", gdb_name)
     # Layer File with attributes
@@ -51,8 +59,14 @@ process_photos <- function(AGOL_Layer, gdb_name, gdb_location, gdb_layer,
     # so make sure to change column back to a list before feeding into apply()
     # attachments$DATA <- as.list(attachments$DATA)
 
+    # Add date time column to attachments table
+    attachments <- attachments |>
+      mutate(exif_date_time = purrr::map(DATA, ~exif_datetime(.)))
+
     GIS_Table <- attachments %>%
       dplyr::left_join(attributes, by = c("REL_GLOBALID" = "GlobalID"))
+    pts_with_no_photo <- nrow(dplyr::anti_join(x = attributes, y = attachments, by = c("GlobalID" = "REL_GLOBALID")))
+    message(paste(pts_with_no_photo, "points dropped because no photo associated with point"))
   }
 
 
@@ -86,22 +100,50 @@ process_photos <- function(AGOL_Layer, gdb_name, gdb_location, gdb_layer,
 
   GIS_Table1 <- GIS_Table %>%
     dplyr::mutate(Protocol = AGOL_Layer) %>%
+    # For some reason 2021 Field maps spells out Hawaii Volcanoes instead
+    # of using correct Unit_Code
+    dplyr::mutate(Unit_Code = dplyr::case_when(
+      Unit_Code == "Hawaii Volcanoes National Park" ~ paste0("HAVO"))) %>%
     dplyr::mutate(Unit_Name = dplyr::case_when(
-      Unit_Code == "Hawaii Volcanoes National Park" | Unit_Code == "HAVO"
-      ~ paste0("Hawai", okina, "i Volcanoes National Park"),
-      Unit_Code  == "KAHO"
-      ~ paste0(Kaloko., " National Historical Park"),
+      Unit_Code == "HAVO" ~ paste0("Hawai", okina, "i Volcanoes National Park"),
+      Unit_Code == "KAHO" ~ paste0(Kaloko., " National Historical Park"),
+      Unit_Code == "HALE" ~ paste0(Haleakala., " National Historical Park"),
       #Samp_Frame == "KH" ~ paste0(Kaloko., " National Historical Park"),
       #Samp_Frame == "ML" ~ paste0("Hawai", okina, "i Volcanoes National Park"),
       #Samp_Frame == "KU" ~ paste0("Hawai", okina, "i Volcanoes National Park")
       )) %>%
-    dplyr::mutate(Sampling_Frame = dplyr::case_when(is.na(Samp_Frame) ~ "NA",
-                                                    Samp_Frame == "ER" ~ Nahuku.,
-                                                    Samp_Frame == "KH" ~ Kaloko.,
-                                                    Samp_Frame == "SA" ~ "Subalpine Shrubland",
+    dplyr::mutate(Sampling_Frame_DB = dplyr::case_when(is.na(Samp_Frame) ~ "NA",
+                                                    Samp_Frame == "OL" ~ "Olaa",
+                                                    Samp_Frame == "ER" ~ "Nahuku/East Rift",
                                                     Samp_Frame == "KU" ~ "Kahuku",
                                                     Samp_Frame == "ML" ~ "Mauna Loa",
-                                                    Samp_Frame == "OL" ~ Olaa.,
+                                                    Samp_Frame == "KH" ~ "Kaloko-Honokohau",
+                                                    Samp_Frame == "KD" ~ "Kipahulu District",
+                                                    Samp_Frame == "HA" ~ "Haleakala",
+                                                    Samp_Frame == "PA" ~ "Puu Alii",
+                                                    Samp_Frame == "HO" ~ "Hoolehua",
+                                                    Samp_Frame == "KW" ~ "Kalawao",
+                                                    Samp_Frame == "TT" ~ "Tutuila",
+                                                    Samp_Frame == "TA" ~ "Tau",
+                                                    Samp_Frame == "GU" ~ "Guam",
+                                                    Samp_Frame == "MU" ~ "Muchot",
+
+    )) %>%
+    dplyr::mutate(Sampling_Frame = dplyr::case_when(is.na(Samp_Frame) ~ "NA",
+                                                       Samp_Frame == "OL" ~ Olaa.,
+                                                       Samp_Frame == "ER" ~ Nahuku.,
+                                                       Samp_Frame == "KU" ~ "Kahuku",
+                                                       Samp_Frame == "ML" ~ "Mauna Loa",
+                                                       Samp_Frame == "KH" ~ Kaloko.,
+                                                       Samp_Frame == "KD" ~ Kipahulu.,
+                                                       Samp_Frame == "HA" ~ Haleakala.,
+                                                       Samp_Frame == "PA" ~ Puu_Alii.,
+                                                       Samp_Frame == "HO" ~ Hoolehua.,
+                                                       Samp_Frame == "KW" ~ "Kalawao",
+                                                       Samp_Frame == "TT" ~ "Tutuila",
+                                                       Samp_Frame == "TA" ~ Tau.,
+                                                       Samp_Frame == "GU" ~ "Guam",
+                                                       Samp_Frame == "MU" ~ "Muchot",
     )) %>%
     dplyr::mutate(Community = dplyr::case_when(is.na(Community) ~ "NA",
                                                Community == "WF" | Community == "W" ~ "Wet Forest",
@@ -160,19 +202,32 @@ process_photos <- function(AGOL_Layer, gdb_name, gdb_location, gdb_layer,
 
   # Date/Time-----------------------------------------------------
 
-  # Make new date and time columns that can be used in file names
-
-  GIS_Table2 <- GIS_Table1 %>%
-    # Parse first "word" (ie date) from created_date
-    dplyr::mutate(File_Date = stringr::word(created_date, 1)) %>%
-    # Remove dashes "-" between YYYY-MM-DD
-    dplyr::mutate(File_Date = stringr::str_replace_all(File_Date, "-", "")) %>%
-    # Parse second "word" (ie time) from created_date
-    dplyr::mutate(File_Time = stringr::word(created_date, 2)) %>%
-    # Remove dashes "-" between YYYY-MM-DD
-    dplyr::mutate(File_Time = stringr::str_replace_all(File_Time, ":", "")) %>%
+  # New system uses the photo's exif date/time (instead of field maps point)
+  GIS_Table2 <- GIS_Table1 |>
+    # replace colons with dashes between year-month and month-date
+    mutate(exif_formatted = stringr::str_replace(exif_date_time,":", "-")) |>
+    mutate(exif_formatted = stringr::str_replace(exif_formatted,":", "-")) |>
+    # remove colons completely for file naming
+    mutate(exif_date_time2 = stringr::str_remove_all(exif_date_time, ":")) |>
+    separate(exif_date_time2, into = c("File_Date", "File_Time"), sep = " (?=[^ ]+$)") |>
     # create column File_DT for file date+time -> YYYYMMDD_HHMMSS
-    dplyr::mutate(File_DT = paste(File_Date, File_Time, sep = "_"))
+    dplyr::mutate(File_DT = paste(File_Date, File_Time, sep = "_")) |>
+    dplyr::rename(field_maps_created_date = created_date)
+
+  # Old system (below) used 'created_date' from Field Maps, but this caused problems,
+  # because whenever GIS Specialist saved new copy of AGOL layer, this date would change.
+
+  # GIS_Table2 <- GIS_Table1 %>%
+  #   # Parse first "word" (ie date) from created_date
+  #   dplyr::mutate(File_Date = stringr::word(created_date, 1)) %>%
+  #   # Remove dashes "-" between YYYY-MM-DD
+  #   dplyr::mutate(File_Date = stringr::str_replace_all(File_Date, "-", "")) %>%
+  #   # Parse second "word" (ie time) from created_date
+  #   dplyr::mutate(File_Time = stringr::word(created_date, 2)) %>%
+  #   # Remove dashes "-" between YYYY-MM-DD
+  #   dplyr::mutate(File_Time = stringr::str_replace_all(File_Time, ":", "")) %>%
+  #   # create column File_DT for file date+time -> YYYYMMDD_HHMMSS
+  #   dplyr::mutate(File_DT = paste(File_Date, File_Time, sep = "_"))
 
   # Naming Abbreviations------------------------------------
   # Used in folder and file names (ex. FT_L_LF_F01_20190614)
@@ -213,16 +268,20 @@ process_photos <- function(AGOL_Layer, gdb_name, gdb_location, gdb_layer,
   }
 
   if(AGOL_Layer == "Plants"){
+    # If ID_final contains NA this will be TRUE
+    final_sp_id_missing <- sum(is.na(GIS_Table3$ID_final)) > 0
+
+
     GIS_Table4 <- GIS_Table3 %>%
       dplyr::left_join(first_date, by = "Site_Name") %>%
       # Out_Name for processed photos
       dplyr::mutate(Out_Name = stringr::str_remove(Subject2, "\\.")) %>%
       dplyr::mutate(Out_Name = ifelse(is.na(Out_Name), REL_GLOBALID,
                                       ifelse(Out_Name >= 0, Out_Name, "error"))) %>%
-      #dplyr::mutate(Out_Name = paste(File_Time, Out_Name, sep = "_")) %>%
-      #Changed here so that file name uses species from Final ID instead of species from Field ID
-      dplyr::mutate(Out_Name = paste(File_Time, ID_final, sep = "_")) %>%
-      dplyr::arrange(created_date, ATT_NAME) %>%
+      # If ID_final contains NA use field ID (i.e. "species") (from Subject2) instead
+      dplyr::mutate(Out_Name = if(final_sp_id_missing) {paste(File_Time, Out_Name, sep = "_")}
+                    else {paste(File_Time, ID_final, sep = "_")}) %>%
+      dplyr::arrange(exif_formatted, ATT_NAME) %>%
       dplyr::group_by(Out_Name) %>%
       dplyr::mutate(Out_Name = if(dplyr::n() > 1) {paste(Out_Name, str_pad(row_number(), 2, pad = "0"), sep = "_")}
                     else {paste0(Out_Name)}) %>%
@@ -232,7 +291,7 @@ process_photos <- function(AGOL_Layer, gdb_name, gdb_location, gdb_layer,
 
   }
 
-  GIS_Table4$created_date <- as.character(GIS_Table4$created_date)
+  GIS_Table4$exif_formatted <- as.character(GIS_Table4$exif_formatted)
 
   if(return_last_table == TRUE){
     return(GIS_Table4)
@@ -283,7 +342,7 @@ process_photos <- function(AGOL_Layer, gdb_name, gdb_location, gdb_layer,
 watermark <- function(x, new_folder) {
   # Function to apply to each row (i.e. photo) in the GIS_Table:
   # Get data from GIS table (x)
-  p.date <- x["created_date"]
+  p.date <- x["exif_formatted"]
   p.unit <- x["Unit_Name"]
   p.protocol <- x["Protocol"]
   p.community <- x["Community"]
@@ -368,7 +427,7 @@ watermark_no <- function(x, new_folder) {
   # Function to apply to each row (i.e. photo) in the GIS_Table:
   # Get data from GIS table (x)
 
-  p.date <- x["created_date"]
+  p.date <- x["exif_formatted"]
   #p.unit <- x["Unit_Name"]
   #p.protocol <- x["Protocol"]
   #p.community <- x["Community"]

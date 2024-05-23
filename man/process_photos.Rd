@@ -9,7 +9,11 @@ process_photos(
   gdb_name,
   gdb_location,
   gdb_layer,
-  return_table = FALSE
+  return_first_table = FALSE,
+  insert_first_table = NULL,
+  add_watermark = FALSE,
+  return_last_table = FALSE,
+  insert_last_table = NULL
 )
 }
 \arguments{
@@ -21,7 +25,15 @@ process_photos(
 
 \item{gdb_layer}{The layer file inside the geodatabase (Example: "EIPS_Olaa_Nahuku_20220323")}
 
-\item{return_table}{FALSE = process photos; TRUE = do not process photos, and return table instead}
+\item{return_first_table}{\code{default = FALSE} do not return table, process photos as normal; \code{return_table = TRUE} do not process photos, and return table instead.}
+
+\item{insert_first_table}{\code{default = NULL} insert first table created in function. If R object supplied to \verb{insert_first_table = }, then user supplied table will be utilized in function instead of initial geodatabase.}
+
+\item{add_watermark}{\code{default = FALSE} no watermark added}
+
+\item{return_last_table}{\code{default = FALSE} do not return table, process photos as normal; \code{return_table = TRUE} do not process photos, and return table instead.}
+
+\item{insert_last_table}{\code{default = NULL} insert final table created in function. If R object supplied to \verb{insert_last_table = }, then user supplied table will be used utilized in function instead of geodatabase.}
 }
 \value{
 watermarked photos are saved to a folder "watermarked" inside the working directory. Use here() to determine current working directory.

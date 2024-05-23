@@ -63,6 +63,8 @@ read_vegmap_db <- function(db_paths) {
       crs_var <- terra::crs("+init=epsg:26905")
     } else if (unique(spp_sites$UTM_Zone) == "4N") {
       crs_var <- terra::crs("+init=epsg:26904")
+    } else if (unique(spp_sites$UTM_Zone) == "55N") {
+      crs_var <- terra::crs("+init=epsg:8693")
     } else {stop("UTM to latlong transformation not defined in function")}
 
     x <- spp_sites$Field_X
