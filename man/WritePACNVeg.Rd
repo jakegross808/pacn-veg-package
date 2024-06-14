@@ -12,8 +12,7 @@ WritePACNVeg(
   sample_frame,
   community,
   certified,
-  verified,
-  is_qa_plot = FALSE
+  verified
 )
 }
 \arguments{
@@ -32,8 +31,6 @@ WritePACNVeg(
 \item{certified}{Whether data are certified (TRUE/FALSE)}
 
 \item{verified}{Whether data are verified (TRUE/FALSE)}
-
-\item{is_qa_plot}{Whether the plots are QA plots or not (TRUE/FALSE)}
 }
 \value{
 None.

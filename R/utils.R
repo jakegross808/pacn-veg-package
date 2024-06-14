@@ -967,9 +967,9 @@ FilterOne <- function(data, data_name, filter_cols, case_sensitive, silent) {
       } else {
         data <- dplyr::filter(data, !!as.symbol(col) %in% filter_value)  # Case-sensitive and non-character filtering
       }
-      if (nrow(data) == 0) {  # Stop filtering if we end up with an empty dataframe
+      if (nrow(data) == 0) {  #warning if empty dataframe
         warning(paste("There are no data in", data_name, "that match all of the filters provided."))
-        break
+        #break - Jake removed break here so I can compile multiple filters even those without records.
       }
     }
   }
