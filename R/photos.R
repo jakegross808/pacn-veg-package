@@ -241,11 +241,27 @@ process_photos <- function(AGOL_Layer, gdb_name, gdb_location, gdb_layer,
     dplyr::mutate(Site_Name = paste(Prot_2, Comm_1,
                                     Samp_2, TNum_3, sep = "_"))
 
+  # handle QAQC plots
+  GIS_Table3 <- GIS_Table3 |>
+    mutate(as_date = lubridate::as_datetime(exif_formatted)) |>
+    group_by(Site_Name) |>
+    mutate(first_photo = min(as_date)) |>
+    mutate(time_span = lubridate::seconds_to_period(as_date-first_photo)) |>
+    mutate(more_than_14_day_span = case_when(time_span > days(14) ~ TRUE,
+                                             .default = FALSE)) |>
+    mutate(likely_QA_Plot = more_than_14_day_span) |>
+    ungroup()
+
+  if (any(GIS_Table3$likely_QA_Plot == TRUE)) {
+    message(paste("dataset contains photos located in same plot spanning more than 14 days.
+                These photos were marked as likely QA plots"))
+  }
+
   # If plot/transect takes more than 1 day to complete, use first date
   # Create table that shows one date per plot/transect:
   first_date <- GIS_Table3 %>%
-    dplyr::select(Site_Name, File_Date) %>%
-    dplyr::group_by(Site_Name) %>%
+    dplyr::select(Site_Name, likely_QA_Plot, File_Date) %>%
+    dplyr::group_by(Site_Name, likely_QA_Plot) %>%
     dplyr::arrange(File_Date) %>%
     dplyr::slice(1) %>%
     dplyr::mutate(Folder_Name = paste(Site_Name, File_Date, sep = "_")) %>%
@@ -256,7 +272,7 @@ process_photos <- function(AGOL_Layer, gdb_name, gdb_location, gdb_layer,
   # Create Input and Output File Names
   if(AGOL_Layer == "FTPC" | AGOL_Layer == "EIPS"){
     GIS_Table4 <- GIS_Table3 %>%
-      dplyr::left_join(first_date, by = "Site_Name") %>%
+      dplyr::left_join(first_date, by = join_by(Site_Name, likely_QA_Plot)) %>%
       # Out_Name
       dplyr::mutate(Out_Name = paste(File_Date, TNum_3, Subject2, sep = "_")) %>%
       dplyr::group_by(Out_Name) %>%
