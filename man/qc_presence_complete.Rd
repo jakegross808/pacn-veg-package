@@ -12,28 +12,16 @@ qc_presence_complete(
   year,
   cycle,
   plot_type,
+  plot_number,
+  species_code,
+  sci_name,
+  nativity,
   is_qa_plot = FALSE,
   silent = TRUE
 )
 }
 \arguments{
 \item{all_records}{TRUE = Return all records (e.g. every cover hit), FALSE = Return 1st record of species per plot}
-
-\item{park}{Four letter unit code of park(s)}
-
-\item{sample_frame}{Name of sample frame}
-
-\item{community}{Name of plant community}
-
-\item{year}{Monitoring year}
-
-\item{cycle}{Monitoring cycle}
-
-\item{plot_type}{Type of plot (fixed vs. rotational)}
-
-\item{is_qa_plot}{Whether the plots are QA plots or not (TRUE/FALSE)}
-
-\item{silent}{Suppress informational messages?}
 }
 \value{
 A tibble

@@ -5,9 +5,9 @@ library(tidyverse)
 # FTPC user inputs -------------------------------------------------------------
 
 # AGOL downloaded geodatabase info:
-gdb_name_var <- "FTPC_Olaa_Nahuku_20240521_B.gdb"
+gdb_name_var <- "FTPC_Olaa_Nahuku_20240521.gdb"
 gdb_location_var <- "C:/Users/JJGross/Downloads/Temp_Geodatabase"
-gdb_layer_var <- "FTPC_Olaa_Nahuku_20240521_B"
+gdb_layer_var <- "FTPC_Olaa_Nahuku_20240521"
 
 # temp save location locally
 temp_root <- "C:/Users/JJGross/Downloads/Images"
@@ -36,12 +36,12 @@ length(unique(photos_table$REL_GLOBALID))+ 17 #add number dropped here to check
 
 # Process Photos ---------------------------------------------------------------
 
-#process_photos(AGOL_Layer = "FTPC",
-#               gdb_name = gdb_name_var,
-#               gdb_location = gdb_location_var,
-#               gdb_layer = gdb_layer_var,
-#               add_watermark = TRUE,
-#               return_last_table = FALSE)
+# process_photos(AGOL_Layer = "FTPC",
+#                gdb_name = gdb_name_var,
+#                gdb_location = gdb_location_var,
+#                gdb_layer = gdb_layer_var,
+#                add_watermark = TRUE,
+#                return_last_table = FALSE)
 
 # Spreadsheet ------------------------------------------------------------------
 photos_table_final <- process_photos(
@@ -66,12 +66,16 @@ LoadPACNVeg(data_path = latest_folder,
             data_source = "file")
 
 # get events lookup from Events_extra_other table
-Events_extra_other <- FilterPACNVeg(data_name = "Events_extra_other")
+Events_extra_other_noQA <- FilterPACNVeg(data_name = "Events_extra_other", is_qa_plot = FALSE)
+Events_extra_other_QA <- FilterPACNVeg(data_name = "Events_extra_other", is_qa_plot = TRUE)
+Events_extra_other <- bind_rows(Events_extra_other_noQA, Events_extra_other_QA)
+
 event_ID_lookup <- Events_extra_other |>
-  select(Event_ID, Unit_Code, Community, Sampling_Frame, Cycle, Year, Plot_Number) |>
-  group_by(Event_ID, Unit_Code, Community, Sampling_Frame, Cycle, Year, Plot_Number) |>
+  select(Event_ID, Unit_Code, Community, Sampling_Frame, Cycle, Year, Plot_Number, QA_Plot) |>
+  #group_by(Event_ID, Unit_Code, Community, Sampling_Frame, Cycle, Year, Plot_Number, QA_Plot) |>
   group_by(Sampling_Frame, Cycle) |>
-  mutate(Year = min(Year)) |>
+  mutate(Year_Cycle = min(Year)) |>
+  mutate(QA_Plot = as.logical(QA_Plot)) |>
   ungroup()
 
 # Select column names to be in final table
@@ -81,15 +85,18 @@ table_out <- photos_table_final |>
   mutate(Comments = "") |>
   mutate(Community_underscore = str_replace(Community, " ", "_")) |>
   left_join(y = event_ID_lookup, by = join_by(Unit_Code, Num_2 == Plot_Number,
-                                              Samp_Year == Year,
+                                              Samp_Year == Year_Cycle,
                                               Sampling_Frame_DB == Sampling_Frame,
-                                              Community)) |>
+                                              Community, likely_QA_Plot == QA_Plot)) |>
   mutate(reston_link = paste(
     reston_root, Samp_Year, Unit_Code, Community_underscore,
     Folder_Name, Out_Name,  sep = "/"))
 
 table_out_final <- table_out |>
-  select(Sampling_Frame_DB, Samp_Year, File_Name = Out_Name, Subject = Subject2, Time = File_Time,
+  mutate(lub = lubridate::as_datetime(table_out$exif_formatted)) |>
+  mutate(Date = format(as.POSIXct(lub), format = "%Y-%m-%d")) |>
+  mutate(Time = format(as.POSIXct(lub), format = "%H:%M")) |>
+  select(Sampling_Frame_DB, Samp_Year, File_Name = Out_Name, Subject = Subject2, Date , Time,
          Camera_Type, Comments, Image_Project_Path = reston_link, Event_ID)
 
 # get date and other info for spreadsheet name
@@ -97,8 +104,9 @@ today <- lubridate::ymd(today())
 today_no_dash <- gsub("-", "", as.character(today))
 table_park <- table_out$Unit_Code[1]
 table_year <- table_out$Samp_Year[1]
-table_out_name <- paste0(temp_root, "/FTPC_", table_park, "_",
-                         table_year, "_photo_list_", today_no_dash, ".csv")
+comm_underscore <- table_out$Community_underscore[1]
+table_out_name <- paste0(temp_root, "/FTPC_", table_year, "_",
+                         table_park, "_", comm_underscore , "_photo_list_", today_no_dash, ".csv")
 table_out_name
 
 # create temp local folder and save spreadsheet there
