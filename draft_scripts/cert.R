@@ -21,7 +21,7 @@ names(FilterPACNVeg())
 
 #--- 2. variable specification -------------------------------------------------
 
-sframe <- "Nahuku/East Rift"
+sframe <- "Olaa"
 
 #nahuku_plots <- c(1, 4, 10, 12, 13, 14, 15, #fixed
 #                  46, 49, 51, 52, 54, 55, 56, 58, #2021 rotational
@@ -31,7 +31,7 @@ sframe <- "Nahuku/East Rift"
 
 #--- 3. status check -----------------------------------------------------------
 
-# certification status
+# FTPC certification status
 
 qaqc_status <- pacnvegetation::FilterPACNVeg(
   data_name = "Events_extra_QAQC",
@@ -45,6 +45,9 @@ needs_certified <- qaqc_status |>
   filter(Certified == FALSE)
 needs_certified
 nrow(needs_certified)
+
+
+
 
 # have photos been exported?----------------------------------------------------
 
@@ -81,7 +84,7 @@ all_pres_count <- all_pres |>
   summarise(count = n())
 
 # Presence -- spp consistency chk --------------------------------------
-# TURN THIS INTO pacnvegetation FUNCTION
+# TURN THIS INTO pacnvegetation qc_ FUNCTION
 
 plot_number_variable <- 58
 
@@ -219,3 +222,255 @@ lg_trees2_quad <- lg_trees2 |>
 
 
 
+# EIPS ---------
+
+# EIPS certification status
+
+EIPS_events_other <- FilterPACNVeg(data_name = "Events_extra_other_EIPS",
+                                   sample_frame = sframe)
+
+EIPS_needs_verified_eips <- EIPS_events_other |>
+  filter(Verified == FALSE)
+EIPS_needs_verified_eips
+
+EIPS_needs_certified <- EIPS_events_other |>
+  filter(Certified == FALSE)
+EIPS_needs_certified
+nrow(EIPS_needs_certified)
+
+# EIPS Presence -- spp consistency chk --------------------------------------
+# TURN THIS INTO pacnvegetation qc_ FUNCTION
+
+var_trans_num <- 1
+
+eips_data <- pacnvegetation::FilterPACNVeg(data_name = "EIPS_data") |>
+  mutate(Sampling_Frame = case_when(Sampling_Frame == "Ê»ÅŒlaÊ»a" ~ "Olaa",
+                                    .default = as.character(Sampling_Frame))) |>
+  filter(Sampling_Frame == sframe)
+
+eips_presence <- eips_data |>
+  select(Sampling_Frame, Cycle, Transect_Number, Nativity, Scientific_Name, Code) |>
+  distinct()
+
+eips_pres_trans_num <- eips_presence |>
+  filter(Transect_Number == var_trans_num)
+
+eips_rare <- eips_presence |>
+  group_by(Sampling_Frame, Nativity, Scientific_Name, Code, Transect_Number) %>%
+  summarize(observed = n(), .groups = "drop") %>%
+  # only count one time if found more than once in a fixed
+  mutate(observed = 1) %>%
+  group_by(Sampling_Frame, Code, Scientific_Name) %>%
+  summarize(transects_observed = n()) %>%
+  # "rare" will be 4 plots_observed or less
+  filter(transects_observed < 5) %>%
+  mutate(less_than_5_transects = TRUE) %>%
+  right_join(eips_pres_trans_num) %>%
+  filter(less_than_5_transects == TRUE)
+
+# Join rare species flags to Presence
+eips_pres_trans_num1 <- eips_pres_trans_num %>%
+  left_join(eips_rare)
+
+eips_pres_trans_num2 <- eips_pres_trans_num1 %>%
+  mutate(Cycle = as.integer(Cycle)) %>%
+  arrange(Scientific_Name)
+
+# Code below was to split graph in half but doesn't work with geom_point filtering
+# find the middle of the data set
+#df_length <- length(chk_pres2$Scientific_Name)
+#df_middle <- df_length/2
+
+# Which species is in the middle of the dataset
+#split_at_sp <- chk_pres2$Code[df_middle]
+
+# select the row after the last record for that species to split evenly accross species
+#split_at <- max(which(chk_pres2$Code == split_at_sp)) + 1
+#split_at
+
+# Splits dataset equally in half:
+#chk_pres2$split <- "first"
+#chk_pres2$split[split_at:df_length] <- "second"
+
+
+# Nativity discrete scale Colors:
+nativity_colors <- c("Native" = "#1b9e77",
+                     "No_Veg" = "grey",
+                     "Non-Native" = "#d95f02",
+                     "Unknown" = "#7570b3")
+
+select_rare <- function(condition){
+  function(d) d %>% filter_(condition)
+}
+
+select_out <- function(condition){
+  function(d) d %>% filter_(condition)
+}
+
+graph_out <- eips_pres_trans_num2 %>%
+  ggplot(aes(x= Scientific_Name, y=Cycle)) +
+  geom_segment(aes(x=Scientific_Name,
+                   xend=Scientific_Name,
+                   y=min(Cycle),
+                   yend=max(Cycle),
+                   color = Nativity),
+               linetype="dashed",
+               linewidth=0.5) +
+  # Draw points
+  geom_point(size = 8, data = ~filter(.x, less_than_5_transects == TRUE), color = "yellow") +
+  geom_point(size = 5, aes(color = Nativity)) +
+  #geom_point(size = 2, data = ~filter(.x, Outside_Plot == TRUE), color = "black") +
+  labs(title="Check Presence",
+       subtitle= (paste0(eips_pres_trans_num2$Sampling_Frame[1], " Transect ", eips_pres_trans_num2$Transect_Number[1])),
+       caption= (paste0("QA/QC"))) +
+  scale_color_manual(values = nativity_colors) +
+  scale_x_discrete(limits = rev) +
+  scale_y_continuous(limits = c(0, max(eips_pres_trans_num2$Cycle)+1)) + #breaks = integer_breaks(),
+  coord_flip() +
+  #facet_wrap(scales = "free", vars(eips_pres_trans_num2$split)) +
+  theme(strip.background = element_blank(),
+        strip.text.x = element_blank()) +
+  theme(aspect.ratio=6) #9
+graph_out
+
+path_var <- "C:/Users/JJGross/OneDrive - DOI/Documents/Certification_Local/2021-2022 Certification/R_output/Nahuku/"
+filename_var <- paste0("spp_pres_trans-dot_", plot_number_variable, ".png")
+filename_var
+ggsave(filename = filename_var, path = path_var, height = 10, width = 5)
+
+# ---- EIPS Cover Class frequency ------------------------------------------
+
+eips_data <- pacnvegetation::FilterPACNVeg(data_name = "EIPS_data") |>
+  mutate(Sampling_Frame = case_when(Sampling_Frame == "Ê»ÅŒlaÊ»a" ~ "Olaa",
+                                    .default = as.character(Sampling_Frame))) |>
+  filter(Sampling_Frame == sframe)
+
+# Will need to make segs_per_tran calculation more robust
+eips_cover_freq <- eips_data |>
+  filter(Transect_Number == 1) |>
+  select(Sampling_Frame, Cycle, Transect_Number, Nativity, Scientific_Name, Code, Segment, Cover_Class) |>
+  distinct() |>
+  mutate(segs_pres = 1) |>
+  group_by(Sampling_Frame, Cycle, Transect_Number, Nativity, Scientific_Name, Code, Cover_Class) |>
+  summarize(segs_per_tran = sum(segs_pres)) |>
+  mutate(Cover_Class = case_when(Cover_Class == "OUT" ~ "0",
+                                 .default = as.character(Cover_Class)))
+
+OUT <- eips_cover_freq |>
+  filter(Cover_Class >= 0) |>
+  mutate(OUT = sum(segs_per_tran))|>
+  select(-Cover_Class, -segs_per_tran) |>
+  distinct()
+g0p <- eips_cover_freq |>
+  filter(Cover_Class >= 1) |>
+  mutate(`0` = sum(segs_per_tran))|>
+  select(-Cover_Class, -segs_per_tran) |>
+  distinct()
+g1p <- eips_cover_freq |>
+  filter(Cover_Class >= 2) |>
+  mutate(`1` = sum(segs_per_tran))|>
+  select(-Cover_Class, -segs_per_tran)|>
+  distinct()
+g5p <- eips_cover_freq |>
+  filter(Cover_Class >= 3) |>
+  mutate(`5` = sum(segs_per_tran))|>
+  select(-Cover_Class, -segs_per_tran)|>
+  distinct()
+g10p <- eips_cover_freq |>
+  filter(Cover_Class >= 4) |>
+  mutate(`10` = sum(segs_per_tran))|>
+  select(-Cover_Class, -segs_per_tran)|>
+  distinct()
+g25p <- eips_cover_freq |>
+  filter(Cover_Class >= 5) |>
+  mutate(`25` = sum(segs_per_tran))|>
+  select(-Cover_Class, -segs_per_tran)|>
+  distinct()
+g50p <- eips_cover_freq |>
+  filter(Cover_Class >= 6) |>
+  mutate(`50` = sum(segs_per_tran))|>
+  select(-Cover_Class, -segs_per_tran)|>
+  distinct()
+g75p <- eips_cover_freq |>
+  filter(Cover_Class >= 7) |>
+  mutate(`75` = sum(segs_per_tran))|>
+  select(-Cover_Class, -segs_per_tran)|>
+  distinct()
+
+eips_add_cover <- eips_cover_freq %>%
+  select(Sampling_Frame, Cycle, Transect_Number, Nativity, Scientific_Name, Code) |>
+  distinct() |>
+  #left_join(OUT) |>
+  left_join(g0p) |>
+  left_join(g1p) |>
+  left_join(g5p) |>
+  left_join(g10p) |>
+  left_join(g25p) |>
+  left_join(g50p) |>
+  left_join(g75p)
+
+eips_add_cover1 <- eips_add_cover |>
+  pivot_longer(cols = `0`:`75`, names_to = "cover_greater_than", values_to = "segs") |>
+  mutate(freq = segs/50) #|>
+  #dplyr::mutate(freq = replace_na(freq, 0))
+
+
+
+acc <- eips_add_cover1 |>
+  mutate(Cycle = as.factor(Cycle)) |>
+  mutate(cover_greater_than = as.numeric(cover_greater_than)) |>
+  ggplot(aes(x=cover_greater_than,
+             y= freq,
+             group = Cycle,
+             colour=Cycle))+
+  #geom_ribbon(aes(ymin=L95CI/100, ymax=U95CI/100, fill=Life_form), alpha=0.4,colour=NA)+
+  geom_line(linewidth = 1)+
+  geom_point(size = 2) +
+  #scale_y_continuous(breaks = seq(0, 1, .1)) + #, limits = c(0, 1) +
+  labs(x="Cover Class", y=expression(paste("Frequency")))+
+  ggtitle(paste(eips_add_cover1$Sampling_Frame, "Transect", eips_add_cover1$Transect_Number))+
+  theme(plot.title = element_text(size=14, face="bold", vjust=1, lineheight=0.8))+
+  theme(axis.title.x=element_text(size=12, vjust=-0.2))+
+  theme(axis.text.x=element_text(angle=0, size=11, vjust=0.5))+
+  theme(axis.text.y=element_text(angle=0, size=12, vjust=0.5))+
+  scale_x_continuous(labels = function(x) paste0(">", x, "%"), limits = c(0, 75)) +
+  scale_y_continuous(labels = function(x) paste0(x*100, "%"), limits = c(0, 1)) +
+  facet_wrap(~Scientific_Name)
+
+  #scale_x_discrete(expand = c(0.02, 0.02),drop=FALSE)
+acc
+
+
+# ---- EIPS Cover Class count ------------------------------------------
+
+eips_data <- pacnvegetation::FilterPACNVeg(data_name = "EIPS_data") |>
+  mutate(Sampling_Frame = case_when(Sampling_Frame == "Ê»ÅŒlaÊ»a" ~ "Olaa",
+                                    .default = as.character(Sampling_Frame))) |>
+  filter(Sampling_Frame == sframe)
+
+eips_cover_count <- eips_data |>
+  select(Sampling_Frame, Cycle, Transect_Number, Nativity, Scientific_Name, Code, Segment, Cover_Class) |>
+  distinct() |>
+  mutate(segs_pres = 1) |>
+  group_by(Sampling_Frame, Cycle, Transect_Number, Nativity, Scientific_Name, Code, Cover_Class) |>
+  summarize(segs_per_tran = sum(segs_pres))
+
+eips_cover_count |>
+  drop_na() |>
+  filter(Transect_Number == var_trans_num) |>
+  mutate(Cover_Class = case_when(Cover_Class == "OUT" ~ as.numeric(0),
+                                 .default = as.numeric(Cover_Class))) |>
+
+  #dplyr::mutate(Sampling_Frame = dplyr::case_when(Sampling_Frame == "Nahuku/East Rift" ~ "Nahuku",
+  #                                                TRUE ~ Sampling_Frame)) |>
+  mutate(Cycle = as.factor(Cycle)) |>
+  mutate(Cover_Class = as.numeric(Cover_Class)) |>
+  ggplot(aes(x=Cover_Class, y=segs_per_tran, fill = Cycle)) +
+  geom_bar(position = "dodge", stat = "identity") +
+  facet_wrap(~Scientific_Name) +
+  ylab("segments present")
+  #ggplot2::labs(caption = sample_size) +
+  #ggplot2::scale_fill_manual(values = nativity_colors) +
+  #scale_alpha_manual(name = "",
+  #                   values = c(0.6),
+  #                   labels = c("outside plot", "inside plot"))
