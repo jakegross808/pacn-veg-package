@@ -601,13 +601,13 @@ ReadEIPS <- function(db_paths) {
 
     # Events_extra_QAQC
     Events_extra_QAQC_new <- Events_extra %>%
-      dplyr::select(Unit_Code, Entered_Date, Updated_Date, Verified, Verified_By, Verified_Date,
+      dplyr::select(Event_ID, Unit_Code, Entered_Date, Updated_Date, Verified, Verified_By, Verified_Date,
                     Certified, Certified_By, Certified_Date, Transect_Notes, Event_Notes) %>% # -Start_date
       dplyr::collect()
 
     # Events_extra_xy
     Events_extra_xy_new <- Events_extra %>%
-      dplyr::select(Unit_Code, Sampling_Frame, Year, Cycle, Transect_Type, Transect_Number, Azimuth_Transect, Lat, Long, GCS, Lat_Dir, Long_Dir, Certified, Verified) %>%
+      dplyr::select(Event_ID, Unit_Code, Sampling_Frame, Year, Cycle, Transect_Type, Transect_Number, Azimuth_Transect, Lat, Long, GCS, Lat_Dir, Long_Dir, Certified, Verified) %>%
       dplyr::collect()
 
 
@@ -703,9 +703,9 @@ ReadEIPS <- function(db_paths) {
                Species_extra_EIPS = Species_extra_EIPS,
                EIPS_data = EIPS_data)
 
-  data <- lapply(data, function(df) {
-    dplyr::mutate_if(df, is.character, iconv, "CP1252", "UTF-8")  # Convert to UTF-8 encoding
-  })
+  #data <- lapply(data, function(df) {
+  #  dplyr::mutate_if(df, is.character, iconv, "CP1252", "UTF-8")  # Convert to UTF-8 encoding
+  #})
 
   return(data)
 }

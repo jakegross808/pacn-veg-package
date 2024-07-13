@@ -25,10 +25,13 @@ names(FilterPACNVeg())
 #var_sframe <- "Nahuku/East Rift"
 #var_sframe <- "Olaa"
 var_sframe <- NA
+var_plots <- NA
 
 var_park <- "HAVO"
 target_spp_list <- c("Clidemia hirta")
-target_spp_list <- c("Clidemia hirta","Sphaeropteris cooperi", "Psidium cattleianum", "Hypolepis dicksonioides")
+target_spp_list <- c("Sphaeropteris cooperi")
+target_spp_list <- c("Psidium cattleianum")
+target_spp_list <- c("Hypolepis dicksonioides")
 target_spp_list <- c("Asparagus spp.")
 target_spp_list <- c("Juncus effusus")
 

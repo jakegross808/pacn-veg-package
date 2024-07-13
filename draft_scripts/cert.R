@@ -21,7 +21,7 @@ names(FilterPACNVeg())
 
 #--- 2. variable specification -------------------------------------------------
 
-sframe <- "Olaa"
+var_sframe <- "Nahuku/East Rift"
 
 #nahuku_plots <- c(1, 4, 10, 12, 13, 14, 15, #fixed
 #                  46, 49, 51, 52, 54, 55, 56, 58, #2021 rotational
@@ -29,13 +29,14 @@ sframe <- "Olaa"
 #                  31, 32, 33, 34, 35, 38, 41, 45) #2015 rotational
 
 
-#--- 3. status check -----------------------------------------------------------
+# FTPC ----
+## status check -----------------------------------------------------------
 
 # FTPC certification status
 
 qaqc_status <- pacnvegetation::FilterPACNVeg(
   data_name = "Events_extra_QAQC",
-  sample_frame = sframe)
+  sample_frame = var_sframe)
 
 needs_verified <- qaqc_status |>
   filter(Verified == FALSE)
@@ -49,52 +50,52 @@ nrow(needs_certified)
 
 
 
-# have photos been exported?----------------------------------------------------
+## have photos been exported?----------------------------------------------------
 
 
-# 4. qc_presence ---------------------------------------------------------------
+## qc_presence ---------------------------------------------------------------
 
 qc_presence_details <- pacnvegetation::qc_presence_complete(
   all_records = TRUE,
-  sample_frame = sframe)
+  sample_frame = var_sframe)
 
 qc_presence <- pacnvegetation::qc_presence_complete(
   all_records = FALSE,
-  sample_frame = sframe)
+  sample_frame = var_sframe)
 
-# 5. qc_sampling_lifeform-------------------------------------------------------
+## qc_sampling_lifeform-------------------------------------------------------
 qc_samp_lifeform <- pacnvegetation::FilterPACNVeg(data_name = "SmWoody",
-                                              sample_frame = sframe)
+                                              sample_frame = var_sframe)
 
 # Need specific example to test next time issue is encountered.
 
-# search trees/understory datasheets for a species------------------------------
-chk <- qc_sp_datasheets(sample_frame = sframe,
+## search trees/understory datasheets for a species------------------------------
+chk <- qc_sp_datasheets(sample_frame = var_sframe,
                  #plot_number = 51,
                  #species_code = "CIBSP.",
                  silent = FALSE)
 
-# list of presence--------------------------------------------------------------
+## list of presence--------------------------------------------------------------
 all_pres <- pacnvegetation::FilterPACNVeg(data_name = "Presence") |>
-  filter(Sampling_Frame == sframe) |>
+  filter(Sampling_Frame == var_sframe) |>
   filter(Plot_Number %in% nahuku_plots)
 
 all_pres_count <- all_pres |>
   group_by(Scientific_Name, Sampling_Frame, Year) |>
   summarise(count = n())
 
-# Presence -- spp consistency chk --------------------------------------
+## Presence -- spp consistency chk --------------------------------------
 # TURN THIS INTO pacnvegetation qc_ FUNCTION
 
-plot_number_variable <- 58
+var_plot_number <- 58
 
 chk_pres <- pacnvegetation::FilterPACNVeg(data_name = "Presence",
-                                          sample_frame = sframe,
-                                          plot_number = plot_number_variable)
+                                          sample_frame = var_sframe,
+                                          plot_number = var_plot_number)
 
 
 rare <- pacnvegetation::FilterPACNVeg(data_name = "Presence",
-                                      sample_frame = sframe) %>%
+                                      sample_frame = var_sframe) %>%
   group_by(Sampling_Frame, Scientific_Name, Code, Plot_Number) %>%
   summarize(observed = n(), .groups = "drop") %>%
   # only count one time if found more than once in a fixed
@@ -173,35 +174,35 @@ graph_out <- chk_pres2 %>%
 graph_out
 
 path_var <- "C:/Users/JJGross/OneDrive - DOI/Documents/Certification_Local/2021-2022 Certification/R_output/Nahuku/"
-filename_var <- paste0("spp_pres_plot-dot_", plot_number_variable, ".png")
+filename_var <- paste0("spp_pres_plot-dot_", var_plot_number, ".png")
 filename_var
 ggsave(filename = filename_var, path = path_var, height = 10, width = 5)
 
-# ---- Understory spp consistency chk ------------------------------------------
+## Understory spp consistency chk ------------------------------------------
 pacnvegetation::v_cover_bar_stats(plant_grouping = "Species",
-                                  sample_frame = sframe,
+                                  sample_frame = var_sframe,
                                   combine_strata = FALSE,
                                   cycle = c(1,2,3),
-                                  plot_number = plot_number_variable)
+                                  plot_number = var_plot_number)
 
 chk_cover <- pacnvegetation::summarize_understory(combine_strata = TRUE,
                                      plant_grouping = "Species",
-                                     sample_frame = sframe)
+                                     sample_frame = var_sframe)
 
 path_var <- "C:/Users/JJGross/OneDrive - DOI/Documents/Certification_Local/2021-2022 Certification/R_output/Nahuku/"
-filename_var_v_cover <- paste0("v_cover_plot_spp_", plot_number_variable, ".png")
+filename_var_v_cover <- paste0("v_cover_plot_spp_", var_plot_number, ".png")
 filename_var_v_cover
 ggsave(filename = filename_var_v_cover, path = path_var, height = 10, width = 15)
 
 
 v_cover_bar_spp_plot(sample_frame = "Nahuku/East Rift", crosstalk_filters = TRUE, crosstalk_group = "spp_plot1")
 
-# LG Trees --------------------------------------
+## LG Trees --------------------------------------
 # Get count of trees per plot/quad
 
 lg_trees <- FilterPACNVeg(data_name = "LgTrees",
-                          sample_frame = sframe,
-                          plot_number = plot_number_variable)
+                          sample_frame = var_sframe,
+                          plot_number = var_plot_number)
 
 lg_trees_no_boles <- lg_trees |>
   filter(is.na(DBH_Bole)) |>
@@ -227,7 +228,7 @@ lg_trees2_quad <- lg_trees2 |>
 # EIPS certification status
 
 EIPS_events_other <- FilterPACNVeg(data_name = "Events_extra_other_EIPS",
-                                   sample_frame = sframe)
+                                   sample_frame = var_sframe)
 
 EIPS_needs_verified_eips <- EIPS_events_other |>
   filter(Verified == FALSE)
@@ -238,15 +239,36 @@ EIPS_needs_certified <- EIPS_events_other |>
 EIPS_needs_certified
 nrow(EIPS_needs_certified)
 
+# EIPS Segment complete check --------------------------------------
+
+# v_EIPS_prep assumes all segments with no records was visited and no invasives were
+# detected - this is incorrect assumption if transect was not fully completed (ie all segments monitored)
+# In database for each segment, there is a box that can be checked if segment was not monitored.
+# This column still needs dplyr::select() and pulled through in the utils.R file for ReadEIPS()
+
+EIPS_check <- v_EIPS_prep(sample_frame = var_sframe, cycle = 3)
+
+EIPS_segment_check <- EIPS_check |>
+  group_by(Unit_Code, Sampling_Frame, Year, Cycle, Transect_Number, Tran_Length_m) |>
+  summarize(segs_w_spp = n_distinct(Start_m))
+
 # EIPS Presence -- spp consistency chk --------------------------------------
 # TURN THIS INTO pacnvegetation qc_ FUNCTION
 
-var_trans_num <- 1
+var_trans_num <- 40
+
+eips_data_check <- pacnvegetation::FilterPACNVeg(data_name = "EIPS_data")|>
+  pull(Sampling_Frame) |>
+  unique()
+eips_data_check
 
 eips_data <- pacnvegetation::FilterPACNVeg(data_name = "EIPS_data") |>
-  mutate(Sampling_Frame = case_when(Sampling_Frame == "Ê»ÅŒlaÊ»a" ~ "Olaa",
+  mutate(Sampling_Frame = case_when(Sampling_Frame == "ʻŌlaʻa" ~ "Olaa",
                                     .default = as.character(Sampling_Frame))) |>
-  filter(Sampling_Frame == sframe)
+  mutate(Sampling_Frame = case_when(Sampling_Frame == "Nāhuku/East Rift" ~ "Nahuku/East Rift",
+                                    .default = as.character(Sampling_Frame))) |>
+  filter(Sampling_Frame == var_sframe)
+
 
 eips_presence <- eips_data |>
   select(Sampling_Frame, Cycle, Transect_Number, Nativity, Scientific_Name, Code) |>
@@ -333,21 +355,28 @@ graph_out <- eips_pres_trans_num2 %>%
   theme(aspect.ratio=6) #9
 graph_out
 
-path_var <- "C:/Users/JJGross/OneDrive - DOI/Documents/Certification_Local/2021-2022 Certification/R_output/Nahuku/"
-filename_var <- paste0("spp_pres_trans-dot_", plot_number_variable, ".png")
+var_folder_sframe <-var_sframe
+if (var_sframe == "Nahuku/East Rift") {
+  var_folder_sframe <- "Nahuku"
+}
+
+path_var <- paste0("C:/Users/JJGross/OneDrive - DOI/Documents/Certification_Local/2021-2022 Certification/R_output/", var_folder_sframe, "/")
+filename_var <- paste0("trans_", str_pad(var_trans_num, 2, pad = "0"), "_spp_pres-dot.png")
 filename_var
 ggsave(filename = filename_var, path = path_var, height = 10, width = 5)
 
 # ---- EIPS Cover Class frequency ------------------------------------------
 
 eips_data <- pacnvegetation::FilterPACNVeg(data_name = "EIPS_data") |>
-  mutate(Sampling_Frame = case_when(Sampling_Frame == "Ê»ÅŒlaÊ»a" ~ "Olaa",
+  mutate(Sampling_Frame = case_when(Sampling_Frame == "ʻŌlaʻa" ~ "Olaa",
                                     .default = as.character(Sampling_Frame))) |>
-  filter(Sampling_Frame == sframe)
+  mutate(Sampling_Frame = case_when(Sampling_Frame == "Nāhuku/East Rift" ~ "Nahuku/East Rift",
+                                    .default = as.character(Sampling_Frame))) |>
+  filter(Sampling_Frame == var_sframe)
 
 # Will need to make segs_per_tran calculation more robust
 eips_cover_freq <- eips_data |>
-  filter(Transect_Number == 1) |>
+  filter(Transect_Number == var_trans_num) |>
   select(Sampling_Frame, Cycle, Transect_Number, Nativity, Scientific_Name, Code, Segment, Cover_Class) |>
   distinct() |>
   mutate(segs_pres = 1) |>
@@ -414,63 +443,41 @@ eips_add_cover1 <- eips_add_cover |>
   mutate(freq = segs/50) #|>
   #dplyr::mutate(freq = replace_na(freq, 0))
 
-
+library(viridis)
 
 acc <- eips_add_cover1 |>
   mutate(Cycle = as.factor(Cycle)) |>
-  mutate(cover_greater_than = as.numeric(cover_greater_than)) |>
+  mutate(cover_greater_than = as_factor(cover_greater_than)) |>
   ggplot(aes(x=cover_greater_than,
              y= freq,
              group = Cycle,
-             colour=Cycle))+
+             color = Cycle))+
   #geom_ribbon(aes(ymin=L95CI/100, ymax=U95CI/100, fill=Life_form), alpha=0.4,colour=NA)+
   geom_line(linewidth = 1)+
   geom_point(size = 2) +
   #scale_y_continuous(breaks = seq(0, 1, .1)) + #, limits = c(0, 1) +
-  labs(x="Cover Class", y=expression(paste("Frequency")))+
+  labs(x="% Cover", y=expression(paste("Frequency")))+
   ggtitle(paste(eips_add_cover1$Sampling_Frame, "Transect", eips_add_cover1$Transect_Number))+
+  scale_color_viridis(discrete = TRUE, direction = -1) +
   theme(plot.title = element_text(size=14, face="bold", vjust=1, lineheight=0.8))+
   theme(axis.title.x=element_text(size=12, vjust=-0.2))+
   theme(axis.text.x=element_text(angle=0, size=11, vjust=0.5))+
   theme(axis.text.y=element_text(angle=0, size=12, vjust=0.5))+
-  scale_x_continuous(labels = function(x) paste0(">", x, "%"), limits = c(0, 75)) +
-  scale_y_continuous(labels = function(x) paste0(x*100, "%"), limits = c(0, 1)) +
+  scale_x_discrete(labels = function(x) paste0(">", x)) +
+  scale_y_continuous(labels = function(x) paste0(x*100, "%"),
+                     limits = c(0, 1),
+                     breaks=seq(0,1,.2)) +
   facet_wrap(~Scientific_Name)
 
   #scale_x_discrete(expand = c(0.02, 0.02),drop=FALSE)
 acc
 
+var_folder_sframe <-var_sframe
+if (var_sframe == "Nahuku/East Rift") {
+  var_folder_sframe <- "Nahuku"
+}
 
-# ---- EIPS Cover Class count ------------------------------------------
-
-eips_data <- pacnvegetation::FilterPACNVeg(data_name = "EIPS_data") |>
-  mutate(Sampling_Frame = case_when(Sampling_Frame == "Ê»ÅŒlaÊ»a" ~ "Olaa",
-                                    .default = as.character(Sampling_Frame))) |>
-  filter(Sampling_Frame == sframe)
-
-eips_cover_count <- eips_data |>
-  select(Sampling_Frame, Cycle, Transect_Number, Nativity, Scientific_Name, Code, Segment, Cover_Class) |>
-  distinct() |>
-  mutate(segs_pres = 1) |>
-  group_by(Sampling_Frame, Cycle, Transect_Number, Nativity, Scientific_Name, Code, Cover_Class) |>
-  summarize(segs_per_tran = sum(segs_pres))
-
-eips_cover_count |>
-  drop_na() |>
-  filter(Transect_Number == var_trans_num) |>
-  mutate(Cover_Class = case_when(Cover_Class == "OUT" ~ as.numeric(0),
-                                 .default = as.numeric(Cover_Class))) |>
-
-  #dplyr::mutate(Sampling_Frame = dplyr::case_when(Sampling_Frame == "Nahuku/East Rift" ~ "Nahuku",
-  #                                                TRUE ~ Sampling_Frame)) |>
-  mutate(Cycle = as.factor(Cycle)) |>
-  mutate(Cover_Class = as.numeric(Cover_Class)) |>
-  ggplot(aes(x=Cover_Class, y=segs_per_tran, fill = Cycle)) +
-  geom_bar(position = "dodge", stat = "identity") +
-  facet_wrap(~Scientific_Name) +
-  ylab("segments present")
-  #ggplot2::labs(caption = sample_size) +
-  #ggplot2::scale_fill_manual(values = nativity_colors) +
-  #scale_alpha_manual(name = "",
-  #                   values = c(0.6),
-  #                   labels = c("outside plot", "inside plot"))
+path_var <- paste0("C:/Users/JJGross/OneDrive - DOI/Documents/Certification_Local/2021-2022 Certification/R_output/", var_folder_sframe, "/")
+filename_var <- paste0("trans_", str_pad(var_trans_num, 2, pad = "0"), "_spp-cover_x_freq.png")
+filename_var
+ggsave(filename = filename_var, path = path_var, height = 10, width = 20)
