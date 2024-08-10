@@ -21,7 +21,7 @@ names(FilterPACNVeg())
 
 #--- 2. variable specification -------------------------------------------------
 
-var_sframe <- "Nahuku/East Rift"
+var_sframe <- "Puu Alii"
 
 #nahuku_plots <- c(1, 4, 10, 12, 13, 14, 15, #fixed
 #                  46, 49, 51, 52, 54, 55, 56, 58, #2021 rotational
@@ -77,108 +77,28 @@ chk <- qc_sp_datasheets(sample_frame = var_sframe,
 
 ## list of presence--------------------------------------------------------------
 all_pres <- pacnvegetation::FilterPACNVeg(data_name = "Presence") |>
-  filter(Sampling_Frame == var_sframe) |>
-  filter(Plot_Number %in% nahuku_plots)
+  filter(Sampling_Frame == var_sframe) #|>
+  #filter(Plot_Number %in% nahuku_plots)
 
 all_pres_count <- all_pres |>
   group_by(Scientific_Name, Sampling_Frame, Year) |>
   summarise(count = n())
 
-## Presence -- spp consistency chk --------------------------------------
-# TURN THIS INTO pacnvegetation qc_ FUNCTION
 
-var_plot_number <- 58
+## Presence Dot Plots-----------------------------------------------------------
+var_plot_numbers <- c(1)
+var_sframe <- "Olaa"
+save_folder_var <- "C:/Users/JJGross/OneDrive - DOI/Documents/Certification_Local/2021-2022 Certification/R_output"
 
-chk_pres <- pacnvegetation::FilterPACNVeg(data_name = "Presence",
-                                          sample_frame = var_sframe,
-                                          plot_number = var_plot_number)
-
-
-rare <- pacnvegetation::FilterPACNVeg(data_name = "Presence",
-                                      sample_frame = var_sframe) %>%
-  group_by(Sampling_Frame, Scientific_Name, Code, Plot_Number) %>%
-  summarize(observed = n(), .groups = "drop") %>%
-  # only count one time if found more than once in a fixed
-  mutate(observed = 1) %>%
-  group_by(Sampling_Frame, Code, Scientific_Name) %>%
-  summarize(plots_observed = n()) %>%
-  # "rare" will be 4 plots_observed or less
-  filter(plots_observed < 5) %>%
-  mutate(less_than_5_plots = TRUE) %>%
-  right_join(chk_pres) %>%
-  filter(less_than_5_plots == TRUE)
-
-# Join rare species flags to Presence
-chk_pres1 <- chk_pres %>%
-  left_join(rare)
-
-chk_pres2 <- chk_pres1 %>%
-  mutate(Cycle = as.integer(Cycle)) %>%
-  arrange(Scientific_Name)
-
-# Code below was to split graph in half but doesn't work with geom_point filtering
-# find the middle of the data set
-#df_length <- length(chk_pres2$Scientific_Name)
-#df_middle <- df_length/2
-
-# Which species is in the middle of the dataset
-#split_at_sp <- chk_pres2$Code[df_middle]
-
-# select the row after the last record for that species to split evenly accross species
-#split_at <- max(which(chk_pres2$Code == split_at_sp)) + 1
-#split_at
-
-# Splits dataset equally in half:
-#chk_pres2$split <- "first"
-#chk_pres2$split[split_at:df_length] <- "second"
-
-
-# Nativity discrete scale Colors:
-nativity_colors <- c("Native" = "#1b9e77",
-                     "No_Veg" = "grey",
-                     "Non-Native" = "#d95f02",
-                     "Unknown" = "#7570b3")
-
-select_rare <- function(condition){
-  function(d) d %>% filter_(condition)
+for (x in var_plot_numbers) {
+  qc_spp_pres_dot_plot(sample_frame = var_sframe,
+                       plot_number = x,
+                       save_folder = save_folder_var)
 }
 
-select_out <- function(condition){
-  function(d) d %>% filter_(condition)
-}
 
-graph_out <- chk_pres2 %>%
-  ggplot(aes(x= Scientific_Name, y=Cycle)) +
-  geom_segment(aes(x=Scientific_Name,
-                   xend=Scientific_Name,
-                   y=min(Cycle),
-                   yend=max(Cycle),
-                   color = Nativity),
-               linetype="dashed",
-               linewidth=0.5) +
-  # Draw points
-  geom_point(size = 8, data = ~filter(.x, less_than_5_plots == TRUE), color = "yellow") +
-  geom_point(size = 5, aes(color = Nativity)) +
-  geom_point(size = 2, data = ~filter(.x, Outside_Plot == TRUE), color = "black") +
-  labs(title="Check Presence",
-       subtitle= (paste0(chk_pres2$Sampling_Frame[1], " Plot ", chk_pres2$Plot_Number[1])),
-       caption= (paste0("QA/QC"))) +
-  scale_color_manual(values = nativity_colors) +
-  scale_x_discrete(limits = rev) +
-  scale_y_continuous(limits = c(0, max(chk_pres2$Cycle)+1)) + #breaks = integer_breaks(),
-  coord_flip() +
-  #facet_wrap(scales = "free", vars(chk_pres2$split)) +
-  theme(strip.background = element_blank(),
-        strip.text.x = element_blank()) +
-  theme(aspect.ratio=6) #9
-graph_out
-
-path_var <- "C:/Users/JJGross/OneDrive - DOI/Documents/Certification_Local/2021-2022 Certification/R_output/Nahuku/"
-filename_var <- paste0("spp_pres_plot-dot_", var_plot_number, ".png")
-filename_var
-ggsave(filename = filename_var, path = path_var, height = 10, width = 5)
-
-## Understory spp consistency chk ------------------------------------------
+## Understory spp consistency chk ----------------------------------------------
+var_plot_number <- 11
 pacnvegetation::v_cover_bar_stats(plant_grouping = "Species",
                                   sample_frame = var_sframe,
                                   combine_strata = FALSE,
@@ -189,13 +109,13 @@ chk_cover <- pacnvegetation::summarize_understory(combine_strata = TRUE,
                                      plant_grouping = "Species",
                                      sample_frame = var_sframe)
 
-path_var <- "C:/Users/JJGross/OneDrive - DOI/Documents/Certification_Local/2021-2022 Certification/R_output/Nahuku/"
+path_var <- paste0("C:/Users/JJGross/OneDrive - DOI/Documents/Certification_Local/2021-2022 Certification/R_output/", var_sframe, "/")
 filename_var_v_cover <- paste0("v_cover_plot_spp_", var_plot_number, ".png")
 filename_var_v_cover
 ggsave(filename = filename_var_v_cover, path = path_var, height = 10, width = 15)
+#---
 
-
-v_cover_bar_spp_plot(sample_frame = "Nahuku/East Rift", crosstalk_filters = TRUE, crosstalk_group = "spp_plot1")
+v_cover_bar_spp_plot(sample_frame = "Puu Alii", crosstalk_filters = TRUE, crosstalk_group = "spp_plot1")
 
 ## LG Trees --------------------------------------
 # Get count of trees per plot/quad

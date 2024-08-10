@@ -285,18 +285,24 @@ process_photos <- function(AGOL_Layer, gdb_name, gdb_location, gdb_layer,
 
   if(AGOL_Layer == "Plants"){
     # If ID_final contains NA this will be TRUE
-    final_sp_id_missing <- sum(is.na(GIS_Table3$ID_final)) > 0
+    #final_sp_id_missing <- sum(is.na(GIS_Table3$ID_final)) > 0
 
 
     GIS_Table4 <- GIS_Table3 %>%
       dplyr::left_join(first_date, by = "Site_Name") %>%
       # Out_Name for processed photos
-      dplyr::mutate(Out_Name = stringr::str_remove(Subject2, "\\.")) %>%
-      dplyr::mutate(Out_Name = ifelse(is.na(Out_Name), REL_GLOBALID,
-                                      ifelse(Out_Name >= 0, Out_Name, "error"))) %>%
+      #dplyr::mutate(Out_Name = stringr::str_remove(Subject2, "\\.")) %>%
+      #dplyr::mutate(Out_Name = ifelse(is.na(Out_Name), REL_GLOBALID,
+      #                                ifelse(Out_Name >= 0, Out_Name, "error"))) %>%
       # If ID_final contains NA use field ID (i.e. "species") (from Subject2) instead
-      dplyr::mutate(Out_Name = if(final_sp_id_missing) {paste(File_Time, Out_Name, sep = "_")}
-                    else {paste(File_Time, ID_final, sep = "_")}) %>%
+      #dplyr::mutate(Out_Name = if(final_sp_id_missing) {paste(File_Time, Out_Name, sep = "_")}
+      #              else {paste(File_Time, ID_final, sep = "_")}) %>%
+      dplyr::mutate(Subject2 = stringr::str_remove(Subject2, "\\.")) %>%
+      dplyr::mutate(ID_final2 = stringr::str_remove(ID_final, "\\.")) |>
+      dplyr::mutate(Out_Name = ID_final2) |>
+      dplyr::mutate(Out_Name = dplyr::case_when(is.na(ID_final2) ~ Subject2,
+                                                .default = ID_final2)) |>
+      dplyr::mutate(Out_Name = paste(File_Time, Out_Name, sep = "_")) |>
       dplyr::arrange(exif_formatted, ATT_NAME) %>%
       dplyr::group_by(Out_Name) %>%
       dplyr::mutate(Out_Name = if(dplyr::n() > 1) {paste(Out_Name, str_pad(row_number(), 2, pad = "0"), sep = "_")}
