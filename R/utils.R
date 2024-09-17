@@ -242,7 +242,7 @@ ReadFTPC <- function(conn) {
 
   #Short
   tbl_Locations <- dplyr::tbl(conn, "tbl_Locations") %>%
-    dplyr::select(Location_ID, Site_ID, Community, Sampling_Frame)
+    dplyr::select(Location_ID, Site_ID, Community, Sampling_Frame, Sampling_Frame_English)
 
 
   # . . 3. tbl_Plot----
@@ -291,7 +291,7 @@ ReadFTPC <- function(conn) {
     dplyr::left_join(tbl_Plot_short, by = "Plot_ID") %>%
     dplyr::left_join(tbl_Locations, by = "Location_ID") %>%
     dplyr::left_join(tbl_Sites_short, by = "Site_ID") %>%
-    dplyr::select(Unit_Code, Community, Sampling_Frame, Year, Cycle, Plot_Type, Plot_Number,
+    dplyr::select(Unit_Code, Community, Sampling_Frame, Sampling_Frame_English, Year, Cycle, Plot_Type, Plot_Number,
            QA_Plot, Certified, Verified, Event_ID)
 
 
@@ -311,7 +311,7 @@ ReadFTPC <- function(conn) {
 
   # . . Events_extra_QAQC
   Events_extra_QAQC <- Events_extra %>%
-    dplyr::select(Unit_Code, Sampling_Frame, Start_Date, Year, Cycle, Plot_Type, Plot_Number,
+    dplyr::select(Unit_Code, Sampling_Frame, Sampling_Frame_English, Start_Date, Year, Cycle, Plot_Type, Plot_Number,
            Entered_Date, Updated_Date, Verified, Verified_By, Verified_Date,
            Certified, Certified_By, Certified_Date, Completion_Time, QA_Plot,
            Event_Notes, Plot_Notes, QA_notes) %>%
@@ -319,14 +319,14 @@ ReadFTPC <- function(conn) {
 
   # . . Events_extra_xy
   Events_extra_xy <- Events_extra %>%
-    dplyr::select(Unit_Code, Sampling_Frame, Year, Cycle, Plot_Type, Plot_Number,
+    dplyr::select(Unit_Code, Sampling_Frame, Sampling_Frame_English, Year, Cycle, Plot_Type, Plot_Number,
            Azimuth_Plot, QA_Plot, Start_Lat, Start_Long, Center_Lat, Center_Long,
            End_Lat, End_Long, GCS, Lat_Dir, Long_Dir, Certified, Verified) %>%
     dplyr::collect()
 
   # . . Events_extra_other
   Events_extra_other <- Events_extra %>%
-    dplyr::select(Event_ID, Unit_Code, Community, Sampling_Frame, Year, Cycle, Plot_Type, QA_Plot,
+    dplyr::select(Event_ID, Unit_Code, Community, Sampling_Frame, Sampling_Frame_English, Year, Cycle, Plot_Type, QA_Plot,
                   Plot_Number, Max_Veg_Ht, Site_Name, Images, Certified, Verified) %>%
     dplyr::collect()
 
@@ -912,7 +912,7 @@ FilterPACNVeg <- function(data_name, park, sample_frame, community, year, cycle,
 
   all_filter_cols <- list(Unit_Code = ifelse(missing(park), NA, park),
                    Park = if (missing(park)) {NA} else {park},
-                   Sampling_Frame = if (missing(sample_frame)) {NA} else {sample_frame},
+                   Sampling_Frame_English = if (missing(sample_frame)) {NA} else {sample_frame},
                    Community = if(missing(community)) {NA} else {community},
                    Year = if(missing(year)) {NA} else {year},
                    Cycle = if (missing(cycle)) {NA} else {cycle},

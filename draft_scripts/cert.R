@@ -19,9 +19,24 @@ LoadPACNVeg(data_path = latest_folder,
 
 names(FilterPACNVeg())
 
+
+
+FilterPACNVeg(data_name = "Presence") |>
+  select(Sampling_Frame) |>
+  distinct()
+
+FilterPACNVeg(data_name = "Presence") |>
+  select(Sampling_Frame_English) |>
+  distinct()
+
+FilterPACNVeg(data_name = "EIPS_data") |>
+  select(Sampling_Frame) |>
+    distinct()
+
+
 #--- 2. variable specification -------------------------------------------------
 
-var_sframe <- "Puu Alii"
+var_sframe <- "Mauna Loa"
 
 #nahuku_plots <- c(1, 4, 10, 12, 13, 14, 15, #fixed
 #                  46, 49, 51, 52, 54, 55, 56, 58, #2021 rotational
@@ -29,10 +44,55 @@ var_sframe <- "Puu Alii"
 #                  31, 32, 33, 34, 35, 38, 41, 45) #2015 rotational
 
 
+
+# Field Maps ----
+
+
+## First Download -----------------------------------------------------------
+
+#FTPC_HAVO_2022 <- "https://services1.arcgis.com/fBc8EJBxQRMcHlei/arcgis/rest/services/HAVO_2022_FTPC_Sampling_Points_Photos/FeatureServer/30"
+Plants_KALA_2024v2 <- "https://services1.arcgis.com/fBc8EJBxQRMcHlei/arcgis/rest/services/KALA_2024_VEG_Sampling_Plant_Photos_v2/FeatureServer/2"
+
+var_photo_layers <- c("Plants_KALA_2024v2")
+
+field_maps_data <- download_agol2(
+  photo_layers = var_photo_layers,
+  temp_dest = "C:/Users/JJGross/Downloads/Check_Photos/",
+  #only_staff = FALSE,
+  test_run = TRUE
+)
+
+field_maps_data <- download_agol2(
+  photo_layers = var_photo_layers,
+  temp_dest = "C:/Users/JJGross/Downloads/Check_Photos/",
+  test_run = FALSE
+)
+
+## 2nd-n Downloads -----------------------------------------------------------
+Plants_KALA_2024v2 <- "https://services1.arcgis.com/fBc8EJBxQRMcHlei/arcgis/rest/services/KALA_2024_VEG_Sampling_Plant_Photos_v2/FeatureServer/2"
+
+var_photo_layers <- c("Plants_KALA_2024v2")
+
+field_maps_data <- download_agol2(
+  photo_layers = var_photo_layers,
+  temp_dest = "C:/Users/JJGross/Downloads/Check_Photos/",
+  master_spreadsheet_folder = "C:/Users/JJGross/Downloads/Check_Photos/Plants_KALA_2024_Spreadsheet",
+  #after_date_filter = var_after_date, # This argument needs to be removed
+  test_run = TRUE
+)
+
+field_maps_data <- download_agol2(
+  photo_layers = var_photo_layers,
+  temp_dest = "C:/Users/JJGross/Downloads/Check_Photos/",
+  master_spreadsheet_folder = "C:/Users/JJGross/Downloads/Check_Photos/Plants_KALA_2024_Spreadsheet",
+  test_run = FALSE
+)
+
 # FTPC ----
 ## status check -----------------------------------------------------------
 
 # FTPC certification status
+qaqc_status <- pacnvegetation::FilterPACNVeg(data_name = "Events_extra_QAQC")
 
 qaqc_status <- pacnvegetation::FilterPACNVeg(
   data_name = "Events_extra_QAQC",
@@ -86,19 +146,22 @@ all_pres_count <- all_pres |>
 
 
 ## Presence Dot Plots-----------------------------------------------------------
-var_plot_numbers <- c(1)
-var_sframe <- "Olaa"
+var_plot_numbers <- c(46:60)
+var_sframe <- "Mauna Loa"
 save_folder_var <- "C:/Users/JJGross/OneDrive - DOI/Documents/Certification_Local/2021-2022 Certification/R_output"
 
 for (x in var_plot_numbers) {
-  qc_spp_pres_dot_plot(sample_frame = var_sframe,
+  pacnvegetation:::qc_spp_pres_dot_plot(sample_frame = var_sframe,
                        plot_number = x,
                        save_folder = save_folder_var)
 }
 
+pacnvegetation:::qc_spp_pres_dot_plot(sample_frame = var_sframe,
+                                      plot_number = 14,
+                                      save_folder = save_folder_var)
 
 ## Understory spp consistency chk ----------------------------------------------
-var_plot_number <- 11
+var_plot_number <- 14
 pacnvegetation::v_cover_bar_stats(plant_grouping = "Species",
                                   sample_frame = var_sframe,
                                   combine_strata = FALSE,
@@ -145,10 +208,15 @@ lg_trees2_quad <- lg_trees2 |>
 
 # EIPS ---------
 
+var_sframe
+
 # EIPS certification status
 
 EIPS_events_other <- FilterPACNVeg(data_name = "Events_extra_other_EIPS",
                                    sample_frame = var_sframe)
+
+EIPS_events_other <- EIPS_events_other |>
+  filter(Sampling_Frame == var_sframe)
 
 EIPS_needs_verified_eips <- EIPS_events_other |>
   filter(Verified == FALSE)
@@ -175,7 +243,7 @@ EIPS_segment_check <- EIPS_check |>
 # EIPS Presence -- spp consistency chk --------------------------------------
 # TURN THIS INTO pacnvegetation qc_ FUNCTION
 
-var_trans_num <- 40
+var_trans_num <- 3
 
 eips_data_check <- pacnvegetation::FilterPACNVeg(data_name = "EIPS_data")|>
   pull(Sampling_Frame) |>

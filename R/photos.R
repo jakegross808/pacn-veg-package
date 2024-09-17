@@ -103,7 +103,8 @@ process_photos <- function(AGOL_Layer, gdb_name, gdb_location, gdb_layer,
     # For some reason 2021 Field maps spells out Hawaii Volcanoes instead
     # of using correct Unit_Code
     dplyr::mutate(Unit_Code = dplyr::case_when(
-      Unit_Code == "Hawaii Volcanoes National Park" ~ paste0("HAVO"))) %>%
+      Unit_Code == "Hawaii Volcanoes National Park" ~ paste0("HAVO"),
+      .default = as.character(x))) %>%
     dplyr::mutate(Unit_Name = dplyr::case_when(
       Unit_Code == "HAVO" ~ paste0("Hawai", okina, "i Volcanoes National Park"),
       Unit_Code == "KAHO" ~ paste0(Kaloko., " National Historical Park"),
@@ -111,6 +112,7 @@ process_photos <- function(AGOL_Layer, gdb_name, gdb_location, gdb_layer,
       #Samp_Frame == "KH" ~ paste0(Kaloko., " National Historical Park"),
       #Samp_Frame == "ML" ~ paste0("Hawai", okina, "i Volcanoes National Park"),
       #Samp_Frame == "KU" ~ paste0("Hawai", okina, "i Volcanoes National Park")
+      .default = as.character(x),
       )) %>%
     dplyr::mutate(Sampling_Frame_DB = dplyr::case_when(is.na(Samp_Frame) ~ "NA",
                                                     Samp_Frame == "OL" ~ "Olaa",

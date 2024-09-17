@@ -970,8 +970,6 @@ DownloadAGOLAttachments <- function(feature_layer_url,
   data <- data$features$attributes %>%
     tibble::as_tibble()
 
-
-
   # Get attachment info
   attrs <- httr::GET(paste0(feature_layer_url, "/queryAttachments"),
                      query = list(f="JSON",
@@ -1006,60 +1004,117 @@ DownloadAGOLAttachments <- function(feature_layer_url,
     sep <- ""  # Make separator blank if not appending ID to photo name
   }
 
-  # Make Subject column compatible for all layers
+  # Get apply to pull out exif date
 
+  attachments1 <- attachments
+
+  # Function to pull exif date/time from photo attributes
+  pull_exif <- function(row){
+    return(row[[2]][[1]]$value[row[[2]][[1]]$name=='Date/Time'])
+  }
+
+  attachments1$exif_dt <-  map(.x = attachments1$exifInfo, .f = pull_exif)
+
+  # Make Subject column compatible for all layers
   # Change Subject_FTPC and Subject_EIPS to just "Subject"
   lookup <- c(Subject = "Subject_FTPC", Subject = "Subject_EIPS")
-  attachments <- dplyr::rename(attachments, tidyselect::any_of(lookup))
+  attachments1 <- dplyr::rename(attachments1, tidyselect::any_of(lookup))
 
   # If "Plant" layer use Code from Photo_Taxon as "Subject"
-  if (any(names(attachments) %in% c("Photo_Taxon"))) {
-    attachments$Subject <- stringr::str_extract(attachments$Photo_Taxon, "(?<=\\().*?(?=\\))")
+  if (any(names(attachments1) %in% c("Photo_Taxon"))) {
+    attachments1 <- attachments1 |>
+
+      # Separate and clean up Photo_Taxon field:
+      tidyr::separate_wider_delim(Photo_Taxon, delim = ";",
+                                  names = c("A", "B"), too_few = "align_start") |>
+      tidyr::separate_wider_delim(cols = B, names =  c("common", "nativity"),
+                                  delim = " / ", too_many = 'drop') |>
+      tidyr::separate_wider_delim(cols = A, names = c("species", "C"),
+                                  delim = " (") |>
+      tidyr::separate_wider_delim(cols = C, names = c("code", "family"),
+                                  delim =  ")") |>
+      # Select ID_Final or Photo_Taxon(original ID) if no ID_Final:
+      dplyr::mutate(Subject = dplyr::case_when(is.na(ID_final) ~ species,
+                                                .default = ID_final)) |>
+      dplyr::mutate(Subject = stringr::str_remove(Subject, "\\."))
+      #dplyr::mutate(Out_Name = paste(File_Time, Out_Name, sep = "_")) |>
+      #dplyr::arrange(exif_formatted, ATT_NAME) %>%
+      #dplyr::group_by(Out_Name) %>%
+      #dplyr::mutate(Out_Name = if(dplyr::n() > 1) {paste(Out_Name, str_pad(row_number(), 2, pad = "0"), sep = "_")}
+      #              else {paste0(Out_Name)}) %>%
+      #dplyr::mutate(Out_Name = paste0(Out_Name, ".jpg")) %>%
+      #dplyr::mutate(Folder_Name = File_Date) %>%
+      #dplyr::ungroup()
   }
 
   # remove all special characters from Subject_other & append to any Subject == other
-  if (any(names(attachments) %in% c("Subject_other"))) {
-    attachments <- attachments %>%
+  if (any(names(attachments1) %in% c("Subject_other"))) {
+    attachments1 <- attachments1 %>%
       dplyr::mutate(Sub_other = stringr::str_remove(Subject_other, "[[:punct:]]")) %>%
       dplyr::mutate(Sub_other = stringr::str_replace_all(Sub_other," ", "_")) %>%
       dplyr::mutate(Subject = dplyr::case_when(Subject == "Other" ~ paste(Subject, Sub_other, sep = "_"),
                                                .default = as.character(Subject)))
   }
 
+  attachments2 <- attachments1
+
   # utilize numeric count of photos from Field Maps
-  attachments$photo_cnt <- stringr::str_extract(string = attachments$name, pattern = "(\\d)+")
+  attachments2$photo_cnt <- stringr::str_extract(string = attachments2$name, pattern = "(\\d)+")
 
   # utilize date column from point created in field maps
-  attachments <- attachments %>%
-    dplyr::mutate(pt_date = as.character(as.POSIXct(created_date/1000,
-                                                    origin="1970-01-01"))) %>%
-    dplyr::mutate(pt_date_file = stringr::str_remove_all(string = pt_date,
-                                                        pattern = "[-:]")) %>%
-    dplyr::mutate(pt_date_file = stringr::str_replace(string = pt_date_file,
-                                                     pattern = " ",
-                                                     replacement = "_")) %>%
-    # Drop seconds from pt_date_file
-    dplyr::mutate(pt_date_file = stringr::str_sub(pt_date_file, end = -3)) %>%
+
+  # New system uses the photo's exif date/time (instead of field maps point)
+  # Add date time column to attachments table
+
+  attachments2 <- attachments2 |>
+    # replace colons with dashes between year-month and month-date
+    mutate(exif_formatted = stringr::str_replace(exif_dt,":", "-")) |>
+    mutate(exif_formatted = stringr::str_replace(exif_formatted,":", "-")) |>
+    # remove colons completely for file naming
+    mutate(exif_dt2 = stringr::str_remove_all(exif_dt, ":")) |>
+    separate_wider_delim(cols = exif_dt2, names = c("photo_date", "photo_time"), delim = " ") |>
+    # Drop seconds from photo_time
+    dplyr::mutate(photo_time = stringr::str_sub(photo_time, end = -3)) |>
+    # create column File_DT for file date+time -> YYYYMMDD_HHMMSS
+    dplyr::mutate(photo_filename = paste(photo_date, photo_time, sep = "_")) |>
     # Separate Site_numb column into protocol and site columns
     tidyr::separate_wider_delim(Site_numb, " ",
                                 names = c("protocol", "site_typenum"),
                                 cols_remove = FALSE,
                                 too_many = "merge")
 
-  # Create new name utilizing columns above
-  attachments <- attachments %>%
-    dplyr::mutate(new_name = paste(pt_date_file, id, site_typenum, Subject, sep = "_")) #photo_cnt removed because was not unique sometimes!
+  # Field Maps Date not used for file name - exif date always used instead.
+  #_____________________________________________________________________________
+  attachments2 <- attachments2 %>%
+    dplyr::mutate(field_maps_created_date =
+                    as.character(as.POSIXct(created_date/1000,
+                                            origin="1970-01-01")))
+  #_____________________________________________________________________________
 
-  attachments <- attachments %>%
+  # Create new name utilizing columns above
+  attachments2 <- attachments2 |>
+    dplyr::mutate(new_name = paste(photo_filename, site_typenum, Subject, paste0("ID",id), sep = "_"))
+
+
+  attachments2 <- attachments2 %>%
     dplyr::mutate(customFileName = custom_name,
                   appendID = append_id,
                   fileExt = paste0(".", tools::file_ext(name)),  # Get file extension
                   fileName = ifelse(customFileName, paste(new_name, ifelse(appendID, id, ""), sep = sep), tools::file_path_sans_ext(name)),
-                  #fileName = ifelse(customFileName, paste({{prefix}}, ifelse(appendID, id, ""), sep = sep), tools::file_path_sans_ext(name)),  # If custom_name is FALSE, just use the original filename
-                  fileDest = file.path(dest_folder, paste0(fileName, fileExt))) %>%  # Full file path
-    dplyr::select(-fileExt, -fileName, -customFileName)
+                  fileDest = file.path(dest_folder, paste0(fileName, fileExt)), # Full file path
+                  File_Name = paste0(fileName, fileExt)) #%>% # Full file name
+    # Select Columns to have in final table:
+    # dplyr::select(exif_formatted, protocol, Unit_Code, Samp_Year,
+    #               Samp_Frame, site_typenum, Staff_List,
+    #               family, species, code, nativity, common,
+    #               Taxon_relate, Taxon_comment, Specimen, ID_notes,
+    #               ID_1, ID_1_relate, ID_1_staff,
+    #               ID_2, ID_2_relate, ID_2_staff,
+    #               ID_3, ID_3_relate, ID_3_staff,
+    #               ID_final, ID_final_relate,
+    #               created_user, parentGlobalId, url, contentType, File_Name, fileDest)
 
-  if (length(unique(attachments$fileDest)) != length(attachments$fileDest)) {
+  if (length(unique(attachments2$fileDest)) != length(attachments2$fileDest)) {
     stop("Cannot save photos due to duplicate filenames. Try setting `custom_name = TRUE`.")
   }
 
@@ -1069,17 +1124,17 @@ DownloadAGOLAttachments <- function(feature_layer_url,
     if(is.POSIXct(after_date_filter) == FALSE) {
       stop("'after_date_filter' must be POSIXct object")
     }
-    attachments <- attachments[attachments$pt_date > after_date_filter, ]
+    attachments2 <- attachments2[attachments2$exif_formatted > after_date_filter, ]
   }
 
   if (only_staff){
     # if true, keep only the staff photos
-    attachments <- attachments %>%
+    attachments2 <- attachments2 %>%
       filter(str_detect(Subject, "Staff"))
   }
 
   if (!test_run) {
-    apply(attachments, 1, function(att) {
+    apply(attachments2, 1, function(att) {
       dat <- httr::GET(att$url,
                        query = list(token=agol_token$token)) %>%
         httr::content()
@@ -1093,7 +1148,7 @@ DownloadAGOLAttachments <- function(feature_layer_url,
     })
   }
 
-  return(attachments)
+  return(attachments2)
 }
 
 #' Download FTPC, EIPS, and Plant Photos and attributes from AGOL layers
@@ -1189,7 +1244,11 @@ download_agol2 <- function(photo_layers, temp_dest, master_spreadsheet_folder, a
         mutate(ESRIGNSS_H_RMS = suppressWarnings(as.double(ESRIGNSS_H_RMS))) %>%
         mutate(photo_cnt = suppressWarnings(as.character(photo_cnt))) %>%
         mutate(pt_date = suppressWarnings(as.character(pt_date))) %>%
-        mutate(Samp_Year = suppressWarnings(as.integer(Samp_Year)))
+        mutate(Samp_Year = suppressWarnings(as.integer(Samp_Year))) |>
+        mutate(Taxon_relate = suppressWarnings(as.character(Taxon_relate))) |>
+        mutate(exif_formatted = suppressWarnings(as.character(exif_formatted))) |>
+        mutate(photo_date = suppressWarnings(as.character(photo_date))) |>
+        mutate(photo_time = suppressWarnings(as.character(photo_time)))
 
       mpark <- mtable$Unit_Code %>%
         unique()
@@ -1203,8 +1262,8 @@ download_agol2 <- function(photo_layers, temp_dest, master_spreadsheet_folder, a
         pull(park_time_zones)
 
       m_last_date <- mtable %>%
-        mutate(pt_date = suppressWarnings(as.POSIXct(pt_date))) %>%
-        select(pt_date) %>%
+        mutate(exif_formatted = suppressWarnings(as.POSIXct(exif_formatted))) %>%
+        select(exif_formatted) %>%
         pull() %>%
         max(na.rm = TRUE)
 
@@ -1236,21 +1295,24 @@ download_agol2 <- function(photo_layers, temp_dest, master_spreadsheet_folder, a
     }
 
     csv_location <- paste0(layer_dest, "/", as.character(layer), "_", file_date, ".csv")
+    #new_excel_columns <- setdiff(names(mtable), names(layer_df))
 
     # If master_spreadsheet_folder provided then append new records to old records
     if (test_run == "TRUE" && !missing(master_spreadsheet_folder)) {
       layer_df <- bind_rows(mtable, layer_df) %>%
-        arrange(pt_date)
+        arrange(exif_formatted)
+      #dplyr::mutate(layer_df, across(new_excel_columns, replace_na, ""))
       return (layer_df)
     }
     if (test_run == "FALSE" && !missing(master_spreadsheet_folder)) {
       layer_df <- bind_rows(mtable, layer_df) %>%
-        arrange(pt_date)
+        arrange(exif_formatted)
+      #dplyr::mutate(layer_df, across(new_excel_columns, replace_na, ""))
       xl_csv_location <- paste0(temp_dest, as.character(tools::file_path_sans_ext(mfile)), ".csv")
-      readr::write_excel_csv(layer_df, file = xl_csv_location)
+      readr::write_excel_csv(layer_df, na = "", file = xl_csv_location)
     }
 
-    readr::write_csv(layer_df, csv_location)
+    readr::write_csv(layer_df, csv_location, na = "")
 
     print(layer_dest)
     print(csv_location)

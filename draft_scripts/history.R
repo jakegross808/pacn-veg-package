@@ -17,7 +17,7 @@ download_agol2(subset_photos_layers,
                #master_spreadsheet_folder = mfolder,
                #after_date_filter = m_last_date_tz_1,
                temp_dest,
-               test_run = FALSE,
+               test_run = TRUE,
                only_staff = TRUE)
 
 test_first6 <- download_agol2(subset_photos_layers,
