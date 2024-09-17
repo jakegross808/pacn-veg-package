@@ -1033,18 +1033,10 @@ DownloadAGOLAttachments <- function(feature_layer_url,
                                   delim = " (") |>
       tidyr::separate_wider_delim(cols = C, names = c("code", "family"),
                                   delim =  ")") |>
-      # Select ID_Final or Photo_Taxon(original ID) if no ID_Final:
+      # Select ID_Final or Photo_Taxon(original field ID) if no ID_Final:
       dplyr::mutate(Subject = dplyr::case_when(is.na(ID_final) ~ species,
                                                 .default = ID_final)) |>
       dplyr::mutate(Subject = stringr::str_remove(Subject, "\\."))
-      #dplyr::mutate(Out_Name = paste(File_Time, Out_Name, sep = "_")) |>
-      #dplyr::arrange(exif_formatted, ATT_NAME) %>%
-      #dplyr::group_by(Out_Name) %>%
-      #dplyr::mutate(Out_Name = if(dplyr::n() > 1) {paste(Out_Name, str_pad(row_number(), 2, pad = "0"), sep = "_")}
-      #              else {paste0(Out_Name)}) %>%
-      #dplyr::mutate(Out_Name = paste0(Out_Name, ".jpg")) %>%
-      #dplyr::mutate(Folder_Name = File_Date) %>%
-      #dplyr::ungroup()
   }
 
   # remove all special characters from Subject_other & append to any Subject == other
@@ -1063,7 +1055,7 @@ DownloadAGOLAttachments <- function(feature_layer_url,
 
   # utilize date column from point created in field maps
 
-  # New system uses the photo's exif date/time (instead of field maps point)
+  # Use the photo's exif date/time (instead of field maps point date)
   # Add date time column to attachments table
 
   attachments2 <- attachments2 |>
@@ -1083,7 +1075,7 @@ DownloadAGOLAttachments <- function(feature_layer_url,
                                 cols_remove = FALSE,
                                 too_many = "merge")
 
-  # Field Maps Date not used for file name - exif date always used instead.
+  # Field Maps Date not used for file name - exif date always used.
   #_____________________________________________________________________________
   attachments2 <- attachments2 %>%
     dplyr::mutate(field_maps_created_date =
@@ -1102,17 +1094,7 @@ DownloadAGOLAttachments <- function(feature_layer_url,
                   fileExt = paste0(".", tools::file_ext(name)),  # Get file extension
                   fileName = ifelse(customFileName, paste(new_name, ifelse(appendID, id, ""), sep = sep), tools::file_path_sans_ext(name)),
                   fileDest = file.path(dest_folder, paste0(fileName, fileExt)), # Full file path
-                  File_Name = paste0(fileName, fileExt)) #%>% # Full file name
-    # Select Columns to have in final table:
-    # dplyr::select(exif_formatted, protocol, Unit_Code, Samp_Year,
-    #               Samp_Frame, site_typenum, Staff_List,
-    #               family, species, code, nativity, common,
-    #               Taxon_relate, Taxon_comment, Specimen, ID_notes,
-    #               ID_1, ID_1_relate, ID_1_staff,
-    #               ID_2, ID_2_relate, ID_2_staff,
-    #               ID_3, ID_3_relate, ID_3_staff,
-    #               ID_final, ID_final_relate,
-    #               created_user, parentGlobalId, url, contentType, File_Name, fileDest)
+                  File_Name = paste0(fileName, fileExt)) # Full file name
 
   if (length(unique(attachments2$fileDest)) != length(attachments2$fileDest)) {
     stop("Cannot save photos due to duplicate filenames. Try setting `custom_name = TRUE`.")
@@ -1147,6 +1129,19 @@ DownloadAGOLAttachments <- function(feature_layer_url,
       }
     })
   }
+
+  #Select Columns to have in final table:
+  attachments2 <- attachments2 |>
+    dplyr::select(exif_formatted, protocol, Unit_Code, Samp_Year,
+                Samp_Frame, site_typenum, Staff_List,
+                family, species, code, nativity, common,
+                Taxon_relate, Taxon_comment, Specimen, ID_notes,
+                ID_1, ID_1_relate, ID_1_staff,
+                ID_2, ID_2_relate, ID_2_staff,
+                ID_3, ID_3_relate, ID_3_staff,
+                ID_final, ID_final_relate,
+                created_user, parentGlobalId, url, File_Name, fileDest) |>
+    dplyr::arrange(exif_formatted)
 
   return(attachments2)
 }
