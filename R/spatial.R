@@ -899,7 +899,7 @@ add_mgmt_unit <- function(sample_frame){
 
 #' Download AGOL attachments (JPG or PNG)
 #'
-#' From MOJN/Sarah Wright. Currently only works with jpeg or png images.
+#' From MOJN/Sarah Wright. Modified for PACN Veg Use. Currently only works with jpeg or png images.
 #'
 #' @param feature_layer_url URL of the feature layer containing attachments (including layer ID). *Do not* include a slash at the end.
 #' @param agol_username AGOL username for a headless account with permissions to view the feature layer.
@@ -936,7 +936,7 @@ DownloadAGOLAttachments <- function(feature_layer_url,
                                     append_id = TRUE,
                                     sep = "_",
                                     join_cols = c(),
-                                    after_date_filter = NA,
+                                    after_date_filter = after_date_filter,
                                     only_staff = FALSE,
                                     test_run = FALSE) {
 
@@ -1013,7 +1013,7 @@ DownloadAGOLAttachments <- function(feature_layer_url,
     return(row[[2]][[1]]$value[row[[2]][[1]]$name=='Date/Time'])
   }
 
-  attachments1$exif_dt <-  map(.x = attachments1$exifInfo, .f = pull_exif)
+  attachments1$exif_dt <- purrr::map(.x = attachments1$exifInfo, .f = pull_exif)
 
   # Make Subject column compatible for all layers
   # Change Subject_FTPC and Subject_EIPS to just "Subject"
@@ -1060,11 +1060,11 @@ DownloadAGOLAttachments <- function(feature_layer_url,
 
   attachments2 <- attachments2 |>
     # replace colons with dashes between year-month and month-date
-    mutate(exif_formatted = stringr::str_replace(exif_dt,":", "-")) |>
-    mutate(exif_formatted = stringr::str_replace(exif_formatted,":", "-")) |>
+    dplyr::mutate(exif_formatted = stringr::str_replace(exif_dt,":", "-")) |>
+    dplyr::mutate(exif_formatted = stringr::str_replace(exif_formatted,":", "-")) |>
     # remove colons completely for file naming
-    mutate(exif_dt2 = stringr::str_remove_all(exif_dt, ":")) |>
-    separate_wider_delim(cols = exif_dt2, names = c("photo_date", "photo_time"), delim = " ") |>
+    dplyr::mutate(exif_dt2 = stringr::str_remove_all(exif_dt, ":")) |>
+    tidyr::separate_wider_delim(cols = exif_dt2, names = c("photo_date", "photo_time"), delim = " ") |>
     # Drop seconds from photo_time
     dplyr::mutate(photo_time = stringr::str_sub(photo_time, end = -3)) |>
     # create column File_DT for file date+time -> YYYYMMDD_HHMMSS
@@ -1093,7 +1093,7 @@ DownloadAGOLAttachments <- function(feature_layer_url,
                   appendID = append_id,
                   fileExt = paste0(".", tools::file_ext(name)),  # Get file extension
                   fileName = ifelse(customFileName, paste(new_name, ifelse(appendID, id, ""), sep = sep), tools::file_path_sans_ext(name)),
-                  fileDest = file.path(dest_folder, paste0(fileName, fileExt)), # Full file path
+                  fileDest = file.path(dest_folder, paste0(photo_date, "/", fileName, fileExt)), # Full file path
                   File_Name = paste0(fileName, fileExt)) # Full file name
 
   if (length(unique(attachments2$fileDest)) != length(attachments2$fileDest)) {
@@ -1146,55 +1146,10 @@ DownloadAGOLAttachments <- function(feature_layer_url,
   return(attachments2)
 }
 
-#' Download FTPC, EIPS, and Plant Photos and attributes from AGOL layers
-#'
-#' This function is a customized version of DownloadAGOLAttachments() function from MOJN for specific use with PACN vegetation protocols, specifically FTPC photos, EIPS photos, and Plant photos spatial layers hosted on ArcGIS Online.
-#'
-#' This function will not work unless you have access to the PACN AGOL headless account
-#' Make sure to download and run keyring script for AGOL headless account from sharepoint:
-#' https://doimspp.sharepoint.com/sites/nps-PWR-PACNIM/vital_signs/05_focal_terr_plant_communities/Spatial_info/AGOL_headless/keyring_agol_headless.R
-#'
-#' @param agol_photo_layers A vector of named objects already loaded in the Global Environment. Each object should have only 1 value assigned to it - which is the URL for a specific point layer in AGOL. For example one object in the vector may be "EIPS_HALE_2023" with the assigned value: "https://services1.arcgis.com/fBc8EJBxQRMcHlei/arcgis/rest/services/HALE_2023_EIPS_Sampling_Points_Photos/FeatureServer/93"
-#' @param temp_dest The temporary location on your local computer where the folder of downloaded images and csv will be saved to.
-#'
-#' @return All the photos from a AGOL layer (EIPS photos, FTPC photos, and Plant Photo layers) along with a .csv of the point attributes and metadata.
-#' @export
-#'
-download_agol <- function(photo_layers, temp_dest, test_run = FALSE){
-  for (layer in photo_layers){
-    print(paste("starting download for", layer))
-
-    file_date <- gsub("-", "", as.character(Sys.Date()))
-
-    layer_dest <- paste0(temp_dest, as.character(layer), "_", file_date)
-
-    layer_df <- DownloadAGOLAttachments(
-      feature_layer_url = get(layer),
-      custom_name = TRUE,
-      append_id = FALSE,
-      agol_username = "pacn_gis",
-      agol_password = keyring::key_get(service = "AGOL", username = "pacn_gis"),
-      test_run = test_run,
-      dest_folder = layer_dest)
-
-    if (test_run == "TRUE") {
-      return (layer_df)
-    }
-
-    csv_location <- paste0(layer_dest, "/", as.character(layer), "_", file_date, ".csv")
-
-    readr::write_csv(layer_df, csv_location)
-
-    print(layer_dest)
-    print(csv_location)
-    print(paste(layer, "complete"))
-
-  }
-}
 
 #' Download FTPC, EIPS, and Plant Photos and attributes from AGOL layers
 #'
-#' This function is a customized version of DownloadAGOLAttachments() function from MOJN for specific use with PACN vegetation protocols, specifically FTPC photos, EIPS photos, and Plant photos spatial layers hosted on ArcGIS Online.
+#' This function is a PACN Veg customized version of DownloadAGOLAttachments() function from MOJN for specific use with PACN vegetation protocols, specifically FTPC photos, EIPS photos, and Plant photos spatial layers hosted on ArcGIS Online.
 #'
 #' This function will not work unless you have access to the PACN AGOL headless account
 #' Make sure to download and run keyring script for AGOL headless account from sharepoint:
@@ -1210,7 +1165,7 @@ download_agol <- function(photo_layers, temp_dest, test_run = FALSE){
 #' @return All the photos from a AGOL layer (EIPS photos, FTPC photos, and Plant Photo layers) along with a .csv of the point attributes and metadata.
 #' @export
 #'
-download_agol2 <- function(photo_layers, temp_dest, master_spreadsheet_folder, after_date_filter = NA, only_staff = FALSE, test_run = FALSE){
+download_agol <- function(photo_layers, temp_dest, master_spreadsheet_folder, after_date_filter = NA, only_staff = FALSE, test_run = FALSE){
   for (layer in photo_layers){
     print(paste("starting download for", layer))
 
@@ -1233,17 +1188,17 @@ download_agol2 <- function(photo_layers, temp_dest, master_spreadsheet_folder, a
       mtable <- readxl::read_xlsx(mpath)
 
       mtable <- mtable %>%
-        mutate(ESRIGNSS_LATITUDE = suppressWarnings(as.double(ESRIGNSS_LATITUDE))) %>%
-        mutate(ESRIGNSS_LONGITUDE = suppressWarnings(as.double(ESRIGNSS_LONGITUDE))) %>%
-        mutate(ESRIGNSS_ALTITUDE = suppressWarnings(as.double(ESRIGNSS_ALTITUDE))) %>%
-        mutate(ESRIGNSS_H_RMS = suppressWarnings(as.double(ESRIGNSS_H_RMS))) %>%
-        mutate(photo_cnt = suppressWarnings(as.character(photo_cnt))) %>%
-        mutate(pt_date = suppressWarnings(as.character(pt_date))) %>%
-        mutate(Samp_Year = suppressWarnings(as.integer(Samp_Year))) |>
-        mutate(Taxon_relate = suppressWarnings(as.character(Taxon_relate))) |>
-        mutate(exif_formatted = suppressWarnings(as.character(exif_formatted))) |>
-        mutate(photo_date = suppressWarnings(as.character(photo_date))) |>
-        mutate(photo_time = suppressWarnings(as.character(photo_time)))
+        dplyr::mutate(ESRIGNSS_LATITUDE = suppressWarnings(as.double(ESRIGNSS_LATITUDE))) %>%
+        dplyr::mutate(ESRIGNSS_LONGITUDE = suppressWarnings(as.double(ESRIGNSS_LONGITUDE))) %>%
+        dplyr::mutate(ESRIGNSS_ALTITUDE = suppressWarnings(as.double(ESRIGNSS_ALTITUDE))) %>%
+        dplyr::mutate(ESRIGNSS_H_RMS = suppressWarnings(as.double(ESRIGNSS_H_RMS))) %>%
+        dplyr::mutate(photo_cnt = suppressWarnings(as.character(photo_cnt))) %>%
+        dplyr::mutate(pt_date = suppressWarnings(as.character(pt_date))) %>%
+        dplyr::mutate(Samp_Year = suppressWarnings(as.integer(Samp_Year))) |>
+        dplyr::mutate(Taxon_relate = suppressWarnings(as.character(Taxon_relate))) |>
+        dplyr::mutate(exif_formatted = suppressWarnings(as.character(exif_formatted))) |>
+        dplyr::mutate(photo_date = suppressWarnings(as.character(photo_date))) |>
+        dplyr::mutate(photo_time = suppressWarnings(as.character(photo_time)))
 
       mpark <- mtable$Unit_Code %>%
         unique()
@@ -1253,17 +1208,17 @@ download_agol2 <- function(photo_layers, temp_dest, master_spreadsheet_folder, a
       all_tz <- data.frame(park, park_time_zones)
 
       park_tz <- all_tz %>%
-        filter(park %in% mpark) %>%
-        pull(park_time_zones)
+        dplyr::filter(park %in% mpark) %>%
+        dplyr::pull(park_time_zones)
 
       m_last_date <- mtable %>%
-        mutate(exif_formatted = suppressWarnings(as.POSIXct(exif_formatted))) %>%
-        select(exif_formatted) %>%
-        pull() %>%
+        dplyr::mutate(exif_formatted = suppressWarnings(as.POSIXct(exif_formatted))) %>%
+        dplyr::select(exif_formatted) %>%
+        dplyr::pull() %>%
         max(na.rm = TRUE)
 
       # Add time zone to last date because gets imported as "UTC"
-      m_last_date_tz <- ymd_hms(m_last_date, tz = park_tz)
+      m_last_date_tz <- lubridate::ymd_hms(m_last_date, tz = park_tz)
       # Add one minute because excel did not import seconds for some reason:
       m_last_date_tz_1 <- m_last_date_tz + 60
 
@@ -1294,14 +1249,14 @@ download_agol2 <- function(photo_layers, temp_dest, master_spreadsheet_folder, a
 
     # If master_spreadsheet_folder provided then append new records to old records
     if (test_run == "TRUE" && !missing(master_spreadsheet_folder)) {
-      layer_df <- bind_rows(mtable, layer_df) %>%
-        arrange(exif_formatted)
+      layer_df <- dplyr::bind_rows(mtable, layer_df) %>%
+        dplyr::arrange(exif_formatted)
       #dplyr::mutate(layer_df, across(new_excel_columns, replace_na, ""))
       return (layer_df)
     }
     if (test_run == "FALSE" && !missing(master_spreadsheet_folder)) {
-      layer_df <- bind_rows(mtable, layer_df) %>%
-        arrange(exif_formatted)
+      layer_df <- dplyr::bind_rows(mtable, layer_df) %>%
+        dplyr::arrange(exif_formatted)
       #dplyr::mutate(layer_df, across(new_excel_columns, replace_na, ""))
       xl_csv_location <- paste0(temp_dest, as.character(tools::file_path_sans_ext(mfile)), ".csv")
       readr::write_excel_csv(layer_df, na = "", file = xl_csv_location)
