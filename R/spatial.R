@@ -931,6 +931,7 @@ DownloadAGOLAttachments <- function(feature_layer_url,
                                     agol_username,
                                     agol_password = keyring::key_get("AGOL", agol_username),
                                     dest_folder = "photo_downloads",
+                                    share_folder,
                                     custom_name = TRUE,
                                     prefix = "photo",
                                     append_id = TRUE,
@@ -941,10 +942,10 @@ DownloadAGOLAttachments <- function(feature_layer_url,
                                     test_run = FALSE) {
 
   # Format destination folder path properly and create it if it doesn't exist
-  dest_folder <- normalizePath(dest_folder, winslash = .Platform$file.sep, mustWork = FALSE)
-  if (!dir.exists(dest_folder)) {
-    dir.create(dest_folder, recursive = TRUE)
-  }
+  #dest_folder <- normalizePath(dest_folder, winslash = .Platform$file.sep, mustWork = FALSE)
+  #if (!dir.exists(dest_folder)) {
+  #  dir.create(dest_folder, recursive = TRUE)
+  #}
 
   # AGOL authentication - get token
   token_resp <- httr::POST("https://nps.maps.arcgis.com/sharing/rest/generateToken",
@@ -1093,7 +1094,8 @@ DownloadAGOLAttachments <- function(feature_layer_url,
                   appendID = append_id,
                   fileExt = paste0(".", tools::file_ext(name)),  # Get file extension
                   fileName = ifelse(customFileName, paste(new_name, ifelse(appendID, id, ""), sep = sep), tools::file_path_sans_ext(name)),
-                  fileDest = file.path(dest_folder, paste0(photo_date, "/", fileName, fileExt)), # Full file path
+                  fileDest = file.path(dest_folder, paste0(photo_date, "/", fileName, fileExt)), # Full  path to temp folder
+                  shareDest = file.path(share_folder, paste0(photo_date, "/", fileName, fileExt)), # Full path to link on sharepoint
                   File_Name = paste0(fileName, fileExt)) # Full file name
 
   if (length(unique(attachments2$fileDest)) != length(attachments2$fileDest)) {
@@ -1103,7 +1105,7 @@ DownloadAGOLAttachments <- function(feature_layer_url,
   # If after_date_filter is not NA then filter by the POSIXct mdy_hms provided
   if (!is.na(after_date_filter)){
     # stop code if 'after_date_filter' argument is not POSIXct
-    if(is.POSIXct(after_date_filter) == FALSE) {
+    if(lubridate::is.POSIXct(after_date_filter) == FALSE) {
       stop("'after_date_filter' must be POSIXct object")
     }
     attachments2 <- attachments2[attachments2$exif_formatted > after_date_filter, ]
@@ -1116,6 +1118,15 @@ DownloadAGOLAttachments <- function(feature_layer_url,
   }
 
   if (!test_run) {
+
+    # Get new folder names from photo dates:
+    new_photo_folder_names <- unique(attachments2$photo_date)
+    new_photo_folder_paths <- paste0(dest_folder, "/", new_photo_folder_names)
+    # Format destination folder path properly and create it if it doesn't exist:
+    dest_folders <- normalizePath(new_photo_folder_paths, winslash = .Platform$file.sep, mustWork = FALSE)
+    lapply(dest_folders, function(x) if(!dir.exists(x)) dir.create(x, recursive = TRUE))
+
+    # Download from AGOL:
     apply(attachments2, 1, function(att) {
       dat <- httr::GET(att$url,
                        query = list(token=agol_token$token)) %>%
@@ -1140,7 +1151,7 @@ DownloadAGOLAttachments <- function(feature_layer_url,
                 ID_2, ID_2_relate, ID_2_staff,
                 ID_3, ID_3_relate, ID_3_staff,
                 ID_final, ID_final_relate,
-                created_user, parentGlobalId, url, File_Name, fileDest) |>
+                created_user, parentGlobalId, fileDest, url, shareDest, File_Name) |>
     dplyr::arrange(exif_formatted)
 
   return(attachments2)
@@ -1157,6 +1168,7 @@ DownloadAGOLAttachments <- function(feature_layer_url,
 #'
 #' @param photo_layers A vector of named objects already loaded in the Global Environment. Each object should have only 1 value assigned to it - which is the URL for a specific point layer in AGOL. For example one object in the vector may be "EIPS_HALE_2023" with the assigned value: "https://services1.arcgis.com/fBc8EJBxQRMcHlei/arcgis/rest/services/HALE_2023_EIPS_Sampling_Points_Photos/FeatureServer/93"
 #' @param temp_dest The temporary location on your local computer where the folder of downloaded images and csv will be saved to.
+#' @param sharepoint_dest The entire path to folder on sharepoint where the photos will be uploaded to.
 #' @param master_spreadsheet_folder Location of current excel spreadsheet if appending table data from new downloads to it. Needs to be only one excel spreadsheet in the folder.
 #' @param after_date_filter POSIXct date object. Only records after date will be returned.
 #' @param only_staff if true, downloads just the staff photos.
@@ -1165,13 +1177,15 @@ DownloadAGOLAttachments <- function(feature_layer_url,
 #' @return All the photos from a AGOL layer (EIPS photos, FTPC photos, and Plant Photo layers) along with a .csv of the point attributes and metadata.
 #' @export
 #'
-download_agol <- function(photo_layers, temp_dest, master_spreadsheet_folder, after_date_filter = NA, only_staff = FALSE, test_run = FALSE){
+download_agol <- function(photo_layers, temp_dest, sharepoint_dest, master_spreadsheet_folder, after_date_filter = NA, only_staff = FALSE, test_run = FALSE){
   for (layer in photo_layers){
     print(paste("starting download for", layer))
 
     file_date <- gsub("-", "", as.character(Sys.Date()))
 
-    layer_dest <- paste0(temp_dest, as.character(layer), "_", file_date)
+    layer_dest <- paste0(temp_dest, "/", as.character(layer), "_", file_date)
+
+    var_share_folder <- sharepoint_dest
 
     # Use master_spreadsheet_folder if wanting to append new table to previous
     # Excel master spreadsheet
@@ -1185,20 +1199,24 @@ download_agol <- function(photo_layers, temp_dest, master_spreadsheet_folder, af
       mfile <- list.files(mfolder, pattern = "\\.xlsx$")
       mpath <- paste0(mfolder, "/", mfile)
       mpath
-      mtable <- readxl::read_xlsx(mpath)
+      mtable <- readxl::read_xlsx(path = mpath)
 
       mtable <- mtable %>%
-        dplyr::mutate(ESRIGNSS_LATITUDE = suppressWarnings(as.double(ESRIGNSS_LATITUDE))) %>%
-        dplyr::mutate(ESRIGNSS_LONGITUDE = suppressWarnings(as.double(ESRIGNSS_LONGITUDE))) %>%
-        dplyr::mutate(ESRIGNSS_ALTITUDE = suppressWarnings(as.double(ESRIGNSS_ALTITUDE))) %>%
-        dplyr::mutate(ESRIGNSS_H_RMS = suppressWarnings(as.double(ESRIGNSS_H_RMS))) %>%
-        dplyr::mutate(photo_cnt = suppressWarnings(as.character(photo_cnt))) %>%
-        dplyr::mutate(pt_date = suppressWarnings(as.character(pt_date))) %>%
+        #dplyr::mutate(ESRIGNSS_LATITUDE = suppressWarnings(as.double(ESRIGNSS_LATITUDE))) %>%
+        #dplyr::mutate(ESRIGNSS_LONGITUDE = suppressWarnings(as.double(ESRIGNSS_LONGITUDE))) %>%
+        #dplyr::mutate(ESRIGNSS_ALTITUDE = suppressWarnings(as.double(ESRIGNSS_ALTITUDE))) %>%
+        #dplyr::mutate(ESRIGNSS_H_RMS = suppressWarnings(as.double(ESRIGNSS_H_RMS))) %>%
+        #dplyr::mutate(photo_cnt = suppressWarnings(as.character(photo_cnt))) %>%
+        #dplyr::mutate(pt_date = suppressWarnings(as.character(pt_date))) %>%
         dplyr::mutate(Samp_Year = suppressWarnings(as.integer(Samp_Year))) |>
         dplyr::mutate(Taxon_relate = suppressWarnings(as.character(Taxon_relate))) |>
-        dplyr::mutate(exif_formatted = suppressWarnings(as.character(exif_formatted))) |>
-        dplyr::mutate(photo_date = suppressWarnings(as.character(photo_date))) |>
-        dplyr::mutate(photo_time = suppressWarnings(as.character(photo_time)))
+        dplyr::mutate(ID_final_relate = suppressWarnings(as.character(ID_final_relate))) |>
+        dplyr::mutate(ID_1_relate = suppressWarnings(as.character(ID_1_relate))) |>
+        dplyr::mutate(ID_2_relate = suppressWarnings(as.character(ID_2_relate))) |>
+        dplyr::mutate(ID_3_relate = suppressWarnings(as.character(ID_3_relate))) |>
+        dplyr::mutate(exif_formatted = suppressWarnings(as.character(exif_formatted)))
+        #dplyr::mutate(photo_date = suppressWarnings(as.character(photo_date))) |>
+        #dplyr::mutate(photo_time = suppressWarnings(as.character(photo_time)))
 
       mpark <- mtable$Unit_Code %>%
         unique()
@@ -1233,6 +1251,7 @@ download_agol <- function(photo_layers, temp_dest, master_spreadsheet_folder, af
       agol_password = keyring::key_get(service = "AGOL", username = "pacn_gis"),
       test_run = test_run,
       dest_folder = layer_dest,
+      share_folder = var_share_folder,
       after_date_filter = after_date_filter,
       only_staff = only_staff)
 

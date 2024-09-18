@@ -55,36 +55,45 @@ Plants_KALA_2024v2 <- "https://services1.arcgis.com/fBc8EJBxQRMcHlei/arcgis/rest
 
 var_photo_layers <- c("Plants_KALA_2024v2")
 
-field_maps_data <- download_agol2(
+var_temp_dest <- "C:/Users/JJGross/Downloads/Check_Photos"
+var_sharepoint_dest <- "https://doimspp.sharepoint.com/:f:/r/sites/nps-PWR-PACNIM/vital_signs/05_focal_terr_plant_communities/Images/2024/KALA/Plants/Plants_photos"
+
+# Test Run
+field_maps_data <- download_agol(
   photo_layers = var_photo_layers,
-  temp_dest = "C:/Users/JJGross/Downloads/Check_Photos/",
+  temp_dest = var_temp_dest,
+  sharepoint_dest = var_sharepoint_dest,
   #only_staff = FALSE,
   test_run = TRUE
 )
 
-field_maps_data <- download_agol2(
+# First Full Download
+field_maps_data <- download_agol(
   photo_layers = var_photo_layers,
-  temp_dest = "C:/Users/JJGross/Downloads/Check_Photos/",
+  temp_dest = var_temp_dest,
+  sharepoint_dest = var_sharepoint_dest,
   test_run = FALSE
 )
 
 ## 2nd-n Downloads -----------------------------------------------------------
-Plants_KALA_2024v2 <- "https://services1.arcgis.com/fBc8EJBxQRMcHlei/arcgis/rest/services/KALA_2024_VEG_Sampling_Plant_Photos_v2/FeatureServer/2"
 
-var_photo_layers <- c("Plants_KALA_2024v2")
-
-field_maps_data <- download_agol2(
+# Test Run
+field_maps_data <- download_agol(
   photo_layers = var_photo_layers,
-  temp_dest = "C:/Users/JJGross/Downloads/Check_Photos/",
-  master_spreadsheet_folder = "C:/Users/JJGross/Downloads/Check_Photos/Plants_KALA_2024_Spreadsheet",
-  #after_date_filter = var_after_date, # This argument needs to be removed
+  temp_dest = var_temp_dest,
+  sharepoint_dest = var_sharepoint_dest,
+  master_spreadsheet_folder = "C:/Users/JJGross/Downloads/master",
+  #master_spreadsheet_folder = "C:/Users/JJGross/Downloads/Check_Photos/Plants_KALA_2024_Spreadsheet",
+  #after_date_filter = var_after_date, # This argument still needs to be tested.
   test_run = TRUE
 )
 
-field_maps_data <- download_agol2(
+# Download new photos
+field_maps_data <- download_agol(
   photo_layers = var_photo_layers,
-  temp_dest = "C:/Users/JJGross/Downloads/Check_Photos/",
-  master_spreadsheet_folder = "C:/Users/JJGross/Downloads/Check_Photos/Plants_KALA_2024_Spreadsheet",
+  temp_dest = var_temp_dest,
+  sharepoint_dest = var_sharepoint_dest,
+  master_spreadsheet_folder = "C:/Users/JJGross/Downloads/master",
   test_run = FALSE
 )
 
