@@ -913,6 +913,7 @@ add_mgmt_unit <- function(sample_frame){
 #' @param join_cols Named vector in the format `c("foreign key column to data table in attachment table" = "primary key column of data table")` where the attachment table is the table that stores attachments only (this is mostly hidden from view in AGOL) and the data table is the table for which attachments have been enabled. If you aren't sure what the foreign key column is called, leave this argument empty and set `test_run = TRUE`. The function will try to guess the join columns, but if it gets it wrong, it will return the attachment table without the accompanying data table. At that point, you can check the name(s) of the foreign key column(s) and re-run your code with the join columns specified. They should be something along the lines of "parentGlobalId" or "parentObjectId".
 #' @param after_date_filter POSIXct date object. Only records after date will be returned.
 #' @param only_staff if true, downloads just the staff photos.
+#' @param master_spreadsheet optional, master spreadsheet form previous download can be included for syncing
 #' @return Tibble of attachment data, including paths to saved files.
 #' @export
 #'
@@ -939,6 +940,7 @@ DownloadAGOLAttachments <- function(feature_layer_url,
                                     join_cols = c(),
                                     after_date_filter = after_date_filter,
                                     only_staff = FALSE,
+                                    master_spreadsheet = master_spreadsheet,
                                     test_run = FALSE) {
 
   # Format destination folder path properly and create it if it doesn't exist
@@ -986,6 +988,16 @@ DownloadAGOLAttachments <- function(feature_layer_url,
     tibble::as_tibble() %>%
     tidyr::unnest(cols = attachmentInfos)
 
+  if(is.data.frame(master_spreadsheet)) {
+    already_downloaded_records <- master_spreadsheet$id
+    not_downloaded <- !(attachments$id %in% already_downloaded_records)
+    if (any(not_downloaded)) {
+      print(paste("all record on AGOL already listed on master spreadsheet"))
+    } else {
+      print(paste(sum(not_downloaded), "records need downloaded"))
+    }
+  }
+
   # Join attachment table data to attachment info
   if (is.null(join_cols)) {
     if ("parentGlobalId" %in% names(attachments) && length(global_id) == 1) {
@@ -1005,8 +1017,7 @@ DownloadAGOLAttachments <- function(feature_layer_url,
     sep <- ""  # Make separator blank if not appending ID to photo name
   }
 
-  # Get apply to pull out exif date
-
+  # attachments1 ----
   attachments1 <- attachments
 
   # Function to pull exif date/time from photo attributes
@@ -1043,12 +1054,14 @@ DownloadAGOLAttachments <- function(feature_layer_url,
   # remove all special characters from Subject_other & append to any Subject == other
   if (any(names(attachments1) %in% c("Subject_other"))) {
     attachments1 <- attachments1 %>%
-      dplyr::mutate(Sub_other = stringr::str_remove(Subject_other, "[[:punct:]]")) %>%
+      #dplyr::mutate(Sub_other = stringr::str_remove(Subject_other, "[[:punct:]]")) %>%
+      dplyr::mutate(Sub_other = stringr::str_replace_all(Subject_other, "[^[:alnum:] ]", "")) |>
       dplyr::mutate(Sub_other = stringr::str_replace_all(Sub_other," ", "_")) %>%
       dplyr::mutate(Subject = dplyr::case_when(Subject == "Other" ~ paste(Subject, Sub_other, sep = "_"),
                                                .default = as.character(Subject)))
   }
 
+  # attachments2 ----
   attachments2 <- attachments1
 
   # utilize numeric count of photos from Field Maps
@@ -1098,16 +1111,29 @@ DownloadAGOLAttachments <- function(feature_layer_url,
                   shareDest = file.path(share_folder, paste0(photo_date, "/", fileName, fileExt)), # Full path to link on sharepoint
                   File_Name = paste0(fileName, fileExt)) # Full file name
 
+
+  # if (stringr::str_detect(feature_layer_url, "Plant")) {
+  #   attachments2 <- attachments2 |>
+  #     dplyr::mutate(
+  #       # For Plants, do not put all folders in one file
+  #       shareDest = file.path(share_folder, paste0(photo_date, "/", fileName, fileExt))) # Full path to link on sharepoint
+  # } else {
+  #   attachments2 <- attachments2 |>
+  #     dplyr::mutate(
+  #       # For FTPC/EIPS downloads, put all folders into one "download" file
+  #       shareDest = file.path(share_folder, paste0(basename(dest_folder), "/", photo_date, "/", fileName, fileExt))) # Full path to link on sharepoint
+  #   }
+
   if (length(unique(attachments2$fileDest)) != length(attachments2$fileDest)) {
     stop("Cannot save photos due to duplicate filenames. Try setting `custom_name = TRUE`.")
   }
 
-  # If after_date_filter is not NA then filter by the POSIXct mdy_hms provided
+  # If after_date_filter is not NA then filter by the lubridate::mdy_hms() provided
   if (!is.na(after_date_filter)){
     # stop code if 'after_date_filter' argument is not POSIXct
-    if(lubridate::is.POSIXct(after_date_filter) == FALSE) {
-      stop("'after_date_filter' must be POSIXct object")
-    }
+    #if(lubridate::is.POSIXct(after_date_filter) == FALSE) {
+    #  stop("'after_date_filter' must be POSIXct object")
+    #}
     attachments2 <- attachments2[attachments2$exif_formatted > after_date_filter, ]
   }
 
@@ -1126,7 +1152,16 @@ DownloadAGOLAttachments <- function(feature_layer_url,
     dest_folders <- normalizePath(new_photo_folder_paths, winslash = .Platform$file.sep, mustWork = FALSE)
     lapply(dest_folders, function(x) if(!dir.exists(x)) dir.create(x, recursive = TRUE))
 
+    # Arrange so that photo processing happens in chronological order:
+    attachments2 <- attachments2 |>
+      dplyr::arrange(exif_formatted)
+
     # Download from AGOL:
+    if (nrow(attachments2) == 0) {
+      stop("No records (urls) selected for download from AGOL")
+
+    }
+
     apply(attachments2, 1, function(att) {
       dat <- httr::GET(att$url,
                        query = list(token=agol_token$token)) %>%
@@ -1142,7 +1177,8 @@ DownloadAGOLAttachments <- function(feature_layer_url,
   }
 
   #Select Columns to have in final table:
-  attachments2 <- attachments2 |>
+  if (stringr::str_detect(feature_layer_url, "Plant")) {
+    attachments2 <- attachments2 |>
     dplyr::select(exif_formatted, protocol, Unit_Code, Samp_Year,
                 Samp_Frame, site_typenum, Staff_List,
                 family, species, code, nativity, common,
@@ -1151,8 +1187,12 @@ DownloadAGOLAttachments <- function(feature_layer_url,
                 ID_2, ID_2_relate, ID_2_staff,
                 ID_3, ID_3_relate, ID_3_staff,
                 ID_final, ID_final_relate,
-                created_user, parentGlobalId, fileDest, url, shareDest, File_Name) |>
+                created_user, parentGlobalId, fileDest, url, shareDest, File_Name)
+  }
+
+  attachments2 <- attachments2 |>
     dplyr::arrange(exif_formatted)
+
 
   return(attachments2)
 }
@@ -1170,7 +1210,7 @@ DownloadAGOLAttachments <- function(feature_layer_url,
 #' @param temp_dest The temporary location on your local computer where the folder of downloaded images and csv will be saved to.
 #' @param sharepoint_dest The entire path to folder on sharepoint where the photos will be uploaded to.
 #' @param master_spreadsheet_folder Location of current excel spreadsheet if appending table data from new downloads to it. Needs to be only one excel spreadsheet in the folder.
-#' @param after_date_filter POSIXct date object. Only records after date will be returned.
+#' @param after_date_filter POSIXct date object. Only records after date will be returned. Example: after_date_filter = lubridate::mdy_hms("09/12/2024 18:00:00", tz = "HST")
 #' @param only_staff if true, downloads just the staff photos.
 #' @param test_run If `TRUE`, returns attachment data as R object and proposed file locations without actually downloading, saving attachments, or exporting .csv.
 #'
@@ -1187,6 +1227,8 @@ download_agol <- function(photo_layers, temp_dest, sharepoint_dest, master_sprea
 
     var_share_folder <- sharepoint_dest
 
+    var_master_spreadsheet <- NULL # default set to null unless master_spreadsheet provided
+
     # Use master_spreadsheet_folder if wanting to append new table to previous
     # Excel master spreadsheet
 
@@ -1201,13 +1243,8 @@ download_agol <- function(photo_layers, temp_dest, sharepoint_dest, master_sprea
       mpath
       mtable <- readxl::read_xlsx(path = mpath)
 
-      mtable <- mtable %>%
-        #dplyr::mutate(ESRIGNSS_LATITUDE = suppressWarnings(as.double(ESRIGNSS_LATITUDE))) %>%
-        #dplyr::mutate(ESRIGNSS_LONGITUDE = suppressWarnings(as.double(ESRIGNSS_LONGITUDE))) %>%
-        #dplyr::mutate(ESRIGNSS_ALTITUDE = suppressWarnings(as.double(ESRIGNSS_ALTITUDE))) %>%
-        #dplyr::mutate(ESRIGNSS_H_RMS = suppressWarnings(as.double(ESRIGNSS_H_RMS))) %>%
-        #dplyr::mutate(photo_cnt = suppressWarnings(as.character(photo_cnt))) %>%
-        #dplyr::mutate(pt_date = suppressWarnings(as.character(pt_date))) %>%
+      if (stringr::str_detect(photo_layers, "Plant")) {
+        mtable <- mtable %>%
         dplyr::mutate(Samp_Year = suppressWarnings(as.integer(Samp_Year))) |>
         dplyr::mutate(Taxon_relate = suppressWarnings(as.character(Taxon_relate))) |>
         dplyr::mutate(ID_final_relate = suppressWarnings(as.character(ID_final_relate))) |>
@@ -1215,8 +1252,18 @@ download_agol <- function(photo_layers, temp_dest, sharepoint_dest, master_sprea
         dplyr::mutate(ID_2_relate = suppressWarnings(as.character(ID_2_relate))) |>
         dplyr::mutate(ID_3_relate = suppressWarnings(as.character(ID_3_relate))) |>
         dplyr::mutate(exif_formatted = suppressWarnings(as.character(exif_formatted)))
-        #dplyr::mutate(photo_date = suppressWarnings(as.character(photo_date))) |>
-        #dplyr::mutate(photo_time = suppressWarnings(as.character(photo_time)))
+        }
+
+      if (stringr::str_detect(photo_layers, "FTPC")) {
+        mtable <- mtable %>%
+          dplyr::mutate(Samp_Year = suppressWarnings(as.integer(Samp_Year))) |>
+          dplyr::mutate(photo_cnt = suppressWarnings(as.character(photo_cnt))) |>
+          dplyr::mutate(photo_date = suppressWarnings(as.character(photo_date))) |>
+          dplyr::mutate(photo_time = suppressWarnings(as.character(photo_time))) |>
+          dplyr::mutate(field_maps_created_date = suppressWarnings(as.character(field_maps_created_date))) |>
+          dplyr::mutate(exif_formatted = suppressWarnings(as.character(exif_formatted)))
+      }
+
 
       mpark <- mtable$Unit_Code %>%
         unique()
@@ -1241,6 +1288,8 @@ download_agol <- function(photo_layers, temp_dest, sharepoint_dest, master_sprea
       m_last_date_tz_1 <- m_last_date_tz + 60
 
       after_date_filter <- m_last_date_tz_1
+      print(paste("The most recent photo downloaded (per the master spreadsheet) was taken on", after_date_filter))
+      var_master_spreadsheet <- mtable
     }
 
     layer_df <- DownloadAGOLAttachments(
@@ -1253,7 +1302,8 @@ download_agol <- function(photo_layers, temp_dest, sharepoint_dest, master_sprea
       dest_folder = layer_dest,
       share_folder = var_share_folder,
       after_date_filter = after_date_filter,
-      only_staff = only_staff)
+      only_staff = only_staff,
+      master_spreadsheet = var_master_spreadsheet)
 
     # add sharepoint path
     #layer_df <- layer_df %>%
