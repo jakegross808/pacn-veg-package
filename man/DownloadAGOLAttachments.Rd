@@ -9,13 +9,15 @@ DownloadAGOLAttachments(
   agol_username,
   agol_password = keyring::key_get("AGOL", agol_username),
   dest_folder = "photo_downloads",
+  share_folder,
   custom_name = TRUE,
   prefix = "photo",
   append_id = TRUE,
   sep = "_",
   join_cols = c(),
-  after_date_filter = NA,
+  after_date_filter = after_date_filter,
   only_staff = FALSE,
+  master_spreadsheet = master_spreadsheet,
   test_run = FALSE
 )
 }
@@ -42,13 +44,15 @@ DownloadAGOLAttachments(
 
 \item{only_staff}{if true, downloads just the staff photos.}
 
+\item{master_spreadsheet}{optional, master spreadsheet form previous download can be included for syncing}
+
 \item{test_run}{If \code{TRUE}, returns attachment data and proposed file locations without actually downloading and saving attachments.}
 }
 \value{
 Tibble of attachment data, including paths to saved files.
 }
 \description{
-From MOJN/Sarah Wright. Currently only works with jpeg or png images.
+From MOJN/Sarah Wright. Modified for PACN Veg Use. Currently only works with jpeg or png images.
 }
 \examples{
 \dontrun{

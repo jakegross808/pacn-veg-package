@@ -32,8 +32,8 @@ PlotAndTransectLocations <- function(protocol = c("FTPC", "EIPS"), crosstalk = F
     dplyr::rename(Sample_Unit_Number = Transect_Number, Sample_Unit_Type = Transect_Type) %>%
     dplyr::select(Protocol, Unit_Code, Sampling_Frame, Sample_Unit, Sample_Unit_Type, Sample_Unit_Number, Lat, Long, Year, Cycle) %>%
     # Change so all sampling cyles have same year (ie first year of new cycle)
-    dplyr::group_by(Sampling_Frame, Cycle) %>%
-    dplyr::mutate(Year = min(Year)) %>%
+    #dplyr::group_by(Sampling_Frame, Cycle) %>% ***removed these two line 10/3/2024 - causing join issues on the upstream side (just use cycle if needing to group***)
+    #dplyr::mutate(Year = min(Year)) %>%
     dplyr::ungroup()
 
   eips_tsects <- FilterPACNVeg(data_name = "EIPS_image_pts", park = park, sample_frame = sample_frame, cycle = cycle, transect_type = transect_type, certified = certified, verified = verified) %>%
@@ -86,101 +86,6 @@ PlotAndTransectLocations <- function(protocol = c("FTPC", "EIPS"), crosstalk = F
 }
 
 
-#' Map PACN vegetation plots and transects
-#'
-#' @inheritParams PlotAndTransectLocations
-#'
-#' @return A leaflet map
-#' @export
-#'
-#' @examples
-#' \dontrun{
-#' MapPACNVeg(protocol = "FTPC")
-#' MapPACNVeg(park = "AMME")
-#' }
-MapPACNVeg <- function(protocol = c("FTPC", "EIPS"), crosstalk = FALSE, crosstalk_group = "map", park, sample_frame, cycle, plot_type, is_qa_plot, transect_type, certified, verified) {
-  pts <- PlotAndTransectLocations(protocol = protocol, crosstalk = crosstalk, crosstalk_group = crosstalk_group, park = park, sample_frame = sample_frame, cycle = cycle, plot_type = plot_type, is_qa_plot = is_qa_plot, transect_type = transect_type, certified = certified, verified = verified)
-
-  # If pts is a crosstalk object, extract just the data for functions that need a regular tibble/dataframe
-  if (crosstalk) {
-    pts_data <- pts$data()
-  } else {
-    pts_data <- pts
-  }
-
-  if ("EIPS" %in% protocol) {
-    tsect_lines_df <- pts_data %>%
-      dplyr::filter(!is.na(Transect_Line), !purrr::map_lgl(Transect_Line, is.null)) %>%
-      tibble::rowid_to_column(var = "id")
-    tsect_lines <- apply(tsect_lines_df, 1, function(df) {return(sp::Lines(df$Transect_Line, df$id))})
-    tsect_lines <- sp::SpatialLines(tsect_lines)
-    tsect_lines <- sp::SpatialLinesDataFrame(tsect_lines, tsect_lines_df, match.ID = TRUE)
-  }
-
-  # Make NPS map Attribution
-  NPSAttrib <-
-    htmltools::HTML(
-      "<a href='https://www.nps.gov/npmap/disclaimer/'>Disclaimer</a> |
-      &copy; <a href='http://mapbox.com/about/maps' target='_blank'>Mapbox</a>
-      &copy; <a href='http://openstreetmap.org/copyright' target='_blank'>OpenStreetMap</a> contributors |
-      <a class='improve-park-tiles'
-      href='http://insidemaps.nps.gov/places/editor/#background=mapbox-satellite&map=4/-95.97656/39.02772&overlays=park-tiles-overlay'
-      target='_blank'>Improve Park Tiles</a>"
-    )
-
-  # NPS park tiles URLs
-  NPSbasic = "https://atlas-stg.geoplatform.gov/styles/v1/atlas-user/ck58pyquo009v01p99xebegr9/tiles/256/{z}/{x}/{y}@2x?access_token=pk.eyJ1IjoiYXRsYXMtdXNlciIsImEiOiJjazFmdGx2bjQwMDAwMG5wZmYwbmJwbmE2In0.lWXK2UexpXuyVitesLdwUg"
-  NPSimagery = "https://atlas-stg.geoplatform.gov/styles/v1/atlas-user/ck72fwp2642dv07o7tbqinvz4/tiles/256/{z}/{x}/{y}@2x?access_token=pk.eyJ1IjoiYXRsYXMtdXNlciIsImEiOiJjazFmdGx2bjQwMDAwMG5wZmYwbmJwbmE2In0.lWXK2UexpXuyVitesLdwUg"
-  NPSslate = "https://atlas-stg.geoplatform.gov/styles/v1/atlas-user/ck5cpvc2e0avf01p9zaw4co8o/tiles/256/{z}/{x}/{y}@2x?access_token=pk.eyJ1IjoiYXRsYXMtdXNlciIsImEiOiJjazFmdGx2bjQwMDAwMG5wZmYwbmJwbmE2In0.lWXK2UexpXuyVitesLdwUg"
-  NPSlight = "https://atlas-stg.geoplatform.gov/styles/v1/atlas-user/ck5cpia2u0auf01p9vbugvcpv/tiles/256/{z}/{x}/{y}@2x?access_token=pk.eyJ1IjoiYXRsYXMtdXNlciIsImEiOiJjazFmdGx2bjQwMDAwMG5wZmYwbmJwbmE2In0.lWXK2UexpXuyVitesLdwUg"
-
-  # Set up custom icons
-  icon_filename <- paste0(pts_data$Protocol, "_", pts_data$Sample_Unit_Type, ".png")
-  customIcons <- leaflet::icons(iconUrl = here::here("inst", "rmarkdown", icon_filename),
-    iconWidth = 20, iconHeight = 20,
-    iconAnchorX = 10, iconAnchorY = 10
-  )
-
-  # Set up group labels for layers control
-  grps <- paste(protocol, "points")
-  if ("EIPS" %in% protocol) {
-    grps <- c(grps, "EIPS transects")
-  }
-
-  map <- leaflet::leaflet(pts) %>%
-    leaflet::addTiles(group = "Basic", urlTemplate = NPSbasic, attribution = NPSAttrib) %>%
-    leaflet::addTiles(group = "Imagery", urlTemplate = NPSimagery, attribution = NPSAttrib) %>%
-    leaflet::addTiles(group = "Slate", urlTemplate = NPSslate, attribution = NPSAttrib) %>%
-    leaflet::addTiles(group = "Light", urlTemplate = NPSlight, attribution = NPSAttrib) %>%
-    leaflet::addLayersControl(baseGroups = c("Basic", "Imagery", "Slate", "Light"),
-                              overlayGroups = grps,
-                              options=leaflet::layersControlOptions(collapsed = TRUE)) %>%
-    leaflet.esri::addEsriFeatureLayer(url = "https://services1.arcgis.com/fBc8EJBxQRMcHlei/arcgis/rest/services/PACN_DBO_VEG_sampling_frames_ply/FeatureServer/0",
-                                      useServiceSymbology = TRUE,
-                                      labelProperty = "Sampling_Frame") %>%
-    leaflet::addMarkers(lng = ~Long,
-                               lat = ~Lat,
-                               icon = customIcons,
-                        group = ~paste(Protocol, "points"),
-                        label = ~Sample_Unit_Number,
-                        labelOptions = leaflet::labelOptions(noHide = TRUE, opacity = .9, textOnly = TRUE, offset = c(0,0), direction = "center", style = list("color" = "white", "font-weight" = "bold")),
-                        popup = ~paste0("<strong>", Protocol, " ", Sample_Unit, ":</strong> ", Sample_Unit_Number,
-                                        "<br><strong>", Sample_Unit, " Type:</strong> ", Sample_Unit_Type,
-                                        "<br><strong>Sampling Frame:</strong> ", Sampling_Frame,
-                                        "<br><strong>Cycle:</strong> ", Cycle,
-                                        "<br><strong>Year:</strong> ", Year))
-
-  # Add EIPS transect lines
-  if ("EIPS" %in% protocol) {
-    map <- leaflet::addPolylines(map, data = tsect_lines,
-                          group = "EIPS transects", color = "#c56c39", opacity = 0.8)
-  }
-
-  map %<>% leaflet::addScaleBar(position = "bottomleft")
-
-  return(map)
-}
-
 #' Map change in vegetation cover
 #'
 #' @inheritParams PlotAndTransectLocations
@@ -190,8 +95,7 @@ MapPACNVeg <- function(protocol = c("FTPC", "EIPS"), crosstalk = FALSE, crosstal
 #'
 #' @examples
 #' \dontrun{
-#' MapPACNVeg(protocol = "FTPC")
-#' MapPACNVeg(park = "AMME")
+#'
 #' }
 MapCoverChange <- function(crosstalk = FALSE, crosstalk_group = "cover", combine_strata = TRUE, park, sample_frame, community, year, cycle = 2, plot_type, paired_cycle = 1, is_qa_plot, certified, verified, silent = TRUE) {
 
@@ -596,7 +500,7 @@ filename <- function(pch, col, bg) {
 #' MapPACNVeg(protocol = "FTPC")
 #' MapPACNVeg(park = "AMME")
 #' }
-MapPACNVeg2 <- function(protocol = c("FTPC", "EIPS"), crosstalk = FALSE, crosstalk_group = "map", park, sample_frame, cycle, plot_type, is_qa_plot = FALSE, transect_type, certified, verified) {
+MapPACNVeg <- function(protocol = c("FTPC", "EIPS"), crosstalk = FALSE, crosstalk_group = "map", park, sample_frame, cycle, plot_type, is_qa_plot = FALSE, transect_type, certified, verified) {
   pts <- PlotAndTransectLocations(protocol = protocol, crosstalk = crosstalk, crosstalk_group = crosstalk_group, park = park, sample_frame = sample_frame, cycle = cycle, plot_type = plot_type, is_qa_plot = is_qa_plot, transect_type = transect_type, certified = certified, verified = verified)
 
   pts <- pts %>%

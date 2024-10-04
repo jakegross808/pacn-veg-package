@@ -4,18 +4,36 @@
 \alias{download_agol}
 \title{Download FTPC, EIPS, and Plant Photos and attributes from AGOL layers}
 \usage{
-download_agol(photo_layers, temp_dest, test_run = FALSE)
+download_agol(
+  photo_layers,
+  temp_dest,
+  sharepoint_dest,
+  master_spreadsheet_folder,
+  after_date_filter = NA,
+  only_staff = FALSE,
+  test_run = FALSE
+)
 }
 \arguments{
+\item{photo_layers}{A vector of named objects already loaded in the Global Environment. Each object should have only 1 value assigned to it - which is the URL for a specific point layer in AGOL. For example one object in the vector may be "EIPS_HALE_2023" with the assigned value: "https://services1.arcgis.com/fBc8EJBxQRMcHlei/arcgis/rest/services/HALE_2023_EIPS_Sampling_Points_Photos/FeatureServer/93"}
+
 \item{temp_dest}{The temporary location on your local computer where the folder of downloaded images and csv will be saved to.}
 
-\item{agol_photo_layers}{A vector of named objects already loaded in the Global Environment. Each object should have only 1 value assigned to it - which is the URL for a specific point layer in AGOL. For example one object in the vector may be "EIPS_HALE_2023" with the assigned value: "https://services1.arcgis.com/fBc8EJBxQRMcHlei/arcgis/rest/services/HALE_2023_EIPS_Sampling_Points_Photos/FeatureServer/93"}
+\item{sharepoint_dest}{The entire path to folder on sharepoint where the photos will be uploaded to.}
+
+\item{master_spreadsheet_folder}{Location of current excel spreadsheet if appending table data from new downloads to it. Needs to be only one excel spreadsheet in the folder.}
+
+\item{after_date_filter}{POSIXct date object. Only records after date will be returned. Example: after_date_filter = lubridate::mdy_hms("09/12/2024 18:00:00", tz = "HST")}
+
+\item{only_staff}{if true, downloads just the staff photos.}
+
+\item{test_run}{If \code{TRUE}, returns attachment data as R object and proposed file locations without actually downloading, saving attachments, or exporting .csv.}
 }
 \value{
 All the photos from a AGOL layer (EIPS photos, FTPC photos, and Plant Photo layers) along with a .csv of the point attributes and metadata.
 }
 \description{
-This function is a customized version of DownloadAGOLAttachments() function from MOJN for specific use with PACN vegetation protocols, specifically FTPC photos, EIPS photos, and Plant photos spatial layers hosted on ArcGIS Online.
+This function is a PACN Veg customized version of DownloadAGOLAttachments() function from MOJN for specific use with PACN vegetation protocols, specifically FTPC photos, EIPS photos, and Plant photos spatial layers hosted on ArcGIS Online.
 }
 \details{
 This function will not work unless you have access to the PACN AGOL headless account

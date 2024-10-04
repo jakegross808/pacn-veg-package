@@ -884,7 +884,7 @@ v_cover_plot_bar_nativity <- function(combine_strata = FALSE,
   label_param <- stringr::str_replace_all(param, "_", " ")
 
   plot <- understory_stats %>%
-    dplyr::mutate(SF_no_space = stringr::str_replace_all(Sampling_Frame, " ", "_")) %>%
+    dplyr::mutate(SF_no_space = stringr::str_replace_all(Sampling_Frame, "\\p{WHITE_SPACE}", "_")) %>%
     dplyr::filter(NPLOTS != 0) %>%
     dplyr::filter(Parameter == param) %>%
     ggplot2::ggplot(ggplot2::aes(x = Year, y = MEAN, fill = Nativity)) +
