@@ -245,6 +245,7 @@ ReadFTPC <- function(conn) {
     dplyr::select(Location_ID, Site_ID, Community, Sampling_Frame = Sampling_Frame_English, Sampling_Frame_Formal = Sampling_Frame)
 
 
+
   # . . 3. tbl_Plot----
 
   #Plots (e.g. Plot numbers, Plot type (Fixed vs. Rotational, Plot coordinates))
@@ -557,11 +558,12 @@ ReadEIPS <- function(db_paths) {
 
     #Locations (e.g. Sampling Frame)
     #Short
-    tbl_Locations <- dplyr::tbl(conn, "tbl_Locations") %>%
-      dplyr::select(Location_ID, Site_ID, Community = Plant_Community, Sampling_Frame) %>%
-      dplyr::collect() %>%
-      # Remove white space " / " in "Nahuku / East Rift" to match FTPC
-      dplyr::mutate(Sampling_Frame = stringr::str_replace(Sampling_Frame, " / ", "/"))
+    tbl_Locations <- dplyr::tbl(conn, "tbl_Locations") |>
+      dplyr::select(Location_ID, Site_ID, Community = Plant_Community, Sampling_Frame_English, Sampling_Frame) |>
+      dplyr::collect() |>
+      dplyr::rename(Sampling_Frame_Formal = Sampling_Frame) |>
+      dplyr::rename(Sampling_Frame = Sampling_Frame_English) |>
+      dplyr::mutate(Sampling_Frame = stringr::str_replace(Sampling_Frame, " / ", "/")) # Remove white space " / " in "Nahuku / East Rift" to match FTPC
 
     # Transects
     tbl_Transects_short <- dplyr::tbl(conn, "tbl_Transects") %>%
@@ -591,7 +593,7 @@ ReadEIPS <- function(db_paths) {
       #Move long text columns to end because of SQL driver error:
       dplyr::relocate(Event_Notes, .after = last_col()) %>%
       dplyr::relocate(Transect_Notes, .after = last_col()) %>%
-      dplyr::select(Event_ID, Transect_ID, Unit_Code, Community, Sampling_Frame, Start_Date, Year, Cycle,
+      dplyr::select(Event_ID, Transect_ID, Unit_Code, Community, Sampling_Frame, Sampling_Frame_Formal, Start_Date, Year, Cycle,
                     Transect_Number, Site_Name, Transect_Type, Transect_Number, Azimuth_Transect, Lat, Long,
                     GCS, Lat_Dir, Long_Dir, Entered_Date, Updated_Date, Verified, Verified_By, Verified_Date,
                     Certified, Certified_By, Certified_Date, Transect_Notes, Event_Notes) #-Start_Date
@@ -613,10 +615,9 @@ ReadEIPS <- function(db_paths) {
 
     # Events_extra_other
     Events_extra_other_new <- Events_extra %>%
-      dplyr::select(Event_ID, Unit_Code, Community, Sampling_Frame, Year, Cycle, Transect_Type,
+      dplyr::select(Event_ID, Unit_Code, Community, Sampling_Frame, Sampling_Frame_Formal, Year, Cycle, Transect_Type,
                     Transect_Number, Site_Name, Certified, Verified) %>%
       dplyr::collect()
-    #dplyr::mutate(Sampling_Frame = stringr::str_replace(Sampling_Frame, " / ", "/"))
 
     # Image Points
     tbl_Image_Points <- dplyr::tbl(conn, "tbl_Image_Points") %>%
@@ -626,9 +627,7 @@ ReadEIPS <- function(db_paths) {
       dplyr::select(Unit_Code, Community, Sampling_Frame, Year, Cycle,
                     Transect_Type, Transect_Number, Image_Point,
                     Latitude, Latitude_Dir, Longitude, Longitude_Dir, GCS, GPS_Error) %>%
-      dplyr::collect() #%>%
-    #dplyr::mutate(Sampling_Frame = stringr::str_replace(Sampling_Frame, " / ", "/"))
-
+      dplyr::collect()
 
     # Species w/nativity
 
