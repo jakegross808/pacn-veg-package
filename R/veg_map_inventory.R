@@ -7,8 +7,17 @@
 #'
 #' @examples
 #' \dontrun{
-#' all_locs <- PlotAndTransectLocations()
-#' eips_transects <- PlotAndTransectLocations("EIPS")
+#'
+#' hi_vegmap_db_paths <- c("C:/Users/JJGross/OneDrive - DOI/Documents/Veg_Map_Data/havodata.accdb",
+#'                        "C:/Users/JJGross/OneDrive - DOI/Documents/Veg_Map_Data/haledata.accdb",
+#'                        "C:/Users/JJGross/OneDrive - DOI/Documents/Veg_Map_Data/kahodata.mdb",
+#'                        "C:/Users/JJGross/OneDrive - DOI/Documents/Veg_Map_Data/kaladata.mdb",
+#'                        "C:/Users/JJGross/OneDrive - DOI/Documents/Veg_Map_Data/puhedata.mdb",
+#'                        "C:/Users/JJGross/OneDrive - DOI/Documents/Veg_Map_Data/puhodata.mdb")
+#'
+#' # Veg map & species locations ----
+#'
+#' Hawaii_vegmap_data <- read_vegmap_db(hi_vegmap_db_paths)
 #' }
 read_vegmap_db <- function(db_paths) {
   conn_strings <- paste0("Driver={Microsoft Access Driver (*.mdb, *.accdb)};DBQ=", db_paths)
