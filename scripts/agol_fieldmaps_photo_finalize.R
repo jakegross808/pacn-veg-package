@@ -1,6 +1,23 @@
 library(pacnvegetation)
 library(tidyverse)
 
+#access_dbs <- here(params$data_folder, params$access_dbs)
+#LoadPACNVeg(ftpc_params = "pacnveg", eips_paths = access_dbs,
+#            cache = TRUE, force_refresh = FALSE)
+
+#--- 1. Read latest cache ----
+
+# Write/Read csv from pacnvegetation package:
+pacnveg_cache_path <- "C:/Users/JJGross/OneDrive - DOI/Documents/Certification_Local/Databases/R_WritePACNVeg"
+
+# Read
+path_file_info <- file.info(list.files(pacnveg_cache_path, full.names = T))
+latest_folder <- rownames(path_file_info)[which.max(path_file_info$mtime)]
+
+LoadPACNVeg(data_path = latest_folder,
+            data_source = "file")
+
+
 
 # FTPC user inputs -------------------------------------------------------------
 
@@ -182,13 +199,31 @@ write_excel_csv(table_out_final, file = table_out_name)
 
 # EIPS -------------------------------------------------------------------------
 
+# EIPS user inputs -------------------------------------------------------------
+
+# AGOL downloaded geodatabase info:
+var_AGOL_Layer <- "EIPS"
+gdb_name_var <- "EIPS_Kahuku_Maunaloa_20240909.gdb"
+gdb_location_var <- "C:/Users/JJGross/OneDrive - DOI/Documents/Parks/HAVO/HAVO"
+gdb_layer_var <- "EIPS_Kahuku_Maunaloa_20240909"
+
+# temp save location locally
+temp_root <- "C:/Users/JJGross/Downloads/Images"
+
+# presumed A drive (Reston):
+reston_root <- "A:/Files/FTPC/Database_Images"
+
+
+
 # get events lookup from Events_extra_other table
 
 #** No QA transects to date*
 Events_extra_other <- FilterPACNVeg(data_name = "Events_extra_other_EIPS")
+EIPS_image_pts <- FilterPACNVeg(data_name = "EIPS_image_pts")
 
 event_ID_lookup <- Events_extra_other |>
-  select(Event_ID, Unit_Code, Community, Sampling_Frame, Cycle, Year, Transect_Number) |>
+  dplyr::right_join(EIPS_image_pts) |>
+  select(Event_ID, Image_Point_ID, Image_Point, Unit_Code, Community, Sampling_Frame, Cycle, Year, Transect_Number) |>
   group_by(Sampling_Frame, Cycle) |>
   filter(Cycle == 3) |>
   mutate(Year_Cycle = min(Year)) |>
@@ -202,20 +237,30 @@ table_out <- photos_table_final |>
   mutate(Camera_Type = "Field Maps") |>
   mutate(Comments = "") |>
   mutate(Community_underscore = str_replace(Community, " ", "_")) |>
-  left_join(y = event_ID_lookup, by = join_by(Unit_Code, Num_2 == Transect_Number,
+  mutate(Subject_Point = str_extract(Subject_EIPS, "(\\d)+")) |>
+  # "Staff" photos do not have a specific "Image_Point" so assign them to Image_Point 0 (ie Start point of transect)
+  mutate(Subject_Point = case_when(stringr::str_detect(Subject_EIPS, pattern = "Staff") ~ "0",
+         .default = as.character(Subject_Point))) |>
+  left_join(y = event_ID_lookup, by = join_by(Unit_Code,
+                                              Num_2 == Transect_Number,
+                                              Subject_Point == Image_Point,
                                               Samp_Year == Year_Cycle,
                                               Sampling_Frame_DB == Sampling_Frame,
                                               Community)) |>
   mutate(reston_link = paste(
     reston_root, Samp_Year, Unit_Code, Community_underscore,
-    Folder_Name, Out_Name,  sep = "/"))
+    Folder_Name, Out_Name,  sep = "/")) |>
+  # Change value back from "0" to "Staff" (after joining) to make clear it is staff photo
+  mutate(Subject_Point = case_when(stringr::str_detect(Subject_EIPS, pattern = "Staff") ~ "Staff",
+                                   .default = as.character(Subject_Point)))
+
 
 table_out_final <- table_out |>
   mutate(lub = lubridate::as_datetime(table_out$exif_formatted)) |>
   mutate(Date = format(as.POSIXct(lub), format = "%Y-%m-%d")) |>
   mutate(Time = format(as.POSIXct(lub), format = "%H:%M")) |>
-  select(Sampling_Frame_DB, Samp_Year, File_Name = Out_Name, Subject = Subject2, Date , Time,
-         Camera_Type, Comments, Image_Project_Path = reston_link, Event_ID)
+  select(Sampling_Frame_DB, Samp_Year, File_Name = Out_Name, Transect_Number = TNum_3, Subject = Subject2, Subject_Point, Date , Time,
+         Camera_Type, Comments, Image_Project_Path = reston_link, Event_ID, Image_Point_ID)
 
 # get date and other info for spreadsheet name
 today <- lubridate::ymd(today())

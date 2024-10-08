@@ -50,7 +50,7 @@ anti_join(EIPS_SF_formal, FTPC_SF_formal)
 
 #--- 2. variable specification -------------------------------------------------
 
-var_sframe <- "Mauna Loa"
+var_sframe <- "Olaa"
 
 #nahuku_plots <- c(1, 4, 10, 12, 13, 14, 15, #fixed
 #                  46, 49, 51, 52, 54, 55, 56, 58, #2021 rotational
@@ -126,7 +126,7 @@ all_pres_count <- all_pres |>
 
 ## Presence Dot Plots-----------------------------------------------------------
 var_plot_numbers <- c(1)
-var_sframe <- "Mauna Loa"
+var_sframe <- "Olaa"
 save_folder_var <- "C:/Users/JJGross/OneDrive - DOI/Documents/Certification_Local/2021-2022 Certification/R_output"
 
 for (x in var_plot_numbers) {
@@ -140,7 +140,7 @@ pacnvegetation:::qc_spp_pres_dot_plot(sample_frame = var_sframe,
                                       save_folder = save_folder_var)
 
 ## Understory spp consistency chk ----------------------------------------------
-var_plot_number <- 13
+var_plot_number <- 1
 pacnvegetation::v_cover_bar_stats(plant_grouping = "Species",
                                   sample_frame = var_sframe,
                                   combine_strata = FALSE,
@@ -172,13 +172,13 @@ BA <- lg_trees_fixed |>
   dplyr::filter(Life_Form == "Tree") |>
   dplyr::mutate(DBH_Bole = dplyr::case_when(is.na(DBH_Bole) ~ DBH,
                               .default = as.numeric(DBH_Bole))) |>
-  dplyr::mutate(BA_m2 = (DBH_Bole^2)*0.00007854) #|>
+  dplyr::mutate(BA_m2 = (DBH_Bole^2)*0.00007854) |>
   dplyr::group_by(Sampling_Frame, Year, Plot_Number, Quad, Status, Large_Woody_ID) |>
   dplyr::summarise(BA_m2_per_tree = sum(BA_m2)) |>
   dplyr::group_by(Sampling_Frame, Year, Plot_Number, Quad, Status) |>
   dplyr::summarise(BA_m2_per_quad = sum(BA_m2_per_tree))
 
-var_plot_number <- 5
+var_plot_number <- 1
 BA |>
   filter(Plot_Number == var_plot_number) |>
   ggplot(aes(x=Year, y=BA_m2_per_quad, fill = Status)) +
@@ -215,8 +215,8 @@ lg_tree_count_all |>
 
 # Per Plot ----
 #Get count of trees per plot/quad
-var_plot_numbers <- c(1:15)
-var_plot_number <- 11
+var_plot_numbers <- c(1)
+var_plot_number <- 1
 var_plot_number
 
 # This includes QA plots for some reason???
@@ -283,7 +283,7 @@ Boles_DBH <- lg_trees |>
 
 # Bole DBH histogram
 Boles_DBH |>
-  filter(Year %in% c("2011", "2016", "2022")) |>
+  filter(Year %in% c("2010", "2015", "2021")) |>
   #filter(Year %in% c("2016", "2022")) |>
   filter(Status == "Live") |>
   ggplot(aes(x=DBH_Bole, color=Year, fill=Year)) +
@@ -296,7 +296,7 @@ Boles_DBH |>
 
 # Bole DBH Density Plot
 Boles_DBH |>
-  filter(Year %in% c("2011", "2016", "2022")) |>
+  filter(Year %in% c("2010", "2015", "2021")) |>
   #filter(Year %in% c("2016", "2022")) |>
   filter(Status == "Live") |>
   mutate(Quad = paste("Quad", as.character(Quad))) |>

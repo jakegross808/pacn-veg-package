@@ -624,7 +624,7 @@ ReadEIPS <- function(db_paths) {
       dplyr::collect()
     EIPS_image_pts_new <- Events %>%
       dplyr::right_join(tbl_Image_Points, by = "Event_ID") %>%
-      dplyr::select(Unit_Code, Community, Sampling_Frame, Year, Cycle,
+      dplyr::select(Event_ID, Image_Point_ID, Unit_Code, Community, Sampling_Frame, Year, Cycle,
                     Transect_Type, Transect_Number, Image_Point,
                     Latitude, Latitude_Dir, Longitude, Longitude_Dir, GCS, GPS_Error) %>%
       dplyr::collect()
@@ -889,7 +889,7 @@ ReadCSV <- function(data_path) {
 #' @param year Monitoring year
 #' @param cycle Monitoring cycle
 #' @param plot_type Type of plot (fixed vs. rotational)
-#' @param is_qa_plot Whether the plots are QA plots or not (TRUE/FALSE) No argument defaults to FALSE. Can use "c(TRUE, FALSE)" to get both regular and QA plots.
+#' @param is_qa_plot Whether the plots are QA plots or not (TRUE/FALSE) No argument defaults to FALSE. Can use "c(TRUE, FALSE)" without quotes to return both regular and QA plots.
 #' @param transect_type Type of transect (fixed vs. rotational)
 #' @param species_code 6 letter species code
 #' @param sci_name Scientific name
