@@ -37,6 +37,7 @@ PlotAndTransectLocations <- function(protocol = c("FTPC", "EIPS"), crosstalk = F
     dplyr::ungroup()
 
   eips_tsects <- FilterPACNVeg(data_name = "EIPS_image_pts", park = park, sample_frame = sample_frame, cycle = cycle, transect_type = transect_type, certified = certified, verified = verified) %>%
+    dplyr::select(-Event_ID, -Image_Point_ID) |>
     dplyr::group_by(Unit_Code, Community, Sampling_Frame, Transect_Type, Transect_Number) %>%
     #only take coordinates for last cycle
     dplyr::filter(Cycle == max(Cycle), Year == max(Year),
