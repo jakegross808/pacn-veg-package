@@ -8,7 +8,7 @@ MapCoverTotal3 <- function(map_dataset, crosstalk = FALSE, crosstalk_group = "co
   #}
 
   # Get Max Cycle/Year from text
-  getmax <- function(col) str_extract_all(col,"[0-9\\.-]+") %>%
+  getmax <- function(col) stringr::str_extract_all(col,"[0-9\\.-]+") %>%
     lapply(.,function(x) max(as.numeric(x), na.rm = T) ) %>%
     unlist()
 

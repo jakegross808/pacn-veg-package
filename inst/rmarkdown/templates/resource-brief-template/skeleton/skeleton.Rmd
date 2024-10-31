@@ -150,9 +150,9 @@ und <- understorySpeciesCover(sample_frame = params$sample_frame) %>%
 
 avg_cover_table <- und %>%
   select(Code, Cycle, Scientific_Name, Life_Form, Nativity, plots_present, Avg_Cover, Std_Dev) %>%
-  mutate(Avg_Cover = Avg_Cover*100,
+  dplyr::mutate(Avg_Cover = Avg_Cover*100,
          Std_Dev = Std_Dev*100) %>%
-  arrange(-Avg_Cover)
+  dplyr::arrange(-Avg_Cover)
 
 names(avg_cover_table) <- gsub("_", " ", names(avg_cover_table)) %>% str_to_title()  # Make column names nicer for display
 
@@ -220,7 +220,7 @@ cover_by_nativity <- UnderNativityCover(rm_unk_natv = TRUE,
                                         sample_frame = params$sample_frame, 
                                         paired_change = FALSE) %>%
   select(Plot_Number, Native_Percent_Cover = Native_Cover_Total_pct, Non_Native_Percent_Cover = NonNative_Cover_Total_pct) %>%
-  arrange(-Non_Native_Percent_Cover)
+  dplyr::arrange(-Non_Native_Percent_Cover)
 names(cover_by_nativity) <- gsub("_", " ", names(cover_by_nativity)) %>% str_to_title()  # Make column names nicer for display
 
 add_table_caption("Total understory cover per plot.")

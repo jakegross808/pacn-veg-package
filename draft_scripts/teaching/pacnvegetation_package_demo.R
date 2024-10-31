@@ -41,12 +41,12 @@ under_spp <- summarize_understory(plant_grouping = "Species",
 # Understory - Plot ----
 
 under_hits_box <- under_hits %>%
-  ggplot(aes(x = Year, y = Cover)) +
-  geom_boxplot()
+  ggplot2::ggplot(aes(x = Year, y = Cover)) +
+  ggplot2::geom_boxplot()
 under_hits_box
 
 under_hits_col <- under_hits %>%
-  ggplot(aes(x = Year, y = Cover)) +
+  ggplot2::ggplot(aes(x = Year, y = Cover)) +
   geom_col()
 under_hits_col
 

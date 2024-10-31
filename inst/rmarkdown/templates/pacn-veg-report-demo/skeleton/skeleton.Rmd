@@ -126,7 +126,7 @@ See https://glin.github.io/reactable/articles/examples.html for lots more exampl
 
 ```{r reactable, echo=FALSE, message=FALSE}
 cover_by_nativity_reactable <- cover_by_nativity %>%
-  # mutate(`Tot Pct Cov` = round(`Tot Pct Cov`, 2)) %>%
+  # dplyr::mutate(`Tot Pct Cov` = round(`Tot Pct Cov`, 2)) %>%
   SharedData$new()  # Make a crosstalk-compatible data frame
 
 bscols(widths = c(3, 3, 3, 3),
@@ -161,7 +161,7 @@ Documentation: https://plotly.com/r/
 
 ```{r plotly, echo=FALSE, message=FALSE, warning=FALSE}
 cover_by_nativity_combined <- UnderNativityCover(combine_strata = TRUE) %>% # Get data
-  mutate(Cycle = as.factor(Cycle))
+  dplyr::mutate(Cycle = as.factor(Cycle))
 cover_by_nativity_plotly <- cover_by_nativity_combined %>%
   SharedData$new()
 
@@ -197,18 +197,18 @@ Documentation: https://ggplot2.tidyverse.org/
 ```{r ggplot, echo=FALSE, message=FALSE, warning=FALSE, fig.height=15}
 cover_by_nativity_combined %>%
   # dplyr::filter(Nativity != "Unknown") %>%
-  ggplot(aes(x = Cycle, y = NonNative_Cover_Total_pct, group = Cycle)) + 
+  ggplot2::ggplot(aes(x = Cycle, y = NonNative_Cover_Total_pct, group = Cycle)) + 
   ggdist::stat_halfeye(
     adjust = .5, 
     width = .6, 
     .width = 0, 
     justification = -.3, 
     point_colour = NA) + 
-  geom_boxplot(
+  ggplot2::geom_boxplot(
     width = .25,
     outlier.shape = NA
   ) +
-  geom_point(
+  ggplot2::geom_point(
     aes(color = Unit_Code),
     size = 1,
     alpha = .2,
@@ -216,7 +216,7 @@ cover_by_nativity_combined %>%
       seed = 1, width = .07
     )
   ) +
-  ylab("Total Non-Native % Cover") +
+  ggplot2::ylab("Total Non-Native % Cover") +
   guides(color = "none") +
   facet_grid(rows = vars(Unit_Code), cols = vars(Cycle)) +
   theme_minimal()

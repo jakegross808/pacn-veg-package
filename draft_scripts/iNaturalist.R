@@ -26,7 +26,7 @@ HAVO_2022 <- rinat::get_inat_obs(place_id = 7222, taxon_id = 211194, maxresults 
 
 HAVO_2022_distinct <- HAVO_2022 %>%
   dplyr::distinct(scientific_name) %>%
-  mutate(scientific_name = map_chr(scientific_name, ~str_replace(.x ," × ", "_x_"))) %>%
+  mutate(scientific_name = map_chr(scientific_name, ~stringr::str_replace(.x ," × ", "_x_"))) %>%
   tidyr::separate(col = scientific_name, sep = " ", into = c("genus", "specific name", "intraspecific name"))
 
 

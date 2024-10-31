@@ -330,27 +330,27 @@ v_EIPS_map_interstation <- function(.data, parameter, change = FALSE, agol_sampl
 
     # Get list of cycle/year by sampling frame:
     sf_cycle_year <- station_summary2 %>%
-      select(Sampling_Frame, Cycle, Year) %>%
-      distinct()
+      dplyr::select(Sampling_Frame, Cycle, Year) %>%
+      dplyr::distinct()
 
     sf_cycle <- station_summary2 %>%
-      select(Sampling_Frame, Cycle) %>%
-      distinct()
+      dplyr::select(Sampling_Frame, Cycle) %>%
+      dplyr::distinct()
 
     station_summary2 <- station_summary2 %>%
       dplyr::filter(Transect_Type == "Fixed") %>%
       dplyr::ungroup() %>%
       # if species recorded one year than any year it was not recorded,
       # it will show up as zero cover:
-      tidyr::complete(tidyr::nesting(!!!rlang::syms(grp_vars)),
+      tidyr::complete(tidyr::nesting(!!!syms(grp_vars)),
                       tidyr::nesting(Cycle),
                       fill = list(Mean_Seg_Cov_Max = 0, Mean_Seg_Cov_Min = 0)) %>%
       dplyr::semi_join(sf_cycle) %>%
       dplyr::left_join(sf_cycle_year, by = c("Sampling_Frame", "Cycle")) %>%
-      dplyr::mutate(Year = coalesce(Year.x, Year.y)) %>%
+      dplyr::mutate(Year = dplyr::coalesce(Year.x, Year.y)) %>%
       dplyr::select(-Year.x, -Year.y) %>%
       # group by grouping variable specified by parameter above:
-      dplyr::group_by(dplyr::across(grp_vars)) %>%
+      dplyr::group_by(across(grp_vars)) %>%
       dplyr::arrange(Cycle, Year, .by_group = TRUE) %>%
       # Calculate the change in cover per cycle
       dplyr::mutate(Chg_Prior = Mean_Seg_Cov_Max - dplyr::lag(Mean_Seg_Cov_Max, order_by = Cycle)) %>%

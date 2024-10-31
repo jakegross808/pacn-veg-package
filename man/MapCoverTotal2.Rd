@@ -33,7 +33,7 @@ MapCoverTotal2(
 
 \item{plot_type}{Type of plot (fixed vs. rotational)}
 
-\item{is_qa_plot}{Whether the plots are QA plots or not (TRUE/FALSE)}
+\item{is_qa_plot}{Whether the plots are QA plots or not (TRUE/FALSE) No argument defaults to FALSE. Can use "c(TRUE, FALSE)" without quotes to return both regular and QA plots.}
 
 \item{certified}{Whether data are certified (TRUE/FALSE)}
 

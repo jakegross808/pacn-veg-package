@@ -70,22 +70,22 @@ is.vector(df$z)
 library(ggplot2)
 #ggplot2::
 
-plot2cont_vars <- ggplot(df, aes(x,y))
+plot2cont_vars <- ggplot2::ggplot(df, aes(x,y))
 
 plot2cont_vars + geom_label(aes(label = x))
-plot2cont_vars + geom_point(color = "red")
+plot2cont_vars + ggplot2::geom_point(color = "red")
 plot2cont_vars + geom_smooth(method = lm)
 
-plot_1disc_1cont <- ggplot(df, aes(z,y))
+plot_1disc_1cont <- ggplot2::ggplot(df, aes(z,y))
 
 plot_1disc_1cont + geom_col()
 
 # Three variables
 ggplot(df, aes(x,y, color = z)) +
-  geom_point()
+  ggplot2::geom_point()
 
 
-plot_1disc_1cont + geom_boxplot()
+plot_1disc_1cont + ggplot2::geom_boxplot()
 
 df
 
@@ -192,19 +192,19 @@ dplyr::bind_rows(plot1, plot2, plot3)
 df3 <- dplyr::bind_rows(plot1, plot2, plot3)
 
 ggplot(df3, aes(count,stems, color = species)) +
-  geom_point()
+  ggplot2::geom_point()
 
 ggplot(df3, aes(plot,count, color = species)) +
-  geom_point()
+  ggplot2::geom_point()
 
 ggplot(df3, aes(species, count, color = species)) +
-  geom_boxplot()
+  ggplot2::geom_boxplot()
 
 ggplot(df3, aes(plot, count)) +
-  geom_boxplot()
+  ggplot2::geom_boxplot()
 
 ggplot(df3, aes(plot, count)) +
-  geom_boxplot(notch = TRUE)
+  ggplot2::geom_boxplot(notch = TRUE)
 
 ?geom_boxplot
 
@@ -213,11 +213,11 @@ data(cats)
 head(cats, 10)
 
 ggplot(cats, aes(x = Sex, y = Bwt)) +
-  geom_boxplot(notch = TRUE)
+  ggplot2::geom_boxplot(notch = TRUE)
 
 data(iris)
 head(iris, 10)
 
 ggplot(iris, aes(x = Species, y = Sepal.Width)) +
-  geom_boxplot(notch = TRUE)
+  ggplot2::geom_boxplot(notch = TRUE)
 

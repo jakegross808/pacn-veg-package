@@ -29,10 +29,10 @@ Cover_test <- function(plant_grouping, paired_change = FALSE) {
   all_vars_minus_point <- all_vars[all_vars != "Point"]
 
   understory3 <- understory2 %>%
-    dplyr::group_by(dplyr::across(all_vars)) %>%
+    dplyr::group_by(across(all_vars)) %>%
     dplyr::summarise(Hits = dplyr::n(), .groups = 'drop') %>%
     # group hits by plot (remove Point from grouping variable)
-    dplyr::group_by(dplyr::across(all_vars_minus_point)) %>%
+    dplyr::group_by(across(all_vars_minus_point)) %>%
     # Total hits at each point for each strata for entire plot
     #   (can be > 300 points or >100% because more than one 'Hit' can be present per point-strata)
     dplyr::summarise(Cover = (sum(Hits)) / 300 * 100, .groups = 'drop')
@@ -67,7 +67,7 @@ Cover_test <- function(plant_grouping, paired_change = FALSE) {
                       fill = list(Cover = 0)) %>% # This should work now!
       # Arrange table so that difference in cover between cycles can be calculated easily (example - cycle 1 value for
       #   cover is followed by cycle 2 value for cover).
-      dplyr::group_by(dplyr::across(arrange_vars)) %>%
+      dplyr::group_by(across(arrange_vars)) %>%
       dplyr::arrange(Cycle, Year, .by_group = TRUE) %>%
       # Calculate the change in cover per cycle
       dplyr::mutate(Chg_Prior = Cover - dplyr::lag(Cover, order_by = Cycle)) %>%
@@ -75,7 +75,7 @@ Cover_test <- function(plant_grouping, paired_change = FALSE) {
       dplyr::mutate(Chg_Per_Year = Chg_Prior / Years_Prior) %>%
       dplyr::mutate(!!max_cycle_lable := Cover - dplyr::lag(Cover, order_by = Cycle,
                                                     n = max_cycle-1)) %>%
-      ungroup()
+      dplyr::ungroup()
 
     return(understory4)
 

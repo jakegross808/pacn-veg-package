@@ -28,7 +28,7 @@ test_first6 <- download_agol2(subset_photos_layers,
                               test_run = TRUE)
 
 tstaff <- test_first5 %>%
-  filter(str_detect(Subject,"Staff"))
+  filter(stringr::str_detect(Subject,"Staff"))
 
 
 
@@ -89,7 +89,7 @@ test_first4 <- download_agol2(subset_photos_layers,
 recent_photos <- test_first3[test_first3$pt_date > m_last_date_tz_1, ]
 
 look <- bind_rows(mtable2, recent_photos) %>%
-  arrange(pt_date)
+  dplyr::arrange(pt_date)
 
 
 
@@ -158,25 +158,25 @@ chk_pres <- pacnvegetation::FilterPACNVeg(data_name = "Presence",
 
 rare <- pacnvegetation::FilterPACNVeg(data_name = "Presence",
                                       sample_frame = "Olaa") %>%
-  group_by(Sampling_Frame, Scientific_Name, Code, Plot_Number) %>%
-  summarize(observed = n(), .groups = "drop") %>%
+  dplyr::group_by(Sampling_Frame, Scientific_Name, Code, Plot_Number) %>%
+  dplyr::summarize(observed = n(), .groups = "drop") %>%
   # only count one time if found more than once in a fixed
   mutate(observed = 1) %>%
-  group_by(Sampling_Frame, Code, Scientific_Name) %>%
-  summarize(plots_observed = n()) %>%
+  dplyr::group_by(Sampling_Frame, Code, Scientific_Name) %>%
+  dplyr::summarize(plots_observed = n()) %>%
   # "rare" will be 4 plots_observed or less
   filter(plots_observed < 5) %>%
   mutate(less_than_5_plots = TRUE) %>%
-  right_join(chk_pres) %>%
+  dplyr::right_join(chk_pres) %>%
   filter(less_than_5_plots == TRUE)
 
 # Join rare species flags to Presence
 chk_pres1 <- chk_pres %>%
-  left_join(rare)
+  dplyr::left_join(rare)
 
 chk_pres2 <- chk_pres1 %>%
   mutate(Cycle = as.integer(Cycle)) %>%
-  arrange(Scientific_Name)
+  dplyr::arrange(Scientific_Name)
 
 # Code below was to split graph in half but doesn't work with geom_point filtering
 # find the middle of the data set
@@ -202,16 +202,16 @@ nativity_colors <- c("Native" = "#1b9e77",
                      "Unknown" = "#7570b3")
 
 select_rare <- function(condition){
-  function(d) d %>% filter_(condition)
+  function(d) d %>% dplyr::filter_(condition)
 }
 
 select_out <- function(condition){
-  function(d) d %>% filter_(condition)
+  function(d) d %>% dplyr::filter_(condition)
 }
 
 chk_pres2 %>%
-  ggplot(aes(x= Scientific_Name, y=Cycle)) +
-  geom_segment(aes(x=Scientific_Name,
+  ggplot2::ggplot(aes(x= Scientific_Name, y=Cycle)) +
+  ggplot2::geom_segment(aes(x=Scientific_Name,
                    xend=Scientific_Name,
                    y=min(Cycle),
                    yend=max(Cycle),
@@ -219,20 +219,20 @@ chk_pres2 %>%
                linetype="dashed",
                linewidth=0.1) +
   # Draw points
-  geom_point(size = 8, data = ~filter(.x, less_than_5_plots == TRUE), color = "yellow") +
-  geom_point(size = 5, aes(color = Nativity)) +
-  geom_point(size = 2, data = ~filter(.x, Outside_Plot == TRUE), color = "black") +
-  labs(title="Check Presence",
+  ggplot2::geom_point(size = 8, data = ~filter(.x, less_than_5_plots == TRUE), color = "yellow") +
+  ggplot2::geom_point(size = 5, aes(color = Nativity)) +
+  ggplot2::geom_point(size = 2, data = ~filter(.x, Outside_Plot == TRUE), color = "black") +
+  ggplot2::labs(title="Check Presence",
        subtitle= (paste0(chk_pres2$Sampling_Frame[1], " Plot ", chk_pres2$Plot_Number[1])),
        caption= (paste0("QA/QC"))) +
-  scale_color_manual(values = nativity_colors) +
-  scale_x_discrete(limits = rev) +
-  scale_y_continuous(limits = c(0, max(chk_pres2$Cycle)+1)) + #breaks = integer_breaks(),
-  coord_flip() +
+  ggplot2::scale_color_manual(values = nativity_colors) +
+  ggplot2::scale_x_discrete(limits = rev) +
+  ggplot2::scale_y_continuous(limits = c(0, max(chk_pres2$Cycle)+1)) + #breaks = integer_breaks(),
+  ggplot2::coord_flip() +
   #facet_wrap(scales = "free", vars(chk_pres2$split)) +
-  theme(strip.background = element_blank(),
-        strip.text.x = element_blank()) +
-  theme(aspect.ratio=18)
+  ggplot2::theme(strip.background = ggplot2::element_blank(),
+        strip.text.x = ggplot2::element_blank()) +
+  ggplot2::theme(aspect.ratio=18)
 
 
 
@@ -246,16 +246,16 @@ chk_pres <- pacnvegetation::FilterPACNVeg(data_name = "Presence",
 
 rare <- pacnvegetation::FilterPACNVeg(data_name = "Presence",
                                       sample_frame = "Olaa") %>%
-  group_by(Sampling_Frame, Scientific_Name, Code, Plot_Number) %>%
-  summarize(observed = n(), .groups = "drop") %>%
+  dplyr::group_by(Sampling_Frame, Scientific_Name, Code, Plot_Number) %>%
+  dplyr::summarize(observed = n(), .groups = "drop") %>%
   # only count one time if found more than once in a fixed
   mutate(observed = 1) %>%
-  group_by(Sampling_Frame, Code, Scientific_Name) %>%
-  summarize(plots_observed = n()) %>%
+  dplyr::group_by(Sampling_Frame, Code, Scientific_Name) %>%
+  dplyr::summarize(plots_observed = n()) %>%
   # "rare" will be 4 plots_observed or less
   filter(plots_observed < 5) %>%
   mutate(less_than_5_plots = TRUE) %>%
-  right_join(chk_pres) %>%
+  dplyr::right_join(chk_pres) %>%
   filter(less_than_5_plots == TRUE) %>%
   mutate(rare_color = "yellow")
 
@@ -263,16 +263,16 @@ any_rare <- any(!is.na(rare$less_than_5_plots))
 rare
 
 chk_pres1 <- chk_pres %>%
-  left_join(rare)
+  dplyr::left_join(rare)
 
 chk_pres2 <-  chk_pres1%>%
-  mutate(outside_color = case_when(
+  mutate(outside_color = dplyr::case_when(
     Outside_Plot == TRUE ~ "black",
     .default = ""))
 
 chk_pres2 <- chk_pres2 %>%
   mutate(Cycle = as.integer(Cycle)) %>%
-  arrange(Scientific_Name)
+  dplyr::arrange(Scientific_Name)
 
 #chk_pres2$Outside_Plot[3] <- TRUE
 
@@ -291,7 +291,7 @@ chk_pres2$split <- "first"
 chk_pres2$split[split_at:df_length] <- "second"
 
 #chk_pres1 <- chk_pres %>%
-#  left_join(rare)
+#  dplyr::left_join(rare)
 
 # Plot
 # A function factory for getting integer y-axis values.
@@ -311,16 +311,16 @@ nativity_colors <- c("Native" = "#1b9e77",
                      "Unknown" = "#7570b3")
 
 select_rare <- function(condition){
-  function(d) d %>% filter_(condition)
+  function(d) d %>% dplyr::filter_(condition)
 }
 
 select_out <- function(condition){
-  function(d) d %>% filter_(condition)
+  function(d) d %>% dplyr::filter_(condition)
 }
 
 chk_pres2 %>%
-  ggplot(aes(x= Scientific_Name, y=Cycle)) +
-  geom_segment(aes(x=Scientific_Name,
+  ggplot2::ggplot(aes(x= Scientific_Name, y=Cycle)) +
+  ggplot2::geom_segment(aes(x=Scientific_Name,
                    xend=Scientific_Name,
                    y=min(Cycle),
                    yend=max(Cycle),
@@ -332,10 +332,10 @@ chk_pres2 %>%
   #                       color = rare$less_than_5_plots)} +
   #geom_point(fill = chk_pres$less_than_5_plots, size=6) +
   #geom_point(aes(color = rare_color)) +   # Draw points
-  geom_point(size = 8, data = ~filter(.x, less_than_5_plots == TRUE), color = "yellow") +
+  ggplot2::geom_point(size = 8, data = ~filter(.x, less_than_5_plots == TRUE), color = "yellow") +
   #geom_point(data = ~filter(.x, Species == "versicolor"), shape = 5)
-  geom_point(size = 5, aes(color = Nativity)) +   # Draw points
-  geom_point(size = 2, data = ~filter(.x, Outside_Plot == TRUE), color = "black") +
+  ggplot2::geom_point(size = 5, aes(color = Nativity)) +   # Draw points
+  ggplot2::geom_point(size = 2, data = ~filter(.x, Outside_Plot == TRUE), color = "black") +
   #geom_point(aes(size = 2, shape=21, fill = outside_color)) +   # Draw points
   #{if(any_out)geom_point(size=1, aes(x = out$Scientific_Name, y = out$Cycle), color = out$out_color)} +
   #{if(any_out)geom_point(size=1, x = out$Scientific_Name,
@@ -343,17 +343,17 @@ chk_pres2 %>%
   #                       color = out$out_color)} +
   #geom_point(size=1, aes(x = out$Scientific_Name, y = out$Cycle), color = "black") +
   # Draw dashed lines
-  labs(title="Check Presence",
+  ggplot2::labs(title="Check Presence",
        subtitle= (paste0(chk_pres2$Sampling_Frame[1], " Plot ", chk_pres2$Plot_Number[1])),
        caption= (paste0("QA/QC"))) +
-  scale_color_manual(values = nativity_colors) +
+  ggplot2::scale_color_manual(values = nativity_colors) +
   #scale_shape_manual(values = c('Women' = 17, 'Men' = 16))
-  scale_x_discrete(limits = rev) +
-  scale_y_continuous(breaks = integer_breaks(), limits = c(0, max(chk_pres2$Cycle)+1)) +
-  coord_flip() +
+  ggplot2::scale_x_discrete(limits = rev) +
+  ggplot2::scale_y_continuous(breaks = integer_breaks(), limits = c(0, max(chk_pres2$Cycle)+1)) +
+  ggplot2::coord_flip() +
   #facet_wrap(scales = "free", vars(chk_pres2$split)) +
-  theme(strip.background = element_blank(),
-        strip.text.x = element_blank())
+  ggplot2::theme(strip.background = ggplot2::element_blank(),
+        strip.text.x = ggplot2::element_blank())
 
 
 
@@ -385,16 +385,16 @@ chk_pres <- pacnvegetation::FilterPACNVeg(data_name = "Presence",
 
 rare <- pacnvegetation::FilterPACNVeg(data_name = "Presence",
                                       sample_frame = "Olaa") %>%
-  group_by(Sampling_Frame, Scientific_Name, Code, Plot_Number) %>%
-  summarize(observed = n(), .groups = "drop") %>%
+  dplyr::group_by(Sampling_Frame, Scientific_Name, Code, Plot_Number) %>%
+  dplyr::summarize(observed = n(), .groups = "drop") %>%
   # only count one time if found more than once in a fixed
   mutate(observed = 1) %>%
-  group_by(Sampling_Frame, Code, Scientific_Name) %>%
-  summarize(plots_observed = n()) %>%
+  dplyr::group_by(Sampling_Frame, Code, Scientific_Name) %>%
+  dplyr::summarize(plots_observed = n()) %>%
   # "rare" will be 4 plots_observed or less
   filter(plots_observed < 5) %>%
   mutate(less_than_5_plots = TRUE) %>%
-  right_join(chk_pres) %>%
+  dplyr::right_join(chk_pres) %>%
   filter(less_than_5_plots == TRUE) %>%
   mutate(out_color = "yellow")
 
@@ -403,7 +403,7 @@ rare
 
 chk_pres <- chk_pres %>%
   mutate(Cycle = as.integer(Cycle)) %>%
-  arrange(Scientific_Name)
+  dplyr::arrange(Scientific_Name)
 
 chk_pres$Outside_Plot[3] <- TRUE
 
@@ -422,7 +422,7 @@ chk_pres$split <- "first"
 chk_pres$split[split_at:df_length] <- "second"
 
 #chk_pres1 <- chk_pres %>%
-#  left_join(rare)
+#  dplyr::left_join(rare)
 
 # Plot
 # A function factory for getting integer y-axis values.
@@ -451,7 +451,7 @@ any_out <- any(!is.na(chk_pres$Outside_Plot))
 
 chk_pres %>%
 ggplot(aes(x= Scientific_Name, y=Cycle, color = Nativity)) +
-  geom_segment(aes(x=Scientific_Name,
+  ggplot2::geom_segment(aes(x=Scientific_Name,
                    xend=Scientific_Name,
                    y=min(Cycle),
                    yend=max(Cycle)),
@@ -461,54 +461,54 @@ ggplot(aes(x= Scientific_Name, y=Cycle, color = Nativity)) +
   #                       y = rare$Cycle,
   #                       color = rare$less_than_5_plots)} +
   #geom_point(fill = chk_pres$less_than_5_plots, size=6) +
-  geom_point(size=4) +   # Draw points
+  ggplot2::geom_point(size=4) +   # Draw points
   #{if(any_out)geom_point(size=1, aes(x = out$Scientific_Name, y = out$Cycle), color = out$out_color)} +
   {if(any_out)geom_point(size=1, x = out$Scientific_Name,
                          y = out$Cycle,
                          color = out$out_color)} +
   #geom_point(size=1, aes(x = out$Scientific_Name, y = out$Cycle), color = "black") +
   # Draw dashed lines
-  labs(title="Check Presence",
+  ggplot2::labs(title="Check Presence",
        subtitle= (paste0(chk_pres$Sampling_Frame[1], " Plot ", chk_pres$Plot_Number[1])),
        caption= (paste0("QA/QC"))) +
-  scale_color_manual(values = nativity_colors) +
+  ggplot2::scale_color_manual(values = nativity_colors) +
   #scale_shape_manual(values = c('Women' = 17, 'Men' = 16))
-  scale_x_discrete(limits = rev) +
-  scale_y_continuous(breaks = integer_breaks(), limits = c(0, max(chk_pres$Cycle)+1)) +
-  coord_flip() +
+  ggplot2::scale_x_discrete(limits = rev) +
+  ggplot2::scale_y_continuous(breaks = integer_breaks(), limits = c(0, max(chk_pres$Cycle)+1)) +
+  ggplot2::coord_flip() +
   facet_wrap(scales = "free", vars(chk_pres$split)) +
-  theme(strip.background = element_blank(),
-        strip.text.x = element_blank())
+  ggplot2::theme(strip.background = ggplot2::element_blank(),
+        strip.text.x = ggplot2::element_blank())
 
 
 
 # Old one for backup:
 ggplot(chk_pres, aes(x= Scientific_Name, y=Cycle, color = Nativity)) +
-  geom_segment(aes(x=Scientific_Name,
+  ggplot2::geom_segment(aes(x=Scientific_Name,
                    xend=Scientific_Name,
                    y=min(Cycle),
                    yend=max(Cycle)),
                linetype="dashed",
                linewidth=0.1) +
-  geom_point(aes(fill = less_than_5_plots, size=6)) +
-  geom_point(size=4) +   # Draw points
+  ggplot2::geom_point(aes(fill = less_than_5_plots, size=6)) +
+  ggplot2::geom_point(size=4) +   # Draw points
   #{if(any_out)geom_point(size=1, aes(x = out$Scientific_Name, y = out$Cycle), color = out$out_color)} +
   {if(any_out)geom_point(size=1, x = out$Scientific_Name,
                          y = out$Cycle,
                          color = out$out_color)} +
   #geom_point(size=1, aes(x = out$Scientific_Name, y = out$Cycle), color = "black") +
     # Draw dashed lines
-  labs(title="Check Presence",
+  ggplot2::labs(title="Check Presence",
        subtitle= (paste0(chk_pres$Sampling_Frame[1], " Plot ", chk_pres$Plot_Number[1])),
        caption= (paste0("QA/QC"))) +
-  scale_color_manual(values = nativity_colors) +
+  ggplot2::scale_color_manual(values = nativity_colors) +
   #scale_shape_manual(values = c('Women' = 17, 'Men' = 16))
-  scale_x_discrete(limits = rev) +
-  scale_y_continuous(breaks = integer_breaks(), limits = c(0, max(chk_pres$Cycle)+1)) +
-  coord_flip() +
+  ggplot2::scale_x_discrete(limits = rev) +
+  ggplot2::scale_y_continuous(breaks = integer_breaks(), limits = c(0, max(chk_pres$Cycle)+1)) +
+  ggplot2::coord_flip() +
   facet_wrap(scales = "free", vars(chk_pres$split)) +
-  theme(strip.background = element_blank(),
-    strip.text.x = element_blank())
+  ggplot2::theme(strip.background = ggplot2::element_blank(),
+    strip.text.x = ggplot2::element_blank())
 
 
 
@@ -540,7 +540,7 @@ Abbrev <- data.frame(Sampling_Frame, SF_Abbrev)
 
 # Code occurrence by Plant Community
 ftpc_occ <- pacnvegetation::FilterPACNVeg(data_name = "Presence") %>%
-  dplyr::left_join(Abbrev, by = join_by(Sampling_Frame)) %>%
+  dplyr::left_join(Abbrev, by = dplyr::join_by(Sampling_Frame)) %>%
   dplyr::mutate(SF = SF_Abbrev) %>%
   dplyr::select(SF, Sampling_Frame, Plot_Number, Cycle, Code) %>%
   # Only count a species once for a fixed plot
@@ -693,7 +693,7 @@ hi_FTPC_spp <- FilterPACNVeg(data_name = "Presence", is_qa_plot = FALSE) %>%
 
 pts_FTPC <- FilterPACNVeg(data_name = "Events_extra_xy", is_qa_plot = FALSE) %>%
   select(-QA_Plot) %>%
-  right_join(y = hi_FTPC_spp, by = join_by(Unit_Code, Sampling_Frame, Year, Cycle, Plot_Type, Plot_Number))
+  dplyr::right_join(y = hi_FTPC_spp, by = dplyr::join_by(Unit_Code, Sampling_Frame, Year, Cycle, Plot_Type, Plot_Number))
 
 unique(hi_FTPC_spp$Scientific_Name)
 
@@ -701,7 +701,7 @@ FTPC <- pts_FTPC %>%
   select(Unit_Code, Community, Sampling_Frame, Cycle, Year,
          Plot_Number, Plot_Type, Start_Lat, Start_Long,
          Scientific_Name, Code, Nativity, Outside_Plot, cf, Certified = Certified.y) %>%
-  mutate(Nativity = case_when(Scientific_Name == "Angiopteris evecta" ~ "Non-Native",
+  mutate(Nativity = dplyr::case_when(Scientific_Name == "Angiopteris evecta" ~ "Non-Native",
                                .default = as.character(Nativity)))
 write_csv2(FTPC, file = paste0("C:/Users/JJGross/Downloads/FTPC_", Sys.Date() ,".csv"))
 

@@ -504,17 +504,17 @@ summarize_understory <- function(combine_strata = FALSE, plant_grouping, paired_
   var_nest2 <- c("Stratum", new_vars)
 
   understory3 <- understory2 %>%
-    #dplyr::group_by(dplyr::across(all_vars)) %>%
-    dplyr::group_by(dplyr::across(dplyr::all_of(all_vars))) %>%
+    #dplyr::group_by(across(all_vars)) %>%
+    dplyr::group_by(across(all_of(all_vars))) %>%
     dplyr::summarise(Hits = dplyr::n(), .groups = 'drop') %>%
     # group hits by plot (remove Point from grouping variable)
-    dplyr::group_by(dplyr::across(dplyr::all_of(all_vars_minus_point))) %>%
+    dplyr::group_by(across(all_of(all_vars_minus_point))) %>%
     # Total hits at each point for each strata for entire plot
     #   (can be > 300 points or >100% because more than one 'Hit' can be present per point-strata)
     dplyr::summarise(Cover = (sum(Hits)) / 300 * 100, .groups = 'drop') %>%
     # Insert "0" for cover if category does not exist (for example no hits for non-natives in High Stratum)
-    tidyr::complete(tidyr::nesting(!!!rlang::syms(var_nest1)),
-                    tidyr::nesting(!!!rlang::syms(var_nest2)),
+    tidyr::complete(tidyr::nesting(!!!syms(var_nest1)),
+                    tidyr::nesting(!!!syms(var_nest2)),
                     fill = list(Cover = 0)) # This should work now!
 
 
@@ -538,7 +538,7 @@ summarize_understory <- function(combine_strata = FALSE, plant_grouping, paired_
     understory4 <- understory4 %>%
       # Arrange table so that difference in cover between cycles can be calculated easily (example - cycle 1 value for
       #   cover is followed by cycle 2 value for cover).
-      dplyr::group_by(dplyr::across(dplyr::all_of(arrange_vars))) %>%
+      dplyr::group_by(across(all_of(arrange_vars))) %>%
       dplyr::arrange(Cycle, Year, .by_group = TRUE) %>%
       # Calculate the change in cover per cycle
       dplyr::mutate(Chg_Prior = Cover - dplyr::lag(Cover, order_by = Cycle)) %>%
@@ -718,7 +718,7 @@ v_cover_bar_stats <- function(combine_strata = FALSE, plant_grouping = "Nativity
   add_stats_vars <- c(base_vars, plant_grouping_vars)
 
   understory_stats <- add_stats(understory3,
-                                dplyr::across(dplyr::all_of(add_stats_vars)))
+                                across(all_of(add_stats_vars)))
 
   # sample size calculation for text (output is on graph caption)
   sample_size <- understory_stats %>%
@@ -749,7 +749,7 @@ v_cover_bar_stats <- function(combine_strata = FALSE, plant_grouping = "Nativity
 
   # If only one plot than make SD, ERR, L, and R columns 0 (instead of NA)
   understory_stats <- understory_stats %>%
-    mutate(SD = dplyr::case_when(NPLOTS == 1 ~ 0, .default = as.numeric(SD)),
+    dplyr::mutate(SD = dplyr::case_when(NPLOTS == 1 ~ 0, .default = as.numeric(SD)),
            ERR = dplyr::case_when(NPLOTS == 1 ~ 0, .default = as.numeric(ERR)),
            L = dplyr::case_when(NPLOTS == 1 ~ 0, .default = as.numeric(L)),
            R = dplyr::case_when(NPLOTS == 1 ~ 0, .default = as.numeric(R)))
@@ -1018,20 +1018,20 @@ understorySunburst <- function(sample_frame, cycle, mgmt_unit = TRUE, colors = "
   #
   # # PLACEHOLDER
   # # TODO: replace this with actual grouping column
-  # und <- mutate(und, GROUP_COL = sample(LETTERS[c(1, 2, 2, 3, 5, 5, 5)], size = dplyr::n(), replace = TRUE))
+  # und <- dplyr::mutate(und, GROUP_COL = sample(LETTERS[c(1, 2, 2, 3, 5, 5, 5)], size = dplyr::n(), replace = TRUE))
   #
   # und <- und %>%
   #   dplyr::mutate(Life_Form=replace(Life_Form, Code=="SOPCHR", "Shrub"))
   #
   # # prep data for sunburst plot
   # und <- UnderCombineStrata(und) %>%
-  #   dplyr::mutate(dplyr::across(where(is.character), replace_na, "No Veg")) %>%
-  #   dplyr::group_by(dplyr::across(tidyselect::all_of(c("Cycle", "Unit_Code", "Sampling_Frame", "Plot_Number", group_by)))) %>%
+  #   dplyr::mutate(across(where(is.character), replace_na, "No Veg")) %>%
+  #   dplyr::group_by(across(tidyselect::all_of(c("Cycle", "Unit_Code", "Sampling_Frame", "Plot_Number", group_by)))) %>%
   #   dplyr::summarize(Hits_Sp = dplyr::n(), .groups = "drop") %>%
-  #   complete(nesting(!!!syms(c("Cycle", "Unit_Code", "Sampling_Frame", "Plot_Number", group_by))),
+  #   tidyr::complete(tidyr::nesting(!!!syms(c("Cycle", "Unit_Code", "Sampling_Frame", "Plot_Number", group_by))),
   #            fill = list(Hits_Sp = 0)) %>%
   #   dplyr::mutate(Plot_Percent = Hits_Sp/300) %>%
-  #   dplyr::group_by(dplyr::across(tidyselect::all_of(c("Cycle", "Unit_Code", "Sampling_Frame", group_by)))) %>%
+  #   dplyr::group_by(across(tidyselect::all_of(c("Cycle", "Unit_Code", "Sampling_Frame", group_by)))) %>%
   #   dplyr::summarize(n = dplyr::n(),
   #             plots_present = sum(Hits_Sp > 0),
   #             Avg_Cover = round(mean(Plot_Percent), 3),
@@ -1050,7 +1050,7 @@ understorySunburst <- function(sample_frame, cycle, mgmt_unit = TRUE, colors = "
   und <- understorySpeciesCover2(sample_frame = sample_frame, cycle = cycle, group_by = group_by)
 
   if (is.null(names(colors))) {
-    pal <- colorRampPalette(colors)
+    pal <- grDevices::colorRampPalette(colors)
     n_colors <- length(unique(und[[plot_levels[1]]]))
     colors <- pal(n_colors)
     names(colors) <- sort(unique(und[[plot_levels[1]]]))
@@ -1061,10 +1061,10 @@ understorySunburst <- function(sample_frame, cycle, mgmt_unit = TRUE, colors = "
   # Create sunburst plot
   sb <- dplyr::select(und, tidyselect::all_of(c(plot_levels, "Avg_Cover")))
   sb <- as.sunburstDF(sb, value_column = "Avg_Cover")
-  sb$color <- colors[str_replace(sb$ids, " - .*", "")]
+  sb$color <- colors[stringr::str_replace(sb$ids, " - .*", "")]
 
   und_species <- und %>%
-    select(Code, Scientific_Name)
+    dplyr::select(Code, Scientific_Name)
 
   sb <- sb %>%
     dplyr::left_join(und_species, by = c("labels" = "Code")) %>%
@@ -1116,7 +1116,7 @@ understoryBarCover <- function(sample_frame, crosstalk_filters = TRUE,
 
   cover_bar <- sp_w_cover %>%
     plotly::plot_ly(type = "bar", x = ~Cycle, y = ~Avg_Cover, color = ~Zone, strokes = "white", stroke = ~Scientific_Name,
-                    colors = colorRamp(colors),
+                    colors = grDevices::colorRamp(colors),
                     text = ~hovertext,
                     hoverinfo = 'text',
                     textposition = "none") %>%
@@ -1171,20 +1171,20 @@ understorySpeciesCover <- function(sample_frame, cycle, group_by = c("GROUP_COL"
   set.seed(11) # Set random number generation seed so that GROUP_COL is the same each time
   und <- und %>%
     dplyr::group_by(Cycle, Sampling_Frame, Plot_Number) %>%
-    mutate(GROUP_COL = sample(LETTERS[c(1:5)], size = dplyr::n(), replace = TRUE))
+    dplyr::mutate(GROUP_COL = sample(LETTERS[c(1:5)], size = dplyr::n(), replace = TRUE))
 
   und <- und %>%
     dplyr::mutate(Life_Form=replace(Life_Form, Code=="SOPCHR", "Shrub"))
 
   # prep data for sunburst plot
   und <- UnderCombineStrata(und) %>%
-    dplyr::mutate(dplyr::across(where(is.character), replace_na, "No Veg")) %>%
-    dplyr::group_by(dplyr::across(tidyselect::all_of(c("Unit_Code", "Sampling_Frame", "Plot_Number", "Life_Form", "Scientific_Name", "Code", group_by)))) %>%
+    dplyr::mutate(across(where(is.character), replace_na, "No Veg")) %>%
+    dplyr::group_by(across(tidyselect::all_of(c("Unit_Code", "Sampling_Frame", "Plot_Number", "Life_Form", "Scientific_Name", "Code", group_by)))) %>%
     dplyr::summarize(Hits_Sp = dplyr::n(), .groups = "drop") %>%
-    complete(nesting(!!!syms(c("Unit_Code", "Sampling_Frame", "Plot_Number", "Life_Form", "Scientific_Name", "Code", group_by))),
+    tidyr::complete(tidyr::nesting(!!!syms(c("Unit_Code", "Sampling_Frame", "Plot_Number", "Life_Form", "Scientific_Name", "Code", group_by))),
              fill = list(Hits_Sp = 0)) %>%
     dplyr::mutate(Plot_Percent = Hits_Sp/300) %>%
-    dplyr::group_by(dplyr::across(tidyselect::all_of(c("Unit_Code", "Sampling_Frame", "Life_Form", "Scientific_Name", "Code", group_by)))) %>%
+    dplyr::group_by(across(tidyselect::all_of(c("Unit_Code", "Sampling_Frame", "Life_Form", "Scientific_Name", "Code", group_by)))) %>%
     dplyr::summarize(n = dplyr::n(),
                      plots_present = sum(Hits_Sp > 0),
                      Avg_Cover = round(mean(Plot_Percent), 3),
@@ -1226,7 +1226,7 @@ understorySpeciesCover2 <- function(sample_frame, cycle,
   # PLACEHOLDER
   # replace this with actual grouping column
   #set.seed(11) # Set random number generation seed so that GROUP_COL is the same each time
-  #und <- mutate(und, GROUP_COL = sample(LETTERS[c(1, 2, 2, 3, 5, 5, 5)], size = dplyr::n(), replace = TRUE))
+  #und <- dplyr::mutate(und, GROUP_COL = sample(LETTERS[c(1, 2, 2, 3, 5, 5, 5)], size = dplyr::n(), replace = TRUE))
   #und <- und %>%
   #  dplyr::group_by(Cycle, Sampling_Frame, Plot_Number) %>%
   #  tidyr::nest() %>%
@@ -1247,16 +1247,16 @@ understorySpeciesCover2 <- function(sample_frame, cycle,
 
   # prep data for sunburst plot
   und <- UnderCombineStrata(und) %>%
-    dplyr::mutate(dplyr::across(where(is.character), tidyr::replace_na, "No Veg")) %>%
-    dplyr::group_by(dplyr::across(tidyselect::all_of(c("Unit_Code", "Sampling_Frame", "Plot_Number", "Nativity", "Life_Form", "Scientific_Name", "Code", group_by)))) %>%
+    dplyr::mutate(across(where(is.character), tidyr::replace_na, "No Veg")) %>%
+    dplyr::group_by(across(tidyselect::all_of(c("Unit_Code", "Sampling_Frame", "Plot_Number", "Nativity", "Life_Form", "Scientific_Name", "Code", group_by)))) %>%
     dplyr::summarize(Hits_Sp = dplyr::n(), .groups = "drop") %>%
-    #complete(nesting(!!!syms(c("Unit_Code", "Sampling_Frame", "Plot_Number", "Life_Form", "Scientific_Name", "Code", group_by))),
+    #complete(tidyr::nesting(!!!syms(c("Unit_Code", "Sampling_Frame", "Plot_Number", "Life_Form", "Scientific_Name", "Code", group_by))),
     #         fill = list(Hits_Sp = 0)) %>%
-    tidyr::complete(tidyr::nesting(!!!rlang::syms(c("Unit_Code", "Sampling_Frame", "Plot_Number", group_by))),
-             tidyr::nesting(!!!rlang::syms(c("Nativity", "Code", "Scientific_Name", "Life_Form"))),
+    tidyr::complete(tidyr::nesting(!!!syms(c("Unit_Code", "Sampling_Frame", "Plot_Number", group_by))),
+             tidyr::nesting(!!!syms(c("Nativity", "Code", "Scientific_Name", "Life_Form"))),
              fill = list(Hits_Sp = 0)) %>%
     dplyr::mutate(Plot_Percent = Hits_Sp/300) %>%
-    dplyr::group_by(dplyr::across(tidyselect::all_of(c("Unit_Code", "Sampling_Frame", "Nativity", "Life_Form", "Scientific_Name", "Code", group_by)))) %>%
+    dplyr::group_by(across(tidyselect::all_of(c("Unit_Code", "Sampling_Frame", "Nativity", "Life_Form", "Scientific_Name", "Code", group_by)))) %>%
     dplyr::summarize(n = dplyr::n(),
                      plots_present = sum(Hits_Sp > 0),
                      Avg_Cover = round(mean(Plot_Percent), 3) *100,

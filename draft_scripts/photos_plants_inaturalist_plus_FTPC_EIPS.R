@@ -73,18 +73,18 @@ Events_extra_other <- bind_rows(Events_extra_other_noQA, Events_extra_other_QA)
 event_ID_lookup <- Events_extra_other |>
   select(Event_ID, Unit_Code, Community, Sampling_Frame, Cycle, Year, Plot_Number, QA_Plot) |>
   #group_by(Event_ID, Unit_Code, Community, Sampling_Frame, Cycle, Year, Plot_Number, QA_Plot) |>
-  group_by(Sampling_Frame, Cycle) |>
+  dplyr::group_by(Sampling_Frame, Cycle) |>
   mutate(Year_Cycle = min(Year)) |>
   mutate(QA_Plot = as.logical(QA_Plot)) |>
-  ungroup()
+  dplyr::ungroup()
 
 # Select column names to be in final table
 table_out <- photos_table_final |>
   mutate(Num_2 = as.integer(Num_2)) |>
   mutate(Camera_Type = "Field Maps") |>
   mutate(Comments = "") |>
-  mutate(Community_underscore = str_replace(Community, " ", "_")) |>
-  left_join(y = event_ID_lookup, by = join_by(Unit_Code, Num_2 == Plot_Number,
+  mutate(Community_underscore = stringr::str_replace(Community, " ", "_")) |>
+  dplyr::left_join(y = event_ID_lookup, by = dplyr::join_by(Unit_Code, Num_2 == Plot_Number,
                                               Samp_Year == Year_Cycle,
                                               Sampling_Frame_DB == Sampling_Frame,
                                               Community, likely_QA_Plot == QA_Plot)) |>

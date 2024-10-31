@@ -55,7 +55,7 @@ all_pres_subsection <- all_pres |>
   filter(Sampling_Frame != "Nahuku/East Rift" | Plot_Number %in% nahuku_plots)
 
 look <- all_pres_subsection |>
-  distinct(Sampling_Frame, Plot_Number)
+  dplyr::distinct(Sampling_Frame, Plot_Number)
 
 #...............................................................................
 
@@ -67,19 +67,19 @@ plt_xy <- FilterPACNVeg(data_name = "Events_extra_xy",
 
 target_sp_locations <- all_pres_subsection |>
   filter(Scientific_Name %in% target_spp_list) |>
-  left_join(plt_xy)
+  dplyr::left_join(plt_xy)
 
 all_plots <- all_pres_subsection |>
   select(Sampling_Frame, Cycle, Plot_Number, QA_Plot) |>
   filter(QA_Plot == FALSE) |>
-  distinct() |>
-  group_by(Sampling_Frame, Cycle) |>
+  dplyr::distinct() |>
+  dplyr::group_by(Sampling_Frame, Cycle) |>
   summarise(n_plots = n())
 
 target_sp_detect_graph <- target_sp_locations |>
-  group_by(Sampling_Frame, Cycle, Scientific_Name, Nativity, Outside_Plot) |>
-  summarize(plots_detected = n()) |>
-  left_join(all_plots) |>
+  dplyr::group_by(Sampling_Frame, Cycle, Scientific_Name, Nativity, Outside_Plot) |>
+  dplyr::summarize(plots_detected = n()) |>
+  dplyr::left_join(all_plots) |>
   mutate(proportion = plots_detected/n_plots)
 
 sample_size <- all_plots %>%
@@ -109,10 +109,10 @@ target_sp_detect_graph |>
   dplyr::mutate(Sampling_Frame = dplyr::case_when(Sampling_Frame == "Nahuku/East Rift" ~ "Nahuku",
                                                   TRUE ~ Sampling_Frame)) |>
   mutate(Cycle = as.numeric(Cycle)) |>
-  ggplot(aes(x=Cycle, y=proportion, fill = Nativity, alpha = Outside_Plot)) +
+  ggplot2::ggplot(aes(x=Cycle, y=proportion, fill = Nativity, alpha = Outside_Plot)) +
   geom_bar(position = "stack", stat = "identity") +
   facet_grid(Sampling_Frame ~ Scientific_Name) +
-  ylab("plot presence : total plots") +
+  ggplot2::ylab("plot presence : total plots") +
   ggplot2::labs(caption = sample_size) +
   ggplot2::scale_fill_manual(values = nativity_colors) +
   scale_alpha_manual(name = "",
@@ -154,7 +154,7 @@ plt_xy <- FilterPACNVeg(data_name = "Events_extra_xy",
 
 target_sp_locations <- all_pres |>
   filter(Scientific_Name %in% target_spp_list) |>
-  left_join(plt_xy) |>
+  dplyr::left_join(plt_xy) |>
   mutate(event_year = lubridate::year(lubridate::ymd(Year, truncated = 2L)))
 
 target_sp_locations$event_year

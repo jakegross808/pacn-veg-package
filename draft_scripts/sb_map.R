@@ -86,14 +86,14 @@ lnstr_sfc
 (lnstr_sf <- st_sf(dfr , lnstr_sfc))
 # sf object
 lnstr_sf %>%
-  ggplot(lnstr_sf)
+  ggplot2::ggplot(lnstr_sf)
 # can display in ggplot:
 ggplot(lnstr_sf) +
   geom_sf()
 #works with tidyverse:
 lnstr_sf %>%
   filter(id == "hwy1") %>%
-  ggplot() +
+  ggplot2::ggplot() +
   geom_sf()
 
 

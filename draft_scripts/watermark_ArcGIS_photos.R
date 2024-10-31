@@ -136,7 +136,7 @@ image_write(img, path = here("watermarked_demo.jpg"), format = "jpg")
 
 # First step is to "join" or "relate" the layer data with the _attach table
 joined_table <- gdb_attach %>%
-  left_join(gdb_layer, by = c("REL_GLOBALID" = "GlobalID"))
+  dplyr::left_join(gdb_layer, by = c("REL_GLOBALID" = "GlobalID"))
 head(joined_table)
 
 # Make a date_time column appropriate for file names

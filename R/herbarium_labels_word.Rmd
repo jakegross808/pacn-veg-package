@@ -42,12 +42,12 @@ ED_gdb <- st_read(ED_Database, layer = "ED_HAVO_2022")
 
 specimens <- ED_gdb |>
   filter(Specimen == "Yes") |> # select only records marked as specimens
-  mutate(Unit_Code = Park) |>
+  dplyr::mutate(Unit_Code = Park) |>
   # pull everything in front of first '(' to get just the species name in 'Photo_Taxon'
-  separate(Photo_Taxon, c("Photo_Taxon_sp"), sep = "\\s*\\(.*", remove = FALSE) |>  
+  tidyr::separate(Photo_Taxon, c("Photo_Taxon_sp"), sep = "\\s*\\(.*", remove = FALSE) |>  
   # If'New_sp_name' is blank & full species name is entered in Photo_Taxon 
   # with a level of confidence is "5", then, use that as species name: 
-  mutate(New_sp_name = case_when(is.na(New_sp_name) & Taxon_LOC == 5 ~ Photo_Taxon_sp,
+  dplyr::mutate(New_sp_name = dplyr::case_when(is.na(New_sp_name) & Taxon_LOC == 5 ~ Photo_Taxon_sp,
                               .default = as.character(New_sp_name)))
 
 # Check species without 'New_sp_name' that have level of confidence <5:  
@@ -72,51 +72,51 @@ raw_HAVO_spp_data <- raw_spp_data %>%
 
 # Read PACN_veg_names.xlsx - which contains correct spelling of Hawaiian place names
 names <- readxl::read_xlsx(here::here("R", "PACN_veg_names.xlsx")) %>%
-  select(Unit_Code, Park_Name, Island, State_Territory) %>%
-  mutate(Unit_Code = str_trim(Unit_Code)) %>%
-  distinct()
+  dplyr::select(Unit_Code, Park_Name, Island, State_Territory) %>%
+  dplyr::mutate(Unit_Code = str_trim(Unit_Code)) %>%
+  dplyr::distinct()
 
 # Join formal names csv file and additional species info from PACN veg species database
 specimens_sppDB <- specimens %>%
-  left_join(names, by = join_by(Unit_Code == Unit_Code)) %>%
-  left_join(raw_HAVO_spp_data, by = join_by(New_sp_name == Scientific_name)) 
+  dplyr::left_join(names, by = dplyr::join_by(Unit_Code == Unit_Code)) %>%
+  dplyr::left_join(raw_HAVO_spp_data, by = dplyr::join_by(New_sp_name == Scientific_name)) 
 
 # Prepare all columns for use in a herbarium label  
 specimens_label_check <- specimens_sppDB %>%
-  mutate(Title = paste(Park_Name, "Herbarium")) %>%
+  dplyr::mutate(Title = paste(Park_Name, "Herbarium")) %>%
   #mutate(Island = paste(Island, State_Territory, sep = ", ")) %>% 
-  mutate(Species = paste(New_sp_name, Authority)) %>%
-  mutate(Family = Taxonomic_Family) %>%
-  separate(Park_common_name, c("Common"), sep = ',', extra = "drop") %>%
-  mutate(altitude = as.character(round(ESRIGNSS_ALTITUDE))) %>%
-  mutate(altitude = replace_na(altitude, "")) %>%
-  mutate(altitude = case_when(altitude != "" ~ paste(altitude, "m"),
+  dplyr::mutate(Species = paste(New_sp_name, Authority)) %>%
+  dplyr::mutate(Family = Taxonomic_Family) %>%
+  tidyr::separate(Park_common_name, c("Common"), sep = ',', extra = "drop") %>%
+  dplyr::mutate(altitude = as.character(round(ESRIGNSS_ALTITUDE))) %>%
+  dplyr::mutate(altitude = replace_na(altitude, "")) %>%
+  dplyr::mutate(altitude = dplyr::case_when(altitude != "" ~ paste(altitude, "m"),
                               .default = as.character(altitude))) %>%
-  mutate(Coords = paste0("(",round(ESRIGNSS_LATITUDE, 6), ", ", 
+  dplyr::mutate(Coords = paste0("(",round(ESRIGNSS_LATITUDE, 6), ", ", 
                               round(ESRIGNSS_LONGITUDE, 6), ") ", 
                               altitude)) %>%
-  mutate(Notes = replace_na(Xtra_Voucher_Notes, "")) %>%
-  mutate(Project = paste("PACN I&M - Early Detection of Plant Species")) %>%
-  mutate(Collector = Staff_List) %>%
-  mutate(Col_Date = paste(day(created_date), month(created_date, label = TRUE), 
-                          year(created_date), 
+  dplyr::mutate(Notes = replace_na(Xtra_Voucher_Notes, "")) %>%
+  dplyr::mutate(Project = paste("PACN I&M - Early Detection of Plant Species")) %>%
+  dplyr::mutate(Collector = Staff_List) %>%
+  dplyr::mutate(Col_Date = paste(day(created_date), month(created_date, label = TRUE), 
+                          lubridate::year(created_date), 
                           paste0(format(created_date, "%H:%M")))) %>%
-  mutate(Det_Date = paste(day(created_date), month(created_date, label = TRUE), 
-                          year(created_date))) %>%
-  mutate(Coll = paste0(Staff_List, " (", Col_Date, ")")) %>%
-  mutate(Det = paste0(Det, " (", Det_Date, ")")) %>%
+  dplyr::mutate(Det_Date = paste(day(created_date), month(created_date, label = TRUE), 
+                          lubridate::year(created_date))) %>%
+  dplyr::mutate(Coll = paste0(Staff_List, " (", Col_Date, ")")) %>%
+  dplyr::mutate(Det = paste0(Det, " (", Det_Date, ")")) %>%
   as_tibble() %>%
-  select(Photo_Taxon, New_sp_name, Col_Date, Title, Island, Species, Family, Common, Locality, Coords, Habitat, Project, Coll, Det, Notes, created_date) 
+  dplyr::select(Photo_Taxon, New_sp_name, Col_Date, Title, Island, Species, Family, Common, Locality, Coords, Habitat, Project, Coll, Det, Notes, created_date) 
 
 # This is table that will be used to create the labels below
 specimens_label_print <- specimens_label_check %>%
-  select(-Photo_Taxon, -New_sp_name, -Col_Date) 
+  dplyr::select(-Photo_Taxon, -New_sp_name, -Col_Date) 
 
 # Last check before pairing table down to just herbarium label components
 spp_chklist <- specimens_label_check %>%
-  select(created_date, Col_Date, Species) %>%
-  arrange(created_date) %>%
-  select(-created_date)
+  dplyr::select(created_date, Col_Date, Species) %>%
+  dplyr::arrange(created_date) %>%
+  dplyr::select(-created_date)
 
 # Create a sort of table of contents of species labels
 spp_chklist <- flextable(spp_chklist) |>

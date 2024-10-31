@@ -72,9 +72,9 @@ fixed <- Presence2 %>%
   droplevels()
 
 fixed_plts_not_sampled <- fixed %>%
-  ungroup() %>%
+  dplyr::ungroup() %>%
   select (Unit_Code, Community, Sampling_Frame, Cycle_Year, Plot_Number) %>%
-  distinct() %>%
+  dplyr::distinct() %>%
   mutate(Sampled = 1) %>%
   tidyr::complete(Plot_Number, tidyr::nesting(Unit_Code, Community, Sampling_Frame, Cycle_Year)) %>%
   dplyr::filter(is.na(Sampled)) %>%
@@ -91,39 +91,39 @@ Presence2_fixed <- fixed %>%
                                              Plot_Type, Plot_Number,
                                              Scientific_Name, Code, Life_Form, Nativity),
                   fill = list(Present = 0)) %>%
-  left_join(fixed_plts_not_sampled) %>%
+  dplyr::left_join(fixed_plts_not_sampled) %>%
   mutate(Present = dplyr::case_when(Sampled == FALSE ~ as.numeric(NA),
                                     TRUE ~ as.numeric(Present))) %>%
-  group_by(Unit_Code, Community, Sampling_Frame,
+  dplyr::group_by(Unit_Code, Community, Sampling_Frame,
            Plot_Type, Plot_Number,
            Scientific_Name, Code, Life_Form, Nativity) %>%
   dplyr::arrange(Cycle_Year, .by_group = TRUE) %>%
   dplyr::mutate(Chg_Paired_Plot = Present - dplyr::lag(Present, order_by = Cycle_Year)) %>%
-  dplyr::mutate(Chg_Paired_Plot_Pos = case_when(Chg_Paired_Plot >= 0 ~ as.numeric(Chg_Paired_Plot),
+  dplyr::mutate(Chg_Paired_Plot_Pos = dplyr::case_when(Chg_Paired_Plot >= 0 ~ as.numeric(Chg_Paired_Plot),
                                                 TRUE ~ as.numeric(NA))) %>%
-  dplyr::mutate(Chg_Paired_Plot_Neg = case_when(Chg_Paired_Plot <= 0 ~ as.numeric(Chg_Paired_Plot),
+  dplyr::mutate(Chg_Paired_Plot_Neg = dplyr::case_when(Chg_Paired_Plot <= 0 ~ as.numeric(Chg_Paired_Plot),
                                                 TRUE ~ as.numeric(NA))) %>%
-  ungroup()
+  dplyr::ungroup()
 
 
 # Summarize from plot to sampling frame
 Presence3_fixed <- Presence2_fixed %>%
-  group_by(Cycle_Year, Unit_Code, Community, Sampling_Frame, Plot_Type,
+  dplyr::group_by(Cycle_Year, Unit_Code, Community, Sampling_Frame, Plot_Type,
            Code, Scientific_Name, Life_Form, Nativity) %>%
-  summarize(Fix_Plots = sum(Present, na.rm = TRUE),
+  dplyr::summarize(Fix_Plots = sum(Present, na.rm = TRUE),
             Chg_Paired_Net = sum(Chg_Paired_Plot, na.rm = TRUE),
             Chg_Paired_Pos = sum(Chg_Paired_Plot_Pos, na.rm = TRUE),
             Chg_Paired_Neg = sum(Chg_Paired_Plot_Neg, na.rm = TRUE), .groups = "drop") %>%
   select(-Plot_Type)
 
 Presence4 <- Presence2_all %>%
-  left_join(Presence2_rotational) %>%
+  dplyr::left_join(Presence2_rotational) %>%
   full_join(Presence3_fixed) %>%
-  mutate(All_Plots = case_when(is.na(All_Plots) ~ 0, TRUE ~ as.numeric(All_Plots))) %>%
-  mutate(Rotational_Plots = case_when(is.na(Rotational_Plots) ~ 0, TRUE ~ as.numeric(Rotational_Plots)))
+  mutate(All_Plots = dplyr::case_when(is.na(All_Plots) ~ 0, TRUE ~ as.numeric(All_Plots))) %>%
+  mutate(Rotational_Plots = dplyr::case_when(is.na(Rotational_Plots) ~ 0, TRUE ~ as.numeric(Rotational_Plots)))
 # not running code below because any 'Fixed_Plots == NA' means the species has never been
 # found in a fixed plot, only a rotational plot.
-  #mutate(Fixed_Plots = case_when(is.na(Fixed_Plots) ~ 0, TRUE ~ as.numeric(Fixed_Plots)))
+  #mutate(Fixed_Plots = dplyr::case_when(is.na(Fixed_Plots) ~ 0, TRUE ~ as.numeric(Fixed_Plots)))
 
 Presence5 <- Presence4 %>%
   tidyr::pivot_wider(names_from = Cycle_Year,

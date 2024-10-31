@@ -56,7 +56,7 @@ read_vegmap_db <- function(db_paths) {
 
     if ("Species_Code" %in% names(tbl_Family)) {
       tbl_Family <- tbl_Family %>%
-        select(Species_Code, Sci_Name, ComName, SciName_w_Auth, Family, ITIS_TSN)
+        dplyr::select(Species_Code, Sci_Name, ComName, SciName_w_Auth, Family, ITIS_TSN)
       spp_sites <- spp_sites %>%
         dplyr::left_join(tbl_Family, by = c("Spp_Code" = "Species_Code"))
     } else {

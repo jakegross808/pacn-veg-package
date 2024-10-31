@@ -14,10 +14,10 @@ chk_fixed <- chk %>%
   filter(Site_Type == "Fixed") %>%
   filter(Subject1 != "Staff_Photo") %>%
   filter(Subject1 != "Other") %>%
-  group_by(Samp_Year, Samp_Frame, Sampling_Frame, Site_Number, Site_Type, Subject1) %>%
-  summarize(n = n()) %>%
-  ungroup() %>%
-  complete(nesting(Samp_Year, Samp_Frame, Sampling_Frame, Site_Number, Site_Type), Subject1) %>%
+  dplyr::group_by(Samp_Year, Samp_Frame, Sampling_Frame, Site_Number, Site_Type, Subject1) %>%
+  dplyr::summarize(n = n()) %>%
+  dplyr::ungroup() %>%
+  complete(tidyr::nesting(Samp_Year, Samp_Frame, Sampling_Frame, Site_Number, Site_Type), Subject1) %>%
   filter(is.na(n))
 
 # Get list of missing rotational photos
@@ -25,10 +25,10 @@ chk_rotational <- chk %>%
   filter(Site_Type == "Rotational") %>%
   filter(Subject1 != "Staff_Photo") %>%
   filter(Subject1 != "Other") %>%
-  group_by(Samp_Year, Samp_Frame, Sampling_Frame, Site_Number, Site_Type, Subject1) %>%
-  summarize(n = n()) %>%
-  ungroup() %>%
-  complete(nesting(Samp_Year, Samp_Frame, Sampling_Frame, Site_Number, Site_Type), Subject1) %>%
+  dplyr::group_by(Samp_Year, Samp_Frame, Sampling_Frame, Site_Number, Site_Type, Subject1) %>%
+  dplyr::summarize(n = n()) %>%
+  dplyr::ungroup() %>%
+  complete(tidyr::nesting(Samp_Year, Samp_Frame, Sampling_Frame, Site_Number, Site_Type), Subject1) %>%
   filter(is.na(n))
 
 # Combine fixed and rotational into one table
@@ -41,17 +41,17 @@ chk_missing <- bind_rows(chk_fixed, chk_rotational)
 
 chk_dupes <- chk %>%
   # Count number of photos per subject
-  group_by(Samp_Year, Samp_Frame, Sampling_Frame, Site_Number, Site_Type, Subject1, REL_GLOBALID) %>%
-  summarize(n_photos = n()) %>%
+  dplyr::group_by(Samp_Year, Samp_Frame, Sampling_Frame, Site_Number, Site_Type, Subject1, REL_GLOBALID) %>%
+  dplyr::summarize(n_photos = n()) %>%
   # Count number of points per subject (disregards multiple photos at one point)
-  group_by(Samp_Year, Samp_Frame, Sampling_Frame, Site_Number, Site_Type, Subject1) %>%
-  summarize(n_points = n()) %>%
+  dplyr::group_by(Samp_Year, Samp_Frame, Sampling_Frame, Site_Number, Site_Type, Subject1) %>%
+  dplyr::summarize(n_points = n()) %>%
   filter(n_points > 1) %>%
   filter(Subject1 != "Other")
 
 # join with original data to check created date, etc.
 dupes <- chk_dupes %>%
-  left_join(chk) %>%
+  dplyr::left_join(chk) %>%
   select(Samp_Year, Samp_Frame, Sampling_Frame, Site_Number, Site_Type, Subject1, n_points, Staff_list, created_date, last_edited_date, last_edited_user)
 
 # EIPS Photos ---------
@@ -67,24 +67,24 @@ EIPS_chk <- process_photos(AGOL_Layer = "EIPS",
 EIPS_missing <- EIPS_chk %>%
   # remove subjects that are not photo points
   filter(!Subject_EIPS == "Staff" & !Subject_EIPS == "Other") %>%
-  separate(Subject_EIPS, sep = "_", into = c("distance", "direction"), remove = FALSE) %>%
-  group_by(Sampling_Frame, Site_numb, Site_Type, distance) %>%
+  tidyr::separate(Subject_EIPS, sep = "_", into = c("distance", "direction"), remove = FALSE) %>%
+  dplyr::group_by(Sampling_Frame, Site_numb, Site_Type, distance) %>%
   summarise(n_direct = n_distinct(direction)) %>%
   filter(n_direct != 3 & Site_Type == "Fixed" |
            n_direct != 2 & Site_Type == "Rotational" )
 
 EIPS_chk_dupes <- EIPS_chk %>%
   # Count number of photos per subject
-  group_by(Samp_Year, Samp_Frame, Sampling_Frame, Site_Number, Site_Type, Subject1, REL_GLOBALID) %>%
-  summarize(n_photos = n()) %>%
+  dplyr::group_by(Samp_Year, Samp_Frame, Sampling_Frame, Site_Number, Site_Type, Subject1, REL_GLOBALID) %>%
+  dplyr::summarize(n_photos = n()) %>%
   # Count number of points per subject (disregards multiple photos at one point)
-  group_by(Samp_Year, Samp_Frame, Sampling_Frame, Site_Number, Site_Type, Subject1) %>%
-  summarize(n_points = n()) %>%
+  dplyr::group_by(Samp_Year, Samp_Frame, Sampling_Frame, Site_Number, Site_Type, Subject1) %>%
+  dplyr::summarize(n_points = n()) %>%
   filter(n_points > 1)
 
 # join with original data to check created date, etc.
 EIPS_dupes <- EIPS_chk_dupes %>%
-  left_join(EIPS_chk) %>%
+  dplyr::left_join(EIPS_chk) %>%
   select(Samp_Year, Samp_Frame, Sampling_Frame, Site_Number, Site_Type, Subject1, n_points, Staff_list, created_date, last_edited_date, last_edited_user)
 
 

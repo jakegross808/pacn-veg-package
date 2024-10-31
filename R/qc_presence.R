@@ -157,25 +157,25 @@ qc_spp_pres_dot_plot <- function(sample_frame, plot_number, save_folder, is_qa_p
   rare <- pacnvegetation::FilterPACNVeg(data_name = "Presence",
                                         sample_frame = sample_frame,
                                         is_qa_plot = is_qa_plot) %>%
-    group_by(Sampling_Frame, Scientific_Name, Code, Plot_Number) %>%
-    summarize(observed = n(), .groups = "drop") %>%
+    dplyr::group_by(Sampling_Frame, Scientific_Name, Code, Plot_Number) %>%
+    dplyr::summarize(observed = n(), .groups = "drop") %>%
     # only count one time if found more than once in a fixed
-    mutate(observed = 1) %>%
-    group_by(Sampling_Frame, Code, Scientific_Name) %>%
-    summarize(plots_observed = n()) %>%
+    dplyr::mutate(observed = 1) %>%
+    dplyr::group_by(Sampling_Frame, Code, Scientific_Name) %>%
+    dplyr::summarize(plots_observed = n()) %>%
     # "rare" will be 4 plots_observed or less
     filter(plots_observed < 5) %>%
-    mutate(less_than_5_plots = TRUE) %>%
-    right_join(chk_pres) %>%
+    dplyr::mutate(less_than_5_plots = TRUE) %>%
+    dplyr::right_join(chk_pres) %>%
     filter(less_than_5_plots == TRUE)
 
   # Join rare species flags to Presence
   chk_pres1 <- chk_pres %>%
-    left_join(rare)
+    dplyr::left_join(rare)
 
   chk_pres2 <- chk_pres1 %>%
-    mutate(Cycle = as.integer(Cycle)) %>%
-    arrange(Scientific_Name)
+    dplyr::mutate(Cycle = as.integer(Cycle)) %>%
+    dplyr::arrange(Scientific_Name)
 
   # Nativity discrete scale Colors:
   nativity_colors <- c("Native" = "#1b9e77",
@@ -184,39 +184,39 @@ qc_spp_pres_dot_plot <- function(sample_frame, plot_number, save_folder, is_qa_p
                        "Unknown" = "#7570b3")
 
   select_rare <- function(condition){
-    function(d) d %>% filter_(condition)
+    function(d) d %>% dplyr::filter_(condition)
   }
 
   select_out <- function(condition){
-    function(d) d %>% filter_(condition)
+    function(d) d %>% dplyr::filter_(condition)
   }
 
   graph_out <- chk_pres2 %>%
-    ggplot(aes(x= Scientific_Name, y=Cycle)) +
-    geom_segment(aes(x=Scientific_Name,
+    ggplot2::ggplot(aes(x= Scientific_Name, y=Cycle)) +
+    ggplot2::geom_segment(aes(x=Scientific_Name,
                      xend=Scientific_Name,
                      y=min(Cycle),
                      yend=max(Cycle),
                      color = Nativity),
                  linetype="dashed",
                  linewidth=0.5) +
-    geom_point(size = 7, data = ~filter(.x, less_than_5_plots == TRUE), color = "yellow") +
-    geom_point(size = 4, aes(color = Nativity)) +
-    geom_point(size = 2, data = ~filter(.x, Outside_Plot == TRUE), color = "black") +
-    labs(title="Check Presence",
+    ggplot2::geom_point(size = 7, data = ~filter(.x, less_than_5_plots == TRUE), color = "yellow") +
+    ggplot2::geom_point(size = 4, aes(color = Nativity)) +
+    ggplot2::geom_point(size = 2, data = ~filter(.x, Outside_Plot == TRUE), color = "black") +
+    ggplot2::labs(title="Check Presence",
          subtitle= (paste0(chk_pres2$Sampling_Frame[1], " Plot ", chk_pres2$Plot_Number[1])),
          caption= (paste0("QA/QC"))) +
-    scale_color_manual(values = nativity_colors) +
-    scale_x_discrete(limits = rev) +
-    scale_y_continuous(limits = c(0, max(chk_pres2$Cycle)+1)) +
-    coord_flip() +
-    theme(strip.background = element_blank(),
-          strip.text.x = element_blank()) +
-    theme(aspect.ratio=6)
+    ggplot2::scale_color_manual(values = nativity_colors) +
+    ggplot2::scale_x_discrete(limits = rev) +
+    ggplot2::scale_y_continuous(limits = c(0, max(chk_pres2$Cycle)+1)) +
+    ggplot2::coord_flip() +
+    ggplot2::theme(strip.background = ggplot2::element_blank(),
+          strip.text.x = ggplot2::element_blank()) +
+    ggplot2::theme(aspect.ratio=6)
   graph_out
 
   path_var <- paste0(save_folder, "/", sample_frame, "/")
   filename_var <- paste0("spp_pres_plot-dot_", plot_number, ".png")
   filename_var
-  ggsave(filename = filename_var, path = path_var, height = 10, width = 5)
+  ggplot2::ggsave(filename = filename_var, path = path_var, height = 10, width = 5)
 }
