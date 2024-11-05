@@ -1344,8 +1344,7 @@ understory_spp_trends_rank <- function(combine_strata = TRUE, plant_grouping = "
   # rank by max change per year in a plot
   if (!is.null(remove_nativity)) {
     und_spp <- und_spp |>
-      filter(Nativity != remove_nativity) |>
-      group_by(Sampling_Frame, Scientific_Name, Code)
+      filter(Nativity != remove_nativity)
   }
 
 
@@ -1358,17 +1357,17 @@ understory_spp_trends_rank <- function(combine_strata = TRUE, plant_grouping = "
 
   if (rank_by == "positive") {
     max_chg_rank <- und_spp |>
+      group_by(Sampling_Frame, Scientific_Name, Code) |>
       slice_max(.data[[ranking_stat]], n = 1, with_ties = FALSE) |>
       arrange(desc(.data[[ranking_stat]])) |>
-      # Top 5
       head(top_n)
   }
 
   if (rank_by == "negative") {
     max_chg_rank <- und_spp |>
+      group_by(Sampling_Frame, Scientific_Name, Code) |>
       slice_min(.data[[ranking_stat]], n = 1, with_ties = FALSE) |>
       arrange(.data[[ranking_stat]]) |>
-      # Top 5
       head(top_n)
   }
 
