@@ -4,14 +4,12 @@
 
 library(pacnvegetation)
 library(tidyverse)
-#library(magrittr)
-# if need to install packages while on network:
-#options(download.file.method = "wininet")
-
 #--- 1. Read latest cache ----
+LoadPACNVeg(force_refresh = FALSE, eips_paths = "foo")
+
 
 # Write/Read csv from pacnvegetation package:
-pacnveg_cache_path <- "C:/Users/JJGross/OneDrive - DOI/Documents/Certification_Local/Databases/R_WritePACNVeg"
+pacnveg_cache_path <- "C:/Users/JJGross/Documents/Databases_copied_local/R_WritePACNVeg"
 
 # Read
 path_file_info <- file.info(list.files(pacnveg_cache_path, full.names = T))
@@ -37,6 +35,7 @@ Species_FTPC <- FilterPACNVeg(data_name = "Presence") #%>%
 
 # ..........Update Data ----
 eips_database_folder_path <- "C:/Users/JJGross/Documents/Databases_copied_local/EIPS"
+eips_database_folder_path <- "C:/Users/JJGross/OneDrive - DOI/Documents/Data Science Assistance/2024/PACN_veg_Data_Science_Shared/data/EIPS_databases"
 eips_databases <- list.files(eips_database_folder_path,full.names = TRUE)
 eips_databases
 

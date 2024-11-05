@@ -10,6 +10,7 @@ library(leaflet)
 # Write/Read csv from pacnvegetation package:
 pacnveg_cache_path <- "C:/Users/JJGross/OneDrive - DOI/Documents/Certification_Local/Databases/R_WritePACNVeg"
 
+
 # Read
 path_file_info <- file.info(list.files(pacnveg_cache_path, full.names = T))
 latest_folder <- rownames(path_file_info)[which.max(path_file_info$mtime)]

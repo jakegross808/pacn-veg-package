@@ -170,7 +170,7 @@ knitr::include_graphics(here("inst", "rmarkdown", "dummy_fig.PNG"))
 
 understoryBarCover(params$sample_frame)
 ```
-```{r avg-cover-bar, echo=FALSE, fig.cap= "--CURRENTLY USING MOCK DATA FOR THIS FIGURE--Average understory species cover across the monitoring area by management unit and monitoring cycle", message=FALSE, warning=FALSE, out.height="0px"}
+```{r avg-cover-bar, echo=FALSE, fig.cap= "Average understory species cover across the monitoring area (Fixed AND Rotational plots included) by management unit and monitoring cycle", message=FALSE, warning=FALSE, out.height="0px"}
 # Dumb hack to get fig caption to show below plot + map
 htmltools::span(class = "dummy-fig")
 knitr::include_graphics(here("inst", "rmarkdown", "dummy_fig.PNG"))
