@@ -2,14 +2,14 @@ EIPS_frequency <- v_EIPS_prep(sample_frame  = "Olaa")
 
 check <- EIPS_frequency %>%
   select(Segment) %>%
-  distinct()
+  dplyr::distinct()
 
 segs_per_transect <- EIPS_frequency %>%
   select(Unit_Code, Community, Sampling_Frame, Year, Cycle,
          Transect_Type, Transect_Number, Segment, Seg_Length_m, Tran_Length_m) %>%
-  distinct() %>%
-  group_by(Unit_Code, Community, Sampling_Frame, Year, Cycle, Transect_Type, Transect_Number, Seg_Length_m, Tran_Length_m) %>%
-  summarize(actual_segs_per_tran = n()) %>%
+  dplyr::distinct() %>%
+  dplyr::group_by(Unit_Code, Community, Sampling_Frame, Year, Cycle, Transect_Type, Transect_Number, Seg_Length_m, Tran_Length_m) %>%
+  dplyr::summarize(actual_segs_per_tran = n()) %>%
   mutate(expected_segs_per_tran = Tran_Length_m/Seg_Length_m)
 
 if (any(segs_per_transect$actual_segs_per_tran < segs_per_transect$expected_segs_per_tran)) {
@@ -26,7 +26,7 @@ EIPS_frequency3 <- EIPS_frequency2 %>%
                 Transect_Type, Transect_Number, Segment, Seg_Length_m, Tran_Length_m,
                 Code, Scientific_Name, Life_Form, Nativity,
                 Cov_Range_Min, Cov_Range_Max) %>%
-  group_by(Unit_Code, Community, Sampling_Frame, Year, Cycle,
+  dplyr::group_by(Unit_Code, Community, Sampling_Frame, Year, Cycle,
            Transect_Type, Transect_Number, #Seg_Length_m, Tran_Length_m,
            Code, Scientific_Name, Life_Form, Nativity) %>%
   summarise(Segs_Present = n(),
@@ -40,9 +40,9 @@ EIPS_frequency3 <- EIPS_frequency2 %>%
 trans_per_sf <- EIPS_frequency3 %>%
   select(Unit_Code, Community, Sampling_Frame, Year, Cycle,
          Transect_Type, Transect_Number) %>%
-  distinct() %>%
-  group_by(Unit_Code, Community, Sampling_Frame, Year, Cycle) %>%
-  summarize(actual_trans_per_sf = n(), .groups = "drop") %>%
+  dplyr::distinct() %>%
+  dplyr::group_by(Unit_Code, Community, Sampling_Frame, Year, Cycle) %>%
+  dplyr::summarize(actual_trans_per_sf = n(), .groups = "drop") %>%
   mutate(expected_trans_per_sf = 20)
 
 EIPS_frequency4 <- EIPS_frequency3 %>%
@@ -73,12 +73,12 @@ EIPS_freq_fixed <- EIPS_frequency4 %>%
                   fill = list(Tran_Spp_Freq = 0,
                               Tran_Mean_Cover_Min = 0,
                               Tran_Mean_Cover_Max = 0)) %>%
-  group_by(dplyr::across(grp_vars)) %>%
+  dplyr::group_by(across(grp_vars)) %>%
   dplyr::arrange(Cycle_Year, .by_group = TRUE) %>%
   dplyr::mutate(Chg_Prior_Freq = Tran_Spp_Freq - dplyr::lag(Tran_Spp_Freq, order_by = Cycle_Year),
                 Chg_Prior_Cov_Min = Tran_Mean_Cover_Min - dplyr::lag(Tran_Mean_Cover_Min, order_by = Cycle_Year),
                 Chg_Prior_Cov_Max = Tran_Mean_Cover_Max - dplyr::lag(Tran_Mean_Cover_Max, order_by = Cycle_Year)) %>%
-  ungroup()
+  dplyr::ungroup()
 
 
 EIPS_frequency5 <- dplyr::bind_rows(EIPS_freq_fixed, EIPS_freq_rotationals) %>%
@@ -86,9 +86,9 @@ EIPS_frequency5 <- dplyr::bind_rows(EIPS_freq_fixed, EIPS_freq_rotationals) %>%
 
 # Summarize from transect to sampling frame
 EIPS_frequency6 <- EIPS_frequency5 %>%
-  group_by(Cycle, Year, Unit_Code, Community, Sampling_Frame,
+  dplyr::group_by(Cycle, Year, Unit_Code, Community, Sampling_Frame,
            Code, Scientific_Name, Life_Form, Nativity) %>%
-  summarize(Frequency = mean(Tran_Spp_Freq),
+  dplyr::summarize(Frequency = mean(Tran_Spp_Freq),
             Transects_Present = sum(!is.na(Tran_Spp_Freq)),
             Cover_Min = mean(Tran_Mean_Cover_Min),
             #Cover_Min_n = sum(!is.na(Mean_Cover_Min)),
@@ -133,7 +133,7 @@ pm_color_bar2 <- function(color1 = "pink", color2 = "lightgreen", text_color1 = 
 
 # Table w/conditional formatting
 EIPS_frequency6 %>%
-  ungroup() %>%
+  dplyr::ungroup() %>%
   dplyr::select(Unit_Code, Community, Sampling_Frame, Scientific_Name, Life_Form, Chg_Frequency, Chg_Cover_Max) %>%
   dplyr::arrange(Chg_Frequency) %>%
   dplyr::mutate(Chg_Frequency = ifelse(Chg_Frequency == "NaN", NA, Chg_Frequency),

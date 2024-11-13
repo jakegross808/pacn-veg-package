@@ -61,7 +61,7 @@ Presence2_fixed <- Presence1 %>%
 
 #fixed_plts_not_sampled <- Presence2_fixed %>%
 #  select(Unit_Code, Community, Sampling_Frame, Cycle_Year, Plot_Number) %>%
-#  distinct() %>%
+#  dplyr::distinct() %>%
 #  mutate(Sampled = 1) %>%
 #  tidyr::complete(Plot_Number, tidyr::nesting(Unit_Code, Community, Sampling_Frame, Cycle_Year)) %>%
 #  dplyr::filter(is.na(Sampled)) %>%

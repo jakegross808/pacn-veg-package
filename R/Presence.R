@@ -53,7 +53,7 @@ master_spp_list <- function(db_path, park, presence_matrix = FALSE, sample_frame
 
   # Code occurrence by Plant Community
   ftpc_occ <- pacnvegetation::FilterPACNVeg(data_name = "Presence", park = filter_park, sample_frame = sample_frame, community = community, year = year, cycle = cycle, plot_type = plot_type, plot_number = plot_number, is_qa_plot = FALSE, nativity = nativity) %>%
-    dplyr::left_join(Abbrev, by = join_by(Sampling_Frame)) %>%
+    dplyr::left_join(Abbrev, by = dplyr::join_by(Sampling_Frame)) %>%
     dplyr::mutate(SF = SF_Abbrev) %>%
     dplyr::select(SF, Sampling_Frame, Plot_Number, Cycle, Code) %>%
     # Only count a species once for a fixed plot
@@ -215,9 +215,9 @@ v_presence_table <- function(sample_frame, table_type = "html") {
     dplyr::ungroup()
 
   #fixed_plts_not_sampled <- Presence2_fixed %>%
-  #  select(Unit_Code, Community, Sampling_Frame, Cycle_Year, Plot_Number) %>%
-  #  distinct() %>%
-  #  mutate(Sampled = 1) %>%
+  #  dplyr::select(Unit_Code, Community, Sampling_Frame, Cycle_Year, Plot_Number) %>%
+  #  dplyr::distinct() %>%
+  #  dplyr::mutate(Sampled = 1) %>%
   #  tidyr::complete(Plot_Number, tidyr::nesting(Unit_Code, Community, Sampling_Frame, Cycle_Year)) %>%
   #  dplyr::filter(is.na(Sampled)) %>%
   #  dplyr::mutate(Sampled = FALSE)
@@ -236,7 +236,7 @@ v_presence_table <- function(sample_frame, table_type = "html") {
     tidyr::pivot_wider(names_from = Plot_Type,
                        values_from = c(Plots, N, Prop),
                        names_glue = "{Plot_Type}_{.value}") %>% #"values_fill = 0" does not work because then sometimes n will be zero
-    dplyr::mutate(dplyr::across(dplyr::ends_with("_Prop"), goo))
+    dplyr::mutate(across(dplyr::ends_with("_Prop"), goo))
 
 
   # Custom functions for calculating percentage in apply() below

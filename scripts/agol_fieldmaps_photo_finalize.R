@@ -76,7 +76,7 @@ fix_table <- process_photos(AGOL_Layer = var_AGOL_Layer,
 
 fix_table_subject_first_table <- fix_table |>
   # fix space in subject name (issue with Field Maps schema)
-  dplyr::mutate(Subject_FTPC = case_when(Subject_FTPC == "StartT3_ CenterT3" ~ "StartT3_CenterT3",
+  dplyr::mutate(Subject_FTPC = dplyr::case_when(Subject_FTPC == "StartT3_ CenterT3" ~ "StartT3_CenterT3",
                           .default = as.character(Subject_FTPC)))
 
 fix_table_subject_last_table <- process_photos(AGOL_Layer = var_AGOL_Layer,
@@ -149,10 +149,10 @@ Events_extra_other <- bind_rows(Events_extra_other_noQA, Events_extra_other_QA)
 event_ID_lookup <- Events_extra_other |>
   select(Event_ID, Unit_Code, Community, Sampling_Frame, Cycle, Year, Plot_Number, QA_Plot) |>
   #group_by(Event_ID, Unit_Code, Community, Sampling_Frame, Cycle, Year, Plot_Number, QA_Plot) |>
-  group_by(Sampling_Frame, Cycle) |>
-  mutate(Year_Cycle = min(Year)) |>
-  mutate(QA_Plot = as.logical(QA_Plot)) |>
-  ungroup()
+  dplyr::group_by(Sampling_Frame, Cycle) |>
+  dplyr::mutate(Year_Cycle = min(Year)) |>
+  dplyr::mutate(QA_Plot = as.logical(QA_Plot)) |>
+  dplyr::ungroup()
 
 # Select column names to be in final table
 
@@ -160,22 +160,22 @@ event_ID_lookup <- Events_extra_other |>
 photos_table_final <- fix_table_subject_last_table
 
 table_out <- photos_table_final |>
-  mutate(Num_2 = as.integer(Num_2)) |>
-  mutate(Camera_Type = "Field Maps") |>
-  mutate(Comments = "") |>
-  mutate(Community_underscore = str_replace(Community, " ", "_")) |>
-  left_join(y = event_ID_lookup, by = join_by(Unit_Code, Num_2 == Plot_Number,
+  dplyr::mutate(Num_2 = as.integer(Num_2)) |>
+  dplyr::mutate(Camera_Type = "Field Maps") |>
+  dplyr::mutate(Comments = "") |>
+  dplyr::mutate(Community_underscore = stringr::str_replace(Community, " ", "_")) |>
+  dplyr::left_join(y = event_ID_lookup, by = dplyr::join_by(Unit_Code, Num_2 == Plot_Number,
                                               Samp_Year == Year_Cycle,
                                               Sampling_Frame_DB == Sampling_Frame,
                                               Community, likely_QA_Plot == QA_Plot)) |>
-  mutate(reston_link = paste(
+  dplyr::mutate(reston_link = paste(
     reston_root, Samp_Year, Unit_Code, Community_underscore,
     Folder_Name, Out_Name,  sep = "/"))
 
 table_out_final <- table_out |>
-  mutate(lub = lubridate::as_datetime(table_out$exif_formatted)) |>
-  mutate(Date = format(as.POSIXct(lub), format = "%Y-%m-%d")) |>
-  mutate(Time = format(as.POSIXct(lub), format = "%H:%M")) |>
+  dplyr::mutate(lub = lubridate::as_datetime(table_out$exif_formatted)) |>
+  dplyr::mutate(Date = format(as.POSIXct(lub), format = "%Y-%m-%d")) |>
+  dplyr::mutate(Time = format(as.POSIXct(lub), format = "%H:%M")) |>
   select(Sampling_Frame_DB, Samp_Year, File_Name = Out_Name, Subject = Subject2, Date , Time,
          Camera_Type, Comments, Image_Project_Path = reston_link, Event_ID)
 
@@ -224,41 +224,41 @@ EIPS_image_pts <- FilterPACNVeg(data_name = "EIPS_image_pts")
 event_ID_lookup <- Events_extra_other |>
   dplyr::right_join(EIPS_image_pts) |>
   select(Event_ID, Image_Point_ID, Image_Point, Unit_Code, Community, Sampling_Frame, Cycle, Year, Transect_Number) |>
-  group_by(Sampling_Frame, Cycle) |>
+  dplyr::group_by(Sampling_Frame, Cycle) |>
   filter(Cycle == 3) |>
-  mutate(Year_Cycle = min(Year)) |>
-  mutate(Transect_Number = as.integer(Transect_Number)) |>
+  dplyr::mutate(Year_Cycle = min(Year)) |>
+  dplyr::mutate(Transect_Number = as.integer(Transect_Number)) |>
   #mutate(QA_Plot = as.logical(QA_Plot)) |>
-  ungroup()
+  dplyr::ungroup()
 
 # Select column names to be in final table
 table_out <- photos_table_final |>
-  mutate(Num_2 = as.integer(Num_2)) |>
-  mutate(Camera_Type = "Field Maps") |>
-  mutate(Comments = "") |>
-  mutate(Community_underscore = str_replace(Community, " ", "_")) |>
-  mutate(Subject_Point = str_extract(Subject_EIPS, "(\\d)+")) |>
+  dplyr::mutate(Num_2 = as.integer(Num_2)) |>
+  dplyr::mutate(Camera_Type = "Field Maps") |>
+  dplyr::mutate(Comments = "") |>
+  dplyr::mutate(Community_underscore = stringr::str_replace(Community, " ", "_")) |>
+  dplyr::mutate(Subject_Point = str_extract(Subject_EIPS, "(\\d)+")) |>
   # "Staff" photos do not have a specific "Image_Point" so assign them to Image_Point 0 (ie Start point of transect)
-  mutate(Subject_Point = case_when(stringr::str_detect(Subject_EIPS, pattern = "Staff") ~ "0",
+  dplyr::mutate(Subject_Point = dplyr::case_when(stringr::str_detect(Subject_EIPS, pattern = "Staff") ~ "0",
          .default = as.character(Subject_Point))) |>
-  left_join(y = event_ID_lookup, by = join_by(Unit_Code,
+  dplyr::left_join(y = event_ID_lookup, by = dplyr::join_by(Unit_Code,
                                               Num_2 == Transect_Number,
                                               Subject_Point == Image_Point,
                                               Samp_Year == Year_Cycle,
                                               Sampling_Frame_DB == Sampling_Frame,
                                               Community)) |>
-  mutate(reston_link = paste(
+  dplyr::mutate(reston_link = paste(
     reston_root, Samp_Year, Unit_Code, Community_underscore,
     Folder_Name, Out_Name,  sep = "/")) |>
   # Change value back from "0" to "Staff" (after joining) to make clear it is staff photo
-  mutate(Subject_Point = case_when(stringr::str_detect(Subject_EIPS, pattern = "Staff") ~ "Staff",
+  dplyr::mutate(Subject_Point = dplyr::case_when(stringr::str_detect(Subject_EIPS, pattern = "Staff") ~ "Staff",
                                    .default = as.character(Subject_Point)))
 
 
 table_out_final <- table_out |>
-  mutate(lub = lubridate::as_datetime(table_out$exif_formatted)) |>
-  mutate(Date = format(as.POSIXct(lub), format = "%Y-%m-%d")) |>
-  mutate(Time = format(as.POSIXct(lub), format = "%H:%M")) |>
+  dplyr::mutate(lub = lubridate::as_datetime(table_out$exif_formatted)) |>
+  dplyr::mutate(Date = format(as.POSIXct(lub), format = "%Y-%m-%d")) |>
+  dplyr::mutate(Time = format(as.POSIXct(lub), format = "%H:%M")) |>
   select(Sampling_Frame_DB, Samp_Year, File_Name = Out_Name, Transect_Number = TNum_3, Subject = Subject2, Subject_Point, Date , Time,
          Camera_Type, Comments, Image_Project_Path = reston_link, Event_ID, Image_Point_ID)
 

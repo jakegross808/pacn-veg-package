@@ -27,7 +27,7 @@ Events_EIPS <- FilterPACNVeg(data_name = "Events_extra_other_EIPS")
 
 Species_FTPC <- FilterPACNVeg(data_name = "Presence") #%>%
   select(Scientific_Name) %>%
-  distinct()
+  dplyr::distinct()
 
 
 
@@ -141,11 +141,11 @@ readr::write_excel_csv(spp_list_KALA_coast_EIPS, paste0("C:/Users/JJGross/Downlo
 # This is pain, not going to use it:
 spp_list_KALA_SF <- spp_list_KALA %>%
   separate_wider_delim(FTPC_pres, "(", names = c(NA, "SF")) %>%
-  mutate(SF = str_sub(SF, end = -2)) %>%
+  dplyr::mutate(SF = stringr::str_sub(SF, end = -2)) %>%
   separate_wider_delim(SF, ",", names = c("HO", "KW", "PA")) %>%
-  mutate(HO = as.numeric(str_sub(HO, 4, -1))) %>%
-  mutate(KW = as.numeric(str_sub(KW, 5, -1))) %>%
-  mutate(PA = as.numeric(str_sub(PA, 5, -1)))
+  dplyr::mutate(HO = as.numeric(str_sub(HO, 4, -1))) %>%
+  dplyr::mutate(KW = as.numeric(str_sub(KW, 5, -1))) %>%
+  dplyr::mutate(PA = as.numeric(str_sub(PA, 5, -1)))
 
 readr::write_excel_csv(spp_list_KALA_SF, paste0("C:/Users/JJGross/Downloads/spp_list_KALA_SF", Sys.Date(), ".csv"))
 

@@ -34,7 +34,7 @@ under_spp_chg <- summarize_understory(plant_grouping = "Species",
                                   cycle = c("1","2","3"))
 
 under_spp_chg <- under_spp_chg %>%
-  mutate(Plot = Plot_Number,
+  dplyr::mutate(Plot = Plot_Number,
          Type = Plot_Type,
          Cover = round(Cover,digits = 2)) %>%
   select(Year, Plot, Nativity, Life_Form, Scientific_Name, Code, Cover) 

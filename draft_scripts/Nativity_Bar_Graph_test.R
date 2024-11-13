@@ -52,12 +52,12 @@ plot <- cover_stats %>%
   ggplot2::geom_col(position = position_dodge()) +
   ggplot2::geom_errorbar(ggplot2::aes(ymin=L, ymax=R), width=.2,
                              position=position_dodge(.9)) +
-  labs(y = "Mean % Cover") +
+  ggplot2::labs(y = "Mean % Cover") +
   #ggh4x::facet_nested(Stratum ~ Sampling_Frame + Nativity, scales = "free_x") +
   ggplot2::facet_grid(Stratum ~ Sampling_Frame + Nativity, labeller = label_parsed) +
   ggplot2::scale_fill_manual(values = nativity_colors, limits = force) +
   ggplot2::xlab("Year") +
   ggplot2::theme(legend.position="none") +
   ggplot2::labs(caption = sample_size) +
-  theme(axis.text.x=element_text(angle = 90, hjust = 0, vjust = 0.5))
+  ggplot2::theme(axis.text.x=element_text(angle = 90, hjust = 0, vjust = 0.5))
 plot

@@ -76,13 +76,13 @@ plot
 
 num_facets <- understory2_stats_test4 %>%
   select(Sampling_Frame, .data[[summary_param]]) %>%
-  distinct()
+  dplyr::distinct()
 
 if (nrow(num_facets) > 6) {
   plot <- plot +
-  coord_flip() +
+  ggplot2::coord_flip() +
   facet_grid(.data[[summary_param]] + SF_no_space ~ ., switch = "y") +
-  theme(strip.text.y.left = element_text(angle = 0))
+  ggplot2::theme(strip.text.y.left = ggplot2::element_text(angle = 0))
 }
 
 plot
@@ -140,7 +140,7 @@ l
 
 l +
   facet_grid(SF_no_space ~ Stratum, switch = "y", scales = "free_y") +
-  theme(strip.text.y.left = element_text(angle = 0))
+  ggplot2::theme(strip.text.y.left = ggplot2::element_text(angle = 0))
 l
 
 l + facet_grid(SF_no_space ~ ., scales="free_y")
@@ -150,9 +150,9 @@ l +
   facet_grid(~factor(Scientific_Name, levels=c('Acrostichum aureum', 'Hibiscus tiliaceus', 'Mikania spp', ...)))
 
 l <- l +
-  coord_flip() +
+  ggplot2::coord_flip() +
   facet_grid(.data[[summary_param]] + SF_no_space ~ ., switch = "y") +
-  theme(strip.text.y.left = element_text(angle = 0))
+  ggplot2::theme(strip.text.y.left = ggplot2::element_text(angle = 0))
 l
 
 und_test2 <- summarize_understory(combine_strata = FALSE,
@@ -307,7 +307,7 @@ plot(NULL, xlim=c(0,length(param_cols$new_cols)), ylim=c(0,1),
 rect(0:(length(param_cols$new_cols)-1), 0, 1:length(param_cols$new_cols), 1, col=param_cols$new_cols)
 
 input <- input %>%
-  left_join(param_cols, by = parameter)
+  dplyr::left_join(param_cols, by = parameter)
 
 input <- dplyr::mutate(input, key = paste0(Unit_Code, Sampling_Frame, Plot_Type, Plot_Number, Year, Cycle)) #crosstalk recommends using unique key
 input <- crosstalk::SharedData$new(input, group = "ctg", key = ~key)

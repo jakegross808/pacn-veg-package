@@ -65,16 +65,16 @@ nativity_colors <- c("Native" = "#1b9e77", "Non-Native" = "#d95f02", "No Veg" = 
 
 und2 <- UnderCombineStrata(und) %>%
   mutate(across(everything(), replace_na, "No Veg")) %>%
-  group_by(Cycle, Unit_Code, Sampling_Frame, Plot_Number,
+  dplyr::group_by(Cycle, Unit_Code, Sampling_Frame, Plot_Number,
            Nativity, Code, Scientific_Name, Life_Form) %>%
-  summarize(Hits_Sp = n(), .groups = "drop") %>%
-  complete(nesting(Cycle, Unit_Code, Sampling_Frame, Plot_Number),
-           nesting(Nativity, Code, Scientific_Name, Life_Form),
+  dplyr::summarize(Hits_Sp = n(), .groups = "drop") %>%
+  complete(tidyr::nesting(Cycle, Unit_Code, Sampling_Frame, Plot_Number),
+           tidyr::nesting(Nativity, Code, Scientific_Name, Life_Form),
            fill = list(Hits_Sp = 0)) %>%
   mutate(Plot_Percent = Hits_Sp/300) %>%
-  group_by(Cycle, Unit_Code, Sampling_Frame,
+  dplyr::group_by(Cycle, Unit_Code, Sampling_Frame,
            Nativity, Code, Scientific_Name, Life_Form) %>%
-  summarize(n = n(),
+  dplyr::summarize(n = n(),
             plots_present = sum(Hits_Sp > 0),
             Avg_Cover = round(mean(Plot_Percent), 3),
             #Median = median(Plot_Percent),
@@ -90,11 +90,11 @@ plotly::plot_ly(sb, ids = ~ids, labels = ~labels, parents = ~parents, values = ~
 
 und_nest <- UnderCombineStrata(und) %>%
   mutate(across(everything(), replace_na, "No Veg")) %>%
-  group_by(Cycle, Unit_Code, Sampling_Frame, Plot_Type, Plot_Number,
+  dplyr::group_by(Cycle, Unit_Code, Sampling_Frame, Plot_Type, Plot_Number,
            Nativity, Code, Scientific_Name, Life_Form) %>%
-  summarize(Hits_Sp = n(), .groups = "drop") %>%
-  complete(nesting(Cycle, Unit_Code, Sampling_Frame, Plot_Type, Plot_Number),
-           nesting(Nativity, Code, Scientific_Name, Life_Form),
+  dplyr::summarize(Hits_Sp = n(), .groups = "drop") %>%
+  complete(tidyr::nesting(Cycle, Unit_Code, Sampling_Frame, Plot_Type, Plot_Number),
+           tidyr::nesting(Nativity, Code, Scientific_Name, Life_Form),
            fill = list(Hits_Sp = 0)) %>%
   mutate(Plot_Percent = Hits_Sp/300) #%>%
 
@@ -138,7 +138,7 @@ str(und_nest3)
 und_nest4 <- und_nest3 %>%
   mutate(data = map(data,
                     ~.x %>%
-                      group_by(Nativity, Code, Scientific_Name, Life_Form) %>%
+                      dplyr::group_by(Nativity, Code, Scientific_Name, Life_Form) %>%
                       summarise(Total_Hits_Sp = sum(Hits_Sp),
                                 Mean_Cover = mean(Plot_Percent),
                                 Plots_Detected = sum(Hits_Sp > 0, na.rm = TRUE))))
@@ -146,7 +146,7 @@ und_nest4 <- und_nest3 %>%
 und_nest_sb1 <- und_nest4 %>%
   mutate(data = map(data,
                     ~.x %>%
-                      ungroup() %>%
+                      dplyr::ungroup() %>%
                       dplyr::select(Nativity, Life_Form, Code, Mean_Cover)))
 
 und_nest_sb2 <- und_nest_sb1 %>%
@@ -213,16 +213,16 @@ lapply(fam_tree, )
 # ----- Idea to filter data in plotly from Sarah:
 und2 <- UnderCombineStrata(und) %>%
   mutate(across(everything(), replace_na, "No Veg")) %>%
-  group_by(Cycle, Unit_Code, Sampling_Frame, Plot_Number,
+  dplyr::group_by(Cycle, Unit_Code, Sampling_Frame, Plot_Number,
            Nativity, Code, Scientific_Name, Life_Form) %>%
-  summarize(Hits_Sp = n(), .groups = "drop") %>%
-  complete(nesting(Cycle, Unit_Code, Sampling_Frame, Plot_Number),
-           nesting(Nativity, Code, Scientific_Name, Life_Form),
+  dplyr::summarize(Hits_Sp = n(), .groups = "drop") %>%
+  complete(tidyr::nesting(Cycle, Unit_Code, Sampling_Frame, Plot_Number),
+           tidyr::nesting(Nativity, Code, Scientific_Name, Life_Form),
            fill = list(Hits_Sp = 0)) %>%
   mutate(Plot_Percent = Hits_Sp/300) %>%
-  group_by(Cycle, Unit_Code, Sampling_Frame,
+  dplyr::group_by(Cycle, Unit_Code, Sampling_Frame,
            Nativity, Code, Scientific_Name, Life_Form, Plot_Number) %>%
-  summarize(n = n(),
+  dplyr::summarize(n = n(),
             plots_present = sum(Hits_Sp > 0),
             Avg_Cover = round(mean(Plot_Percent), 3),
             #Median = median(Plot_Percent),
@@ -273,7 +273,7 @@ tx <- highlight_key(txhousing, ~city)
 
 # initiate a plotly object
 base <- plot_ly(tx, color = I("black")) %>%
-  group_by(city)
+  dplyr::group_by(city)
 
 time_series <- base %>%
   #group_by(city) %>%
@@ -320,14 +320,14 @@ subplot(time_series, hist, nrows = 2) %>%
 
 
 tx <- highlight_key(txhousing)
-gg <- ggplot(tx) + geom_line(aes(date, median, group = city))
+gg <- ggplot2::ggplot(tx) + geom_line(aes(date, median, group = city))
 filter <- bscols(
   filter_select("id", "Select a city", tx, ~city),
   ggplotly(gg, dynamicTicks = TRUE),
   widths = c(12, 12)
 )
 tx2 <- highlight_key(txhousing, ~city, "Select a city")
-gg <- ggplot(tx2) + geom_line(aes(date, median, group = city))
+gg <- ggplot2::ggplot(tx2) + geom_line(aes(date, median, group = city))
 select <- highlight(
   ggplotly(gg, tooltip = "city"),
   selectize = TRUE, persistent = TRUE
@@ -370,7 +370,7 @@ bscols(
   p, map, stations
 )
 
-gg <- ggplot(tx) + geom_line(aes(date, median, group = city))
+gg <- ggplot2::ggplot(tx) + geom_line(aes(date, median, group = city))
 filter <- bscols(
   filter_select("id", "Select a city", tx, ~city),
   ggplotly(gg, dynamicTicks = TRUE),

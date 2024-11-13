@@ -15,7 +15,7 @@ look <- FilterPACNVeg("Understory", sample_frame = "Haleakala", cycle = 2)
 chk <- look %>%
   #filter(Plot_Number == 10) %>%
   filter(Stratum == "Low") %>%
-  group_by(Sampling_Frame, Cycle, Dead, Scientific_Name, Code, Nativity) %>%
+  dplyr::group_by(Sampling_Frame, Cycle, Dead, Scientific_Name, Code, Nativity) %>%
   summarise(hits = n())
 
 
@@ -35,9 +35,9 @@ haleakala_nativity_paired <- summarize_understory(sample_frame = "Haleakala",
 p <- haleakala_nativity_paired %>%
   filter(Nativity != "Unknown") %>%
   filter(Cycle == 2) %>%
-  #mutate(direction = case_when(Chg_Prior > 0 ~ "Pos",
+  #mutate(direction = dplyr::case_when(Chg_Prior > 0 ~ "Pos",
   #                             Chg_Prior < 0 ~ "Neg" )) %>%
-  ggplot(aes(x = tidytext::reorder_within(Plot_Number, -Chg_Prior, list(Nativity, Stratum)), y = Chg_Prior, fill = Nativity)) +
+  ggplot2::ggplot(aes(x = tidytext::reorder_within(Plot_Number, -Chg_Prior, list(Nativity, Stratum)), y = Chg_Prior, fill = Nativity)) +
   geom_col(position = position_dodge()) +
   scale_x_reordered() +
   facet_wrap(Stratum ~ Nativity, scales = "free_x") +
@@ -46,8 +46,8 @@ p <- haleakala_nativity_paired %>%
   #                    scales = "free_x") +
   ggplot2::scale_fill_manual(values = nativity_colors, limits = force) +
   #scale_fill_manual(values = c("#CC0000", "#009900")) +
-  xlab("Plot Number") + ylab("Change in Total % Cover") +
-  theme(legend.position = "none")
+  ggplot2::xlab("Plot Number") + ggplot2::ylab("Change in Total % Cover") +
+  ggplot2::theme(legend.position = "none")
 p
 
 
@@ -125,10 +125,10 @@ chg_cover_species <- summarize_understory(paired_change = TRUE,
 
 
 cover_nativity <- cover_nativity %>%
-  group_by(Sampling_Frame, Cycle) %>%
+  dplyr::group_by(Sampling_Frame, Cycle) %>%
   mutate(Year = min(Year)) %>%
   mutate(Year = as.factor(Year)) %>%
-  ungroup()
+  dplyr::ungroup()
 
 unknown_cover <- cover_nativity %>%
   filter(Nativity == "Unknown" & Cover > 0)
@@ -153,7 +153,7 @@ add_stats(cover_nativity, Unit_Code, Sampling_Frame, Cycle, Year, Stratum, !!!rl
 # sample size calculation for text
 sample_size <- cover_nat_stat %>%
   select(Year, NPLOTS) %>%
-  distinct() %>%
+  dplyr::distinct() %>%
   mutate(Text = paste0(Year, " [n = ", NPLOTS, "]")) %>%
   pull(Text) %>%
   paste(collapse = ", ")
@@ -162,14 +162,14 @@ sample_size
 #........BAR YEARLY MEANS----
 p2 <- cover_nat_stat %>%
   filter(Parameter == "Cover") %>%
-  ggplot(aes(x = Year, y = MEAN, fill = Nativity)) +
+  ggplot2::ggplot(aes(x = Year, y = MEAN, fill = Nativity)) +
   geom_col(position = position_dodge()) +
   geom_errorbar(aes(ymin=L, ymax=R), width=.2,
                 position=position_dodge(.9)) +
-  labs(y = "Mean % Cover") +
+  ggplot2::labs(y = "Mean % Cover") +
   facet_grid(Stratum ~ Nativity, space = "free_y") +
-  scale_fill_manual(values = nativity_colors, limits = force) +
-  xlab("Year") +
-  theme(legend.position="none") +
-  labs(caption = sample_size)
+  ggplot2::scale_fill_manual(values = nativity_colors, limits = force) +
+  ggplot2::xlab("Year") +
+  ggplot2::theme(legend.position="none") +
+  ggplot2::labs(caption = sample_size)
 p2

@@ -88,7 +88,7 @@ EIPS3 <- EIPS2 %>%
 
 chk_stations <- EIPS3 %>%
   select(Community, Sampling_Frame, Seg_Length_m, Tran_Length_m, Start_Station_m, End_Station_m) %>%
-  distinct()
+  dplyr::distinct()
 
 # Change Cover Class to low and high percentage (low_per, high_per)
 EIPS4 <- EIPS3 %>%
@@ -115,16 +115,16 @@ EIPS4 <- EIPS3 %>%
 
 # Richness & Total Cover by Segment
 EIPS_seg_summary <- EIPS4 %>%
-  group_by(Unit_Code, Community, Sampling_Frame, Cycle, Year, Transect_Type, Transect_Number, Start_Station_m, End_Station_m, Seg_Length_m, Segs_Per_Station, Meters_Per_Station, Segment) %>%
-  summarize(Tot_Seg_Cover_Low = sum(Cov_Range_Low),
+  dplyr::group_by(Unit_Code, Community, Sampling_Frame, Cycle, Year, Transect_Type, Transect_Number, Start_Station_m, End_Station_m, Seg_Length_m, Segs_Per_Station, Meters_Per_Station, Segment) %>%
+  dplyr::summarize(Tot_Seg_Cover_Low = sum(Cov_Range_Low),
             Tot_Seg_Cover_High = sum(Cov_Range_High),
             Tot_Seg_Richness = sum(!is.na(Code))) %>%
-  ungroup()
+  dplyr::ungroup()
 
 
 EIPS_station_summary <- EIPS_seg_summary %>%
-  group_by(Unit_Code, Community, Sampling_Frame, Cycle, Year, Transect_Type, Transect_Number, Start_Station_m, End_Station_m, Seg_Length_m, Segs_Per_Station, Meters_Per_Station) %>%
-  summarize(Actual_Segs = n_distinct(Segment),
+  dplyr::group_by(Unit_Code, Community, Sampling_Frame, Cycle, Year, Transect_Type, Transect_Number, Start_Station_m, End_Station_m, Seg_Length_m, Segs_Per_Station, Meters_Per_Station) %>%
+  dplyr::summarize(Actual_Segs = n_distinct(Segment),
             Max_Seg_Richness = max(Tot_Seg_Richness),
             Tot_Station_Cov_Low = sum(Tot_Seg_Cover_Low),
             Tot_Station_Cov_High = sum(Tot_Seg_Cover_High)) %>%
@@ -144,11 +144,11 @@ EIPS_station_summary2 <- anti_join(EIPS_station_summary, discard)
 
 EIPS_station_summary3 <- EIPS_station_summary2 %>%
   mutate(Start_Image_Point = as.character(Start_Station_m)) %>%
-  left_join(EIPS_pts, by = c("Unit_Code", "Community", "Sampling_Frame", "Cycle", "Year", "Transect_Type", "Transect_Number", "Start_Image_Point" = "Image_Point")) %>%
+  dplyr::left_join(EIPS_pts, by = c("Unit_Code", "Community", "Sampling_Frame", "Cycle", "Year", "Transect_Type", "Transect_Number", "Start_Image_Point" = "Image_Point")) %>%
   rename(Start_Lat = Latitude,
          Start_Long = Longitude) %>%
   mutate(End_Image_Point = as.character(End_Station_m)) %>%
-  left_join(EIPS_pts, by = c("Unit_Code", "Community", "Sampling_Frame", "Cycle", "Year", "Transect_Type", "Transect_Number", "End_Image_Point" = "Image_Point")) %>%
+  dplyr::left_join(EIPS_pts, by = c("Unit_Code", "Community", "Sampling_Frame", "Cycle", "Year", "Transect_Type", "Transect_Number", "End_Image_Point" = "Image_Point")) %>%
   rename(End_Lat = Latitude,
          End_Long = Longitude)
 
@@ -180,9 +180,9 @@ str(EIPS_stations)
 #check
 
 EIPS_segment_check <- EIPS4 %>%
-   group_by(Unit_Code, Community, Sampling_Frame, Cycle, Year, Transect_Type, Transect_Number, Segment) %>%
-   summarize(n_dist = n_distinct()) %>%
-   group_by(Unit_Code, Community, Sampling_Frame, Cycle, Year, Transect_Type, Transect_Number) %>%
+   dplyr::group_by(Unit_Code, Community, Sampling_Frame, Cycle, Year, Transect_Type, Transect_Number, Segment) %>%
+   dplyr::summarize(n_dist = n_distinct()) %>%
+   dplyr::group_by(Unit_Code, Community, Sampling_Frame, Cycle, Year, Transect_Type, Transect_Number) %>%
    summarise(segments = n())
 
 EIPS_transects_incomplete <- EIPS_segment_check %>%
@@ -194,18 +194,18 @@ if (nrow(EIPS_transects_incomplete)>0) {
   }
 
 nn_richness_seg <- EIPS2 %>%
-  group_by(Unit_Code, Community, Sampling_Frame, Cycle, Year, Transect_Type,  Transect_Number, Segment, Code) %>%
-  summarize(sp = sum(!is.na(Code))) %>%
-  group_by(Unit_Code, Community, Sampling_Frame, Cycle, Year, Transect_Type,  Transect_Number, Segment) %>%
+  dplyr::group_by(Unit_Code, Community, Sampling_Frame, Cycle, Year, Transect_Type,  Transect_Number, Segment, Code) %>%
+  dplyr::summarize(sp = sum(!is.na(Code))) %>%
+  dplyr::group_by(Unit_Code, Community, Sampling_Frame, Cycle, Year, Transect_Type,  Transect_Number, Segment) %>%
   summarise(Richness = sum(sp))
 
 nn_richness_mean <- seg_richness %>%
-  group_by(Unit_Code, Community, Sampling_Frame, Cycle, Year, Transect_Type,  Transect_Number) %>%
-  summarize(Mean_Richness = mean(Richness))
+  dplyr::group_by(Unit_Code, Community, Sampling_Frame, Cycle, Year, Transect_Type,  Transect_Number) %>%
+  dplyr::summarize(Mean_Richness = mean(Richness))
 
 # spp_count %>%
 #   filter(Cycle == 3) %>%
-#   ggplot(aes(x=Segment, y=spp)) +
+#   ggplot2::ggplot(aes(x=Segment, y=spp)) +
 #   geom_bar(stat="identity") +
 #   facet_grid(vars(Cycle, Transect_Number))
 
@@ -232,7 +232,7 @@ inv_freq2 <- inv_freq %>%
   inv_freq3 <- inv_freq2 %>%
     # Arrange table so that difference in cover between cycles can be calculated easily (example - cycle 1 value for
     #   cover is followed by cycle 2 value for cover).
-    dplyr::group_by(dplyr::across(arrange_vars)) %>%
+    dplyr::group_by(across(arrange_vars)) %>%
     dplyr::arrange(Cycle, Year, .by_group = TRUE) %>%
     # Calculate the change in cover per cycle
     dplyr::mutate(Chg_Prior = Spp_Freq - dplyr::lag(Spp_Freq, order_by = Cycle)) %>%
@@ -264,7 +264,7 @@ inv_freq %>%
 
 
 spp_count  %>%
-  ggplot2::ggplot(ggplot2::aes(x = fct_reorder(Transect_Number, spp, .fun = median), y = spp, fill = Year)) +
+  ggplot2::ggplot(ggplot2::aes(x = forcats::fct_reorder(Transect_Number, spp, .fun = median), y = spp, fill = Year)) +
   ggplot2::geom_boxplot()
 
   ggplot2::geom_col(position = ggplot2::position_dodge()) #+

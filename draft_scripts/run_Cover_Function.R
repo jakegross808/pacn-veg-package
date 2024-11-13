@@ -13,10 +13,10 @@ cover_nativity <- summarize_understory(paired_change = FALSE,
                                               sample_frame = "Olaa",
                                               plant_grouping = "Nativity")
 cover_nativity <- cover_nativity %>%
-  group_by(Sampling_Frame, Cycle) %>%
+  dplyr::group_by(Sampling_Frame, Cycle) %>%
   mutate(Year = min(Year)) %>%
   mutate(Year = as.factor(Year)) %>%
-  ungroup()
+  dplyr::ungroup()
 
 
 paired_change_natvnon <- summarize_understory(paired_change = TRUE,
@@ -35,15 +35,15 @@ cover_nat_stat_filter <- cover_nat_stat %>%
 #........BAR YEARLY MEANS----
 cover_nat_stat_filter %>%
   filter(Parameter == "Cover") %>%
-  ggplot(aes(x = Year, y = MEAN, fill = Nativity)) +
+  ggplot2::ggplot(aes(x = Year, y = MEAN, fill = Nativity)) +
   geom_col(position = position_dodge()) +
   geom_errorbar(aes(ymin=L, ymax=R), width=.2,
                 position=position_dodge(.9)) +
-  labs(y = "% Cover") +
+  ggplot2::labs(y = "% Cover") +
   facet_wrap(vars(Stratum, Nativity), scales = "free_x") +
-  scale_fill_manual(values = nativity_colors, limits = force) +
-  xlab("Sample Cycle") +
-  theme(legend.title = element_blank())
+  ggplot2::scale_fill_manual(values = nativity_colors, limits = force) +
+  ggplot2::xlab("Sample Cycle") +
+  ggplot2::theme(legend.title = ggplot2::element_blank())
 
 
 nvn <- paired_change_natvnon %>%
@@ -53,15 +53,15 @@ nvn <- paired_change_natvnon %>%
 #........BAR YEARLY MEANS----
 Nat_Cov_Stats %>%
   #filter(Cycle != "CHG") %>%
-  ggplot(aes(x = PARAM, y = MEAN, fill = Nativity)) +
+  ggplot2::ggplot(aes(x = PARAM, y = MEAN, fill = Nativity)) +
   geom_col(position = position_dodge()) +
   geom_errorbar(aes(ymin=L, ymax=R), width=.2,
                 position=position_dodge(.9)) +
-  labs(y = "% Cover") +
+  ggplot2::labs(y = "% Cover") +
   facet_wrap(vars(Stratum, Nativity), scales = "free_x") +
-  scale_fill_manual(values = nativity_colors) +
-  xlab("Sample Cycle") +
-  theme(legend.title = element_blank())
+  ggplot2::scale_fill_manual(values = nativity_colors) +
+  ggplot2::xlab("Sample Cycle") +
+  ggplot2::theme(legend.title = ggplot2::element_blank())
 
 
 
@@ -69,9 +69,9 @@ Nat_Cov_Stats %>%
 
 # Calculate range so that it can be plotted correctly in Jitter plot.
 Nat_Cov_Chg_range <- Nat_Cov_Chg_no_unks %>%
-  group_by(Sampling_Frame, Stratum, Nativity) %>%
-  summarize(y_range = max(abs(chg3v1),  na.rm = TRUE)) %>%
-  ungroup()
+  dplyr::group_by(Sampling_Frame, Stratum, Nativity) %>%
+  dplyr::summarize(y_range = max(abs(chg3v1),  na.rm = TRUE)) %>%
+  dplyr::ungroup()
 # Add range column to Chg dataset
 Nat_Cov_Chg_no_unks <- Nat_Cov_Chg_no_unks %>%
   inner_join(Nat_Cov_Chg_range)
@@ -79,30 +79,30 @@ Nat_Cov_Chg_no_unks <- Nat_Cov_Chg_no_unks %>%
 # Nativity Cover Change jitter plot
 Nat_Cov_Chg.jitter <- Nat_Cov_Chg_no_unks %>%
   filter(Nativity != "Unknown") %>%
-  ggplot(aes(x =Sampling_Frame, y = chg3v1, label = Plot_Number)) +
+  ggplot2::ggplot(aes(x =Sampling_Frame, y = chg3v1, label = Plot_Number)) +
   geom_blank(aes(y = y_range)) +
   geom_blank(aes(y = -y_range)) +
-  geom_hline(yintercept=0, linetype = "dashed", color = "gray", size = 1) +
+  ggplot2::geom_hline(yintercept=0, linetype = "dashed", color = "gray", size = 1) +
   geom_jitter(width = 0.05) +
   stat_summary(fun = median, geom = "point", shape = 95, size = 8, color = "red") +
-  labs(y = "Cycle 3v1 Change (% Cover)") +
+  ggplot2::labs(y = "Cycle 3v1 Change (% Cover)") +
   #facet_wrap(vars(Stratum), nrow = 1, scales = "free") +
   facet_wrap(vars(Stratum, Nativity), nrow = 1, scales = "free_x") +
-  theme(axis.title.x=element_blank(),
-        axis.text.x=element_blank(),
-        axis.ticks.x=element_blank())
+  ggplot2::theme(axis.title.x=ggplot2::element_blank(),
+        axis.text.x=ggplot2::element_blank(),
+        axis.ticks.x=ggplot2::element_blank())
 Nat_Cov_Chg.jitter
 
 #........STRIP CHRT PAIR -----
 Nat_Cov.strip <- Nat_Cov_no_unks %>%
   filter(Plot_Type == "Fixed") %>%
   #select(-count_pp) %>%
-  ungroup() %>%
-  ggplot(aes(x=Cycle, y=tot_pct_cov, group=Plot_Number)) +
+  dplyr::ungroup() %>%
+  ggplot2::ggplot(aes(x=Cycle, y=tot_pct_cov, group=Plot_Number)) +
   geom_line(size=1, alpha=0.5, position=position_dodge(width=0.2)) +
-  geom_point(position=position_dodge(width=0.2)) +
-  xlab('') +
-  ylab('% Cover') +
+  ggplot2::geom_point(position=position_dodge(width=0.2)) +
+  ggplot2::xlab('') +
+  ggplot2::ylab('% Cover') +
   facet_wrap(vars(Stratum, Nativity), nrow = 1, scales = "free_x")
 Nat_Cov.strip
 
@@ -137,16 +137,16 @@ look_stats %>%
   mutate(Cycle = as.factor(Cycle)) %>%
   filter(Parameter == "Cover") %>%
   filter(Code == sp_code) %>%
-  ggplot(aes(Cycle, MEAN, ymax = R, ymin = L, color = Stratum)) +
+  ggplot2::ggplot(aes(Cycle, MEAN, ymax = R, ymin = L, color = Stratum)) +
   geom_pointrange(position = position_dodge2(width=0.2)) +
-  labs(title = sp_code)
+  ggplot2::labs(title = sp_code)
 
 look %>%
   mutate(Cycle = as.factor(Cycle)) %>%
   filter(Life_Form == "Tree") %>%
-  ggplot(aes(Code, Cover, color = Cycle, fill = Cycle)) +
-  geom_boxplot() +
-  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+  ggplot2::ggplot(aes(Code, Cover, color = Cycle, fill = Cycle)) +
+  ggplot2::geom_boxplot() +
+  ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 90, vjust = 0.5, hjust=1))
 
 test_All <- Cover_test(plant_grouping = "All")
 test_Nat <- Cover_test(plant_grouping = "Nativity")
@@ -225,16 +225,16 @@ test_SP_stats_fun %>%
   filter(PARAM != "Year") %>%
   filter(PARAM != "Cycle") %>%
   filter(Sampling_Frame == "Olaa") %>%
-  ggplot(aes(x = Year, y = MEAN, fill = Cycle,)) +
+  ggplot2::ggplot(aes(x = Year, y = MEAN, fill = Cycle,)) +
   geom_col(position = position_dodge()) +
   geom_errorbar(aes(ymin=L, ymax=R), width=.2,
                 position=position_dodge(.9)) +
-  labs(y = "% Cover") +
+  ggplot2::labs(y = "% Cover") +
   facet_wrap(vars(Stratum, Sampling_Frame, PARAM), scales = "free_y") +
   #scale_fill_manual(values = nativity_colors) +
-  xlab("Sample Cycle") +
-  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) +
-  theme(legend.title = element_blank())
+  ggplot2::xlab("Sample Cycle") +
+  ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 90, vjust = 0.5, hjust=1)) +
+  ggplot2::theme(legend.title = ggplot2::element_blank())
 
 test_Nat_stats_fun %>%
   mutate(Year = as.factor(Year)) %>%
@@ -243,16 +243,16 @@ test_Nat_stats_fun %>%
   #filter(PARAM != "Cycle") %>%
   #filter(PARAM != "Years_Prior") %>%
   filter(Sampling_Frame == "Olaa") %>%
-  ggplot(aes(x = Year, y = MEAN, fill = Nativity,)) +
+  ggplot2::ggplot(aes(x = Year, y = MEAN, fill = Nativity,)) +
   geom_col(position = position_dodge()) +
   geom_errorbar(aes(ymin=L, ymax=R), width=.2,
                 position=position_dodge(.9)) +
-  labs(y = "% Cover") +
+  ggplot2::labs(y = "% Cover") +
   facet_wrap(vars(Stratum, Sampling_Frame, PARAM), scales = "free_y") +
   #scale_fill_manual(values = nativity_colors) +
-  xlab("Sample Cycle") +
-  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) +
-  theme(legend.title = element_blank())
+  ggplot2::xlab("Sample Cycle") +
+  ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 90, vjust = 0.5, hjust=1)) +
+  ggplot2::theme(legend.title = ggplot2::element_blank())
 
 test_Nat_stats_fun_rotations %>%
   #mutate(Year = as.factor(Year)) %>%
@@ -261,13 +261,13 @@ test_Nat_stats_fun_rotations %>%
   #filter(PARAM != "Cycle") %>%
   #filter(PARAM != "Years_Prior") %>%
   filter(Sampling_Frame == "Olaa") %>%
-  ggplot(aes(x = Cycle, y = MEAN, fill = Nativity,)) +
+  ggplot2::ggplot(aes(x = Cycle, y = MEAN, fill = Nativity,)) +
   geom_col(position = position_dodge()) +
   geom_errorbar(aes(ymin=L, ymax=R), width=.2,
                 position=position_dodge(.9)) +
-  labs(y = "% Cover") +
+  ggplot2::labs(y = "% Cover") +
   facet_wrap(vars(Stratum, Sampling_Frame, PARAM), scales = "free_y") +
   #scale_fill_manual(values = nativity_colors) +
-  xlab("Sample Cycle") +
-  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) +
-  theme(legend.title = element_blank())
+  ggplot2::xlab("Sample Cycle") +
+  ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 90, vjust = 0.5, hjust=1)) +
+  ggplot2::theme(legend.title = ggplot2::element_blank())

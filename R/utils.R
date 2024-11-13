@@ -271,7 +271,7 @@ ReadFTPC <- function(conn) {
                   Certified, Certified_By = Certified_by, Certified_Date = Certified_date, Completion_Time = Completion_time,
                   Event_Notes, QA_notes) %>%
     # add "Year" (year sampled) and "Cycle" (sample cycle)
-    dplyr::mutate(Year = YEAR(Start_Date)) %>%
+    dplyr::mutate(Year = lubridate::year(Start_Date)) %>%
     #supposedly SQL does not have translation for case_when so must use "ifelse" ??
     dplyr::mutate(Cycle = ifelse(Year <= 2014, 1, NA)) %>%
     dplyr::mutate(Cycle = ifelse(is.na(Cycle) & Year >= 2015 & Year <= 2020, 2, Cycle)) %>%
@@ -558,6 +558,7 @@ ReadEIPS <- function(db_paths) {
 
     #Locations (e.g. Sampling Frame)
     #Short
+    browser()
     tbl_Locations <- dplyr::tbl(conn, "tbl_Locations") |>
       dplyr::select(Location_ID, Site_ID, Community = Plant_Community, Sampling_Frame_English, Sampling_Frame) |>
       dplyr::collect() |>
@@ -577,7 +578,7 @@ ReadEIPS <- function(db_paths) {
     # Extra
     Events_extra <-  dplyr::tbl(conn, "tbl_Events") %>%
       # add "Year" (year sampled) and "Cycle" (sample cycle)
-      dplyr::mutate(Year = YEAR(Start_Date)) %>%
+      dplyr::mutate(Year = lubridate::year(Start_Date)) %>%
       dplyr::mutate(Cycle = ifelse(Year <= 2014, 1,
                                    ifelse(Year >= 2015 & Year <= 2020, 2,
                                           ifelse(Year >= 2021, 3, NA)))) %>%

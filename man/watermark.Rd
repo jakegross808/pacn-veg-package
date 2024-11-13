@@ -21,5 +21,4 @@ Watermark and process FTPC, EIPS, & Plant Photos
 \dontrun{
 watermark(GIS_Table, "watermarked")
 }
-from the Exif data.
 }

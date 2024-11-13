@@ -27,7 +27,7 @@ tbl_Transects_extra <- dplyr::tbl(testEIPSconn, "tbl_Transects") %>%
 # Extra
 Events_extra <-  dplyr::tbl(testEIPSconn, "tbl_Events") %>%
   # add "Year" (year sampled) and "Cycle" (sample cycle)
-  dplyr::mutate(Year = YEAR(Start_Date)) %>%
+  dplyr::mutate(Year = lubridate::year(Start_Date)) %>%
   dplyr::mutate(Cycle = ifelse(Year <= 2014, 1,
                                ifelse(Year >= 2015 & Year <= 2020, 2,
                                       ifelse(Year >= 2021, 3, NA)))) %>%

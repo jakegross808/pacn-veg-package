@@ -61,7 +61,7 @@ process_photos <- function(AGOL_Layer, gdb_name, gdb_location, gdb_layer,
 
     # Add date time column to attachments table
     attachments <- attachments |>
-      mutate(exif_date_time = purrr::map(DATA, ~exif_datetime(.)))
+      dplyr::mutate(exif_date_time = purrr::map(DATA, ~exif_datetime(.)))
 
     GIS_Table <- attachments %>%
       dplyr::left_join(attributes, by = c("REL_GLOBALID" = "GlobalID"))
@@ -207,11 +207,11 @@ process_photos <- function(AGOL_Layer, gdb_name, gdb_location, gdb_layer,
   # New system uses the photo's exif date/time (instead of field maps point)
   GIS_Table2 <- GIS_Table1 |>
     # replace colons with dashes between year-month and month-date
-    mutate(exif_formatted = stringr::str_replace(exif_date_time,":", "-")) |>
-    mutate(exif_formatted = stringr::str_replace(exif_formatted,":", "-")) |>
+    dplyr::mutate(exif_formatted = stringr::str_replace(exif_date_time,":", "-")) |>
+    dplyr::mutate(exif_formatted = stringr::str_replace(exif_formatted,":", "-")) |>
     # remove colons completely for file naming
-    mutate(exif_date_time2 = stringr::str_remove_all(exif_date_time, ":")) |>
-    separate(exif_date_time2, into = c("File_Date", "File_Time"), sep = " (?=[^ ]+$)") |>
+    dplyr::mutate(exif_date_time2 = stringr::str_remove_all(exif_date_time, ":")) |>
+    tidyr::separate(exif_date_time2, into = c("File_Date", "File_Time"), sep = " (?=[^ ]+$)") |>
     # create column File_DT for file date+time -> YYYYMMDD_HHMMSS
     dplyr::mutate(File_DT = paste(File_Date, File_Time, sep = "_")) |>
     dplyr::rename(field_maps_created_date = created_date)
@@ -245,14 +245,14 @@ process_photos <- function(AGOL_Layer, gdb_name, gdb_location, gdb_layer,
 
   # handle QAQC plots
   GIS_Table3 <- GIS_Table3 |>
-    mutate(as_date = lubridate::as_datetime(exif_formatted)) |>
-    group_by(Site_Name) |>
-    mutate(first_photo = min(as_date)) |>
-    mutate(time_span = lubridate::seconds_to_period(as_date-first_photo)) |>
-    mutate(more_than_14_day_span = case_when(time_span > days(14) ~ TRUE,
+    dplyr::mutate(as_date = lubridate::as_datetime(exif_formatted)) |>
+    dplyr::group_by(Site_Name) |>
+    dplyr::mutate(first_photo = min(as_date)) |>
+    dplyr::mutate(time_span = lubridate::seconds_to_period(as_date-first_photo)) |>
+    dplyr::mutate(more_than_14_day_span = dplyr::case_when(time_span > days(14) ~ TRUE,
                                              .default = FALSE)) |>
-    mutate(likely_QA_Plot = more_than_14_day_span) |>
-    ungroup()
+    dplyr::mutate(likely_QA_Plot = more_than_14_day_span) |>
+    dplyr::ungroup()
 
   if (any(GIS_Table3$likely_QA_Plot == TRUE)) {
     message(paste("dataset contains photos located in same plot spanning more than 14 days.
@@ -274,7 +274,7 @@ process_photos <- function(AGOL_Layer, gdb_name, gdb_location, gdb_layer,
   # Create Input and Output File Names
   if(AGOL_Layer == "FTPC" | AGOL_Layer == "EIPS"){
     GIS_Table4 <- GIS_Table3 %>%
-      dplyr::left_join(first_date, by = join_by(Site_Name, likely_QA_Plot)) %>%
+      dplyr::left_join(first_date, by = dplyr::join_by(Site_Name, likely_QA_Plot)) %>%
       # Out_Name
       dplyr::mutate(Out_Name = paste(File_Date, TNum_3, Subject2, sep = "_")) %>%
       dplyr::group_by(Out_Name) %>%
@@ -307,7 +307,7 @@ process_photos <- function(AGOL_Layer, gdb_name, gdb_location, gdb_layer,
       dplyr::mutate(Out_Name = paste(File_Time, Out_Name, sep = "_")) |>
       dplyr::arrange(exif_formatted, ATT_NAME) %>%
       dplyr::group_by(Out_Name) %>%
-      dplyr::mutate(Out_Name = if(dplyr::n() > 1) {paste(Out_Name, str_pad(row_number(), 2, pad = "0"), sep = "_")}
+      dplyr::mutate(Out_Name = if(dplyr::n() > 1) {paste(Out_Name, stringr::str_pad(dplyr::row_number(), 2, pad = "0"), sep = "_")}
                     else {paste0(Out_Name)}) %>%
       dplyr::mutate(Out_Name = paste0(Out_Name, ".jpg")) %>%
       dplyr::mutate(Folder_Name = File_Date) %>%
@@ -329,7 +329,7 @@ process_photos <- function(AGOL_Layer, gdb_name, gdb_location, gdb_layer,
   # Fix additional photos using changes here:
   #GIS_Table4 <- GIS_Table4 %>%
   #  filter(Site_Number == 54) %>%
-  #  mutate(DT_HST = "2021-04-16")
+  #  dplyr::mutate(DT_HST = "2021-04-16")
 
   # apply() function doesn't like blobs so change to list before running apply()
   GIS_Table4$DATA <- as.list(GIS_Table4$DATA)
@@ -393,7 +393,7 @@ watermark <- function(x, new_folder) {
 
   img.x1 <- magick::image_read(image.x)
   # Apply auto-orientation "image_orient()" which tries to infer the correct orientation
-  #' from the Exif data.
+  # from the Exif data.
   img.x2 <- magick::image_orient(img.x1)
   #print(image_attributes(img.x))
 
@@ -475,7 +475,7 @@ watermark_no <- function(x, new_folder) {
 
   img.x1 <- magick::image_read(image.x)
   # Apply auto-orientation "image_orient()" which tries to infer the correct orientation
-  #' from the Exif data.
+  # from the Exif data.
   img.x2 <- magick::image_orient(img.x1)
   #print(image_attributes(img.x))
 

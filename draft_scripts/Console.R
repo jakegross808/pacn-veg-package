@@ -451,22 +451,22 @@ pacnvegetation::v_cover_bar_stats(combine_strata = TRUE,
 
 zones <- read.csv(file = "R/Events_extra_xy_mgmt.csv") %>%
   select(Sampling_Frame, Plot_Number, Zone) %>%
-  distinct()
+  dplyr::distinct()
 
 spp_info <- FilterPACNVeg(data = "Species_extra")
 
 All_spp <- FilterPACNVeg(data_name = "Presence") %>%
-  dplyr::left_join(zones, by = join_by("Sampling_Frame", "Plot_Number")) %>%
+  dplyr::left_join(zones, by = dplyr::join_by("Sampling_Frame", "Plot_Number")) %>%
   #dplyr::filter(Zone == "NW Kahuku") %>%
   dplyr::left_join(spp_info, by = dplyr::join_by("Code", "Unit_Code" == "Park"))
 
 HALE_spp <- All_spp %>%
-  group_by(Sampling_Frame, Species) %>%
+  dplyr::group_by(Sampling_Frame, Species) %>%
   filter(Unit_Code == "HALE")
 
 HALE_spp_unique <- HALE_spp %>%
-  group_by(Sampling_Frame, Nativity.x) %>%
-  summarize(n = n())
+  dplyr::group_by(Sampling_Frame, Nativity.x) %>%
+  dplyr::summarize(n = n())
 
 write_csv(NW_Kahuku_spp, "Downloads/test.csv")
 look <- read_csv("Downloads/test.csv")
@@ -509,7 +509,7 @@ look <- pacnvegetation::qc_presence_complete(sample_frame = "Mauna Loa")
 
 zones <- read.csv(file = "R/Events_extra_xy_mgmt.csv") %>%
   select(Sampling_Frame, Plot_Number, Zone) %>%
-  distinct()
+  dplyr::distinct()
 
 names(pacnvegetation:::GetColSpec())
 install.packages("tidyverse")
@@ -519,14 +519,14 @@ pacnvegetation::add_mgmt_unit("All")
 
 zones <- read.csv(file = "R/Events_extra_xy_mgmt.csv") %>%
   select(Sampling_Frame, Plot_Number, Zone) %>%
-  distinct()
+  dplyr::distinct()
 
 names(pacnvegetation:::GetColSpec())
 
 spp_info <- FilterPACNVeg(data = "Species_extra")
 
 NW_Kahuku_spp <- FilterPACNVeg(data_name = "Presence") %>%
-  dplyr::left_join(zones, by = join_by("Sampling_Frame", "Plot_Number")) %>%
+  dplyr::left_join(zones, by = dplyr::join_by("Sampling_Frame", "Plot_Number")) %>%
   dplyr::filter(Zone == "NW Kahuku") %>%
   dplyr::left_join(spp_info, by = dplyr::join_by("Code", "Unit_Code" == "Park"))
 
@@ -854,7 +854,7 @@ Plot_Presence <- FilterPACNVeg("Presence", is_qa_plot = FALSE) %>%
 
 sp_Plot_Presence <- Plot_Presence %>%
   filter(Scientific_Name == "Clidemia hirta") %>%
-  group_by(Year, Sampling_Frame) %>%
+  dplyr::group_by(Year, Sampling_Frame) %>%
   summarise(n = n())
 
 
@@ -873,12 +873,12 @@ names(FilterPACNVeg())
 
 EIPS_in_park <- FilterPACNVeg("EIPS_data", is_qa_plot = FALSE) %>%
   select(Sampling_Frame) %>%
-  distinct() %>%
+  dplyr::distinct() %>%
   drop_na()
 
 FTPC_in_park <- FilterPACNVeg("Presence", is_qa_plot = FALSE) %>%
   select(Sampling_Frame) %>%
-  distinct() %>%
+  dplyr::distinct() %>%
   drop_na()
 
 anti_join(FTPC_in_park, EIPS_in_park)
@@ -907,8 +907,8 @@ sp_Plot_Presence <- Plot_Presence %>%
 
 Species_per_park <- FilterPACNVeg("Presence") %>%
   select(Year, Scientific_Name) %>%
-  distinct() %>%
-  group_by(Year) %>%
+  dplyr::distinct() %>%
+  dplyr::group_by(Year) %>%
   summarise(n = n())
 
 # FM Species List - HALE ----
@@ -1028,7 +1028,7 @@ all_samp_frames
 detections <- FilterPACNVeg("Presence") %>%
   filter(Sampling_Frame == "Puu Alii") %>%
   #select(Scientific_Name, Code, Life_Form, Nativity, Family) %>%
-  distinct()
+  dplyr::distinct()
 
 # ----test GROUP ----
 mgmt_test <- readr::read_csv(file = paste0(getwd(),"/R/Events_extra_xy_mgmt.csv"))
@@ -1142,7 +1142,7 @@ SmWoody <- FilterPACNVeg("SmWoody", is_qa_plot = FALSE) #%>%
 
 SmWoody_count <- SmWoody %>%
   filter(LF_Sm_Woody == "Shrub") %>%
-  group_by(Year, Sampling_Frame, Plot_Number) %>%
+  dplyr::group_by(Year, Sampling_Frame, Plot_Number) %>%
   summarise(all_count = sum(Count))
 # ----Species per park ----
 
@@ -1150,20 +1150,20 @@ Species_per_plot <- FilterPACNVeg("Presence", is_qa_plot = FALSE) %>%
   select(Year, Sampling_Frame, Plot_Number, Scientific_Name)
 
 spp_plot_count <- Species_per_plot %>%
-  group_by(Year, Sampling_Frame, Plot_Number) %>%
+  dplyr::group_by(Year, Sampling_Frame, Plot_Number) %>%
   summarise(n = n())
 
 Species_per_park <- FilterPACNVeg("Presence") %>%
   select(Year, Scientific_Name) %>%
-  distinct() %>%
-  group_by(Year) %>%
+  dplyr::distinct() %>%
+  dplyr::group_by(Year) %>%
   summarise(n = n())
 
 Species_total <- FilterPACNVeg("Presence") %>%
     select(Scientific_Name) %>%
-    distinct()
+    dplyr::distinct()
 
-g <- ggplot(Species_per_park, aes(Year)) +
+g <- ggplot2::ggplot(Species_per_park, aes(Year)) +
   geom_bar()
 g
 
@@ -1330,7 +1330,7 @@ n_list
 map_cover_data <- read_csv("C:/Users/JJGross/Downloads/MapCoverTotal2_cover_data.csv")
 natvsnon_data <- read_csv("C:/Users/JJGross/Downloads/natvsnon_data_table.csv")
 
-look_join <- left_join(by = "key", x = map_cover_data, y = natvsnon_data, )
+look_join <- dplyr::left_join(by = "key", x = map_cover_data, y = natvsnon_data, )
 
 look <- anti_join(by = "key", x = map_cover_data, y = natvsnon_data)
 
@@ -1467,18 +1467,18 @@ library("ForestAnalysisInR")
 detections <- FilterPACNVeg("LgTrees") %>%
   filter(Year == 2022) #%>%
   #select(Scientific_Name, Code, Life_Form, Nativity) %>%
-  distinct()
+  dplyr::distinct()
 
 # get species DB table for Audreyʻs etymology project ----
 detections <- FilterPACNVeg("Presence") %>%
   filter(Year == 2022) %>%
   select(Scientific_Name, Code, Life_Form, Nativity) %>%
-  distinct()
+  dplyr::distinct()
 
 a <- FilterPACNVeg("Species_extra")
 
 b <- detections %>%
-  left_join(a, by = c("Scientific_Name", "Code")) %>%
+  dplyr::left_join(a, by = c("Scientific_Name", "Code")) %>%
   filter(Park == "HAVO") %>%
   select(-Life_Form.x, -Nativity.x)
 
@@ -1560,7 +1560,7 @@ MapCoverTotal2(crosstalk = TRUE, crosstalk_group = "cover", combine_strata = TRU
 
 sample_frame <- "Kahuku"
 
-getmax <- function(col) str_extract_all(col,"[0-9\\.-]+") %>%
+getmax <- function(col) stringr::str_extract_all(col,"[0-9\\.-]+") %>%
   lapply(.,function(x) max(as.numeric(x), na.rm = T) ) %>%
   unlist()
 
@@ -1628,7 +1628,7 @@ understory_nat <- summarize_understory(combine_strata = TRUE,
 understory_nat %>%
   #filter(Plot_Type == "Fixed") %>%
   filter(Nativity != "Unknown") %>%
-  ggplot(aes(x = Year,
+  ggplot2::ggplot(aes(x = Year,
              y = Cover,
              fill = Nativity)) +
   geom_bar(stat="identity", position = position_dodge()) +
@@ -1646,7 +1646,7 @@ understory_spp <- summarize_understory(combine_strata = TRUE,
 understory_spp %>%
   filter(Plot_Type == "Fixed") %>%
   filter(Nativity != "Unknown") %>%
-  ggplot(aes(x = Code,
+  ggplot2::ggplot(aes(x = Code,
              y = Cover,
              fill = Nativity)) +
   geom_bar(stat="identity", position = position_dodge()) +
@@ -1662,7 +1662,7 @@ understory2_chg <- summarize_understory(combine_strata = TRUE,
 understory2_chg %>%
   filter(Plot_Type == "Fixed") %>%
   filter(Nativity != "Unknown") %>%
-  ggplot(aes(x = Year,
+  ggplot2::ggplot(aes(x = Year,
              y = Chg_Prior,
              fill = Nativity)) +
   geom_bar(stat="identity", position = position_dodge()) +
@@ -1684,7 +1684,7 @@ understory2_spp_chg %>%
   filter(Code == "CENCLA") %>%
   filter(Plot_Type == "Fixed") %>%
   filter(Nativity != "Unknown") %>%
-  ggplot(aes(x = Plot_Number,
+  ggplot2::ggplot(aes(x = Plot_Number,
              y = Chg_Prior,
              fill = Year)) +
   geom_bar(stat="identity", position = position_dodge()) +
@@ -1696,7 +1696,7 @@ understory2_spp_chg %>%
   filter(Plot_Type == "Fixed") %>%
   filter(Nativity != "Unknown") %>%
   filter(Chg_Prior != 0) %>%
-  ggplot(aes(x = Code,
+  ggplot2::ggplot(aes(x = Code,
              y = Chg_Prior,
              fill = Year)) +
   geom_bar(stat="identity", position = position_dodge2(preserve = "single")) +
@@ -1726,7 +1726,7 @@ understory_stats <- understory3 %>%
 
 # Change in each species across all plots
 understory_stats %>%
-  ggplot(aes(x = Cycle,
+  ggplot2::ggplot(aes(x = Cycle,
              y = MEAN,
              fill = Nativity)) +
   geom_bar(stat="identity", position = position_dodge()) +
@@ -1831,16 +1831,16 @@ if (mgmt_unit) {
 group_by
 
 und_test <- UnderCombineStrata(und_test) %>%
-  dplyr::mutate(dplyr::across(where(is.character), replace_na, "No Veg")) %>%
-  dplyr::group_by(dplyr::across(tidyselect::all_of(c("Unit_Code", "Sampling_Frame", "Plot_Number", "Nativity", "Life_Form", "Scientific_Name", "Code", group_by)))) %>%
+  dplyr::mutate(across(where(is.character), replace_na, "No Veg")) %>%
+  dplyr::group_by(across(tidyselect::all_of(c("Unit_Code", "Sampling_Frame", "Plot_Number", "Nativity", "Life_Form", "Scientific_Name", "Code", group_by)))) %>%
   dplyr::summarize(Hits_Sp = dplyr::n(), .groups = "drop") %>%
-  #complete(nesting(!!!syms(c("Unit_Code", "Sampling_Frame", "Plot_Number", "Life_Form", "Scientific_Name", "Code", group_by))),
+  #complete(tidyr::nesting(!!!syms(c("Unit_Code", "Sampling_Frame", "Plot_Number", "Life_Form", "Scientific_Name", "Code", group_by))),
   #         fill = list(Hits_Sp = 0)) %>%
-  complete(nesting(!!!syms(c("Unit_Code", "Sampling_Frame", "Plot_Number", group_by))),
-           nesting(!!!syms(c("Nativity", "Code", "Scientific_Name", "Life_Form"))),
+  complete(tidyr::nesting(!!!syms(c("Unit_Code", "Sampling_Frame", "Plot_Number", group_by))),
+           tidyr::nesting(!!!syms(c("Nativity", "Code", "Scientific_Name", "Life_Form"))),
            fill = list(Hits_Sp = 0)) %>%
   dplyr::mutate(Plot_Percent = Hits_Sp/300) %>%
-  dplyr::group_by(dplyr::across(tidyselect::all_of(c("Unit_Code", "Sampling_Frame", "Nativity", "Life_Form", "Scientific_Name", "Code", group_by)))) %>%
+  dplyr::group_by(across(tidyselect::all_of(c("Unit_Code", "Sampling_Frame", "Nativity", "Life_Form", "Scientific_Name", "Code", group_by)))) %>%
   dplyr::summarize(n = dplyr::n(),
                    plots_present = sum(Hits_Sp > 0),
                    Avg_Cover = round(mean(Plot_Percent), 3),
@@ -1857,7 +1857,7 @@ plot_levels
 
 sb <- dplyr::select(und_test, tidyselect::all_of(c(plot_levels, "Avg_Cover")))
 sb <- as.sunburstDF(sb, value_column = "Avg_Cover")
-#sb$color <- colors[str_replace(sb$ids, " - .*", "")]
+#sb$color <- colors[stringr::str_replace(sb$ids, " - .*", "")]
 sunburst <- plotly::plot_ly(sb,
                             ids = ~ids,
                             labels = ~labels,
@@ -1894,7 +1894,7 @@ park_name
 
 Species_extra <- FilterPACNVeg(data_name = "Species_extra") %>%
   select(Code, Taxonomic_Family) %>%
-  distinct()
+  dplyr::distinct()
 
 Events_extra_xy <- FilterPACNVeg(data_name = "Events_extra_xy") %>%
   select(Unit_Code, Sampling_Frame, Year, Cycle, Plot_Type, Plot_Number, Start_Lat, Start_Long)
@@ -1906,8 +1906,8 @@ EIPS_image_pts <- FilterPACNVeg(data_name = "EIPS_image_pts") %>%
 angiopteris <-  FilterPACNVeg(data_name = "Presence") %>%
   #filter(Code == "ANGEVE") %>%
   filter(Unit_Code == "HAVO") %>%
-  left_join(Species_extra) %>%
-  left_join(Events_extra_xy)
+  dplyr::left_join(Species_extra) %>%
+  dplyr::left_join(Events_extra_xy)
 
 # Species Lumping Table (moved to draft_scripts) ----
 
@@ -1933,8 +1933,8 @@ Species_extra <- FilterPACNVeg("Species_extra") %>%
   dplyr::left_join(Species_lump2, by = c("Park" = "Lump_Park", "Genus" = "Lump_Genus", "Species" = "Lump_Species"))
 
 Species_per_park <- Species_extra %>%
-  group_by(Lump_Park, Lump_Genus, Lump_Species) %>%
-  distinct()
+  dplyr::group_by(Lump_Park, Lump_Genus, Lump_Species) %>%
+  dplyr::distinct()
 
 
 # EIPS functions Test ----
@@ -1999,7 +1999,7 @@ look <- FilterPACNVeg(data_name = "Understory")
 
 Species_extra <- FilterPACNVeg(data_name = "Species_extra") %>%
   select(Code, Taxonomic_Family) %>%
-  distinct()
+  dplyr::distinct()
 
 Events_extra_xy <- FilterPACNVeg(data_name = "Events_extra_xy") %>%
   select(Unit_Code, Sampling_Frame, Year, Cycle, Plot_Type, Plot_Number, Start_Lat, Start_Long)
@@ -2011,8 +2011,8 @@ EIPS_image_pts <- FilterPACNVeg(data_name = "EIPS_image_pts") %>%
 hypolepis <-  FilterPACNVeg(data_name = "Presence") %>%
   #filter(Code == "HYPHAW") %>%
   filter(Unit_Code == "HAVO") %>%
-  left_join(Species_extra) %>%
-  left_join(Events_extra_xy)
+  dplyr::left_join(Species_extra) %>%
+  dplyr::left_join(Events_extra_xy)
 
 write_csv(hypolepis, "C:/Users/JJGross/Downloads/hypolepis.csv")
 
@@ -2034,17 +2034,17 @@ m
 
 poaceae_FTPC <- FilterPACNVeg(data_name = "Presence") %>%
   filter(Unit_Code %in% c("HAVO", "HALE", "KALA", "KAHO")) %>%
-  left_join(Species_extra) %>%
+  dplyr::left_join(Species_extra) %>%
   filter(Taxonomic_Family == "Poaceae") %>%
-  left_join(EIPS_image_pts)
+  dplyr::left_join(EIPS_image_pts)
 
 poaceae_EIPS <- v_EIPS_prep() %>%
   filter(Unit_Code %in% c("HAVO", "HALE", "KALA", "KAHO")) %>%
   mutate(Start_Station_m = as.character(Start_Station_m)) %>%
-  left_join(Species_extra, by = "Code") %>%
+  dplyr::left_join(Species_extra, by = "Code") %>%
   filter(Taxonomic_Family == "Poaceae") %>%
   select(Unit_Code, Community, Sampling_Frame, Cycle, Year, Transect_Type, Transect_Number, Segment, Start_Station_m, Scientific_Name, Code, Cover_Class, Meters_Per_Station) %>%
-  left_join(EIPS_image_pts, by = c("Unit_Code", "Community", "Sampling_Frame", "Year", "Cycle", "Transect_Type", "Transect_Number", "Start_Station_m" = "Image_Point"))
+  dplyr::left_join(EIPS_image_pts, by = c("Unit_Code", "Community", "Sampling_Frame", "Year", "Cycle", "Transect_Type", "Transect_Number", "Start_Station_m" = "Image_Point"))
 
 write_csv(poaceae_EIPS, file = "C:/Users/JJGross/Downloads/Poaceae_Nonnative_Transects.csv")
 write_csv(poaceae_FTPC, file = "C:/Users/JJGross/Downloads/Poaceae_Plant_Community_Plots.csv")
@@ -2062,15 +2062,15 @@ v_cover_plot_bar_nativity(sample_frame = params$sample_frame, paired_change = FA
 SmWoody <- FilterPACNVeg(data_name = "SmWoody", sample_frame = "Mauna Loa", is_qa_plot = FALSE)
 
 SmWoody %>%
-  distinct(Code)
+  dplyr::distinct(Code)
 
 Trees %>%
-  distinct(Code)
+  dplyr::distinct(Code)
 
 SS_SmWoody1 <- SS_SmWoody %>%
   filter(Plot_Number == 3) %>%
-  group_by(Status, Code, Cycle) %>%
-  summarize(total = sum(Count)) %>%
+  dplyr::group_by(Status, Code, Cycle) %>%
+  dplyr::summarize(total = sum(Count)) %>%
   pivot_wider(names_from = Cycle, values_from = total)
 
 
@@ -2101,31 +2101,31 @@ Trees <- FilterPACNVeg(data_name = "LgTrees", sample_frame = "Muchot", is_qa_plo
 SmWoody <- FilterPACNVeg(data_name = "SmWoody", sample_frame = "Muchot", is_qa_plot = FALSE)
 
 SmWoody %>%
-  distinct(Code)
+  dplyr::distinct(Code)
 
 Trees %>%
-  distinct(Code)
+  dplyr::distinct(Code)
 
 SS_SmWoody1 <- SS_SmWoody %>%
   filter(Plot_Number == 3) %>%
-  group_by(Status, Code, Cycle) %>%
-  summarize(total = sum(Count)) %>%
+  dplyr::group_by(Status, Code, Cycle) %>%
+  dplyr::summarize(total = sum(Count)) %>%
   pivot_wider(names_from = Cycle, values_from = total)
 
 write_csv(SS_SmWoody1, "SmWoody_Plt3.csv")
 
 
 SS_Trees_BA3 <- SS_Trees %>%
-  mutate(bole_dbh = case_when(is.na(DBH_Bole) & !is.na(DBH) ~ DBH,
+  mutate(bole_dbh = dplyr::case_when(is.na(DBH_Bole) & !is.na(DBH) ~ DBH,
                               is.na(DBH_Bole) & is.na(DBH) ~ 0,
                               TRUE ~ DBH_Bole)) %>%
   mutate(Basal_Area_m2_bole = BA(bole_dbh),
          A_BD = BA(DBH_Other)) %>%
-  group_by(Unit_Code, Community, Sampling_Frame, Year, Cycle, Plot_Type, Plot_Number, Quad, Status,
+  dplyr::group_by(Unit_Code, Community, Sampling_Frame, Year, Cycle, Plot_Type, Plot_Number, Quad, Status,
            Height, Height_Dead, Boles, DBH, DBH_Other, Vigor, Rooting, Fruit_Flower, Foliar,
            Shrublike_Growth, Resprouts, Measurement_Type, Scientific_Name, Code,
            Life_Form, Nativity, A_BD) %>%
-  summarize(A_DBH = sum(Basal_Area_m2_bole),
+  dplyr::summarize(A_DBH = sum(Basal_Area_m2_bole),
             bole_check = n()) #%>%
   #filter(Plot_Number == 3)
 str(SS_Trees_BA3$Cycle)
@@ -2137,12 +2137,12 @@ SS_Trees_BA4 <- SS_Trees_BA3 %>%
 SS_Trees_BA4 %>%
   mutate(Cycle = as.character(Cycle)) %>%
   pivot_longer(cols = c("A_BD", "A_DBH"), names_to = "Measurement", values_to = "Area") %>%
-  ggplot(aes(x = Cycle, y = Area)) +
+  ggplot2::ggplot(aes(x = Cycle, y = Area)) +
   geom_violin() +
   facet_grid(rows = vars(Measurement))
 
 SS_Trees_dbh <- SS_Trees_BA4 %>%
-  group_by(Unit_Code, Community, Sampling_Frame, Year, Cycle, Plot_Type, Plot_Number, Quad, Status,
+  dplyr::group_by(Unit_Code, Community, Sampling_Frame, Year, Cycle, Plot_Type, Plot_Number, Quad, Status,
            Height, Height_Dead, Boles, DBH, DBH_Other, Vigor, Rooting, Fruit_Flower, Foliar,
            Shrublike_Growth, Resprouts, Measurement_Type, Scientific_Name, Code,
            Life_Form, Nativity, A_BD)
@@ -2180,8 +2180,8 @@ var(A_BD)
 
 SS_Trees_BA3 %>%
   mutate(Cycle = as.character(Cycle)) %>%
-  ggplot(aes(x = Cycle, y = A_BD)) +
-  geom_boxplot() #+
+  ggplot2::ggplot(aes(x = Cycle, y = A_BD)) +
+  ggplot2::geom_boxplot() #+
   #facet_grid(cols = vars())
 
 
@@ -2202,7 +2202,7 @@ var(dbh2)
 
 
 SS_Trees_Plt3_a <- SS_Trees_Plt3 %>%
-  arrange(Quad, Year)
+  dplyr::arrange(Quad, Year)
 
 write_csv(SS_Trees_Plt3_a, "Lrg_Tree_Plt3.csv")
 
@@ -2218,22 +2218,22 @@ BA_vs_DBH <- SS_Trees_BA3 %>%
 #basal <- BA_vs_DBH$A_BD
 #DBH <- BA_vs_DBH$A_DBH
 ggplot(BA_vs_DBH, aes(x = A_BD, y = A_DBH)) +
-  geom_point()
+  ggplot2::geom_point()
 
 l <- BA_vs_DBH %>%
   filter(!is.na(Height)) %>%
-  mutate(LD_height = case_when(Height_Dead > Height ~ Height_Dead,
+  mutate(LD_height = dplyr::case_when(Height_Dead > Height ~ Height_Dead,
                               TRUE ~ Height))
 
 ggplot(l, aes(x = LD_height, y = A_DBH)) +
-  geom_point()
+  ggplot2::geom_point()
 ggplot(l, aes(x = LD_height, y = A_BD)) +
-  geom_point()
+  ggplot2::geom_point()
 
 ggplot(BA_vs_DBH, aes(x = A_BD, y = A_DBH)) +
-  geom_point()
+  ggplot2::geom_point()
 ggplot(BA_vs_DBH, aes(x = A_BD, y = A_DBH)) +
-  geom_point()
+  ggplot2::geom_point()
 
 
 # Distribution of CONT variable
@@ -2265,17 +2265,17 @@ ggplot(BA_vs_DBH) +
 nq <- 100
 p <- (1 : nq) / nq - 0.5 / nq
 ggplot() +
-  geom_point(aes(x = qnorm(p), y = quantile(BA_vs_DBH$Basal_Area_m2_BD, p)))
+  ggplot2::geom_point(aes(x = qnorm(p), y = quantile(BA_vs_DBH$Basal_Area_m2_BD, p)))
 
 ggplot() +
-  geom_point(aes(x = qexp(p), y = quantile(diamonds$price, p)))
+  ggplot2::geom_point(aes(x = qexp(p), y = quantile(diamonds$price, p)))
 
 basal <- BA_vs_DBH$Basal_Area_m2_BD
 DBH <- BA_vs_DBH$Basal_Area_m2_DBH
 n <- nrow(BA_vs_DBH)
 p <- (1 : n) / n - 0.5 / n
 ggplot(BA_vs_DBH) +
-  geom_point(aes(x = basal, y = sort(pnorm(fheight, m, s))))
+  ggplot2::geom_point(aes(x = basal, y = sort(pnorm(fheight, m, s))))
 
 
 
@@ -2291,7 +2291,7 @@ understory_nativity1 <- understory_nativity %>%
   filter(Cycle != 3)
 
 understory_species1 <- understory_species %>%
-  mutate(Presence = case_when(Cover > 0 ~ 1,
+  mutate(Presence = dplyr::case_when(Cover > 0 ~ 1,
                               TRUE ~ 0)) %>%
   filter(Presence == 1) %>%
   filter(!is.na(Scientific_Name)) %>%
@@ -2310,14 +2310,14 @@ library(tidyverse)
 understory_species1 <- read_csv("Understory_Species.csv")
 
 understory_species2 <- understory_species1 %>%
-  group_by(Unit_Code, Sampling_Frame, Cycle, Year, Plot_Type, Plot_Number, Nativity) %>%
-  summarize(Richness = sum(Presence))
+  dplyr::group_by(Unit_Code, Sampling_Frame, Cycle, Year, Plot_Type, Plot_Number, Nativity) %>%
+  dplyr::summarize(Richness = sum(Presence))
 
 ggplot(understory_nativity1, aes(x=Cover, fill = Nativity)) +
   geom_histogram() +
   facet_grid(cols = vars(Sampling_Frame),
                          rows = vars(Cycle)) +
-  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+  ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 90, vjust = 0.5, hjust=1))
 
 ggplot(understory_species1, aes(x=Presence)) +
   geom_histogram()
@@ -2395,10 +2395,10 @@ chk_fixed <- chk %>%
   filter(Site_Type == "Fixed") %>%
   filter(Subject1 != "Staff_Photo") %>%
   filter(Subject1 != "Other") %>%
-  group_by(Samp_Year, Samp_Frame, Sampling_Frame, Site_Number, Site_Type, Subject1) %>%
-  summarize(n = n()) %>%
-  ungroup() %>%
-  complete(nesting(Samp_Year, Samp_Frame, Sampling_Frame, Site_Number, Site_Type), Subject1) %>%
+  dplyr::group_by(Samp_Year, Samp_Frame, Sampling_Frame, Site_Number, Site_Type, Subject1) %>%
+  dplyr::summarize(n = n()) %>%
+  dplyr::ungroup() %>%
+  complete(tidyr::nesting(Samp_Year, Samp_Frame, Sampling_Frame, Site_Number, Site_Type), Subject1) %>%
   filter(is.na(n))
 
 # Get list of missing rotational photos
@@ -2406,10 +2406,10 @@ chk_rotational <- chk %>%
   filter(Site_Type == "Rotational") %>%
   filter(Subject1 != "Staff_Photo") %>%
   filter(Subject1 != "Other") %>%
-  group_by(Samp_Year, Samp_Frame, Sampling_Frame, Site_Number, Site_Type, Subject1) %>%
-  summarize(n = n()) %>%
-  ungroup() %>%
-  complete(nesting(Samp_Year, Samp_Frame, Sampling_Frame, Site_Number, Site_Type), Subject1) %>%
+  dplyr::group_by(Samp_Year, Samp_Frame, Sampling_Frame, Site_Number, Site_Type, Subject1) %>%
+  dplyr::summarize(n = n()) %>%
+  dplyr::ungroup() %>%
+  complete(tidyr::nesting(Samp_Year, Samp_Frame, Sampling_Frame, Site_Number, Site_Type), Subject1) %>%
   filter(is.na(n))
 
 # Combine fixed and rotational into one table
@@ -2422,17 +2422,17 @@ chk_missing <- bind_rows(chk_fixed, chk_rotational)
 
 chk_dupes <- chk %>%
   # Count number of photos per subject
-  group_by(Samp_Year, Samp_Frame, Sampling_Frame, Site_Number, Site_Type, Subject1, REL_GLOBALID) %>%
-  summarize(n_photos = n()) %>%
+  dplyr::group_by(Samp_Year, Samp_Frame, Sampling_Frame, Site_Number, Site_Type, Subject1, REL_GLOBALID) %>%
+  dplyr::summarize(n_photos = n()) %>%
   # Count number of points per subject (disregards multiple photos at one point)
-  group_by(Samp_Year, Samp_Frame, Sampling_Frame, Site_Number, Site_Type, Subject1) %>%
-  summarize(n_points = n()) %>%
+  dplyr::group_by(Samp_Year, Samp_Frame, Sampling_Frame, Site_Number, Site_Type, Subject1) %>%
+  dplyr::summarize(n_points = n()) %>%
   filter(n_points > 1) %>%
   filter(Subject1 != "Other")
 
 # join with original data to check created date, etc.
 dupes <- chk_dupes %>%
-  left_join(chk) %>%
+  dplyr::left_join(chk) %>%
   select(Samp_Year, Samp_Frame, Sampling_Frame, Site_Number, Site_Type, Subject1, n_points, Staff_list, created_date, last_edited_date, last_edited_user)
 
 # EIPS Photos ---------
@@ -2448,24 +2448,24 @@ EIPS_chk <- process_photos(AGOL_Layer = "EIPS",
 EIPS_missing <- EIPS_chk %>%
   # remove subjects that are not photo points
   filter(!Subject_EIPS == "Staff" & !Subject_EIPS == "Other") %>%
-  separate(Subject_EIPS, sep = "_", into = c("distance", "direction"), remove = FALSE) %>%
-  group_by(Sampling_Frame, Site_numb, Site_Type, distance) %>%
+  tidyr::separate(Subject_EIPS, sep = "_", into = c("distance", "direction"), remove = FALSE) %>%
+  dplyr::group_by(Sampling_Frame, Site_numb, Site_Type, distance) %>%
   summarise(n_direct = n_distinct(direction)) %>%
   filter(n_direct != 3 & Site_Type == "Fixed" |
            n_direct != 2 & Site_Type == "Rotational" )
 
 EIPS_chk_dupes <- EIPS_chk %>%
   # Count number of photos per subject
-  group_by(Samp_Year, Samp_Frame, Sampling_Frame, Site_Number, Site_Type, Subject1, REL_GLOBALID) %>%
-  summarize(n_photos = n()) %>%
+  dplyr::group_by(Samp_Year, Samp_Frame, Sampling_Frame, Site_Number, Site_Type, Subject1, REL_GLOBALID) %>%
+  dplyr::summarize(n_photos = n()) %>%
   # Count number of points per subject (disregards multiple photos at one point)
-  group_by(Samp_Year, Samp_Frame, Sampling_Frame, Site_Number, Site_Type, Subject1) %>%
-  summarize(n_points = n()) %>%
+  dplyr::group_by(Samp_Year, Samp_Frame, Sampling_Frame, Site_Number, Site_Type, Subject1) %>%
+  dplyr::summarize(n_points = n()) %>%
   filter(n_points > 1)
 
 # join with original data to check created date, etc.
 EIPS_dupes <- EIPS_chk_dupes %>%
-  left_join(EIPS_chk) %>%
+  dplyr::left_join(EIPS_chk) %>%
   select(Samp_Year, Samp_Frame, Sampling_Frame, Site_Number, Site_Type, Subject1, n_points, Staff_list, created_date, last_edited_date, last_edited_user)
 
 
@@ -2508,7 +2508,7 @@ transects <- FilterPACNVeg("EIPS_data")
 l <- transects %>%
   filter(Sampling_Frame == "Mauna Loa" |
            Sampling_Frame == "Kahuku") %>%
-  distinct(Cycle, Sampling_Frame, Transect_Number, Transect_Type) %>%
+  dplyr::distinct(Cycle, Sampling_Frame, Transect_Number, Transect_Type) %>%
   mutate(Transect_Number = as.numeric(Transect_Number))
   count(Cycle, Sampling_Frame)
 
@@ -2516,17 +2516,17 @@ AMME_transects <- FilterPACNVeg("EIPS_data") %>%
   filter(Sampling_Frame == "Muchot")
 
 l <- AMME_transects %>%
-  group_by(Cycle, Transect_Number, Segment) %>%
+  dplyr::group_by(Cycle, Transect_Number, Segment) %>%
   summarise(All_Segments = n())
 
 AMME_transects %>%
-  group_by(Cycle, Scientific_Name, Code, Life_Form, Nativity) %>%
+  dplyr::group_by(Cycle, Scientific_Name, Code, Life_Form, Nativity) %>%
   summarise(total_segments = n())
 
 canopy <- FilterPACNVeg("Canopy")
 
 canopy <- canopy %>%
-  arrange(Cycle, Sampling_Frame, Plot_Number) #%>%
+  dplyr::arrange(Cycle, Sampling_Frame, Plot_Number) #%>%
   summarise(n = n())
 
 small_woody <- FilterPACNVeg("SmWoody") %>%
@@ -2540,7 +2540,7 @@ species_missed <- qc_presence_complete(all_records = FALSE)
 FilterPACNVeg("LgTrees") %>%
   filter(Caudex_Length != 999) %>%
   filter(Life_Form == "Tree Fern") %>%
-  ggplot(aes(x=Caudex_Length)) +
+  ggplot2::ggplot(aes(x=Caudex_Length)) +
   geom_histogram(color="black", fill="white") +
   facet_grid(. ~ Sampling_Frame)
 
@@ -2739,14 +2739,14 @@ tot_data_noCT_ratio <- tot_data_noCT %>%
 #breaks <- c(-1, -0.5, 0, 0.5, 1)
 breaks <- c(-1, -0.5, 0, 0.5, 1)
 
-test <- ggplot(tot_data_noCT_ratio, aes(x = Native_Cover_Total_pct, y = NonNative_Cover_Total_pct,
+test <- ggplot2::ggplot(tot_data_noCT_ratio, aes(x = Native_Cover_Total_pct, y = NonNative_Cover_Total_pct,
                                         color = nat_ratio, size = tot_cover,
                                         text=sprintf("Plot: %s<br>Year: %s", Plot_Number, Year))) + # Set up text for plotly hover info
-  geom_point() +
+  ggplot2::geom_point() +
   geom_abline(intercept = 0, slope=1, color="blue") +
   scale_color_gradientn(colors = c("red", "yellow", "green"), limits = c(-1,1),
                         values = scales::rescale(c(-1, -0.5, 0.7, 1))) +
-  labs(colour = "Native Ratio",
+  ggplot2::labs(colour = "Native Ratio",
        size = "Total Veg Cover (%)",
        x = "Native Cover",
        y = "Non-native Cover") +
@@ -2755,14 +2755,14 @@ test <- ggplot(tot_data_noCT_ratio, aes(x = Native_Cover_Total_pct, y = NonNativ
 
 test
 
-test <- ggplot(tot_data_noCT_ratio, aes(x = Native_Cover_Total_pct, y = NonNative_Cover_Total_pct,
+test <- ggplot2::ggplot(tot_data_noCT_ratio, aes(x = Native_Cover_Total_pct, y = NonNative_Cover_Total_pct,
                                         fill = nat_ratio, size = tot_cover,
                                         text=sprintf("Plot: %s<br>Year: %s", Plot_Number, Year))) + # Set up text for plotly hover info
-  geom_point(shape = 21, color = "black") +
+  ggplot2::geom_point(shape = 21, color = "black") +
   geom_abline(intercept = 0, slope=1, color="blue") +
   scale_fill_gradientn(colors  = c("red", "yellow", "green"), limits = c(-1,1),
                         values = scales::rescale(c(-1, -0.5, 0.7, 1))) +
-  labs(fill = "Native Ratio",
+  ggplot2::labs(fill = "Native Ratio",
        size = "Total Veg Cover (%)",
        x = "Native Cover",
        y = "Non-native Cover") +
@@ -2890,7 +2890,7 @@ look <- FilterPACNVeg("Understory", sample_frame = "Haleakala", cycle = 2)
 chk <- look %>%
   #filter(Plot_Number == 10) %>%
   filter(Stratum == "Low") %>%
-  group_by(Sampling_Frame, Cycle, Dead, Scientific_Name, Code, Nativity) %>%
+  dplyr::group_by(Sampling_Frame, Cycle, Dead, Scientific_Name, Code, Nativity) %>%
   summarise(hits = n())
 
 

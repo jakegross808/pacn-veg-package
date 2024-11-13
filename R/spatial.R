@@ -317,7 +317,7 @@ MapCoverTotal2 <- function(crosstalk = FALSE, crosstalk_group = "cover", combine
   #}
 
   # Get Max Cycle/Year from text
-  getmax <- function(col) str_extract_all(col,"[0-9\\.-]+") %>%
+  getmax <- function(col) stringr::str_extract_all(col,"[0-9\\.-]+") %>%
     lapply(.,function(x) max(as.numeric(x), na.rm = T) ) %>%
     unlist()
 
@@ -585,7 +585,7 @@ MapPACNVeg <- function(protocol = c("FTPC", "EIPS"), crosstalk = FALSE, crosstal
 
   # if na's present replace with 'No Zone Assigned':
   agol_sf <- agol_sf %>%
-    mutate(Zone = tidyr::replace_na(Zone, "No Zone Assigned"))
+    dplyr::mutate(Zone = tidyr::replace_na(Zone, "No Zone Assigned"))
 
   factpal <- leaflet::colorFactor(c("#F8573A", "#F4C47B", "#28468B", "#AED5CB"),
                                   agol_sf$Zone) # Colors for polygons factors
@@ -593,7 +593,7 @@ MapPACNVeg <- function(protocol = c("FTPC", "EIPS"), crosstalk = FALSE, crosstal
   #leaflet::addPolygons(color =  ~factpal(Zone), label = ~Zone)
 
   # Set up icons
-  custom_icons <- pacnvegetation:::pchIcons(pch = pts$map_symb,
+  custom_icons <- pchIcons(pch = pts$map_symb,
                            width = pts$symb_w,
                            height = pts$symb_h,
                            bg = colorspace::darken(pts$symb_color),
@@ -1045,7 +1045,7 @@ DownloadAGOLAttachments <- function(feature_layer_url,
   if (only_staff){
     # if true, keep only the staff photos
     attachments2 <- attachments2 %>%
-      filter(str_detect(Subject, "Staff"))
+      filter(stringr::str_detect(Subject, "Staff"))
   }
 
   if (!test_run) {
@@ -1212,7 +1212,7 @@ download_agol <- function(photo_layers, temp_dest, sharepoint_dest, master_sprea
 
     # add sharepoint path
     #layer_df <- layer_df %>%
-    #  mutate(SP_Folder = "https://doimspp.sharepoint.com/sites/nps-PWR-PACNIM/vital_signs/05_focal_terr_plant_communities/Images/2023/HALE/Plant_photos/")
+    #  dplyr::mutate(SP_Folder = "https://doimspp.sharepoint.com/sites/nps-PWR-PACNIM/vital_signs/05_focal_terr_plant_communities/Images/2023/HALE/Plant_photos/")
 
     if (test_run == "TRUE" && missing(master_spreadsheet_folder)) {
       return (layer_df)

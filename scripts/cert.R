@@ -31,22 +31,22 @@ FilterPACNVeg(data_name = "Presence") |>
 
 FTPC_SF <- FilterPACNVeg(data_name = "Presence") |>
   select(Sampling_Frame) |>
-  distinct()
+  dplyr::distinct()
 FTPC_SF
 
 FTPC_SF_formal <- FilterPACNVeg(data_name = "Presence") |>
   select(Sampling_Frame_Formal) |>
-  distinct()
+  dplyr::distinct()
 FTPC_SF_formal
 
 EIPS_SF <- FilterPACNVeg(data_name = "EIPS_data") |>
   select(Sampling_Frame) |>
-    distinct()
+    dplyr::distinct()
 EIPS_SF
 
 EIPS_SF_formal <- FilterPACNVeg(data_name = "Events_extra_other_EIPS") |>
   select(Sampling_Frame_Formal) |>
-  distinct()
+  dplyr::distinct()
 EIPS_SF_formal
 
 anti_join(FTPC_SF, EIPS_SF)
@@ -127,7 +127,7 @@ all_pres <- pacnvegetation::FilterPACNVeg(data_name = "Presence") |>
   #filter(Plot_Number %in% nahuku_plots)
 
 all_pres_count <- all_pres |>
-  group_by(Scientific_Name, Sampling_Frame, Year) |>
+  dplyr::group_by(Scientific_Name, Sampling_Frame, Year) |>
   summarise(count = n())
 
 
@@ -190,12 +190,12 @@ BA <- lg_trees_fixed |>
 var_plot_number <- 1
 BA |>
   filter(Plot_Number == var_plot_number) |>
-  ggplot(aes(x=Year, y=BA_m2_per_quad, fill = Status)) +
-    scale_fill_manual(values = c("Live" = "dark green",
+  ggplot2::ggplot(aes(x=Year, y=BA_m2_per_quad, fill = Status)) +
+    ggplot2::scale_fill_manual(values = c("Live" = "dark green",
                                   "Dead" = "tan")) +
   geom_bar(stat='identity') +
   facet_wrap(~Quad) +
-  ggtitle(paste0("Tree BA - ", unique(BA$Sampling_Frame),
+  ggplot2::ggtitle(paste0("Tree BA - ", unique(BA$Sampling_Frame),
                  " - Plot ", var_plot_number))
 
 path_var <- paste0("C:/Users/JJGross/OneDrive - DOI/Documents/Certification_Local/2021-2022 Certification/R_output/", var_sframe, "/")
@@ -216,10 +216,10 @@ lg_tree_count_all <- lg_trees_fixed |>
   dplyr::summarise(tree_count_all = sum(count))
 
 lg_tree_count_all |>
-  ggplot(aes(x=Year, y=tree_count_all)) +
+  ggplot2::ggplot(aes(x=Year, y=tree_count_all)) +
   geom_bar(stat='identity') +
   facet_wrap(~Status) +
-  ggtitle(paste0("Tree Count - ", unique(lg_tree_count_all$Sampling_Frame)))
+  ggplot2::ggtitle(paste0("Tree Count - ", unique(lg_tree_count_all$Sampling_Frame)))
 
 
 # Per Plot ----
@@ -248,45 +248,45 @@ lg_tree_count_plot <- lg_tree_count_quad |>
 
 lg_tree_count_quad |>
   filter(Status == "Dead") |>
-  ggplot(aes(x=Year, y=tree_count_quad)) +
+  ggplot2::ggplot(aes(x=Year, y=tree_count_quad)) +
   geom_bar(stat='identity', fill="tan") +
   facet_wrap(~Quad) +
-  ggtitle(paste0("Dead Trees - ", unique(lg_tree_count_quad$Sampling_Frame),
+  ggplot2::ggtitle(paste0("Dead Trees - ", unique(lg_tree_count_quad$Sampling_Frame),
                  " - Plot ", unique(lg_tree_count_quad$Plot_Number)))
 
 lg_tree_count_plot |>
   filter(Status == "Dead") |>
-  ggplot(aes(x=Year, y=tree_count_plot)) +
+  ggplot2::ggplot(aes(x=Year, y=tree_count_plot)) +
   geom_bar(stat='identity', fill="tan") +
-  ggtitle(paste0("Dead Trees - ", unique(lg_tree_count_plot$Sampling_Frame),
+  ggplot2::ggtitle(paste0("Dead Trees - ", unique(lg_tree_count_plot$Sampling_Frame),
                  " - Plot ", unique(lg_tree_count_plot$Plot_Number)))
 
 lg_tree_count_quad |>
   filter(Status == "Live") |>
-  ggplot(aes(x=Year, y=tree_count_quad)) +
+  ggplot2::ggplot(aes(x=Year, y=tree_count_quad)) +
   geom_bar(stat='identity', fill="forest green") +
   facet_wrap(~Quad) +
-  ggtitle(paste0("Live Trees - ", unique(lg_tree_count_quad$Sampling_Frame),
+  ggplot2::ggtitle(paste0("Live Trees - ", unique(lg_tree_count_quad$Sampling_Frame),
                  " - Plot ", unique(lg_tree_count_quad$Plot_Number)))
 
 lg_tree_count_plot |>
   filter(Status == "Live") |>
-  ggplot(aes(x=Year, y=tree_count_plot)) +
+  ggplot2::ggplot(aes(x=Year, y=tree_count_plot)) +
   geom_bar(stat='identity', fill="forest green") +
-  ggtitle(paste0("Dead Trees - ", unique(lg_tree_count_plot$Sampling_Frame),
+  ggplot2::ggtitle(paste0("Dead Trees - ", unique(lg_tree_count_plot$Sampling_Frame),
                  " - Plot ", unique(lg_tree_count_plot$Plot_Number)))
 
 
 Boles_DBH <- lg_trees |>
   dplyr::filter(Life_Form == "Tree") |>
-  mutate(DBH_Bole = case_when(is.na(DBH_Bole) ~ DBH,
+  dplyr::mutate(DBH_Bole = dplyr::case_when(is.na(DBH_Bole) ~ DBH,
                               .default = as.numeric(DBH_Bole))) |>
-  mutate(DBH_Bole = case_when(is.na(DBH_Bole & is.na(DBH)) ~ Measurement,
+  dplyr::mutate(DBH_Bole = dplyr::case_when(is.na(DBH_Bole & is.na(DBH)) ~ Measurement,
                               .default = as.numeric(DBH_Bole))) |>
-  mutate(Year = as.character(Year)) |>
-  mutate(Year = case_when(QA_Plot == TRUE ~ paste0(Year, "_Q"),
+  dplyr::mutate(Year = as.character(Year)) |>
+  dplyr::mutate(Year = dplyr::case_when(QA_Plot == TRUE ~ paste0(Year, "_Q"),
                           .default = as.character(Year))) |>
-  arrange(Year, Quad, DBH_Bole)
+  dplyr::arrange(Year, Quad, DBH_Bole)
 
 
 
@@ -295,27 +295,27 @@ Boles_DBH |>
   filter(Year %in% c("2010", "2015", "2021")) |>
   #filter(Year %in% c("2016", "2022")) |>
   filter(Status == "Live") |>
-  ggplot(aes(x=DBH_Bole, color=Year, fill=Year)) +
+  ggplot2::ggplot(aes(x=DBH_Bole, color=Year, fill=Year)) +
   geom_histogram(position="dodge", alpha = 0.5)+
   #geom_vline(data=lg_trees3, aes(xintercept=grp.mean, color=Year),
   #           linetype="dashed")+
-  theme(legend.position="top") +
+  ggplot2::theme(legend.position="top") +
   facet_wrap(~Quad) +scale_color_manual(values=c("#999999", "#E69F00", "#56B4E9"))+
-  scale_fill_manual(values=c("#999999", "#E69F00", "#56B4E9"))
+  ggplot2::scale_fill_manual(values=c("#999999", "#E69F00", "#56B4E9"))
 
 # Bole DBH Density Plot
 Boles_DBH |>
   filter(Year %in% c("2010", "2015", "2021")) |>
   #filter(Year %in% c("2016", "2022")) |>
   filter(Status == "Live") |>
-  mutate(Quad = paste("Quad", as.character(Quad))) |>
+  dplyr::mutate(Quad = paste("Quad", as.character(Quad))) |>
   #filter(text %in% c("Almost No Chance", "About Even", "Probable", "Almost Certainly")) %>%
-  ggplot( aes(x=DBH_Bole, color=Year, fill=Year)) +
+  ggplot2::ggplot( aes(x=DBH_Bole, color=Year, fill=Year)) +
   geom_density(alpha=0.6) +
   facet_wrap(~Quad) +scale_color_manual(values=c("#999999", "#E69F00", "#56B4E9"))+
-  scale_fill_manual(values=c("#999999", "#E69F00", "#56B4E9")) +
-  ggtitle(paste0("Trees - ", unique(Boles_DBH$Sampling_Frame), " - Plot ", unique(Boles_DBH$Plot_Number))) +
-  xlab("DBH") +
+  ggplot2::scale_fill_manual(values=c("#999999", "#E69F00", "#56B4E9")) +
+  ggplot2::ggtitle(paste0("Trees - ", unique(Boles_DBH$Sampling_Frame), " - Plot ", unique(Boles_DBH$Plot_Number))) +
+  ggplot2::xlab("DBH") +
   facet_wrap(~Quad)
 
 # Need to bring unique number for tree individual from database import for this!
@@ -357,8 +357,8 @@ nrow(EIPS_needs_certified)
 EIPS_check <- v_EIPS_prep(sample_frame = var_sframe, cycle = 3)
 
 EIPS_segment_check <- EIPS_check |>
-  group_by(Unit_Code, Sampling_Frame, Year, Cycle, Transect_Number, Tran_Length_m) |>
-  summarize(segs_w_spp = n_distinct(Start_m))
+  dplyr::group_by(Unit_Code, Sampling_Frame, Year, Cycle, Transect_Number, Tran_Length_m) |>
+  dplyr::summarize(segs_w_spp = n_distinct(Start_m))
 
 # EIPS Presence -- spp consistency chk --------------------------------------
 # TURN THIS INTO pacnvegetation qc_ FUNCTION
@@ -371,40 +371,40 @@ eips_data_check <- pacnvegetation::FilterPACNVeg(data_name = "EIPS_data")|>
 eips_data_check
 
 eips_data <- pacnvegetation::FilterPACNVeg(data_name = "EIPS_data") |>
-  mutate(Sampling_Frame = case_when(Sampling_Frame == "ʻŌlaʻa" ~ "Olaa",
+  dplyr::mutate(Sampling_Frame = dplyr::case_when(Sampling_Frame == "ʻŌlaʻa" ~ "Olaa",
                                     .default = as.character(Sampling_Frame))) |>
-  mutate(Sampling_Frame = case_when(Sampling_Frame == "Nāhuku/East Rift" ~ "Nahuku/East Rift",
+  dplyr::mutate(Sampling_Frame = dplyr::case_when(Sampling_Frame == "Nāhuku/East Rift" ~ "Nahuku/East Rift",
                                     .default = as.character(Sampling_Frame))) |>
   filter(Sampling_Frame == var_sframe)
 
 
 eips_presence <- eips_data |>
   select(Sampling_Frame, Cycle, Transect_Number, Nativity, Scientific_Name, Code) |>
-  distinct()
+  dplyr::distinct()
 
 eips_pres_trans_num <- eips_presence |>
   filter(Transect_Number == var_trans_num)
 
 eips_rare <- eips_presence |>
-  group_by(Sampling_Frame, Nativity, Scientific_Name, Code, Transect_Number) %>%
-  summarize(observed = n(), .groups = "drop") %>%
+  dplyr::group_by(Sampling_Frame, Nativity, Scientific_Name, Code, Transect_Number) %>%
+  dplyr::summarize(observed = n(), .groups = "drop") %>%
   # only count one time if found more than once in a fixed
-  mutate(observed = 1) %>%
-  group_by(Sampling_Frame, Code, Scientific_Name) %>%
-  summarize(transects_observed = n()) %>%
+  dplyr::mutate(observed = 1) %>%
+  dplyr::group_by(Sampling_Frame, Code, Scientific_Name) %>%
+  dplyr::summarize(transects_observed = n()) %>%
   # "rare" will be 4 plots_observed or less
   filter(transects_observed < 5) %>%
-  mutate(less_than_5_transects = TRUE) %>%
-  right_join(eips_pres_trans_num) %>%
+  dplyr::mutate(less_than_5_transects = TRUE) %>%
+  dplyr::right_join(eips_pres_trans_num) %>%
   filter(less_than_5_transects == TRUE)
 
 # Join rare species flags to Presence
 eips_pres_trans_num1 <- eips_pres_trans_num %>%
-  left_join(eips_rare)
+  dplyr::left_join(eips_rare)
 
 eips_pres_trans_num2 <- eips_pres_trans_num1 %>%
-  mutate(Cycle = as.integer(Cycle)) %>%
-  arrange(Scientific_Name)
+  dplyr::mutate(Cycle = as.integer(Cycle)) %>%
+  dplyr::arrange(Scientific_Name)
 
 # Code below was to split graph in half but doesn't work with geom_point filtering
 # find the middle of the data set
@@ -430,16 +430,16 @@ nativity_colors <- c("Native" = "#1b9e77",
                      "Unknown" = "#7570b3")
 
 select_rare <- function(condition){
-  function(d) d %>% filter_(condition)
+  function(d) d %>% dplyr::filter_(condition)
 }
 
 select_out <- function(condition){
-  function(d) d %>% filter_(condition)
+  function(d) d %>% dplyr::filter_(condition)
 }
 
 graph_out <- eips_pres_trans_num2 %>%
-  ggplot(aes(x= Scientific_Name, y=Cycle)) +
-  geom_segment(aes(x=Scientific_Name,
+  ggplot2::ggplot(aes(x= Scientific_Name, y=Cycle)) +
+  ggplot2::geom_segment(aes(x=Scientific_Name,
                    xend=Scientific_Name,
                    y=min(Cycle),
                    yend=max(Cycle),
@@ -447,20 +447,20 @@ graph_out <- eips_pres_trans_num2 %>%
                linetype="dashed",
                linewidth=0.5) +
   # Draw points
-  geom_point(size = 8, data = ~filter(.x, less_than_5_transects == TRUE), color = "yellow") +
-  geom_point(size = 5, aes(color = Nativity)) +
+  ggplot2::geom_point(size = 8, data = ~filter(.x, less_than_5_transects == TRUE), color = "yellow") +
+  ggplot2::geom_point(size = 5, aes(color = Nativity)) +
   #geom_point(size = 2, data = ~filter(.x, Outside_Plot == TRUE), color = "black") +
-  labs(title="Check Presence",
+  ggplot2::labs(title="Check Presence",
        subtitle= (paste0(eips_pres_trans_num2$Sampling_Frame[1], " Transect ", eips_pres_trans_num2$Transect_Number[1])),
        caption= (paste0("QA/QC"))) +
-  scale_color_manual(values = nativity_colors) +
-  scale_x_discrete(limits = rev) +
-  scale_y_continuous(limits = c(0, max(eips_pres_trans_num2$Cycle)+1)) + #breaks = integer_breaks(),
-  coord_flip() +
+  ggplot2::scale_color_manual(values = nativity_colors) +
+  ggplot2::scale_x_discrete(limits = rev) +
+  ggplot2::scale_y_continuous(limits = c(0, max(eips_pres_trans_num2$Cycle)+1)) + #breaks = integer_breaks(),
+  ggplot2::coord_flip() +
   #facet_wrap(scales = "free", vars(eips_pres_trans_num2$split)) +
-  theme(strip.background = element_blank(),
-        strip.text.x = element_blank()) +
-  theme(aspect.ratio=6) #9
+  ggplot2::theme(strip.background = ggplot2::element_blank(),
+        strip.text.x = ggplot2::element_blank()) +
+  ggplot2::theme(aspect.ratio=6) #9
 graph_out
 
 var_folder_sframe <-var_sframe
@@ -469,16 +469,16 @@ if (var_sframe == "Nahuku/East Rift") {
 }
 
 path_var <- paste0("C:/Users/JJGross/OneDrive - DOI/Documents/Certification_Local/2021-2022 Certification/R_output/", var_folder_sframe, "/")
-filename_var <- paste0("trans_", str_pad(var_trans_num, 2, pad = "0"), "_spp_pres-dot.png")
+filename_var <- paste0("trans_", stringr::str_pad(var_trans_num, 2, pad = "0"), "_spp_pres-dot.png")
 filename_var
 ggsave(filename = filename_var, path = path_var, height = 10, width = 5)
 
 # ---- EIPS Cover Class frequency ------------------------------------------
 
 eips_data <- pacnvegetation::FilterPACNVeg(data_name = "EIPS_data") |>
-  mutate(Sampling_Frame = case_when(Sampling_Frame == "ʻŌlaʻa" ~ "Olaa",
+  dplyr::mutate(Sampling_Frame = dplyr::case_when(Sampling_Frame == "ʻŌlaʻa" ~ "Olaa",
                                     .default = as.character(Sampling_Frame))) |>
-  mutate(Sampling_Frame = case_when(Sampling_Frame == "Nāhuku/East Rift" ~ "Nahuku/East Rift",
+  dplyr::mutate(Sampling_Frame = dplyr::case_when(Sampling_Frame == "Nāhuku/East Rift" ~ "Nahuku/East Rift",
                                     .default = as.character(Sampling_Frame))) |>
   filter(Sampling_Frame == var_sframe)
 
@@ -486,93 +486,93 @@ eips_data <- pacnvegetation::FilterPACNVeg(data_name = "EIPS_data") |>
 eips_cover_freq <- eips_data |>
   filter(Transect_Number == var_trans_num) |>
   select(Sampling_Frame, Cycle, Transect_Number, Nativity, Scientific_Name, Code, Segment, Cover_Class) |>
-  distinct() |>
-  mutate(segs_pres = 1) |>
-  group_by(Sampling_Frame, Cycle, Transect_Number, Nativity, Scientific_Name, Code, Cover_Class) |>
-  summarize(segs_per_tran = sum(segs_pres)) |>
-  mutate(Cover_Class = case_when(Cover_Class == "OUT" ~ "0",
+  dplyr::distinct() |>
+  dplyr::mutate(segs_pres = 1) |>
+  dplyr::group_by(Sampling_Frame, Cycle, Transect_Number, Nativity, Scientific_Name, Code, Cover_Class) |>
+  dplyr::summarize(segs_per_tran = sum(segs_pres)) |>
+  dplyr::mutate(Cover_Class = dplyr::case_when(Cover_Class == "OUT" ~ "0",
                                  .default = as.character(Cover_Class)))
 
 OUT <- eips_cover_freq |>
   filter(Cover_Class >= 0) |>
-  mutate(OUT = sum(segs_per_tran))|>
+  dplyr::mutate(OUT = sum(segs_per_tran))|>
   select(-Cover_Class, -segs_per_tran) |>
-  distinct()
+  dplyr::distinct()
 g0p <- eips_cover_freq |>
   filter(Cover_Class >= 1) |>
-  mutate(`0` = sum(segs_per_tran))|>
+  dplyr::mutate(`0` = sum(segs_per_tran))|>
   select(-Cover_Class, -segs_per_tran) |>
-  distinct()
+  dplyr::distinct()
 g1p <- eips_cover_freq |>
   filter(Cover_Class >= 2) |>
-  mutate(`1` = sum(segs_per_tran))|>
+  dplyr::mutate(`1` = sum(segs_per_tran))|>
   select(-Cover_Class, -segs_per_tran)|>
-  distinct()
+  dplyr::distinct()
 g5p <- eips_cover_freq |>
   filter(Cover_Class >= 3) |>
-  mutate(`5` = sum(segs_per_tran))|>
+  dplyr::mutate(`5` = sum(segs_per_tran))|>
   select(-Cover_Class, -segs_per_tran)|>
-  distinct()
+  dplyr::distinct()
 g10p <- eips_cover_freq |>
   filter(Cover_Class >= 4) |>
-  mutate(`10` = sum(segs_per_tran))|>
+  dplyr::mutate(`10` = sum(segs_per_tran))|>
   select(-Cover_Class, -segs_per_tran)|>
-  distinct()
+  dplyr::distinct()
 g25p <- eips_cover_freq |>
   filter(Cover_Class >= 5) |>
-  mutate(`25` = sum(segs_per_tran))|>
+  dplyr::mutate(`25` = sum(segs_per_tran))|>
   select(-Cover_Class, -segs_per_tran)|>
-  distinct()
+  dplyr::distinct()
 g50p <- eips_cover_freq |>
   filter(Cover_Class >= 6) |>
-  mutate(`50` = sum(segs_per_tran))|>
+  dplyr::mutate(`50` = sum(segs_per_tran))|>
   select(-Cover_Class, -segs_per_tran)|>
-  distinct()
+  dplyr::distinct()
 g75p <- eips_cover_freq |>
   filter(Cover_Class >= 7) |>
-  mutate(`75` = sum(segs_per_tran))|>
+  dplyr::mutate(`75` = sum(segs_per_tran))|>
   select(-Cover_Class, -segs_per_tran)|>
-  distinct()
+  dplyr::distinct()
 
 eips_add_cover <- eips_cover_freq %>%
   select(Sampling_Frame, Cycle, Transect_Number, Nativity, Scientific_Name, Code) |>
-  distinct() |>
+  dplyr::distinct() |>
   #left_join(OUT) |>
-  left_join(g0p) |>
-  left_join(g1p) |>
-  left_join(g5p) |>
-  left_join(g10p) |>
-  left_join(g25p) |>
-  left_join(g50p) |>
-  left_join(g75p)
+  dplyr::left_join(g0p) |>
+  dplyr::left_join(g1p) |>
+  dplyr::left_join(g5p) |>
+  dplyr::left_join(g10p) |>
+  dplyr::left_join(g25p) |>
+  dplyr::left_join(g50p) |>
+  dplyr::left_join(g75p)
 
 eips_add_cover1 <- eips_add_cover |>
   pivot_longer(cols = `0`:`75`, names_to = "cover_greater_than", values_to = "segs") |>
-  mutate(freq = segs/50) #|>
+  dplyr::mutate(freq = segs/50) #|>
   #dplyr::mutate(freq = replace_na(freq, 0))
 
 library(viridis)
 
 acc <- eips_add_cover1 |>
-  mutate(Cycle = as.factor(Cycle)) |>
-  mutate(cover_greater_than = as_factor(cover_greater_than)) |>
-  ggplot(aes(x=cover_greater_than,
+  dplyr::mutate(Cycle = as.factor(Cycle)) |>
+  dplyr::mutate(cover_greater_than = as_factor(cover_greater_than)) |>
+  ggplot2::ggplot(aes(x=cover_greater_than,
              y= freq,
              group = Cycle,
              color = Cycle))+
   #geom_ribbon(aes(ymin=L95CI/100, ymax=U95CI/100, fill=Life_form), alpha=0.4,colour=NA)+
   geom_line(linewidth = 1)+
-  geom_point(size = 2) +
+  ggplot2::geom_point(size = 2) +
   #scale_y_continuous(breaks = seq(0, 1, .1)) + #, limits = c(0, 1) +
-  labs(x="% Cover", y=expression(paste("Frequency")))+
-  ggtitle(paste(eips_add_cover1$Sampling_Frame, "Transect", eips_add_cover1$Transect_Number))+
+  ggplot2::labs(x="% Cover", y=expression(paste("Frequency")))+
+  ggplot2::ggtitle(paste(eips_add_cover1$Sampling_Frame, "Transect", eips_add_cover1$Transect_Number))+
   scale_color_viridis(discrete = TRUE, direction = -1) +
-  theme(plot.title = element_text(size=14, face="bold", vjust=1, lineheight=0.8))+
-  theme(axis.title.x=element_text(size=12, vjust=-0.2))+
-  theme(axis.text.x=element_text(angle=0, size=11, vjust=0.5))+
-  theme(axis.text.y=element_text(angle=0, size=12, vjust=0.5))+
-  scale_x_discrete(labels = function(x) paste0(">", x)) +
-  scale_y_continuous(labels = function(x) paste0(x*100, "%"),
+  ggplot2::theme(plot.title = ggplot2::element_text(size=14, face="bold", vjust=1, lineheight=0.8))+
+  ggplot2::theme(axis.title.x=element_text(size=12, vjust=-0.2))+
+  ggplot2::theme(axis.text.x=element_text(angle=0, size=11, vjust=0.5))+
+  ggplot2::theme(axis.text.y=element_text(angle=0, size=12, vjust=0.5))+
+  ggplot2::scale_x_discrete(labels = function(x) paste0(">", x)) +
+  ggplot2::scale_y_continuous(labels = function(x) paste0(x*100, "%"),
                      limits = c(0, 1),
                      breaks=seq(0,1,.2)) +
   facet_wrap(~Scientific_Name)
@@ -586,7 +586,7 @@ if (var_sframe == "Nahuku/East Rift") {
 }
 
 path_var <- paste0("C:/Users/JJGross/OneDrive - DOI/Documents/Certification_Local/2021-2022 Certification/R_output/", var_folder_sframe, "/")
-filename_var <- paste0("trans_", str_pad(var_trans_num, 2, pad = "0"), "_spp-cover_x_freq.png")
+filename_var <- paste0("trans_", stringr::str_pad(var_trans_num, 2, pad = "0"), "_spp-cover_x_freq.png")
 filename_var
 ggsave(filename = filename_var, path = path_var, height = 10, width = 20)
 
