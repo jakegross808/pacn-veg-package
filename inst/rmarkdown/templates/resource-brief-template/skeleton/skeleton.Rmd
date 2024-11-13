@@ -1,6 +1,6 @@
 ---
 author: "Pacific Island Inventory & Monitoring Network (PACN)"
-date: "17 OCT 2024"
+date: "06 NOV 2024"
 output: 
   bookdown::html_document2:
     toc: true
@@ -19,7 +19,7 @@ params:
   access_dbs: !expr c("established_invasives_BE_master_20240715.mdb", "2021-2022_established_invasives_20241016.mdb", "2023_established_invasives_20241004.mdb")
   protocol: !expr c("EIPS", "FTPC")
   park: !expr NA
-  sample_frame: "Olaa"
+  sample_frame: "Puu Alii"
   cycle: !expr NA 
   plot_type: !expr NA
   is_qa_plot: !expr NA
@@ -72,6 +72,14 @@ access_dbs <- here(params$data_folder, params$access_dbs)
 data <- LoadPACNVeg(ftpc_params = "pacnveg", eips_paths = access_dbs, 
                     cache = TRUE, force_refresh = FALSE)
 
+# Specify protocol (whether or not to include EIPS based on sampling frame)
+no_EIPS <- c("Guam", "Tau", "Tutuila", "Puu Alii", "Kaloko-Honokohau")
+if (params$sample_frame %in% no_EIPS) {
+  var_protocol <- "FTPC"
+} else {
+  var_protocol <- c("FTPC", "EIPS")
+}
+
 # Get park name
 names <- readxl::read_xlsx(here::here("R", "PACN_veg_names.xlsx")) %>%
   dplyr::filter(Sampling_Frame == params$sample_frame)
@@ -115,15 +123,25 @@ knitr::include_graphics(front_photo)
 
 # Background
 
-The Pacific Island Inventory and Monitoring Network (PACN) monitors... <selected plant community type> 
-<describe location, elevation, rainfall, unique aspects, etc.> 
+The National Park's Pacific Island Inventory and Monitoring Network (PACN) monitors plant communities at the following locations:
+```{r}
+pacn_veg_locations <- FilterPACNVeg(data_name = "Presence") |>
+  rename(`Park Code` = Unit_Code, `Plant Community` = Community, Location = Sampling_Frame_Formal) |>
+  select(`Park Code`, `Plant Community`, Location) |>
+  distinct() |>
+  arrange(desc(`Plant Community`), `Park Code`) |>
+  na.omit() 
+
+knitr::kable(pacn_veg_locations, format = "html")
+```
+
 
 ```{r include=FALSE}
 main_map_cap <- paste("All community plots (squares) and non-native transects (cirle with line) monitored within the", samp_frame, "-", community, "Plant Community. Fixed plots = blue; Rotational plots = red.")
 ```
 
 ```{r sampling-map, echo=FALSE, fig.cap= paste(main_map_cap), message=FALSE, warning=FALSE}
-MapPACNVeg(sample_frame = params$sample_frame)
+MapPACNVeg(sample_frame = params$sample_frame, protocol = var_protocol)
 ```
 
 # Methods
@@ -335,36 +353,47 @@ knitr::include_graphics(here("inst", "rmarkdown", "dummy_fig.PNG"))
 ### Non-native Species
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE}
-test_data <- v_EIPS_prep(sample_frame = params$sample_frame)
+if ("EIPS" %in% var_protocol) {
+  test_data <- v_EIPS_prep(sample_frame = params$sample_frame)
 
-### Non-Native Species
-v_EIPS_map_interstation(.data = test_data,
+  ### Non-Native Species
+  v_EIPS_map_interstation(.data = test_data,
                         parameter = "Mean_Species_Cover",
                         change = FALSE)
+}
 ```                        
 
 ### Non-Native Cover (Total)
 
 ```{r message=FALSE, warning=FALSE, echo=FALSE}
-v_EIPS_map_interstation(.data = test_data,
+
+if ("EIPS" %in% var_protocol) {
+  v_EIPS_map_interstation(.data = test_data,
                         parameter = "Mean_Total_Cover",
                         change = FALSE,
                         agol_sample_frame = "Haleakalā Subalpine")  # TODO: create sample frame to AGOL sample frame crosswalk
+}
+
 ```
 
 ### Non-Native Richness
 
 ```{r message=FALSE, warning=FALSE, echo=FALSE}
-v_EIPS_map_interstation(.data = test_data,
+if ("EIPS" %in% var_protocol) {
+  v_EIPS_map_interstation(.data = test_data,
                         parameter = "Max_Richness",
                         change = FALSE)
+}
+
 ```
 
 
 ```{r eval=FALSE, message=FALSE, warning=FALSE, include=FALSE}
-v_EIPS_map_interstation(.data = test_data,
+if ("EIPS" %in% var_protocol) {
+  v_EIPS_map_interstation(.data = test_data,
                         parameter = "Mean_Species_Cover",
                         change = TRUE)
+}
 ```
 
 ## Tree Data

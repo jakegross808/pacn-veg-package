@@ -35,7 +35,7 @@ is.vector(weird)
 str(weird)
 typeof(weird)
 
-typeof(x)
+str(x)
 typeof(c(TRUE, TRUE, FALSE))
 
 # Use $ to select a column (vector) in dataframe
@@ -45,16 +45,23 @@ is.vector(df$x)
 plot(df)
 
 # Add another vector (column) to dataframe
-df$z <- c("A", "B", "C")
+df$z <- c("A", "A", "B")
 df
 plot(df)
+df$z
 
+str
+
+str(z)
 ?str
-str(x)
+str(df$z)
+
+new_object_z <- df$z
+str(new_object_z)
+
 str(df$x)
 str(df$z)
-str(z)
-z
+
 str(df)
 
 is.vector(x)
@@ -72,13 +79,20 @@ library(ggplot2)
 
 plot2cont_vars <- ggplot(df, aes(x,y))
 
+ggplot(df, aes(x,y)) +
+  geom_label(aes(label = x))
+
+plot2cont_vars
+
 plot2cont_vars + geom_label(aes(label = x))
-plot2cont_vars + geom_point(color = "red")
-plot2cont_vars + geom_smooth(method = lm)
+plot2cont_vars + geom_label(aes(label = x)) + geom_point(color = "red")
+
+plot2cont_vars + geom_smooth(method = lm) + geom_point(color = "red")
 
 plot_1disc_1cont <- ggplot(df, aes(z,y))
 
 plot_1disc_1cont + geom_col()
+df
 
 # Three variables
 ggplot(df, aes(x,y, color = z)) +
@@ -130,7 +144,7 @@ plot3 <- plot2 %>%
          stems = count)
 plot3
 
-
+# Functions
 new_plot <- function(operator, amount) {
   count <- c(1,2,3)
   stems <- c(2,4,6)
@@ -153,8 +167,11 @@ new_plot <- function(operator, amount) {
 
 }
 
-new_plot(operator = "add", amount = 100)
+new_plot(operator = "add", amount = 50)
 new_plot(operator = "mult", amount = 1)
+new_plot(operator = "mult", amount = 3)
+new_plot(operator = "mult", amount = 5)
+new_plot(operator = "mult", amount = 6)
 
 user <- "jake"
 user <- "kathy"

@@ -10,7 +10,7 @@ names(FilterPACNVeg())
 
 
 # Understory - Summarize ----
-var_samp_frame <- "Olaa"
+var_samp_frame <- "Puu Alii"
 
 understory <- FilterPACNVeg(data_name = "Understory",
                               sample_frame = var_samp_frame) |>
@@ -50,13 +50,21 @@ under_hits_col <- under_hits %>%
   geom_col()
 under_hits_col
 
+under_hits_bar <- under_hits %>%
+  ggplot(aes(x = Year, y = Cover)) +
+  geom_point() +
+  stat_summary(fun.data = "mean_cl_boot", colour = "red", linewidth = 1, size = 1)
+
+under_hits_bar
+
+
 pacnvegetation::v_cover_bar_stats(plant_grouping = "None",
                                   sample_frame = paste(var_samp_frame),
                                   combine_strata = TRUE)
 
 pacnvegetation::v_cover_bar_stats(plant_grouping = "Nativity",
                                   sample_frame = paste(var_samp_frame),
-                                  combine_strata = TRUE)
+                                  combine_strata = FALSE)
 
 pacnvegetation::v_cover_bar_stats(plant_grouping = "Life_Form",
                                   sample_frame = paste(var_samp_frame),
@@ -138,7 +146,11 @@ presence <- FilterPACNVeg(data_name = "Presence",
                               sample_frame = "Haleakala")
 
 
-
-
-
 ?FilterPACNVeg
+understory_spp_trends_rank(sample_frame = "Puu Alii", paired_change = TRUE, top_n = 10, rank_by = "positive", remove_nativity = "Native")
+pacnvegetation:::understory_spp_trends_rank(sample_frame = "Puu Alii", paired_change = FALSE, remove_nativity = "Native")
+pacnvegetation:::understory_spp_trends_rank(sample_frame = "Puu Alii", paired_change = TRUE, remove_nativity = "Native")
+
+pacnvegetation::understory_spp_trends_rank(sample_frame = "Puu Alii", paired_change = FALSE, top_n = 5, rank_by = "positve", remove_nativity = "Native")
+
+understory_spp_trends_rank(sample_frame = "Puu Alii", paired_change = TRUE, top_n = 10, rank_by = "negative")

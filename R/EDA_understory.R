@@ -1295,7 +1295,7 @@ understorySpeciesCover2 <- function(sample_frame, cycle,
 #'
 #' }
 
-understory_spp_trends_rank <- function(combine_strata = TRUE, plant_grouping = "Species", paired_change = TRUE, sample_frame = sample_frame, top_n = 5, rank_by = "positive", remove_nativity = NULL) {
+understory_spp_trends_rank <- function(combine_strata = TRUE, plant_grouping = "Species", paired_change = TRUE, sample_frame = sample_frame, cycle = cycle, top_n = 5, rank_by = "positive", remove_nativity = NULL) {
 
   if (missing(sample_frame)) {
     stop("sample_frame variable is missing")
@@ -1306,7 +1306,8 @@ understory_spp_trends_rank <- function(combine_strata = TRUE, plant_grouping = "
     combine_strata = combine_strata,
     plant_grouping = plant_grouping,
     paired_change = paired_change,
-    sample_frame = sample_frame)
+    sample_frame = sample_frame,
+    cycle = cycle)
 
   if ("Nahuku/East Rift" %in% sample_frame) {
     # Temporary solution until zone/mgmt layer incorporated into package:
@@ -1475,7 +1476,8 @@ understory_spp_trends_rank <- function(combine_strata = TRUE, plant_grouping = "
       stat_summary(mapping=aes(group=Code), fun.data=mean_cl_boot, geom="pointrange", position = position_dodge(.2)) +
       facet_grid(cols = vars(Scientific_Name), rows = vars(Sampling_Frame)) +
       theme(legend.position = "none") +
-      labs(caption = paste(plot_counts_vector, collapse = ", "))
+      labs(y = "Understory Cover (%)", caption = paste(plot_counts_vector, collapse = ", "))
+
   }
 
   return(out_graph)

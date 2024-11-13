@@ -1,9 +1,12 @@
 library(pacnvegetation)
 library(tidyverse)
-library(leaflet)
-
+#library(leaflet)
 
 #--- 1. Read latest cache ------------------------------------------------------
+
+LoadPACNVeg(force_refresh = FALSE, eips_paths = "foo")
+
+#--- 2. Update latest cache ------------------------------------------------------
 
 #** Download latest FTPC and EIPS data first!*
 
@@ -22,6 +25,9 @@ names(FilterPACNVeg())
 
 
 ###--- Quick checks -------
+FilterPACNVeg(data_name = "Presence") |>
+  select(Unit_Code, Community, Sampling_Frame_Formal) |>
+  distinct()
 
 FTPC_SF <- FilterPACNVeg(data_name = "Presence") |>
   select(Sampling_Frame) |>
@@ -51,7 +57,7 @@ anti_join(EIPS_SF_formal, FTPC_SF_formal)
 
 #--- 2. variable specification -------------------------------------------------
 
-var_sframe <- "Olaa"
+var_sframe <- "Puu Alii"
 
 #nahuku_plots <- c(1, 4, 10, 12, 13, 14, 15, #fixed
 #                  46, 49, 51, 52, 54, 55, 56, 58, #2021 rotational
@@ -126,8 +132,8 @@ all_pres_count <- all_pres |>
 
 
 ## Presence Dot Plots-----------------------------------------------------------
-var_plot_numbers <- c(1)
-var_sframe <- "Olaa"
+var_plot_numbers <- c(1:15, 46:60)
+var_sframe <- "Mauna Loa"
 save_folder_var <- "C:/Users/JJGross/OneDrive - DOI/Documents/Certification_Local/2021-2022 Certification/R_output"
 
 for (x in var_plot_numbers) {
@@ -136,12 +142,13 @@ for (x in var_plot_numbers) {
                        save_folder = save_folder_var)
 }
 
-pacnvegetation:::qc_spp_pres_dot_plot(sample_frame = var_sframe,
+pacnvegetation::qc_spp_pres_dot_plot(sample_frame = var_sframe,
                                       plot_number = 1,
                                       save_folder = save_folder_var)
 
 ## Understory spp consistency chk ----------------------------------------------
-var_plot_number <- 1
+var_plot_number <- c(1)
+
 pacnvegetation::v_cover_bar_stats(plant_grouping = "Species",
                                   sample_frame = var_sframe,
                                   combine_strata = FALSE,
@@ -151,6 +158,7 @@ pacnvegetation::v_cover_bar_stats(plant_grouping = "Species",
 chk_cover <- pacnvegetation::summarize_understory(combine_strata = TRUE,
                                      plant_grouping = "Species",
                                      sample_frame = var_sframe)
+chk_cover
 
 path_var <- paste0("C:/Users/JJGross/OneDrive - DOI/Documents/Certification_Local/2021-2022 Certification/R_output/", var_sframe, "/")
 filename_var_v_cover <- paste0("v_cover_plot_spp_", var_plot_number, ".png")
@@ -581,3 +589,17 @@ path_var <- paste0("C:/Users/JJGross/OneDrive - DOI/Documents/Certification_Loca
 filename_var <- paste0("trans_", str_pad(var_trans_num, 2, pad = "0"), "_spp-cover_x_freq.png")
 filename_var
 ggsave(filename = filename_var, path = path_var, height = 10, width = 20)
+
+
+
+# Final Species List ----
+# Local Path to Veg Spp database
+veg_species_db_folder <-  "C:/Users/JJGross/Documents/Databases_copied_local/Veg_species_db"
+# If only one database in folder, this will grab full path:
+veg_species_db_full_path <- list.files(veg_species_db_folder,full.names = TRUE)
+veg_species_db_full_path
+# Get raw data from Veg Species Database:
+raw_spp_data <- read_spp_db(veg_species_db_full_path)
+
+# Get master species list for a park (with ID_Field for field maps):
+spp_list_master <- master_spp_list(veg_species_db_full_path, sample_frame = "Puu Alii")
