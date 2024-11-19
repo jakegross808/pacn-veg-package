@@ -577,12 +577,12 @@ ReadEIPS <- function(db_paths) {
     # Events (e.g. The date the plot was sampled, QA/QC records)
     # Extra
     Events_extra <-  dplyr::tbl(conn, "tbl_Events") %>%
+      dplyr::collect()   %>%
       # add "Year" (year sampled) and "Cycle" (sample cycle)
       dplyr::mutate(Year = lubridate::year(Start_Date)) %>%
       dplyr::mutate(Cycle = ifelse(Year <= 2014, 1,
                                    ifelse(Year >= 2015 & Year <= 2020, 2,
-                                          ifelse(Year >= 2021, 3, NA)))) %>%
-      dplyr::collect()
+                                          ifelse(Year >= 2021, 3, NA))))
 
     Events_extra <- Events_extra %>%
       dplyr::left_join(y = tbl_Transects_extra, by = "Transect_ID") %>%
