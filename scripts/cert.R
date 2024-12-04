@@ -57,7 +57,7 @@ anti_join(EIPS_SF_formal, FTPC_SF_formal)
 
 #--- 2. variable specification -------------------------------------------------
 
-var_sframe <- "Puu Alii"
+var_sframe <- "Mauna Loa"
 
 #nahuku_plots <- c(1, 4, 10, 12, 13, 14, 15, #fixed
 #                  46, 49, 51, 52, 54, 55, 56, 58, #2021 rotational
@@ -147,7 +147,7 @@ pacnvegetation::qc_spp_pres_dot_plot(sample_frame = var_sframe,
                                       save_folder = save_folder_var)
 
 ## Understory spp consistency chk ----------------------------------------------
-var_plot_number <- c(1)
+var_plot_number <- c(15)
 
 pacnvegetation::v_cover_bar_stats(plant_grouping = "Species",
                                   sample_frame = var_sframe,
@@ -165,6 +165,8 @@ filename_var_v_cover <- paste0("v_cover_plot_spp_", var_plot_number, ".png")
 filename_var_v_cover
 ggsave(filename = filename_var_v_cover, path = path_var, height = 10, width = 15)
 #---
+
+pacnvegetation::understory_spp_trends_rank(sample_frame = "Mauna Loa", spe)
 
 #v_cover_bar_spp_plot(sample_frame = "Olaa", crosstalk_filters = TRUE, crosstalk_group = "spp_plot1")
 

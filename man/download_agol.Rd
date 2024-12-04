@@ -9,7 +9,8 @@ download_agol(
   temp_dest,
   sharepoint_dest,
   master_spreadsheet_folder,
-  after_date_filter = NA,
+  after_date_filter = NA_real_,
+  auto_date_filter = FALSE,
   only_staff = FALSE,
   test_run = FALSE
 )
@@ -24,6 +25,8 @@ download_agol(
 \item{master_spreadsheet_folder}{Location of current excel spreadsheet if appending table data from new downloads to it. Needs to be only one excel spreadsheet in the folder.}
 
 \item{after_date_filter}{POSIXct date object. Only records after date will be returned. Example: after_date_filter = lubridate::mdy_hms("09/12/2024 18:00:00", tz = "HST")}
+
+\item{auto_date_filter}{TRUE/FALSE. If TRUE, after_date_filter is auto-populated with the latest photo data in the master spreadsheet. Default set to FALSE.}
 
 \item{only_staff}{if true, downloads just the staff photos.}
 

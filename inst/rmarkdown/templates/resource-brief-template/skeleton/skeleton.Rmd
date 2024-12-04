@@ -19,7 +19,7 @@ params:
   access_dbs: !expr c("established_invasives_BE_master_20240715.mdb", "2021-2022_established_invasives_20241016.mdb", "2023_established_invasives_20241004.mdb")
   protocol: !expr c("EIPS", "FTPC")
   park: !expr NA
-  sample_frame: "Puu Alii"
+  sample_frame: "Mauna Loa"
   cycle: !expr NA 
   plot_type: !expr NA
   is_qa_plot: !expr NA
@@ -48,7 +48,7 @@ div.plotly {
 ```
 
 ```{r packages, include=FALSE}
-#library(tidyverse)
+library(tidyverse)
 library(kableExtra)
 library(leaflet)
 library(pacnvegetation)
@@ -63,7 +63,6 @@ library(crosstalk)
 library(htmltools)
 library(sparkline)
 ```
-
 
 ```{r load data, include=FALSE}
 access_dbs <- here(params$data_folder, params$access_dbs)
@@ -123,32 +122,42 @@ knitr::include_graphics(front_photo)
 
 # Background
 
-The National Park's Pacific Island Inventory and Monitoring Network (PACN) monitors plant communities at the following locations:
-```{r}
+The National Park's Pacific Island Inventory and Monitoring Network (PACN) monitors plant communities at the following locations (this report shows `r samp_frame` data only):
+
+```{r echo=FALSE, message=FALSE, warning=FALSE, layout="l-body-outset"}
 pacn_veg_locations <- FilterPACNVeg(data_name = "Presence") |>
-  rename(`Park Code` = Unit_Code, `Plant Community` = Community, Location = Sampling_Frame_Formal) |>
-  select(`Park Code`, `Plant Community`, Location) |>
+  rename(`Park Code` = Unit_Code, `Plant Community` = Community, `Location in Park` = Sampling_Frame_Formal) |>
+  select(`Plant Community`, `Park Code`, `Location in Park`) |>
   distinct() |>
   arrange(desc(`Plant Community`), `Park Code`) |>
   na.omit() 
 
-knitr::kable(pacn_veg_locations, format = "html")
+pacn_veg_locations |>
+  kable(booktabs = T) %>%
+  kable_styling() %>%
+  row_spec(which(pacn_veg_locations$`Location in Park` == samp_frame), bold = T, color = "white", background = "darkgreen")
 ```
 
+```{r message=FALSE, warning=FALSE, include=FALSE}
+sites <- PlotAndTransectLocations(sample_frame = params$sample_frame, protocol = var_protocol)
+
+sites |>
+  select()
+```
+
+**Map of `r samp_frame` monitoring sites**
 
 ```{r include=FALSE}
 main_map_cap <- paste("All community plots (squares) and non-native transects (cirle with line) monitored within the", samp_frame, "-", community, "Plant Community. Fixed plots = blue; Rotational plots = red.")
 ```
 
-```{r sampling-map, echo=FALSE, fig.cap= paste(main_map_cap), message=FALSE, warning=FALSE}
+```{r sampling-map, out.width = '100%', echo=FALSE, fig.cap= paste(main_map_cap), message=FALSE, warning=FALSE}
 MapPACNVeg(sample_frame = params$sample_frame, protocol = var_protocol)
 ```
 
 # Methods
 
-X fixed plots and X fixed transects were monitored in <Years> 
-Numbers can be auto calculated here.
-(Figure \@ref(fig:sampling-map)).
+X fixed plots and X fixed transects were monitored in <Years> Numbers can be auto calculated here. (Figure \@ref(fig:sampling-map)).
 
 -   Understory Cover: Plant species understory cover was sampled within 50 x 20 m plots. Two height layers were recorded: 0-1 m from ground (Low) and 1-2 m from ground (High). Cover data was collected using the pole-intercept method (Ainsworth et al. 2011).
 
@@ -182,44 +191,18 @@ sunburst_all
 htmltools::span(class = "dummy-fig")
 knitr::include_graphics(here("inst", "rmarkdown", "dummy_fig.PNG"))
 ```
-<br/>
-<br/>
+
+<br/> <br/>
+
 ```{r echo=FALSE, warning=FALSE, message=FALSE}
 
 understoryBarCover(params$sample_frame)
 ```
+
 ```{r avg-cover-bar, echo=FALSE, fig.cap= "Average understory species cover across the monitoring area (Fixed AND Rotational plots included) by management unit and monitoring cycle", message=FALSE, warning=FALSE, out.height="0px"}
 # Dumb hack to get fig caption to show below plot + map
 htmltools::span(class = "dummy-fig")
 knitr::include_graphics(here("inst", "rmarkdown", "dummy_fig.PNG"))
-```
-
-
-```
-und <- understorySpeciesCover(sample_frame = params$sample_frame) %>%
-  dplyr::mutate(Cycle = as.factor(Cycle),
-                all = "Select all",
-                hovertext = paste(Scientific_Name, Nativity, paste0(Avg_Cover, "%"), sep = "\n")) %>%
-  dplyr::filter(Avg_Cover > 0) %>%
-  dplyr::group_by(GROUP_COL)
-
-avg_cover_table <- und %>%
-  select(Code, Cycle, Scientific_Name, Life_Form, Nativity, plots_present, Avg_Cover, Std_Dev) %>%
-  dplyr::mutate(Avg_Cover = Avg_Cover*100,
-         Std_Dev = Std_Dev*100) %>%
-  dplyr::arrange(-Avg_Cover)
-
-names(avg_cover_table) <- gsub("_", " ", names(avg_cover_table)) %>% str_to_title()  # Make column names nicer for display
-
-add_table_caption("Average understory species cover.")
-pacn_dt(avg_cover_table)
-# cat("<table>",paste0("<caption>", "(\\#tab:avgcover)", " Average understory species cover.", "</caption>"),"</table>", sep ="\n")
-
-# avg_cover_table %>%
-#   kbl(digits = 1, align = "c",
-#       caption = "Average understory species cover.") %>%
-#   kable_styling(bootstrap_options = c("striped", "condensed")) %>%
-#   scroll_box(height = "300px") 
 ```
 
 ## Understory - Total Cover
@@ -231,17 +214,14 @@ pacn_dt(avg_cover_table)
 ```{r bar-tot-cover-graph, echo=FALSE, fig.cap=paste0("Total native and non-native cover from ", years[length(years)-1], "-", max(years), " (Mean +/- 95% CI). High = Understory 1-2 m; Low = Understory 0-1 m."), message=FALSE, warning=FALSE}
 v_cover_plot_bar_nativity(sample_frame = params$sample_frame, paired_change = FALSE, param = "Cover")
 ```
-<br>
-<br>
-<br>
+
+<br> <br> <br>
 
 ### Plot Level
 
--   <Highlght overall picture of native vs. non-native cover across all plots and highlight plots of high or low non-native cover if appropriate>  (Figure \@ref(fig:tot-cover-graph)).
+-   \<Highlght overall picture of native vs. non-native cover across all plots and highlight plots of high or low non-native cover if appropriate\> (Figure \@ref(fig:tot-cover-graph)).
 
 -   <Describe the magnitude of difference between plots if appropriate>.
-
-
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE}
 grp1 <- "cov_total"
@@ -269,20 +249,17 @@ htmltools::span(class = "dummy-fig")
 knitr::include_graphics(here("inst", "rmarkdown", "dummy_fig.PNG"))
 ```
 
-<br>
-<br>
-<br>
+<br> <br> <br>
 
 #### Check understory cover within a specific plot:
+
 ```{r echo=FALSE, message=FALSE, warning=FALSE, fig.cap= paste0("Choose a 'Year' and 'Plot #' for left figure and right figure to compare species understory cover at specific location or time.")}
 plot_v_plot1 <- v_cover_bar_spp_plot(sample_frame = params$sample_frame, crosstalk_filters = TRUE, crosstalk_group = "spp_plot1")
 plot_v_plot2 <- v_cover_bar_spp_plot(sample_frame = params$sample_frame, crosstalk_filters = TRUE, crosstalk_group = "spp_plot2")
 bscols(plot_v_plot1, plot_v_plot2, widths = c(6,6))
 ```
 
-<br>
-<br>
-<br>
+<br> <br> <br>
 
 ```{r tot-cover-table, eval=FALSE, message=FALSE, warning=FALSE, include=FALSE}
 cover_by_nativity <- UnderNativityCover(rm_unk_natv = TRUE, 
@@ -299,18 +276,17 @@ pacn_dt(cover_by_nativity)
 
 ```
 
-## Understory - Change in Cover 
+## Understory - Change in Cover
 
 ### Community Level
 
--   Paired change in cover between fixed plots indicated...
-<Highlight total change in native vs non-native cover across all plots> (Figure \@ref(fig:bar-tot-cover-chg-graph)).
+-   Paired change in cover between fixed plots indicated... <Highlight total change in native vs non-native cover across all plots> (Figure \@ref(fig:bar-tot-cover-chg-graph)).
 
 ```{r bar-tot-cover-chg-graph, echo=FALSE, fig.cap=paste0("Total change in native and non-native cover from ", years[length(years)-1], "-", max(years), " (Mean +/- 95% CI). High = Understory 1-2 m; Low = Understory 0-1 m."), message=FALSE, warning=FALSE}
 v_cover_plot_bar_nativity(sample_frame = params$sample_frame, paired_change = TRUE, param = "Chg_Per_Year")
 ```
 
-### Plot Level 
+### Plot Level
 
 -   Highlight particular plots with high/low amount of change (Figure \@ref(fig:chg-cover-graph)).
 
@@ -335,10 +311,7 @@ map <- MapCoverChange(crosstalk = TRUE, crosstalk_group = grp, sample_frame = pa
 bscols(plt, map)
 ```
 
-
-
 ## Presence/Absence
-
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE}
 # Get the number of plots monitored for each year for the table caption. 
@@ -369,9 +342,8 @@ v_presence_table(sample_frame = params$sample_frame, table_type = "html")
 htmltools::span(class = "dummy-fig")
 knitr::include_graphics(here("inst", "rmarkdown", "dummy_fig.PNG"))
 ```
-<br>
-<br>
-<br>
+
+<br> <br> <br>
 
 ## Invasive Plant Transect Data
 
@@ -386,7 +358,7 @@ if ("EIPS" %in% var_protocol) {
                         parameter = "Mean_Species_Cover",
                         change = FALSE)
 }
-```                        
+```
 
 ### Non-Native Cover (Total)
 
@@ -412,7 +384,6 @@ if ("EIPS" %in% var_protocol) {
 
 ```
 
-
 ```{r eval=FALSE, message=FALSE, warning=FALSE, include=FALSE}
 if ("EIPS" %in% var_protocol) {
   v_EIPS_map_interstation(.data = test_data,
@@ -423,7 +394,7 @@ if ("EIPS" %in% var_protocol) {
 
 ## Tree Data
 
-``` 
+```         
 # 1-3 graphs & 1-3 tables 
 
 1. Total Native vs. Non-native Basal Area
@@ -431,18 +402,16 @@ if ("EIPS" %in% var_protocol) {
 3. Basal Area total & change for a particular species of interest (site specific). 
 
 (not appropriate for all sites - for example, no Trees in Haleakala subalpine) 
-
 ```
+
 ## Shrub / Tree-fern / Vine Data
 
-``` 
+```         
 # 1-3 graphs & 1-3 tables 
 
 1. Count/ha of Native vs. Non-native 
 2. Change in count/ha of Native & Non-native 
 3. Particular species of interest (site specific). 
-
-
 ```
 
 # Summary
@@ -453,11 +422,10 @@ if ("EIPS" %in% var_protocol) {
 
 -   Summary text here.
 
-
 # References
 
 | [Ainsworth, A., J.D. Jacobi, R. K. Loh, J.A. Christian, C. Yanger, and P. Berkowitz. 2012. Established invasive plant species monitoring protocol: Pacific Island Network. Natural Resource Report NPS/ PACN/NRR---2012/514. National Park Service, Fort Collins, Colorado.](https://irma.nps.gov/DataStore/DownloadFile/448810)
-|
+| 
 | [Ainsworth, A., Berkowitz, P., Jacobi, J.D., Loh, R.K., & Kozar, K. 2011. Focal Terrestrial Plant Communities Monitoring Protocol: Pacific Island Network. Natural Resource Report NPS/PACN/NRR---2011/410. National Park Service, Fort Collins, Colorado.](https://irma.nps.gov/DataStore/DownloadFile/429572)
 
 ## More Information
@@ -470,7 +438,6 @@ if ("EIPS" %in% var_protocol) {
 | 
 | [Vital Signs: Pacific Island Inventory & Monitoring Network](https://www.nps.gov/im/pacn/monitoring.htm)
 | [Reports & Publications (U.S. National Park Service) (nps.gov)](https://www.nps.gov/im/pacn/reports-publications.htm)
-
 
 ```{js fix-filtering, echo=FALSE, message=FALSE, warning=FALSE}
 function filter_default(){

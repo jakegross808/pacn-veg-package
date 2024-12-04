@@ -9,6 +9,7 @@ understory_spp_trends_rank(
   plant_grouping = "Species",
   paired_change = TRUE,
   sample_frame = sample_frame,
+  cycle = cycle,
   top_n = 5,
   rank_by = "positive",
   remove_nativity = NULL
@@ -28,6 +29,8 @@ Note that the other options in summarize_understory() have not been tested yet f
 If \code{TRUE}, drops "Rotational" plots and uses only "Fixed" plots for analysis, in addition, the geom_jitter points are connected with lines to show trends for each plot across cycles.}
 
 \item{sample_frame}{Name of sample frame}
+
+\item{cycle}{Monitoring cycle}
 
 \item{top_n}{default set to top_n = 5. The number of ranked species to include in output (e.g. top 5, top 10, etc.)}
 

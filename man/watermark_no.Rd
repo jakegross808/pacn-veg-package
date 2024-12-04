@@ -21,5 +21,4 @@ Process FTPC, EIPS, & Plant Photos without a watermark
 \dontrun{
 watermark_no(GIS_Table, "new_folder")
 }
-from the Exif data.
 }
