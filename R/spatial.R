@@ -894,14 +894,36 @@ DownloadAGOLAttachments <- function(feature_layer_url,
     tidyr::unnest(cols = attachmentInfos)
 
   if(is.data.frame(master_spreadsheet)) {
-    already_downloaded_records <- master_spreadsheet$id
-    not_downloaded <- !(attachments$id %in% already_downloaded_records)
-    if (any(not_downloaded)) {
-      print(paste("all record on AGOL already listed on master spreadsheet"))
+    already_downloaded_ids <- master_spreadsheet$parentGlobalId
+
+    not_downloaded_ids <- attachments |>
+      dplyr::filter(!parentGlobalId %in% already_downloaded_ids) |>
+      dplyr::select(parentGlobalId) |>
+      dplyr::pull()
+
+    not_downloaded_records <- data |>
+      dplyr::filter(GlobalID %in% not_downloaded_ids) |>
+      dplyr::mutate(created_date = as.POSIXct(created_date/1000, origin="1970-01-01")) |>
+      dplyr::mutate(last_edited_date = as.POSIXct(last_edited_date/1000, origin="1970-01-01"))
+
+    if (any(names(data) == "Photo_Taxon")) {
+      not_downloaded_records <- not_downloaded_records |>
+        dplyr::select(Unit_Code, Samp_Year, Samp_Frame, Site_numb, Staff_List, ID_notes, created_date, OBJECTID, GlobalID)
     } else {
-      print(paste(sum(not_downloaded), "records need downloaded"))
+      not_downloaded_records <- not_downloaded_records |>
+        dplyr::select(Unit_Code, Samp_Year, Samp_Frame, Site_numb, Staff_list, created_date, OBJECTID, GlobalID)
+    }
+
+
+    if (length(not_downloaded_ids > 0)) {
+      print(paste(length(not_downloaded_ids), " photos exsist in AGOL layer that are not listed on master spreadsheet - download is recommended"))
+      print(not_downloaded_records)
+      print(paste(length(not_downloaded_ids), " photos exsist in AGOL layer that are not listed on master spreadsheet - download is recommended"))
+    } else {
+      print(paste("all photos in AGOL are already listed on master spreadsheet - no download needed"))
     }
   }
+
 
   # Join attachment table data to attachment info
   if (is.null(join_cols)) {
@@ -1044,8 +1066,7 @@ DownloadAGOLAttachments <- function(feature_layer_url,
 
   if (only_staff){
     # if true, keep only the staff photos
-    attachments2 <- attachments2 %>%
-      filter(stringr::str_detect(Subject, "Staff"))
+    attachments2 <- attachments2[stringr::str_detect(attachments2$Subject, "Staff"),]
   }
 
   if (!test_run) {
@@ -1116,13 +1137,14 @@ DownloadAGOLAttachments <- function(feature_layer_url,
 #' @param sharepoint_dest The entire path to folder on sharepoint where the photos will be uploaded to.
 #' @param master_spreadsheet_folder Location of current excel spreadsheet if appending table data from new downloads to it. Needs to be only one excel spreadsheet in the folder.
 #' @param after_date_filter POSIXct date object. Only records after date will be returned. Example: after_date_filter = lubridate::mdy_hms("09/12/2024 18:00:00", tz = "HST")
+#' @param auto_date_filter TRUE/FALSE. If TRUE, after_date_filter is auto-populated with the latest photo data in the master spreadsheet. Default set to FALSE.
 #' @param only_staff if true, downloads just the staff photos.
 #' @param test_run If `TRUE`, returns attachment data as R object and proposed file locations without actually downloading, saving attachments, or exporting .csv.
 #'
 #' @return All the photos from a AGOL layer (EIPS photos, FTPC photos, and Plant Photo layers) along with a .csv of the point attributes and metadata.
 #' @export
 #'
-download_agol <- function(photo_layers, temp_dest, sharepoint_dest, master_spreadsheet_folder, after_date_filter = NA, only_staff = FALSE, test_run = FALSE){
+download_agol <- function(photo_layers, temp_dest, sharepoint_dest, master_spreadsheet_folder, after_date_filter = NA_real_, auto_date_filter = FALSE, only_staff = FALSE, test_run = FALSE){
   for (layer in photo_layers){
     print(paste("starting download for", layer))
 
@@ -1192,8 +1214,15 @@ download_agol <- function(photo_layers, temp_dest, sharepoint_dest, master_sprea
       # Add one minute because excel did not import seconds for some reason:
       m_last_date_tz_1 <- m_last_date_tz + 60
 
-      after_date_filter <- m_last_date_tz_1
-      print(paste("The most recent photo downloaded (per the master spreadsheet) was taken on", after_date_filter))
+      if (auto_date_filter == TRUE) {
+        after_date_filter <- m_last_date_tz_1
+        print(paste("auto_date_filter == TRUE: Only downloaded photos after most recent photo on the master spreadsheet:", after_date_filter))
+      } #else if (after_date_filter != NA) {
+        #after_date_filter <- after_date_filter
+      #}
+
+
+
       var_master_spreadsheet <- mtable
     }
 
