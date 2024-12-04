@@ -1295,7 +1295,14 @@ understorySpeciesCover2 <- function(sample_frame, cycle,
 #'
 #' }
 
-understory_spp_trends_rank <- function(combine_strata = TRUE, plant_grouping = "Species", paired_change = TRUE, sample_frame = sample_frame, cycle = cycle, top_n = 5, rank_by = "positive", remove_nativity = NULL) {
+understory_spp_trends_rank <- function(combine_strata = TRUE,
+                                       plant_grouping = "Species",
+                                       paired_change = TRUE,
+                                       sample_frame = sample_frame,
+                                       cycle = cycle,
+                                       top_n = 5,
+                                       rank_by = "positive",
+                                       remove_nativity = NULL) {
 
   if (missing(sample_frame)) {
     stop("sample_frame variable is missing")
@@ -1307,7 +1314,12 @@ understory_spp_trends_rank <- function(combine_strata = TRUE, plant_grouping = "
     plant_grouping = plant_grouping,
     paired_change = paired_change,
     sample_frame = sample_frame,
-    cycle = cycle)
+    cycle = cycle,
+    community = community,
+    year = year,
+    plot_number = plot_number,
+    species_code = species_code,
+    park = park)
 
   if ("Nahuku/East Rift" %in% sample_frame) {
     # Temporary solution until zone/mgmt layer incorporated into package:
@@ -1332,12 +1344,12 @@ understory_spp_trends_rank <- function(combine_strata = TRUE, plant_grouping = "
 
   # plot count
   plot_counts_table <- und_spp |>
-    group_by(Cycle, Year, Sampling_Frame, Scientific_Name) |>
-    summarise(plots = n_distinct(Plot_Number)) |>
-    mutate(plots_text = paste0(Year, " [n=", plots, "]"))
+    dplyr::group_by(Cycle, Year, Sampling_Frame, Scientific_Name) |>
+    dplyr::summarise(plots = n_distinct(Plot_Number)) |>
+    dplyr::mutate(plots_text = paste0(Year, " [n=", plots, "]"))
 
   plot_counts_vector <- plot_counts_table |>
-    pull(plots_text) |>
+    dplyr::pull(plots_text) |>
     unique()
 
   plot_counts_vector
@@ -1345,7 +1357,7 @@ understory_spp_trends_rank <- function(combine_strata = TRUE, plant_grouping = "
   # rank by max change per year in a plot
   if (!is.null(remove_nativity)) {
     und_spp <- und_spp |>
-      filter(Nativity != remove_nativity)
+      dplyr::filter(Nativity != remove_nativity)
   }
 
 
@@ -1358,23 +1370,23 @@ understory_spp_trends_rank <- function(combine_strata = TRUE, plant_grouping = "
 
   if (rank_by == "positive") {
     max_chg_rank <- und_spp |>
-      group_by(Sampling_Frame, Scientific_Name, Code) |>
-      slice_max(.data[[ranking_stat]], n = 1, with_ties = FALSE) |>
-      arrange(desc(.data[[ranking_stat]])) |>
+      dplyr::group_by(Sampling_Frame, Scientific_Name, Code) |>
+      dplyr::slice_max(.data[[ranking_stat]], n = 1, with_ties = FALSE) |>
+      dplyr::arrange(desc(.data[[ranking_stat]])) |>
       head(top_n)
   }
 
   if (rank_by == "negative") {
     max_chg_rank <- und_spp |>
-      group_by(Sampling_Frame, Scientific_Name, Code) |>
-      slice_min(.data[[ranking_stat]], n = 1, with_ties = FALSE) |>
-      arrange(.data[[ranking_stat]]) |>
+      dplyr::group_by(Sampling_Frame, Scientific_Name, Code) |>
+      dplyr::slice_min(.data[[ranking_stat]], n = 1, with_ties = FALSE) |>
+      dplyr::arrange(.data[[ranking_stat]]) |>
       head(top_n)
   }
 
   # Get top species for selection
   top_n_baddies <- max_chg_rank |> #increasing fastest in any plot
-    pull(Scientific_Name)
+    dplyr::pull(Scientific_Name)
 
 
 
@@ -1385,38 +1397,38 @@ understory_spp_trends_rank <- function(combine_strata = TRUE, plant_grouping = "
   if (paired_change == FALSE) {
 
     print_baddie <- max_chg_rank |>
-      mutate(print_baddie = paste0(Code, " had ", round(Cover, digits = 1), "% cover in plot ", Plot_Number, " in ", Year))
+      dplyr::mutate(print_baddie = paste0(Code, " had ", round(Cover, digits = 1), "% cover in plot ", Plot_Number, " in ", Year))
     print_baddie$print_baddie
 
 
     # make table that can be used to highlight the max period of change
     max_chg_highlight <- max_chg_rank |>
-      mutate(highlight_this = 'light blue')
+      dplyr::mutate(highlight_this = 'light blue')
 
     library(gghighlight)
 
     und_spp_filter <- und_spp |>
-      filter(Scientific_Name %in% top_n_baddies)
+      dplyr::filter(Scientific_Name %in% top_n_baddies)
 
     #library(ggpubr)
     #ggdensity(und_spp_filter$Cover)
     #ggqqplot(und_spp_filter$Cover)
     #shapiro.test(und_spp_filter$Cover)
     out_graph <- und_spp_filter |>
-      left_join(max_chg_highlight) |>
-      mutate(Scientific_Name = factor(Scientific_Name, top_n_baddies)) |>
-      ggplot(aes(x = Year, y = Cover, group = Code)) +
-      geom_jitter(position=position_jitter(0.1, seed = 1), colour = "grey40", size = 1) +
-      geom_jitter(position=position_jitter(0.1, seed = 1), aes(colour = highlight_this), size = 1) +
+      dplyr::left_join(max_chg_highlight) |>
+      dplyr::mutate(Scientific_Name = factor(Scientific_Name, top_n_baddies)) |>
+      ggplot2::ggplot(aes(x = Year, y = Cover, group = Code)) +
+      ggplot2::geom_jitter(position=position_jitter(0.1, seed = 1), colour = "grey40", size = 1) +
+      ggplot2::geom_jitter(position=position_jitter(0.1, seed = 1), aes(colour = highlight_this), size = 1) +
       stat_summary(geom = "line", fun = mean) +
       # Because shapiro.test shows data not normally distributed use mean_cl_boot for confidence limits
-      stat_summary(mapping=aes(group=Code), fun.data=mean_cl_boot, geom="pointrange", position = position_dodge(.2)) +
-      ggtitle(paste("Understory Cover")) +
-      xlab("Year") +
+      ggplot2::stat_summary(mapping=aes(group=Code), fun.data = ggplot2::mean_cl_boot, geom="pointrange", position = position_dodge(.2)) +
+      ggplot2::ggtitle(paste("Understory Cover")) +
+      ggplot2::xlab("Year") +
       ylab("percent cover (%)") +
-      facet_grid(cols = vars(Scientific_Name), rows = vars(Sampling_Frame)) +
-      theme(legend.position = "none") +
-      labs(caption = paste(plot_counts_vector, collapse = ", "))
+      ggplot2::facet_grid(cols = vars(Scientific_Name), rows = vars(Sampling_Frame)) +
+      ggplot2::theme(legend.position = "none") +
+      ggplot2::labs(caption = paste(plot_counts_vector, collapse = ", "))
   }
 
   #############################################################################-
@@ -1425,58 +1437,58 @@ understory_spp_trends_rank <- function(combine_strata = TRUE, plant_grouping = "
 
   if (paired_change == TRUE) {
     print_baddie <- max_chg_rank |>
-      mutate(print_baddie = paste0(Code, " increased by ", round(Chg_Per_Year, digits = 1), "% cover (per year) in plot ", Plot_Number, " in ", Year))
+      dplyr::mutate(print_baddie = paste0(Code, " increased by ", round(Chg_Per_Year, digits = 1), "% cover (per year) in plot ", Plot_Number, " in ", Year))
     print_baddie$print_baddie
 
     # Get year prior observation values for highlighting time period on graph
     prior_year_join_geom_seg <- max_chg_rank |>
-      mutate(prior_year = as.factor(as.integer(as.character(Year)) - Years_Prior)) |>
-      select(-Cycle) |> # Keep info the same but select prior year
-      select(Unit_Code, Sampling_Frame, Year_End = Year, Year_Start = prior_year,
+      dplyr::mutate(prior_year = as.factor(as.integer(as.character(Year)) - Years_Prior)) |>
+      dplyr::select(-Cycle) |> # Keep info the same but select prior year
+      dplyr::select(Unit_Code, Sampling_Frame, Year_End = Year, Year_Start = prior_year,
              Plot_Number, Code, Scientific_Name) |>
-      left_join(und_spp, by = join_by(Unit_Code, Year_Start == Year, Sampling_Frame, Plot_Number, Code, Scientific_Name)) |>
-      left_join(und_spp, by = join_by(Unit_Code, Year_End == Year, Sampling_Frame, Plot_Number, Code, Scientific_Name)) |>
-      select(Unit_Code, Sampling_Frame, Year_End, Year_Start,
+      dplyr::left_join(und_spp, by = join_by(Unit_Code, Year_Start == Year, Sampling_Frame, Plot_Number, Code, Scientific_Name)) |>
+      dplyr::left_join(und_spp, by = join_by(Unit_Code, Year_End == Year, Sampling_Frame, Plot_Number, Code, Scientific_Name)) |>
+      dplyr::select(Unit_Code, Sampling_Frame, Year_End, Year_Start,
              Plot_Number, Code, Scientific_Name, Cover_Start = Cover.x, Cover_End = Cover.y)
 
     prior_year_join <- max_chg_rank |>
-      mutate(prior_year = as.factor(as.integer(as.character(Year)) - Years_Prior)) |>
-      select(-Cycle, -Year) |> # Keep info the same but select prior year
-      select(Unit_Code, Sampling_Frame, Year = prior_year,
+      dplyr::mutate(prior_year = as.factor(as.integer(as.character(Year)) - Years_Prior)) |>
+      dplyr::select(-Cycle, -Year) |> # Keep info the same but select prior year
+      dplyr::select(Unit_Code, Sampling_Frame, Year = prior_year,
              Plot_Number, Code, Scientific_Name) |>
-      left_join(und_spp, by = join_by(Unit_Code, Year, Sampling_Frame, Plot_Number, Code, Scientific_Name))
+      dplyr::left_join(und_spp, by = join_by(Unit_Code, Year, Sampling_Frame, Plot_Number, Code, Scientific_Name))
 
     max_chg_highlight <- max_chg_rank |>
-      rbind(prior_year_join) |>
-      mutate(highlight_this = 'yellow')
+      dplyr::bind_rows(prior_year_join) |>
+      dplyr::mutate(highlight_this = 'yellow')
 
     und_spp_filter <- und_spp |>
-      filter(Scientific_Name %in% top_n_baddies)
+      dplyr::filter(Scientific_Name %in% top_n_baddies)
 
     common_names <- FilterPACNVeg(data_name = "Species_extra") |>
-      filter(Park == "HAVO") |>
-      select(Park_Common_Name, Code)
+      dplyr::filter(Park == "HAVO") |>
+      dplyr::select(Park_Common_Name, Code)
 
     new_und_spp_filter <- und_spp_filter |>
-      left_join(max_chg_highlight) |>
-      mutate(Scientific_Name = factor(Scientific_Name, top_n_baddies)) |>
-      mutate(highlight_this = case_when(is.na(highlight_this) ~ NA, .default = highlight_this)) |>
-      mutate(plot_line = paste0(Sampling_Frame, "_", Code, "_", Plot_Number)) |>
-      arrange(Scientific_Name, plot_line, Year) |>
-      left_join(common_names, by = join_by(Code))
+      dplyr::left_join(max_chg_highlight) |>
+      dplyr::mutate(Scientific_Name = factor(Scientific_Name, top_n_baddies)) |>
+      dplyr::mutate(highlight_this = case_when(is.na(highlight_this) ~ NA, .default = highlight_this)) |>
+      dplyr::mutate(plot_line = paste0(Sampling_Frame, "_", Code, "_", Plot_Number)) |>
+      dplyr::arrange(Scientific_Name, plot_line, Year) |>
+      dplyr::left_join(common_names, by = join_by(Code))
 
     out_graph <- new_und_spp_filter |>
-      ggplot(aes(x = Year, y = Cover, group = Code)) +
-      geom_line(position=position_jitter(width = 0.1, height = 0.1, seed = 1), aes(group = plot_line), colour = "grey65", size = 0.5) +
-      geom_line(position=position_jitter(width = 0.1, height = 0.1, seed = 1), aes(group = plot_line, colour = highlight_this), size = 1, alpha = 0.5) +
-      geom_jitter(position=position_jitter(width = 0.1, height = 0.1, seed = 1), aes(group = plot_line, colour = highlight_this), size = 2) +
-      geom_jitter(position=position_jitter(width = 0.1, height = 0.1, seed = 1), colour = 'grey65', size = 1) +
-      scale_colour_identity() +
-      stat_summary(geom = "line", fun = mean) +
-      stat_summary(mapping=aes(group=Code), fun.data=mean_cl_boot, geom="pointrange", position = position_dodge(.2)) +
-      facet_grid(cols = vars(Scientific_Name), rows = vars(Sampling_Frame)) +
-      theme(legend.position = "none") +
-      labs(y = "Understory Cover (%)", caption = paste(plot_counts_vector, collapse = ", "))
+      ggplot2::ggplot(aes(x = Year, y = Cover, group = Code)) +
+      ggplot2::geom_line(position=position_jitter(width = 0.1, height = 0.1, seed = 1), aes(group = plot_line), colour = "grey65", size = 0.5) +
+      ggplot2::geom_line(position=position_jitter(width = 0.1, height = 0.1, seed = 1), aes(group = plot_line, colour = highlight_this), size = 1, alpha = 0.5) +
+      ggplot2::geom_jitter(position=position_jitter(width = 0.1, height = 0.1, seed = 1), aes(group = plot_line, colour = highlight_this), size = 2) +
+      ggplot2::geom_jitter(position=position_jitter(width = 0.1, height = 0.1, seed = 1), colour = 'grey65', size = 1) +
+      ggplot2::scale_colour_identity() +
+      ggplot2::stat_summary(geom = "line", fun = mean) +
+      ggplot2::stat_summary(mapping=aes(group=Code), fun.data = ggplot2::mean_cl_boot, geom="pointrange", position = position_dodge(.2)) +
+      ggplot2::facet_grid(cols = vars(Scientific_Name), rows = vars(Sampling_Frame)) +
+      ggplot2::theme(legend.position = "none") +
+      ggplot2::labs(y = "Understory Cover (%)", caption = paste(plot_counts_vector, collapse = ", "))
 
   }
 
