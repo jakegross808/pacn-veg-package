@@ -19,7 +19,8 @@ v_cover_bar_stats(
   plot_number,
   filter_Code,
   silent = FALSE,
-  return_n = FALSE
+  return_n = FALSE,
+  remove_unknown = TRUE
 )
 }
 \arguments{
@@ -50,6 +51,9 @@ v_cover_bar_stats(
 \item{plot_type}{Type of plot (fixed vs. rotational)}
 
 \item{silent}{Suppress informational messages?}
+
+\item{remove_unknown}{"default == TRUE. Removes any Life_form with value == "Unknown".
+Also removes the non-vegetated points from final display.}
 }
 \value{
 graph (gglot) of total Percent Cover by Nativity

@@ -627,6 +627,9 @@ add_stats <- function(.data, ...){
 #' "Years_Prior" = Number of years between sampling cycles.
 #' "Chg_Per_Year" = Chg_Prior divided by Years_Prior.
 #'
+#' @param remove_unknown "default == TRUE. Removes any Life_form with value == "Unknown".
+#' Also removes the non-vegetated points from final display.
+#'
 #' @return graph (gglot) of total Percent Cover by Nativity
 #' @export
 #'
@@ -638,7 +641,7 @@ add_stats <- function(.data, ...){
 
 v_cover_bar_stats <- function(combine_strata = FALSE, plant_grouping = "Nativity", species_filter,
                               paired_change = FALSE, measurement = "Cover", park, sample_frame, community,
-                              year, cycle, plot_type, plot_number, filter_Code, silent = FALSE, return_n = FALSE) {
+                              year, cycle, plot_type, plot_number, filter_Code, silent = FALSE, return_n = FALSE, remove_unknown = TRUE) {
 
 
   # Set plant_grouping_vars used for calculating stats based on plant_grouping argument
@@ -687,10 +690,10 @@ v_cover_bar_stats <- function(combine_strata = FALSE, plant_grouping = "Nativity
 
 
 
-  if (plant_grouping != "None") {
+  if (remove_unknown == TRUE) {
 
     unknown_cover <- understory2 %>%
-      dplyr::filter(.data[[summary_param]] == "Unknown" & "Cover" > 0)
+      filter_all(any_vars(. == "Unknown"))
 
     unk_cover_tot <- unknown_cover %>%
       dplyr::pull("Cover") %>%
@@ -1295,6 +1298,7 @@ understorySpeciesCover2 <- function(sample_frame, cycle,
 #'
 #' }
 
+
 understory_spp_trends_rank <- function(combine_strata = TRUE,
                                        plant_grouping = "Species",
                                        paired_change = TRUE,
@@ -1314,12 +1318,7 @@ understory_spp_trends_rank <- function(combine_strata = TRUE,
     plant_grouping = plant_grouping,
     paired_change = paired_change,
     sample_frame = sample_frame,
-    cycle = cycle,
-    community = community,
-    year = year,
-    plot_number = plot_number,
-    species_code = species_code,
-    park = park)
+    cycle = cycle)
 
   if ("Nahuku/East Rift" %in% sample_frame) {
     # Temporary solution until zone/mgmt layer incorporated into package:
