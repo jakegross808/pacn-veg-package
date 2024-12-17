@@ -245,7 +245,7 @@ qc_EIPS_spp_pres_dot_plot <- function(sample_frame, transect_number, save_folder
     dplyr::select(Sampling_Frame, Cycle, Transect_Number, Nativity, Scientific_Name, Code, Cover_Class) |>
     dplyr::distinct() |>
     #dplyr::mutate(Nativity = replace_na(Nativity, "No Veg")) |>
-    dplyr::mutate(Scientific_Name = replace_na(Scientific_Name, "NA segment(s)"))
+    dplyr::mutate(Scientific_Name = replace_na(Scientific_Name, " NA segment(s)"))
 
   eips_pres_trans_num <- eips_presence |>
     dplyr::filter(Transect_Number %in% transect_number)
@@ -300,7 +300,7 @@ qc_EIPS_spp_pres_dot_plot <- function(sample_frame, transect_number, save_folder
     ggplot2::labs(title="Check Presence",
                   subtitle= (paste0(eips_pres_trans_num1$Sampling_Frame[1], " Transect ", eips_pres_trans_num1$Transect_Number[1])),
                   caption= (paste0("QA/QC"))) +
-    ggplot2::scale_color_manual(values = nativity_colors) +
+    ggplot2::scale_color_manual(breaks = c("Native", "Non-Native", "Unknown"), values = nativity_colors) +
     ggplot2::scale_x_discrete(limits = rev) +
     ggplot2::scale_y_continuous(limits = c(0, max(eips_pres_trans_num1$Cycle)+1)) +
     ggplot2::coord_flip() +
