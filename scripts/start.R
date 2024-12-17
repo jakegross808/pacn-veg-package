@@ -10,6 +10,7 @@ LoadPACNVeg(force_refresh = FALSE, eips_paths = "foo")
 
 # Write/Read csv from pacnvegetation package:
 pacnveg_cache_path <- "C:/Users/JJGross/Documents/Databases_copied_local/R_WritePACNVeg"
+pacnveg_cache_path <- "C:/Users/JJGross/Documents/Databases_copied_local/certified"
 
 # Read
 path_file_info <- file.info(list.files(pacnveg_cache_path, full.names = T))
@@ -49,7 +50,7 @@ LoadPACNVeg(ftpc_params = "pacnveg",
 path_file_info <- file.info(list.files(pacnveg_cache_path, full.names = T))
 write_folder <- paste0(pacnveg_cache_path, "/", Sys.Date())
 write_folder
-WritePACNVeg(dest.folder = write_folder, create.folders = TRUE)
+WritePACNVeg(dest.folder = write_folder, create.folders = TRUE, certified = TRUE)
 
 #--- 3. Optional Loads ----
 

@@ -558,7 +558,6 @@ ReadEIPS <- function(db_paths) {
 
     #Locations (e.g. Sampling Frame)
     #Short
-    browser()
     tbl_Locations <- dplyr::tbl(conn, "tbl_Locations") |>
       dplyr::select(Location_ID, Site_ID, Community = Plant_Community, Sampling_Frame_English, Sampling_Frame) |>
       dplyr::collect() |>
@@ -667,7 +666,7 @@ ReadEIPS <- function(db_paths) {
 
     # EIPS data
     xref_Cover_Class_Species <- dplyr::tbl(conn, "xref_Cover_Class_Species") %>%
-      dplyr::select(Segment_ID, Event_ID, Species_ID, Cover_class, Dead) %>%
+      dplyr::select(Segment_ID, Event_ID, Species_ID, Cover_class, Dead, cf, LOC) %>%
       dplyr::collect()
     tbl_Segments <- dplyr::tbl(conn, "tbl_Segments") %>%
       dplyr::select(Segment_ID, Event_ID, No_Data, Segment_Notes) %>%
@@ -681,7 +680,7 @@ ReadEIPS <- function(db_paths) {
       dplyr::left_join(tlu_Segment_Points, by = "Segment_ID") %>%
       dplyr::left_join(xref_Cover_Class_Species, by = c("Segment_ID", "Event_ID")) %>%
       dplyr::left_join(Species, by = c("Species_ID", "Unit_Code" = "Park")) %>%
-      dplyr::select(Unit_Code, Community, Sampling_Frame, Year, Cycle, Transect_Type, Transect_Number, Segment = Sort_Order, Species_ID, Cover_class, Dead, Code, Scientific_name, Life_form, Nativity, Certified, Verified) %>%
+      dplyr::select(Unit_Code, Community, Sampling_Frame, Year, Cycle, Transect_Type, Transect_Number, Segment = Sort_Order, No_Data, Species_ID, Cover_class, cf, LOC, Dead, Code, Scientific_name, Life_form, Nativity, Certified, Verified) %>%
       #dplyr::collect() %>%
       dplyr::rename(Cover_Class = Cover_class, Scientific_Name = Scientific_name, Life_Form = Life_form) %>%
       dplyr::relocate(Certified, Verified, .after = last_col())

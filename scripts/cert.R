@@ -12,8 +12,6 @@ LoadPACNVeg(force_refresh = FALSE, eips_paths = "foo")
 
 # Write/Read csv from pacnvegetation package:
 pacnveg_cache_path <- "C:/Users/JJGross/OneDrive - DOI/Documents/Certification_Local/Databases/R_WritePACNVeg"
-
-
 # Read
 path_file_info <- file.info(list.files(pacnveg_cache_path, full.names = T))
 latest_folder <- rownames(path_file_info)[which.max(path_file_info$mtime)]
@@ -22,38 +20,6 @@ LoadPACNVeg(data_path = latest_folder,
             data_source = "file")
 
 names(FilterPACNVeg())
-
-
-###--- Quick checks -------
-FilterPACNVeg(data_name = "Presence") |>
-  select(Unit_Code, Community, Sampling_Frame_Formal) |>
-  distinct()
-
-FTPC_SF <- FilterPACNVeg(data_name = "Presence") |>
-  select(Sampling_Frame) |>
-  dplyr::distinct()
-FTPC_SF
-
-FTPC_SF_formal <- FilterPACNVeg(data_name = "Presence") |>
-  select(Sampling_Frame_Formal) |>
-  dplyr::distinct()
-FTPC_SF_formal
-
-EIPS_SF <- FilterPACNVeg(data_name = "EIPS_data") |>
-  select(Sampling_Frame) |>
-    dplyr::distinct()
-EIPS_SF
-
-EIPS_SF_formal <- FilterPACNVeg(data_name = "Events_extra_other_EIPS") |>
-  select(Sampling_Frame_Formal) |>
-  dplyr::distinct()
-EIPS_SF_formal
-
-anti_join(FTPC_SF, EIPS_SF)
-anti_join(EIPS_SF, FTPC_SF)
-anti_join(FTPC_SF_formal, EIPS_SF_formal)
-anti_join(EIPS_SF_formal, FTPC_SF_formal)
-
 
 #--- 2. variable specification -------------------------------------------------
 
@@ -137,36 +103,49 @@ var_sframe <- "Mauna Loa"
 save_folder_var <- "C:/Users/JJGross/OneDrive - DOI/Documents/Certification_Local/2021-2022 Certification/R_output"
 
 for (x in var_plot_numbers) {
-  pacnvegetation:::qc_spp_pres_dot_plot(sample_frame = var_sframe,
+  pacnvegetation:::qc_FTPC_spp_pres_dot_plot(sample_frame = var_sframe,
                        plot_number = x,
                        save_folder = save_folder_var)
 }
 
-pacnvegetation::qc_spp_pres_dot_plot(sample_frame = var_sframe,
+pacnvegetation::qc_FTPC_spp_pres_dot_plot(sample_frame = var_sframe,
                                       plot_number = 1,
                                       save_folder = save_folder_var)
 
 ## Understory spp consistency chk ----------------------------------------------
-var_plot_number <- c(15)
+var_plot_number <- c(56)
 
 pacnvegetation::v_cover_bar_stats(plant_grouping = "Species",
                                   sample_frame = var_sframe,
                                   combine_strata = FALSE,
                                   cycle = c(1,2,3),
-                                  plot_number = var_plot_number)
+                                  remove_unknown = FALSE,
+                                  plot_number = var_plot_number) + ggplot2::labs(title=paste(var_sframe, "Plot #", var_plot_number))
 
-chk_cover <- pacnvegetation::summarize_understory(combine_strata = TRUE,
-                                     plant_grouping = "Species",
-                                     sample_frame = var_sframe)
-chk_cover
 
 path_var <- paste0("C:/Users/JJGross/OneDrive - DOI/Documents/Certification_Local/2021-2022 Certification/R_output/", var_sframe, "/")
 filename_var_v_cover <- paste0("v_cover_plot_spp_", var_plot_number, ".png")
 filename_var_v_cover
 ggsave(filename = filename_var_v_cover, path = path_var, height = 10, width = 15)
 #---
+chk_cover <- pacnvegetation::FilterPACNVeg(data_name = "")
+chk_cover
 
-pacnvegetation::understory_spp_trends_rank(sample_frame = "Mauna Loa", spe)
+chk_cover <- pacnvegetation::summarize_understory(combine_strata = TRUE,
+                                                   plant_grouping = "Species",
+                                                   sample_frame = var_sframe)
+chk_cover
+
+chk_cover2 <- pacnvegetation::summarize_understory(combine_strata = TRUE,
+                                                  plant_grouping = "Species",
+                                                  sample_frame = var_sframe)
+chk_cover2
+
+
+pacnvegetation::understory_spp_trends_rank(sample_frame = "Mauna Loa", remove_nativity = "Non-Native", paired_change = FALSE, top_n = 10)
+pacnvegetation::understory_spp_trends_rank(sample_frame = "Mauna Loa", remove_nativity = "Native", paired_change = FALSE)
+pacnvegetation::understory_spp_trends_rank(sample_frame = "Mauna Loa", remove_nativity = "Non-Native", paired_change = TRUE)
+pacnvegetation::understory_spp_trends_rank(sample_frame = "Mauna Loa", remove_nativity = "Native", paired_change = TRUE)
 
 #v_cover_bar_spp_plot(sample_frame = "Olaa", crosstalk_filters = TRUE, crosstalk_group = "spp_plot1")
 
@@ -363,121 +342,34 @@ EIPS_segment_check <- EIPS_check |>
   dplyr::summarize(segs_w_spp = n_distinct(Start_m))
 
 # EIPS Presence -- spp consistency chk --------------------------------------
-# TURN THIS INTO pacnvegetation qc_ FUNCTION
-
-var_trans_num <- 3
-
-eips_data_check <- pacnvegetation::FilterPACNVeg(data_name = "EIPS_data")|>
-  pull(Sampling_Frame) |>
-  unique()
-eips_data_check
-
-eips_data <- pacnvegetation::FilterPACNVeg(data_name = "EIPS_data") |>
-  dplyr::mutate(Sampling_Frame = dplyr::case_when(Sampling_Frame == "ʻŌlaʻa" ~ "Olaa",
-                                    .default = as.character(Sampling_Frame))) |>
-  dplyr::mutate(Sampling_Frame = dplyr::case_when(Sampling_Frame == "Nāhuku/East Rift" ~ "Nahuku/East Rift",
-                                    .default = as.character(Sampling_Frame))) |>
-  filter(Sampling_Frame == var_sframe)
 
 
-eips_presence <- eips_data |>
-  select(Sampling_Frame, Cycle, Transect_Number, Nativity, Scientific_Name, Code) |>
-  dplyr::distinct()
-
-eips_pres_trans_num <- eips_presence |>
-  filter(Transect_Number == var_trans_num)
-
-eips_rare <- eips_presence |>
-  dplyr::group_by(Sampling_Frame, Nativity, Scientific_Name, Code, Transect_Number) %>%
-  dplyr::summarize(observed = n(), .groups = "drop") %>%
-  # only count one time if found more than once in a fixed
-  dplyr::mutate(observed = 1) %>%
-  dplyr::group_by(Sampling_Frame, Code, Scientific_Name) %>%
-  dplyr::summarize(transects_observed = n()) %>%
-  # "rare" will be 4 plots_observed or less
-  filter(transects_observed < 5) %>%
-  dplyr::mutate(less_than_5_transects = TRUE) %>%
-  dplyr::right_join(eips_pres_trans_num) %>%
-  filter(less_than_5_transects == TRUE)
-
-# Join rare species flags to Presence
-eips_pres_trans_num1 <- eips_pres_trans_num %>%
-  dplyr::left_join(eips_rare)
-
-eips_pres_trans_num2 <- eips_pres_trans_num1 %>%
-  dplyr::mutate(Cycle = as.integer(Cycle)) %>%
-  dplyr::arrange(Scientific_Name)
-
-# Code below was to split graph in half but doesn't work with geom_point filtering
-# find the middle of the data set
-#df_length <- length(chk_pres2$Scientific_Name)
-#df_middle <- df_length/2
-
-# Which species is in the middle of the dataset
-#split_at_sp <- chk_pres2$Code[df_middle]
-
-# select the row after the last record for that species to split evenly accross species
-#split_at <- max(which(chk_pres2$Code == split_at_sp)) + 1
-#split_at
-
-# Splits dataset equally in half:
-#chk_pres2$split <- "first"
-#chk_pres2$split[split_at:df_length] <- "second"
+## Presence Dot Plots-----------------------------------------------------------
+var_transect_numbers <- c(1:10, 31:40)
+var_transect_numbers
+var_sframe <- "Mauna Loa"
+save_folder_var <- "C:/Users/JJGross/OneDrive - DOI/Documents/Certification_Local/2021-2022 Certification/R_output"
 
 
-# Nativity discrete scale Colors:
-nativity_colors <- c("Native" = "#1b9e77",
-                     "No_Veg" = "grey",
-                     "Non-Native" = "#d95f02",
-                     "Unknown" = "#7570b3")
+LoadPACNVeg(force_refresh = FALSE, eips_paths = "foo")
 
-select_rare <- function(condition){
-  function(d) d %>% dplyr::filter_(condition)
-}
+# If single graph needed:
+qc_EIPS_spp_pres_dot_plot(sample_frame =var_sframe,
+                          transect_number = 35)
 
-select_out <- function(condition){
-  function(d) d %>% dplyr::filter_(condition)
-}
+# Make graphs for all transects listed in var_transect_numbers:
+for (x in var_transect_numbers) {
+  pacnvegetation:::qc_EIPS_spp_pres_dot_plot(sample_frame = var_sframe,
+                                             transect_number = x,
+                                             save_folder = save_folder_var)
+  }
 
-graph_out <- eips_pres_trans_num2 %>%
-  ggplot2::ggplot(aes(x= Scientific_Name, y=Cycle)) +
-  ggplot2::geom_segment(aes(x=Scientific_Name,
-                   xend=Scientific_Name,
-                   y=min(Cycle),
-                   yend=max(Cycle),
-                   color = Nativity),
-               linetype="dashed",
-               linewidth=0.5) +
-  # Draw points
-  ggplot2::geom_point(size = 8, data = ~filter(.x, less_than_5_transects == TRUE), color = "yellow") +
-  ggplot2::geom_point(size = 5, aes(color = Nativity)) +
-  #geom_point(size = 2, data = ~filter(.x, Outside_Plot == TRUE), color = "black") +
-  ggplot2::labs(title="Check Presence",
-       subtitle= (paste0(eips_pres_trans_num2$Sampling_Frame[1], " Transect ", eips_pres_trans_num2$Transect_Number[1])),
-       caption= (paste0("QA/QC"))) +
-  ggplot2::scale_color_manual(values = nativity_colors) +
-  ggplot2::scale_x_discrete(limits = rev) +
-  ggplot2::scale_y_continuous(limits = c(0, max(eips_pres_trans_num2$Cycle)+1)) + #breaks = integer_breaks(),
-  ggplot2::coord_flip() +
-  #facet_wrap(scales = "free", vars(eips_pres_trans_num2$split)) +
-  ggplot2::theme(strip.background = ggplot2::element_blank(),
-        strip.text.x = ggplot2::element_blank()) +
-  ggplot2::theme(aspect.ratio=6) #9
-graph_out
 
-var_folder_sframe <-var_sframe
-if (var_sframe == "Nahuku/East Rift") {
-  var_folder_sframe <- "Nahuku"
-}
 
-path_var <- paste0("C:/Users/JJGross/OneDrive - DOI/Documents/Certification_Local/2021-2022 Certification/R_output/", var_folder_sframe, "/")
-filename_var <- paste0("trans_", stringr::str_pad(var_trans_num, 2, pad = "0"), "_spp_pres-dot.png")
-filename_var
-ggsave(filename = filename_var, path = path_var, height = 10, width = 5)
 
 # ---- EIPS Cover Class frequency ------------------------------------------
 
-eips_data <- pacnvegetation::FilterPACNVeg(data_name = "EIPS_data") |>
+eips_data <- pacnvegetation::FilterPACNVeg(data_name = "EIPS_data") #|>
   dplyr::mutate(Sampling_Frame = dplyr::case_when(Sampling_Frame == "ʻŌlaʻa" ~ "Olaa",
                                     .default = as.character(Sampling_Frame))) |>
   dplyr::mutate(Sampling_Frame = dplyr::case_when(Sampling_Frame == "Nāhuku/East Rift" ~ "Nahuku/East Rift",
@@ -591,6 +483,13 @@ path_var <- paste0("C:/Users/JJGross/OneDrive - DOI/Documents/Certification_Loca
 filename_var <- paste0("trans_", stringr::str_pad(var_trans_num, 2, pad = "0"), "_spp-cover_x_freq.png")
 filename_var
 ggsave(filename = filename_var, path = path_var, height = 10, width = 20)
+
+
+
+
+
+
+
 
 
 

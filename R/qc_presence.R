@@ -144,9 +144,9 @@ qc_presence_complete <- function(all_records = TRUE, park, sample_frame, communi
 #'
 #' @examples
 #' \dontrun{
-#' qc_spp_pres_dot_plot(sample_frame =  "Puu Alii", plot_number = 14, save_folder = "C:/Users/JJGross/OneDrive/Downloads")
+#' qc_FTPC_spp_pres_dot_plot(sample_frame =  "Puu Alii", plot_number = 14, save_folder = "C:/Users/JJGross/OneDrive/Downloads")
 #' }
-qc_spp_pres_dot_plot <- function(sample_frame, plot_number, save_folder, is_qa_plot = FALSE) {
+qc_FTPC_spp_pres_dot_plot <- function(sample_frame, plot_number, save_folder, is_qa_plot = FALSE) {
 
   chk_pres <- pacnvegetation::FilterPACNVeg(data_name = "Presence",
                                             sample_frame = sample_frame,
@@ -219,4 +219,112 @@ qc_spp_pres_dot_plot <- function(sample_frame, plot_number, save_folder, is_qa_p
   filename_var <- paste0("spp_pres_plot-dot_", plot_number, ".png")
   filename_var
   ggplot2::ggsave(filename = filename_var, path = path_var, height = 10, width = 5)
+}
+
+#' Plot all non-native species presence from EIPS transect
+#'
+#' @details X axis is Cycle, y axis is species
+#'
+#' @param sample_frame EIPS sampling frame name
+#' @param transect_number transect number (must be only one plot)
+#' @param save_folder folder where .png plot will be saved
+#'
+#' @return graph of species found in transect across all cycles.
+#' Optionally save individual .png file (if save_folder specified).
+#' @export
+#'
+#' @examples
+#' \dontrun{
+#' qc_EIPS_spp_pres_dot_plot(sample_frame =  "Puu Alii", transect_number = 14, save_folder = "C:/Users/JJGross/OneDrive/Downloads")
+#' }
+qc_EIPS_spp_pres_dot_plot <- function(sample_frame, transect_number, save_folder) {
+
+  eips_data <- pacnvegetation::FilterPACNVeg(data_name = "EIPS_data", sample_frame = sample_frame)
+
+  eips_presence <- eips_data |>
+    dplyr::select(Sampling_Frame, Cycle, Transect_Number, Nativity, Scientific_Name, Code, Cover_Class) |>
+    dplyr::distinct() |>
+    #dplyr::mutate(Nativity = replace_na(Nativity, "No Veg")) |>
+    dplyr::mutate(Scientific_Name = replace_na(Scientific_Name, "NA segment(s)"))
+
+  eips_pres_trans_num <- eips_presence |>
+    dplyr::filter(Transect_Number %in% transect_number)
+
+  eips_rare <- eips_presence |>
+    dplyr::group_by(Sampling_Frame, Nativity, Scientific_Name, Code, Transect_Number) |>
+    dplyr::summarize(observed = n(), .groups = "drop") |>
+    # only count one time if found more than once in a fixed
+    dplyr::mutate(observed = 1) |>
+    dplyr::group_by(Sampling_Frame, Code, Scientific_Name) |>
+    dplyr::summarize(transects_observed = n())
+
+  # Join rare species flags to Presence
+  eips_pres_trans_num1 <- eips_pres_trans_num |>
+    dplyr::left_join(eips_rare) |>
+    dplyr::mutate(Cycle = as.integer(Cycle)) |>
+    dplyr::arrange(Scientific_Name)
+
+  # Nativity discrete scale Colors:
+  nativity_colors <- c("Native" = "#1b9e77",
+                       #"No Veg" = NA,
+                       "Non-Native" = "#d95f02",
+                       "Unknown" = "#7570b3")
+
+  select_rare <- function(condition){
+    function(d) d %>% dplyr::filter_(condition)
+  }
+
+  select_out <- function(condition){
+    function(d) d %>% dplyr::filter_(condition)
+  }
+
+  graph_out <- eips_pres_trans_num1 %>%
+    ggplot2::ggplot(aes(x= Scientific_Name, y=Cycle)) +
+    ggplot2::geom_segment(na.rm = TRUE, aes(x=Scientific_Name,
+                              xend=Scientific_Name,
+                              y=min(Cycle),
+                              yend=max(Cycle),
+                              color = Nativity),
+                          linetype="dashed",
+                          linewidth=0.5) +
+    # Draw points
+    # "rare" species (present on less than 5 transects) highlighted yellow
+    ggplot2::geom_point(size = 8,
+                        data = subset(eips_pres_trans_num1, transects_observed < 5),
+                        color = "yellow") + #~filter(.x, transects_observed < 5), color = "yellow") +
+    ggplot2::geom_point(size = 5, aes(color = Nativity)) +
+    # Species outside segment have black dot:
+    ggplot2::geom_point(size = 2,
+                        data = subset(eips_pres_trans_num1, Cover_Class == "OUT"),
+                        color = "black") + #~filter(.x, Cover_Class == "OUT"), color = "black") +
+    ggplot2::labs(title="Check Presence",
+                  subtitle= (paste0(eips_pres_trans_num1$Sampling_Frame[1], " Transect ", eips_pres_trans_num1$Transect_Number[1])),
+                  caption= (paste0("QA/QC"))) +
+    ggplot2::scale_color_manual(values = nativity_colors) +
+    ggplot2::scale_x_discrete(limits = rev) +
+    ggplot2::scale_y_continuous(limits = c(0, max(eips_pres_trans_num1$Cycle)+1)) +
+    ggplot2::coord_flip() +
+    ggplot2::theme(strip.background = ggplot2::element_blank(),
+                   strip.text.x = ggplot2::element_blank()) +
+    ggplot2::theme(aspect.ratio=6)
+
+
+  if (!missing(save_folder)) {
+
+    var_folder_sframe <- sample_frame
+
+    if (var_sframe == "Nahuku/East Rift") {
+      var_folder_sframe <- "Nahuku"
+    }
+
+    path_var <- paste0(save_folder, "/", var_folder_sframe)
+    filename_var <- paste0("trans_", stringr::str_pad(transect_number, 2, pad = "0"), "_spp_pres-dot.png")
+    print(paste(path_var, filename_var, sep = "/"))
+    ggplot2::ggsave(filename = filename_var, path = path_var, height = 10, width = 5)
+
+  } else {
+
+    graph_out
+
+  }
 }
