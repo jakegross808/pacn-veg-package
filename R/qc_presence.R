@@ -306,7 +306,8 @@ qc_EIPS_spp_pres_dot_plot <- function(sample_frame, transect_number, save_folder
     ggplot2::coord_flip() +
     ggplot2::theme(strip.background = ggplot2::element_blank(),
                    strip.text.x = ggplot2::element_blank()) +
-    ggplot2::theme(aspect.ratio=6)
+    ggplot2::theme(aspect.ratio=6) +
+    ggplot2::theme(legend.position="none")
 
 
   if (!missing(save_folder)) {

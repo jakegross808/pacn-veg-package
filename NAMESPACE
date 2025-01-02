@@ -3,6 +3,7 @@
 export("%>%")
 export(ClearPACNVegCache)
 export(DownloadAGOLAttachments)
+export(EIPS_cover_x_freq)
 export(FilterPACNVeg)
 export(FormatPlot)
 export(LoadPACNVeg)

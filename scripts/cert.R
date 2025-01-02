@@ -355,7 +355,7 @@ LoadPACNVeg(force_refresh = FALSE, eips_paths = "foo")
 
 # If single graph needed:
 qc_EIPS_spp_pres_dot_plot(sample_frame =var_sframe,
-                          transect_number = 35)
+                          transect_number = 4)
 
 # Make graphs for all transects listed in var_transect_numbers:
 for (x in var_transect_numbers) {
@@ -368,18 +368,19 @@ for (x in var_transect_numbers) {
 
 
 # ---- EIPS Cover Class frequency ------------------------------------------
+var_transect_numbers <- 32
 
-eips_data <- pacnvegetation::FilterPACNVeg(data_name = "EIPS_data") #|>
-  dplyr::mutate(Sampling_Frame = dplyr::case_when(Sampling_Frame == "ʻŌlaʻa" ~ "Olaa",
-                                    .default = as.character(Sampling_Frame))) |>
-  dplyr::mutate(Sampling_Frame = dplyr::case_when(Sampling_Frame == "Nāhuku/East Rift" ~ "Nahuku/East Rift",
-                                    .default = as.character(Sampling_Frame))) |>
-  filter(Sampling_Frame == var_sframe)
+eips_data <- pacnvegetation::FilterPACNVeg(data_name = "EIPS_data") |>
+  #dplyr::mutate(Sampling_Frame = dplyr::case_when(Sampling_Frame == "ʻŌlaʻa" ~ "Olaa",
+  #                                  .default = as.character(Sampling_Frame))) |>
+  #dplyr::mutate(Sampling_Frame = dplyr::case_when(Sampling_Frame == "Nāhuku/East Rift" ~ "Nahuku/East Rift",
+  #                                  .default = as.character(Sampling_Frame))) |>
+  dplyr::filter(Sampling_Frame == var_sframe)
 
 # Will need to make segs_per_tran calculation more robust
 eips_cover_freq <- eips_data |>
-  filter(Transect_Number == var_trans_num) |>
-  select(Sampling_Frame, Cycle, Transect_Number, Nativity, Scientific_Name, Code, Segment, Cover_Class) |>
+  dplyr::filter(Transect_Number == var_transect_numbers) |>
+  dplyr::select(Sampling_Frame, Cycle, Transect_Number, Nativity, Scientific_Name, Code, Segment, Cover_Class) |>
   dplyr::distinct() |>
   dplyr::mutate(segs_pres = 1) |>
   dplyr::group_by(Sampling_Frame, Cycle, Transect_Number, Nativity, Scientific_Name, Code, Cover_Class) |>
@@ -388,44 +389,44 @@ eips_cover_freq <- eips_data |>
                                  .default = as.character(Cover_Class)))
 
 OUT <- eips_cover_freq |>
-  filter(Cover_Class >= 0) |>
+  dplyr::filter(Cover_Class >= 0) |>
   dplyr::mutate(OUT = sum(segs_per_tran))|>
-  select(-Cover_Class, -segs_per_tran) |>
+  dplyr::select(-Cover_Class, -segs_per_tran) |>
   dplyr::distinct()
 g0p <- eips_cover_freq |>
-  filter(Cover_Class >= 1) |>
+  dplyr::filter(Cover_Class >= 1) |>
   dplyr::mutate(`0` = sum(segs_per_tran))|>
-  select(-Cover_Class, -segs_per_tran) |>
+  dplyr::select(-Cover_Class, -segs_per_tran) |>
   dplyr::distinct()
 g1p <- eips_cover_freq |>
-  filter(Cover_Class >= 2) |>
+  dplyr::filter(Cover_Class >= 2) |>
   dplyr::mutate(`1` = sum(segs_per_tran))|>
-  select(-Cover_Class, -segs_per_tran)|>
+  dplyr::select(-Cover_Class, -segs_per_tran)|>
   dplyr::distinct()
 g5p <- eips_cover_freq |>
-  filter(Cover_Class >= 3) |>
+  dplyr::filter(Cover_Class >= 3) |>
   dplyr::mutate(`5` = sum(segs_per_tran))|>
-  select(-Cover_Class, -segs_per_tran)|>
+  dplyr::select(-Cover_Class, -segs_per_tran)|>
   dplyr::distinct()
 g10p <- eips_cover_freq |>
-  filter(Cover_Class >= 4) |>
+  dplyr::filter(Cover_Class >= 4) |>
   dplyr::mutate(`10` = sum(segs_per_tran))|>
-  select(-Cover_Class, -segs_per_tran)|>
+  dplyr::select(-Cover_Class, -segs_per_tran)|>
   dplyr::distinct()
 g25p <- eips_cover_freq |>
-  filter(Cover_Class >= 5) |>
+  dplyr::filter(Cover_Class >= 5) |>
   dplyr::mutate(`25` = sum(segs_per_tran))|>
-  select(-Cover_Class, -segs_per_tran)|>
+  dplyr::select(-Cover_Class, -segs_per_tran)|>
   dplyr::distinct()
 g50p <- eips_cover_freq |>
-  filter(Cover_Class >= 6) |>
+  dplyr::filter(Cover_Class >= 6) |>
   dplyr::mutate(`50` = sum(segs_per_tran))|>
-  select(-Cover_Class, -segs_per_tran)|>
+  dplyr::select(-Cover_Class, -segs_per_tran)|>
   dplyr::distinct()
 g75p <- eips_cover_freq |>
-  filter(Cover_Class >= 7) |>
+  dplyr::filter(Cover_Class >= 7) |>
   dplyr::mutate(`75` = sum(segs_per_tran))|>
-  select(-Cover_Class, -segs_per_tran)|>
+  dplyr::select(-Cover_Class, -segs_per_tran)|>
   dplyr::distinct()
 
 eips_add_cover <- eips_cover_freq %>%
@@ -442,8 +443,7 @@ eips_add_cover <- eips_cover_freq %>%
 
 eips_add_cover1 <- eips_add_cover |>
   pivot_longer(cols = `0`:`75`, names_to = "cover_greater_than", values_to = "segs") |>
-  dplyr::mutate(freq = segs/50) #|>
-  #dplyr::mutate(freq = replace_na(freq, 0))
+  dplyr::mutate(freq = segs/50)
 
 library(viridis)
 
@@ -480,7 +480,7 @@ if (var_sframe == "Nahuku/East Rift") {
 }
 
 path_var <- paste0("C:/Users/JJGross/OneDrive - DOI/Documents/Certification_Local/2021-2022 Certification/R_output/", var_folder_sframe, "/")
-filename_var <- paste0("trans_", stringr::str_pad(var_trans_num, 2, pad = "0"), "_spp-cover_x_freq.png")
+filename_var <- paste0("trans_", stringr::str_pad(var_transect_numbers, 2, pad = "0"), "_spp-cover_x_freq.png")
 filename_var
 ggsave(filename = filename_var, path = path_var, height = 10, width = 20)
 
