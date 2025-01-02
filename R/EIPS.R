@@ -820,11 +820,13 @@ EIPS_cover_x_freq <- function(sample_frame, transect_number, save_folder) {
     path_var <- paste0(save_folder, "/", var_folder_sframe)
     filename_var <- paste0("trans_", stringr::str_pad(transect_number, 2, pad = "0"), "_spp_cover_x_freq.png")
     print(paste(path_var, filename_var, sep = "/"))
-    ggplot2::ggsave(filename = filename_var, path = path_var, height = 10, width = 20)
+    suppressWarnings(suppressMessages(
+      ggplot2::ggsave(filename = filename_var, path = path_var, height = 10, width = 20)))
 
   } else {
 
-    suppressWarnings(suppressMessages(print(graph_out)))
+    suppressWarnings(suppressMessages(
+      print(graph_out)))
   }
 }
 

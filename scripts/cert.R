@@ -368,127 +368,24 @@ for (x in var_transect_numbers) {
 
 
 # ---- EIPS Cover Class frequency ------------------------------------------
-var_transect_numbers <- 32
+var_transect_numbers <- c(1:10)
 
-eips_data <- pacnvegetation::FilterPACNVeg(data_name = "EIPS_data") |>
-  #dplyr::mutate(Sampling_Frame = dplyr::case_when(Sampling_Frame == "ʻŌlaʻa" ~ "Olaa",
-  #                                  .default = as.character(Sampling_Frame))) |>
-  #dplyr::mutate(Sampling_Frame = dplyr::case_when(Sampling_Frame == "Nāhuku/East Rift" ~ "Nahuku/East Rift",
-  #                                  .default = as.character(Sampling_Frame))) |>
-  dplyr::filter(Sampling_Frame == var_sframe)
+var_sframe <- "Mauna Loa"
+save_folder_var <- "C:/Users/JJGross/OneDrive - DOI/Documents/Certification_Local/2021-2022 Certification/R_output"
 
-# Will need to make segs_per_tran calculation more robust
-eips_cover_freq <- eips_data |>
-  dplyr::filter(Transect_Number == var_transect_numbers) |>
-  dplyr::select(Sampling_Frame, Cycle, Transect_Number, Nativity, Scientific_Name, Code, Segment, Cover_Class) |>
-  dplyr::distinct() |>
-  dplyr::mutate(segs_pres = 1) |>
-  dplyr::group_by(Sampling_Frame, Cycle, Transect_Number, Nativity, Scientific_Name, Code, Cover_Class) |>
-  dplyr::summarize(segs_per_tran = sum(segs_pres)) |>
-  dplyr::mutate(Cover_Class = dplyr::case_when(Cover_Class == "OUT" ~ "0",
-                                 .default = as.character(Cover_Class)))
 
-OUT <- eips_cover_freq |>
-  dplyr::filter(Cover_Class >= 0) |>
-  dplyr::mutate(OUT = sum(segs_per_tran))|>
-  dplyr::select(-Cover_Class, -segs_per_tran) |>
-  dplyr::distinct()
-g0p <- eips_cover_freq |>
-  dplyr::filter(Cover_Class >= 1) |>
-  dplyr::mutate(`0` = sum(segs_per_tran))|>
-  dplyr::select(-Cover_Class, -segs_per_tran) |>
-  dplyr::distinct()
-g1p <- eips_cover_freq |>
-  dplyr::filter(Cover_Class >= 2) |>
-  dplyr::mutate(`1` = sum(segs_per_tran))|>
-  dplyr::select(-Cover_Class, -segs_per_tran)|>
-  dplyr::distinct()
-g5p <- eips_cover_freq |>
-  dplyr::filter(Cover_Class >= 3) |>
-  dplyr::mutate(`5` = sum(segs_per_tran))|>
-  dplyr::select(-Cover_Class, -segs_per_tran)|>
-  dplyr::distinct()
-g10p <- eips_cover_freq |>
-  dplyr::filter(Cover_Class >= 4) |>
-  dplyr::mutate(`10` = sum(segs_per_tran))|>
-  dplyr::select(-Cover_Class, -segs_per_tran)|>
-  dplyr::distinct()
-g25p <- eips_cover_freq |>
-  dplyr::filter(Cover_Class >= 5) |>
-  dplyr::mutate(`25` = sum(segs_per_tran))|>
-  dplyr::select(-Cover_Class, -segs_per_tran)|>
-  dplyr::distinct()
-g50p <- eips_cover_freq |>
-  dplyr::filter(Cover_Class >= 6) |>
-  dplyr::mutate(`50` = sum(segs_per_tran))|>
-  dplyr::select(-Cover_Class, -segs_per_tran)|>
-  dplyr::distinct()
-g75p <- eips_cover_freq |>
-  dplyr::filter(Cover_Class >= 7) |>
-  dplyr::mutate(`75` = sum(segs_per_tran))|>
-  dplyr::select(-Cover_Class, -segs_per_tran)|>
-  dplyr::distinct()
+LoadPACNVeg(force_refresh = FALSE, eips_paths = "foo")
 
-eips_add_cover <- eips_cover_freq %>%
-  select(Sampling_Frame, Cycle, Transect_Number, Nativity, Scientific_Name, Code) |>
-  dplyr::distinct() |>
-  #left_join(OUT) |>
-  dplyr::left_join(g0p) |>
-  dplyr::left_join(g1p) |>
-  dplyr::left_join(g5p) |>
-  dplyr::left_join(g10p) |>
-  dplyr::left_join(g25p) |>
-  dplyr::left_join(g50p) |>
-  dplyr::left_join(g75p)
+# If single graph needed:
+EIPS_cover_x_freq(sample_frame =var_sframe,
+                          transect_number = 4)
 
-eips_add_cover1 <- eips_add_cover |>
-  pivot_longer(cols = `0`:`75`, names_to = "cover_greater_than", values_to = "segs") |>
-  dplyr::mutate(freq = segs/50)
-
-library(viridis)
-
-acc <- eips_add_cover1 |>
-  dplyr::mutate(Cycle = as.factor(Cycle)) |>
-  dplyr::mutate(cover_greater_than = as_factor(cover_greater_than)) |>
-  ggplot2::ggplot(aes(x=cover_greater_than,
-             y= freq,
-             group = Cycle,
-             color = Cycle))+
-  #geom_ribbon(aes(ymin=L95CI/100, ymax=U95CI/100, fill=Life_form), alpha=0.4,colour=NA)+
-  geom_line(linewidth = 1)+
-  ggplot2::geom_point(size = 2) +
-  #scale_y_continuous(breaks = seq(0, 1, .1)) + #, limits = c(0, 1) +
-  ggplot2::labs(x="% Cover", y=expression(paste("Frequency")))+
-  ggplot2::ggtitle(paste(eips_add_cover1$Sampling_Frame, "Transect", eips_add_cover1$Transect_Number))+
-  scale_color_viridis(discrete = TRUE, direction = -1) +
-  ggplot2::theme(plot.title = ggplot2::element_text(size=14, face="bold", vjust=1, lineheight=0.8))+
-  ggplot2::theme(axis.title.x=element_text(size=12, vjust=-0.2))+
-  ggplot2::theme(axis.text.x=element_text(angle=0, size=11, vjust=0.5))+
-  ggplot2::theme(axis.text.y=element_text(angle=0, size=12, vjust=0.5))+
-  ggplot2::scale_x_discrete(labels = function(x) paste0(">", x)) +
-  ggplot2::scale_y_continuous(labels = function(x) paste0(x*100, "%"),
-                     limits = c(0, 1),
-                     breaks=seq(0,1,.2)) +
-  facet_wrap(~Scientific_Name)
-
-  #scale_x_discrete(expand = c(0.02, 0.02),drop=FALSE)
-acc
-
-var_folder_sframe <-var_sframe
-if (var_sframe == "Nahuku/East Rift") {
-  var_folder_sframe <- "Nahuku"
+# Make graphs for all transects listed in var_transect_numbers:
+for (x in var_transect_numbers) {
+  pacnvegetation:::EIPS_cover_x_freq(sample_frame = var_sframe,
+                                             transect_number = x,
+                                             save_folder = save_folder_var)
 }
-
-path_var <- paste0("C:/Users/JJGross/OneDrive - DOI/Documents/Certification_Local/2021-2022 Certification/R_output/", var_folder_sframe, "/")
-filename_var <- paste0("trans_", stringr::str_pad(var_transect_numbers, 2, pad = "0"), "_spp-cover_x_freq.png")
-filename_var
-ggsave(filename = filename_var, path = path_var, height = 10, width = 20)
-
-
-
-
-
-
 
 
 
