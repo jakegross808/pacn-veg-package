@@ -1,35 +1,20 @@
 library(pacnvegetation)
 library(tidyverse)
-#library(leaflet)
 
 #--- 1. Read latest cache ------------------------------------------------------
 
+#**  Make sure to download latest FTPC and EIPS data using start.R  *
 LoadPACNVeg(force_refresh = FALSE, eips_paths = "foo")
 
-#--- 2. Update latest cache ------------------------------------------------------
-
-#** Download latest FTPC and EIPS data first!*
-
-# Write/Read csv from pacnvegetation package:
-pacnveg_cache_path <- "C:/Users/JJGross/OneDrive - DOI/Documents/Certification_Local/Databases/R_WritePACNVeg"
-# Read
-path_file_info <- file.info(list.files(pacnveg_cache_path, full.names = T))
-latest_folder <- rownames(path_file_info)[which.max(path_file_info$mtime)]
-
-LoadPACNVeg(data_path = latest_folder,
-            data_source = "file")
-
-names(FilterPACNVeg())
 
 #--- 2. variable specification -------------------------------------------------
 
-var_sframe <- "Mauna Loa"
+var_sframe <- "Kahuku"
 
 #nahuku_plots <- c(1, 4, 10, 12, 13, 14, 15, #fixed
 #                  46, 49, 51, 52, 54, 55, 56, 58, #2021 rotational
 #                  24, 26, #2010 rotational
 #                  31, 32, 33, 34, 35, 38, 41, 45) #2015 rotational
-
 
 
 # Photos / Field Maps ----
@@ -39,6 +24,8 @@ var_sframe <- "Mauna Loa"
 #*
 #** Use 'scripts/agol_fieldmaps_photo_finalize.R' **
 #*For final photo downloading/processing/database table linking
+
+
 
 # FTPC ----
 ## status check -----------------------------------------------------------
@@ -51,11 +38,12 @@ qaqc_status <- pacnvegetation::FilterPACNVeg(
   sample_frame = var_sframe)
 
 needs_verified <- qaqc_status |>
-  filter(Verified == FALSE)
+  dplyr::filter(Verified == FALSE)
 needs_verified
+nrow(needs_verified)
 
 needs_certified <- qaqc_status |>
-  filter(Certified == FALSE)
+  dplyr::filter(Certified == FALSE)
 needs_certified
 nrow(needs_certified)
 
@@ -99,7 +87,7 @@ all_pres_count <- all_pres |>
 
 ## Presence Dot Plots-----------------------------------------------------------
 var_plot_numbers <- c(1:15, 46:60)
-var_sframe <- "Mauna Loa"
+var_sframe
 save_folder_var <- "C:/Users/JJGross/OneDrive - DOI/Documents/Certification_Local/2021-2022 Certification/R_output"
 
 for (x in var_plot_numbers) {
@@ -317,25 +305,27 @@ EIPS_events_other <- FilterPACNVeg(data_name = "Events_extra_other_EIPS",
                                    sample_frame = var_sframe)
 
 EIPS_events_other <- EIPS_events_other |>
-  filter(Sampling_Frame == var_sframe)
+  dplyr::filter(Sampling_Frame == var_sframe)
 
 EIPS_needs_verified_eips <- EIPS_events_other |>
-  filter(Verified == FALSE)
+  dplyr::filter(Verified == FALSE)
 EIPS_needs_verified_eips
+nrow(EIPS_needs_verified_eips)
 
 EIPS_needs_certified <- EIPS_events_other |>
-  filter(Certified == FALSE)
+  dplyr::filter(Certified == FALSE)
 EIPS_needs_certified
 nrow(EIPS_needs_certified)
 
 # EIPS Segment complete check --------------------------------------
 
-# v_EIPS_prep assumes all segments with no records was visited and no invasives were
-# detected - this is incorrect assumption if transect was not fully completed (ie all segments monitored)
-# In database for each segment, there is a box that can be checked if segment was not monitored.
-# This column still needs dplyr::select() and pulled through in the utils.R file for ReadEIPS()
+# v_EIPS_prep: segments with no records (NA) are assumed to be free of non-natives. However,
+# sometime transects are not fully completed. Two scenarios - First, if incomplete at end of transect (and no one
+# entered blank data in database) then 'Null' is applied and correctly ignored. Alternatively,
+# if blank data entered by creating segment in database (ie - someone pages through segment tabs) then
+# NA gets applied incorrectly resulting in NA which assumee no non-natives - but when really there is no data for segment).
 
-EIPS_check <- v_EIPS_prep(sample_frame = var_sframe, cycle = 3)
+EIPS_check <- v_EIPS_prep(sample_frame = var_sframe)
 
 EIPS_segment_check <- EIPS_check |>
   dplyr::group_by(Unit_Code, Sampling_Frame, Year, Cycle, Transect_Number, Tran_Length_m) |>
@@ -345,9 +335,9 @@ EIPS_segment_check <- EIPS_check |>
 
 
 ## Presence Dot Plots-----------------------------------------------------------
-var_transect_numbers <- c(1:10, 31:40)
+var_transect_numbers <- c(1:10, 31:60)
 var_transect_numbers
-var_sframe <- "Mauna Loa"
+var_sframe
 save_folder_var <- "C:/Users/JJGross/OneDrive - DOI/Documents/Certification_Local/2021-2022 Certification/R_output"
 
 
@@ -355,7 +345,7 @@ LoadPACNVeg(force_refresh = FALSE, eips_paths = "foo")
 
 # If single graph needed:
 qc_EIPS_spp_pres_dot_plot(sample_frame =var_sframe,
-                          transect_number = 4)
+                          transect_number = 1)
 
 # Make graphs for all transects listed in var_transect_numbers:
 for (x in var_transect_numbers) {
@@ -368,9 +358,8 @@ for (x in var_transect_numbers) {
 
 
 # ---- EIPS Cover Class frequency ------------------------------------------
-var_transect_numbers <- c(1:10)
-
-var_sframe <- "Mauna Loa"
+var_transect_numbers <- c(1:10, 31:60)
+var_sframe
 save_folder_var <- "C:/Users/JJGross/OneDrive - DOI/Documents/Certification_Local/2021-2022 Certification/R_output"
 
 
@@ -378,7 +367,7 @@ LoadPACNVeg(force_refresh = FALSE, eips_paths = "foo")
 
 # If single graph needed:
 EIPS_cover_x_freq(sample_frame =var_sframe,
-                          transect_number = 4)
+                          transect_number = 1)
 
 # Make graphs for all transects listed in var_transect_numbers:
 for (x in var_transect_numbers) {
