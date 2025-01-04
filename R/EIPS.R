@@ -708,59 +708,70 @@ EIPS_cover_x_freq <- function(sample_frame, transect_number, save_folder) {
     dplyr::distinct() |>
     dplyr::mutate(segs_pres = 1) |>
     dplyr::group_by(Sampling_Frame, Cycle, Transect_Number, Nativity, Scientific_Name, Code, Cover_Class) |>
-    dplyr::summarize(segs_per_tran = sum(segs_pres), .groups = "drop") |>
-    dplyr::mutate(Cover_Class = dplyr::case_when(Cover_Class == "OUT" ~ "0",
-                                                 .default = as.character(Cover_Class)))
+    dplyr::summarize(segs_per_tran = sum(segs_pres), .groups = "drop") #|>
+    #dplyr::mutate(Cover_Class = dplyr::case_when(Cover_Class == "OUT" ~ "0",
+    #                                             .default = as.character(Cover_Class)))
+
+  gCC <- eips_cover_freq |>
+    dplyr::group_by(Sampling_Frame, Cycle, Transect_Number, Nativity, Scientific_Name, Code) |>
+    dplyr::filter(Cover_Class == "CC") |>
+    dplyr::mutate(`CC` = sum(segs_per_tran))|>
+    dplyr::select(-Cover_Class, -segs_per_tran)|>
+    dplyr::distinct()
+
   OUT <- eips_cover_freq |>
     dplyr::group_by(Sampling_Frame, Cycle, Transect_Number, Nativity, Scientific_Name, Code) |>
-    dplyr::filter(Cover_Class >= 0) |>
+    dplyr::filter(Cover_Class == "OUT") |>
     dplyr::mutate(OUT = sum(segs_per_tran))|>
     dplyr::select(-Cover_Class, -segs_per_tran) |>
     dplyr::distinct()
 
-  g0p <- eips_cover_freq |>
+  eips_cover_freq_numbers_only <- eips_cover_freq |>
+    dplyr::filter(Cover_Class != "CC" & Cover_Class != "OUT")
+
+  g0p <- eips_cover_freq_numbers_only |>
     dplyr::group_by(Sampling_Frame, Cycle, Transect_Number, Nativity, Scientific_Name, Code) |>
     dplyr::filter(Cover_Class >= 1) |>
     dplyr::mutate(`0` = sum(segs_per_tran))|>
     dplyr::select(-Cover_Class, -segs_per_tran) |>
     dplyr::distinct()
 
-  g1p <- eips_cover_freq |>
+  g1p <- eips_cover_freq_numbers_only |>
     dplyr::group_by(Sampling_Frame, Cycle, Transect_Number, Nativity, Scientific_Name, Code) |>
     dplyr::filter(Cover_Class >= 2) |>
     dplyr::mutate(`1` = sum(segs_per_tran))|>
     dplyr::select(-Cover_Class, -segs_per_tran)|>
     dplyr::distinct()
 
-  g5p <- eips_cover_freq |>
+  g5p <- eips_cover_freq_numbers_only |>
     dplyr::group_by(Sampling_Frame, Cycle, Transect_Number, Nativity, Scientific_Name, Code) |>
     dplyr::filter(Cover_Class >= 3) |>
     dplyr::mutate(`5` = sum(segs_per_tran))|>
     dplyr::select(-Cover_Class, -segs_per_tran)|>
     dplyr::distinct()
 
-  g10p <- eips_cover_freq |>
+  g10p <- eips_cover_freq_numbers_only |>
     dplyr::group_by(Sampling_Frame, Cycle, Transect_Number, Nativity, Scientific_Name, Code) |>
     dplyr::filter(Cover_Class >= 4) |>
     dplyr::mutate(`10` = sum(segs_per_tran))|>
     dplyr::select(-Cover_Class, -segs_per_tran)|>
     dplyr::distinct()
 
-  g25p <- eips_cover_freq |>
+  g25p <- eips_cover_freq_numbers_only |>
     dplyr::group_by(Sampling_Frame, Cycle, Transect_Number, Nativity, Scientific_Name, Code) |>
     dplyr::filter(Cover_Class >= 5) |>
     dplyr::mutate(`25` = sum(segs_per_tran))|>
     dplyr::select(-Cover_Class, -segs_per_tran)|>
     dplyr::distinct()
 
-  g50p <- eips_cover_freq |>
+  g50p <- eips_cover_freq_numbers_only |>
     dplyr::group_by(Sampling_Frame, Cycle, Transect_Number, Nativity, Scientific_Name, Code) |>
     dplyr::filter(Cover_Class >= 6) |>
     dplyr::mutate(`50` = sum(segs_per_tran))|>
     dplyr::select(-Cover_Class, -segs_per_tran)|>
     dplyr::distinct()
 
-  g75p <- eips_cover_freq |>
+  g75p <- eips_cover_freq_numbers_only |>
     dplyr::group_by(Sampling_Frame, Cycle, Transect_Number, Nativity, Scientific_Name, Code) |>
     dplyr::filter(Cover_Class >= 7) |>
     dplyr::mutate(`75` = sum(segs_per_tran))|>
@@ -771,18 +782,25 @@ EIPS_cover_x_freq <- function(sample_frame, transect_number, save_folder) {
     dplyr::ungroup() |>
     select(Sampling_Frame, Cycle, Transect_Number, Nativity, Scientific_Name, Code) |>
     dplyr::distinct() |>
+    dplyr::left_join(OUT, by = dplyr::join_by(Sampling_Frame, Cycle, Transect_Number, Nativity, Scientific_Name, Code)) |>
     dplyr::left_join(g0p, by = dplyr::join_by(Sampling_Frame, Cycle, Transect_Number, Nativity, Scientific_Name, Code)) |>
     dplyr::left_join(g1p, by = dplyr::join_by(Sampling_Frame, Cycle, Transect_Number, Nativity, Scientific_Name, Code)) |>
     dplyr::left_join(g5p, by = dplyr::join_by(Sampling_Frame, Cycle, Transect_Number, Nativity, Scientific_Name, Code)) |>
     dplyr::left_join(g10p, by = dplyr::join_by(Sampling_Frame, Cycle, Transect_Number, Nativity, Scientific_Name, Code)) |>
     dplyr::left_join(g25p, by = dplyr::join_by(Sampling_Frame, Cycle, Transect_Number, Nativity, Scientific_Name, Code)) |>
     dplyr::left_join(g50p, by = dplyr::join_by(Sampling_Frame, Cycle, Transect_Number, Nativity, Scientific_Name, Code)) |>
-    dplyr::left_join(g75p, by = dplyr::join_by(Sampling_Frame, Cycle, Transect_Number, Nativity, Scientific_Name, Code))
+    dplyr::left_join(g75p, by = dplyr::join_by(Sampling_Frame, Cycle, Transect_Number, Nativity, Scientific_Name, Code)) |>
+    dplyr::left_join(gCC, by = dplyr::join_by(Sampling_Frame, Cycle, Transect_Number, Nativity, Scientific_Name, Code))
 
   final_table <- eips_add_cover |>
     pivot_longer(cols = `0`:`75`, names_to = "cover_greater_than", values_to = "segs") |>
+    #pivot_longer(cols = c("OUT"), names_to = "cover_greater_than", values_to = "segs") |>
     dplyr::left_join(segs, by = join_by(Sampling_Frame, Cycle, Transect_Number)) |>
-    dplyr::mutate(freq = segs/transect_segs_calc)
+    dplyr::mutate(freq = segs/transect_segs_calc) |>
+    dplyr::mutate(freq = case_when(!is.na(CC) ~ CC/transect_segs_calc,
+                                   .default = freq)) |>
+    dplyr::mutate(freq = case_when(!is.na(OUT) ~ OUT/transect_segs_calc,
+                                   .default = freq))
 
   library(viridis)
 
@@ -792,8 +810,12 @@ EIPS_cover_x_freq <- function(sample_frame, transect_number, save_folder) {
     ggplot2::ggplot(aes(x=cover_greater_than,
                         y= freq,
                         group = Cycle,
-                        color = Cycle))+
-    geom_line(linewidth = 1)+
+                        color = Cycle)) +
+    ggplot2::geom_point(size = 4, data = subset(final_table, !is.na(OUT)), color = "green") +
+    ggplot2::geom_line(linewidth = 3, data = subset(final_table, !is.na(OUT)), color = "green") +
+    ggplot2::geom_point(size = 4, data = subset(final_table, !is.na(CC)), color = "dark gray") +
+    ggplot2::geom_line(linewidth = 3, data = subset(final_table, !is.na(CC)), color = "dark gray") +
+    ggplot2::geom_line(linewidth = 1) +
     ggplot2::geom_point(size = 2) +
     ggplot2::labs(x="% Cover", y=expression(paste("Frequency")))+
     ggplot2::ggtitle(paste(final_table$Sampling_Frame, "Transect", final_table$Transect_Number))+
@@ -807,6 +829,18 @@ EIPS_cover_x_freq <- function(sample_frame, transect_number, save_folder) {
                                 limits = c(0, 1),
                                 breaks=seq(0,1,.2)) +
     facet_wrap(~Scientific_Name)
+
+  plot_message <- ""
+
+  if (any(!is.na(final_table$CC))) {
+    plot_message <- paste0("gray highlight: shows frequency only (cover data is grouped within 'Alien Grass')")
+    graph_out <- graph_out + ggplot2::labs(caption = plot_message)
+  }
+
+  if (any(!is.na(final_table$OUT))) {
+    plot_message <- paste(plot_message, "green highlight: a species occurrence was noted outside transect boundary", sep = "\n")
+    graph_out <- graph_out + ggplot2::labs(caption = plot_message)
+  }
 
 
   if (!missing(save_folder)) {

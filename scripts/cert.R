@@ -341,8 +341,6 @@ var_sframe
 save_folder_var <- "C:/Users/JJGross/OneDrive - DOI/Documents/Certification_Local/2021-2022 Certification/R_output"
 
 
-LoadPACNVeg(force_refresh = FALSE, eips_paths = "foo")
-
 # If single graph needed:
 qc_EIPS_spp_pres_dot_plot(sample_frame =var_sframe,
                           transect_number = 1)
@@ -363,11 +361,9 @@ var_sframe
 save_folder_var <- "C:/Users/JJGross/OneDrive - DOI/Documents/Certification_Local/2021-2022 Certification/R_output"
 
 
-LoadPACNVeg(force_refresh = FALSE, eips_paths = "foo")
-
 # If single graph needed:
 EIPS_cover_x_freq(sample_frame =var_sframe,
-                          transect_number = 1)
+                          transect_number = 4)
 
 # Make graphs for all transects listed in var_transect_numbers:
 for (x in var_transect_numbers) {
