@@ -704,23 +704,23 @@ EIPS_cover_x_freq <- function(sample_frame, transect_number, save_folder) {
   # Will need to make segs_per_tran calculation more robust
   eips_cover_freq <- eips_data |>
     dplyr::filter(Transect_Number == transect_number) |>
-    dplyr::select(Sampling_Frame, Cycle, Transect_Number, Nativity, Scientific_Name, Code, Segment, Cover_Class) |>
+    dplyr::select(Sampling_Frame, Cycle, Transect_Number, Nativity, Scientific_Name, Dead, Code, Segment, Cover_Class) |>
     dplyr::distinct() |>
     dplyr::mutate(segs_pres = 1) |>
-    dplyr::group_by(Sampling_Frame, Cycle, Transect_Number, Nativity, Scientific_Name, Code, Cover_Class) |>
+    dplyr::group_by(Sampling_Frame, Cycle, Transect_Number, Nativity, Scientific_Name, Dead, Code, Cover_Class) |>
     dplyr::summarize(segs_per_tran = sum(segs_pres), .groups = "drop") #|>
     #dplyr::mutate(Cover_Class = dplyr::case_when(Cover_Class == "OUT" ~ "0",
     #                                             .default = as.character(Cover_Class)))
 
   gCC <- eips_cover_freq |>
-    dplyr::group_by(Sampling_Frame, Cycle, Transect_Number, Nativity, Scientific_Name, Code) |>
+    dplyr::group_by(Sampling_Frame, Cycle, Transect_Number, Nativity, Scientific_Name, Code, Dead) |>
     dplyr::filter(Cover_Class == "CC") |>
     dplyr::mutate(`CC` = sum(segs_per_tran))|>
     dplyr::select(-Cover_Class, -segs_per_tran)|>
     dplyr::distinct()
 
   OUT <- eips_cover_freq |>
-    dplyr::group_by(Sampling_Frame, Cycle, Transect_Number, Nativity, Scientific_Name, Code) |>
+    dplyr::group_by(Sampling_Frame, Cycle, Transect_Number, Nativity, Scientific_Name, Code, Dead) |>
     dplyr::filter(Cover_Class == "OUT") |>
     dplyr::mutate(OUT = sum(segs_per_tran))|>
     dplyr::select(-Cover_Class, -segs_per_tran) |>
@@ -730,49 +730,49 @@ EIPS_cover_x_freq <- function(sample_frame, transect_number, save_folder) {
     dplyr::filter(Cover_Class != "CC" & Cover_Class != "OUT")
 
   g0p <- eips_cover_freq_numbers_only |>
-    dplyr::group_by(Sampling_Frame, Cycle, Transect_Number, Nativity, Scientific_Name, Code) |>
+    dplyr::group_by(Sampling_Frame, Cycle, Transect_Number, Nativity, Scientific_Name, Code, Dead) |>
     dplyr::filter(Cover_Class >= 1) |>
     dplyr::mutate(`0` = sum(segs_per_tran))|>
     dplyr::select(-Cover_Class, -segs_per_tran) |>
     dplyr::distinct()
 
   g1p <- eips_cover_freq_numbers_only |>
-    dplyr::group_by(Sampling_Frame, Cycle, Transect_Number, Nativity, Scientific_Name, Code) |>
+    dplyr::group_by(Sampling_Frame, Cycle, Transect_Number, Nativity, Scientific_Name, Code, Dead) |>
     dplyr::filter(Cover_Class >= 2) |>
     dplyr::mutate(`1` = sum(segs_per_tran))|>
     dplyr::select(-Cover_Class, -segs_per_tran)|>
     dplyr::distinct()
 
   g5p <- eips_cover_freq_numbers_only |>
-    dplyr::group_by(Sampling_Frame, Cycle, Transect_Number, Nativity, Scientific_Name, Code) |>
+    dplyr::group_by(Sampling_Frame, Cycle, Transect_Number, Nativity, Scientific_Name, Code, Dead) |>
     dplyr::filter(Cover_Class >= 3) |>
     dplyr::mutate(`5` = sum(segs_per_tran))|>
     dplyr::select(-Cover_Class, -segs_per_tran)|>
     dplyr::distinct()
 
   g10p <- eips_cover_freq_numbers_only |>
-    dplyr::group_by(Sampling_Frame, Cycle, Transect_Number, Nativity, Scientific_Name, Code) |>
+    dplyr::group_by(Sampling_Frame, Cycle, Transect_Number, Nativity, Scientific_Name, Code, Dead) |>
     dplyr::filter(Cover_Class >= 4) |>
     dplyr::mutate(`10` = sum(segs_per_tran))|>
     dplyr::select(-Cover_Class, -segs_per_tran)|>
     dplyr::distinct()
 
   g25p <- eips_cover_freq_numbers_only |>
-    dplyr::group_by(Sampling_Frame, Cycle, Transect_Number, Nativity, Scientific_Name, Code) |>
+    dplyr::group_by(Sampling_Frame, Cycle, Transect_Number, Nativity, Scientific_Name, Code, Dead) |>
     dplyr::filter(Cover_Class >= 5) |>
     dplyr::mutate(`25` = sum(segs_per_tran))|>
     dplyr::select(-Cover_Class, -segs_per_tran)|>
     dplyr::distinct()
 
   g50p <- eips_cover_freq_numbers_only |>
-    dplyr::group_by(Sampling_Frame, Cycle, Transect_Number, Nativity, Scientific_Name, Code) |>
+    dplyr::group_by(Sampling_Frame, Cycle, Transect_Number, Nativity, Scientific_Name, Code, Dead) |>
     dplyr::filter(Cover_Class >= 6) |>
     dplyr::mutate(`50` = sum(segs_per_tran))|>
     dplyr::select(-Cover_Class, -segs_per_tran)|>
     dplyr::distinct()
 
   g75p <- eips_cover_freq_numbers_only |>
-    dplyr::group_by(Sampling_Frame, Cycle, Transect_Number, Nativity, Scientific_Name, Code) |>
+    dplyr::group_by(Sampling_Frame, Cycle, Transect_Number, Nativity, Scientific_Name, Code, Dead) |>
     dplyr::filter(Cover_Class >= 7) |>
     dplyr::mutate(`75` = sum(segs_per_tran))|>
     dplyr::select(-Cover_Class, -segs_per_tran)|>
@@ -780,17 +780,17 @@ EIPS_cover_x_freq <- function(sample_frame, transect_number, save_folder) {
 
   eips_add_cover <- eips_cover_freq %>%
     dplyr::ungroup() |>
-    select(Sampling_Frame, Cycle, Transect_Number, Nativity, Scientific_Name, Code) |>
+    select(Sampling_Frame, Cycle, Transect_Number, Nativity, Scientific_Name, Code, Dead) |>
     dplyr::distinct() |>
-    dplyr::left_join(OUT, by = dplyr::join_by(Sampling_Frame, Cycle, Transect_Number, Nativity, Scientific_Name, Code)) |>
-    dplyr::left_join(g0p, by = dplyr::join_by(Sampling_Frame, Cycle, Transect_Number, Nativity, Scientific_Name, Code)) |>
-    dplyr::left_join(g1p, by = dplyr::join_by(Sampling_Frame, Cycle, Transect_Number, Nativity, Scientific_Name, Code)) |>
-    dplyr::left_join(g5p, by = dplyr::join_by(Sampling_Frame, Cycle, Transect_Number, Nativity, Scientific_Name, Code)) |>
-    dplyr::left_join(g10p, by = dplyr::join_by(Sampling_Frame, Cycle, Transect_Number, Nativity, Scientific_Name, Code)) |>
-    dplyr::left_join(g25p, by = dplyr::join_by(Sampling_Frame, Cycle, Transect_Number, Nativity, Scientific_Name, Code)) |>
-    dplyr::left_join(g50p, by = dplyr::join_by(Sampling_Frame, Cycle, Transect_Number, Nativity, Scientific_Name, Code)) |>
-    dplyr::left_join(g75p, by = dplyr::join_by(Sampling_Frame, Cycle, Transect_Number, Nativity, Scientific_Name, Code)) |>
-    dplyr::left_join(gCC, by = dplyr::join_by(Sampling_Frame, Cycle, Transect_Number, Nativity, Scientific_Name, Code))
+    dplyr::left_join(OUT, by = dplyr::join_by(Sampling_Frame, Cycle, Transect_Number, Nativity, Scientific_Name, Code, Dead)) |>
+    dplyr::left_join(g0p, by = dplyr::join_by(Sampling_Frame, Cycle, Transect_Number, Nativity, Scientific_Name, Code, Dead)) |>
+    dplyr::left_join(g1p, by = dplyr::join_by(Sampling_Frame, Cycle, Transect_Number, Nativity, Scientific_Name, Code, Dead)) |>
+    dplyr::left_join(g5p, by = dplyr::join_by(Sampling_Frame, Cycle, Transect_Number, Nativity, Scientific_Name, Code, Dead)) |>
+    dplyr::left_join(g10p, by = dplyr::join_by(Sampling_Frame, Cycle, Transect_Number, Nativity, Scientific_Name, Code, Dead)) |>
+    dplyr::left_join(g25p, by = dplyr::join_by(Sampling_Frame, Cycle, Transect_Number, Nativity, Scientific_Name, Code, Dead)) |>
+    dplyr::left_join(g50p, by = dplyr::join_by(Sampling_Frame, Cycle, Transect_Number, Nativity, Scientific_Name, Code, Dead)) |>
+    dplyr::left_join(g75p, by = dplyr::join_by(Sampling_Frame, Cycle, Transect_Number, Nativity, Scientific_Name, Code, Dead)) |>
+    dplyr::left_join(gCC, by = dplyr::join_by(Sampling_Frame, Cycle, Transect_Number, Nativity, Scientific_Name, Code, Dead))
 
   final_table <- eips_add_cover |>
     pivot_longer(cols = `0`:`75`, names_to = "cover_greater_than", values_to = "segs") |>
@@ -800,7 +800,10 @@ EIPS_cover_x_freq <- function(sample_frame, transect_number, save_folder) {
     dplyr::mutate(freq = case_when(!is.na(CC) ~ CC/transect_segs_calc,
                                    .default = freq)) |>
     dplyr::mutate(freq = case_when(!is.na(OUT) ~ OUT/transect_segs_calc,
-                                   .default = freq))
+                                   .default = freq)) |>
+    dplyr::mutate(Scientific_Name = case_when(
+      Dead == TRUE ~ paste(as.character(Scientific_Name), "(Dead)"),
+      .default = as.character(Scientific_Name)))
 
   library(viridis)
 
