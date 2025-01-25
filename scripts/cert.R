@@ -6,6 +6,10 @@ library(tidyverse)
 #**  Make sure to download latest FTPC and EIPS data using start.R  *
 LoadPACNVeg(force_refresh = FALSE, eips_paths = "foo")
 
+all_presence <- FilterPACNVeg(data_name = "Presence")
+all_cover <- FilterPACNVeg(data_name = "Understory")
+all_EIPS <- FilterPACNVeg(data_name = "EIPS_data")
+
 
 #--- 2. variable specification -------------------------------------------------
 
@@ -101,6 +105,22 @@ pacnvegetation::qc_FTPC_spp_pres_dot_plot(sample_frame = var_sframe,
                                       save_folder = save_folder_var)
 
 ## Understory spp consistency chk ----------------------------------------------
+for (x in var_plot_numbers) {
+  pacnvegetation::v_cover_bar_stats(plant_grouping = "Species",
+                                    sample_frame = var_sframe,
+                                    combine_strata = FALSE,
+                                    cycle = c(1,2,3),
+                                    remove_unknown = FALSE,
+                                    plot_number = x) + ggplot2::labs(title=paste(var_sframe, "Plot #", x))
+
+
+  path_var <- paste0("C:/Users/JJGross/OneDrive - DOI/Documents/Certification_Local/2021-2022 Certification/R_output/", var_sframe, "/")
+  filename_var_v_cover <- paste0("v_cover_plot_spp_", x, ".png")
+  filename_var_v_cover
+  ggsave(filename = filename_var_v_cover, path = path_var, height = 10, width = 15)
+}
+
+
 var_plot_number <- c(56)
 
 pacnvegetation::v_cover_bar_stats(plant_grouping = "Species",
@@ -335,7 +355,7 @@ EIPS_segment_check <- EIPS_check |>
 
 
 ## Presence Dot Plots-----------------------------------------------------------
-var_transect_numbers <- c(1:10, 31:60)
+var_transect_numbers <- c(1:15, 46:60)
 var_transect_numbers
 var_sframe
 save_folder_var <- "C:/Users/JJGross/OneDrive - DOI/Documents/Certification_Local/2021-2022 Certification/R_output"
@@ -356,14 +376,14 @@ for (x in var_transect_numbers) {
 
 
 # ---- EIPS Cover Class frequency ------------------------------------------
-var_transect_numbers <- c(1:10, 31:60)
+var_transect_numbers <- c(1:15, 46:60)
 var_sframe
 save_folder_var <- "C:/Users/JJGross/OneDrive - DOI/Documents/Certification_Local/2021-2022 Certification/R_output"
 
 
 # If single graph needed:
 EIPS_cover_x_freq(sample_frame =var_sframe,
-                          transect_number = 4)
+                          transect_number = 2)
 
 # Make graphs for all transects listed in var_transect_numbers:
 for (x in var_transect_numbers) {
@@ -371,8 +391,6 @@ for (x in var_transect_numbers) {
                                              transect_number = x,
                                              save_folder = save_folder_var)
 }
-
-
 
 
 # Final Species List ----
@@ -385,4 +403,4 @@ veg_species_db_full_path
 raw_spp_data <- read_spp_db(veg_species_db_full_path)
 
 # Get master species list for a park (with ID_Field for field maps):
-spp_list_master <- master_spp_list(veg_species_db_full_path, sample_frame = "Puu Alii")
+spp_list_master <- master_spp_list(veg_species_db_full_path, park = "HAVO")

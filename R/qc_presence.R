@@ -164,10 +164,10 @@ qc_FTPC_spp_pres_dot_plot <- function(sample_frame, plot_number, save_folder, is
     dplyr::group_by(Sampling_Frame, Code, Scientific_Name) %>%
     dplyr::summarize(plots_observed = n()) %>%
     # "rare" will be 4 plots_observed or less
-    filter(plots_observed < 5) %>%
+    dplyr::filter(plots_observed < 5) %>%
     dplyr::mutate(less_than_5_plots = TRUE) %>%
     dplyr::right_join(chk_pres) %>%
-    filter(less_than_5_plots == TRUE)
+    dplyr::filter(less_than_5_plots == TRUE)
 
   # Join rare species flags to Presence
   chk_pres1 <- chk_pres %>%
@@ -200,9 +200,9 @@ qc_FTPC_spp_pres_dot_plot <- function(sample_frame, plot_number, save_folder, is
                      color = Nativity),
                  linetype="dashed",
                  linewidth=0.5) +
-    ggplot2::geom_point(size = 7, data = ~filter(.x, less_than_5_plots == TRUE), color = "yellow") +
+    ggplot2::geom_point(size = 7, data = ~dplyr::filter(.x, less_than_5_plots == TRUE), color = "yellow") +
     ggplot2::geom_point(size = 4, aes(color = Nativity)) +
-    ggplot2::geom_point(size = 2, data = ~filter(.x, Outside_Plot == TRUE), color = "black") +
+    ggplot2::geom_point(size = 2, data = ~dplyr::filter(.x, Outside_Plot == TRUE), color = "black") +
     ggplot2::labs(title="Check Presence",
          subtitle= (paste0(chk_pres2$Sampling_Frame[1], " Plot ", chk_pres2$Plot_Number[1])),
          caption= (paste0("QA/QC"))) +

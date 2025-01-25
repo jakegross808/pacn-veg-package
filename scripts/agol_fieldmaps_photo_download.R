@@ -12,9 +12,6 @@ var_temp_dest <- "C:/Users/JJGross/Downloads/Check_Photos"
 ## AGOL urls: ------------------------------------------------------------------
 
 # Type in new AGOL layer rest services here:
-
-
-
 EIPS_KALA_2024 <- "https://services1.arcgis.com/fBc8EJBxQRMcHlei/arcgis/rest/services/KALA_2024_EIPS_Sampling_Points_Photos/FeatureServer/29"
 var_photo_layers <- c("EIPS_KALA_2024")
 
@@ -58,13 +55,13 @@ field_maps_data <- download_agol(
 # Oddly it seems to work fine with FTPC
 
 # 2nd Download Test Run
-field_maps_data <- download_agol(
+field_maps_data_test <- download_agol(
   photo_layers = var_photo_layers,
   temp_dest = var_temp_dest,
   sharepoint_dest = var_sharepoint_dest,
   master_spreadsheet_folder = master_spreadsheet_folder,
   #after_date_filter = lubridate::mdy_hms("08/18/2024 18:00:00", tz = "HST"),
-  auto_date_filter = TRUE,
+  auto_date_filter = FALSE,
   test_run = TRUE
 )
 
