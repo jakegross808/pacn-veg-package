@@ -1,6 +1,6 @@
 ---
 author: "Pacific Island Inventory & Monitoring Network (PACN)"
-date: "06 NOV 2024"
+date: "31 JAN 2025"
 output: 
   bookdown::html_document2:
     toc: true
@@ -80,7 +80,9 @@ if (params$sample_frame %in% no_EIPS) {
 }
 
 # Get park name
-names <- readxl::read_xlsx(here::here("R", "PACN_veg_names.xlsx")) %>%
+names_all <- readxl::read_xlsx(here::here("R", "PACN_veg_names.xlsx")) 
+
+names <- names_all |>
   dplyr::filter(Sampling_Frame == params$sample_frame)
 
 park <- names$Park_Name
@@ -99,7 +101,7 @@ max_cycle <- max(cycles)
 # Get front page photo
 file.path(getwd())
 front_photo <- paste0(file.path(getwd()), file.path("/images", "/"), paste0(names$Sampling_Frame, "_", max_cycle, ".jpg"))
-front_photo_cap <- paste0("Vegetation monitoring site within the ", community, " Plant Community at ", park, ".")
+front_photo_cap <- paste0("Vegetation monitoring site within the ", samp_frame, " ", community, " Plant Community at ", park, ".")
 
 if (params$sample_frame == "Olaa" |
     params$sample_frame == "Kahuku" |
@@ -122,21 +124,42 @@ knitr::include_graphics(front_photo)
 
 # Background
 
-The National Park's Pacific Island Inventory and Monitoring Network (PACN) monitors plant communities at the following locations (this report shows `r samp_frame` data only):
+The Pacific Island Inventory and Monitoring Network (PACN) monitors five vegetation community types across the national parks of the pacific islands. Plant communities (restricted to locations within national park units) include the wet forest of Hawaiʻi and American Samoa, the subalpine shrubland of Hawaiʻi on the slopes of Mauna Loa and Haleakalā, the coastal strand of Hawaiʻi, the limestone forest on the island of Guam, and the mangrove forest on the island of Saipan (Table \@ref(tab:samp-frames-tbl)). Long-term, standardized monitoring protocols ([Ainsworth et al. 2011, 2012](#refs)) are implemented at repeated intervals (5-7 year cycles) to determine the status and trends of these plant communities.
 
-```{r echo=FALSE, message=FALSE, warning=FALSE, layout="l-body-outset"}
+```{r samp-frames-tbl, echo=FALSE, message=FALSE, warning=FALSE, layout="l-body-outset"}
 pacn_veg_locations <- FilterPACNVeg(data_name = "Presence") |>
-  rename(`Park Code` = Unit_Code, `Plant Community` = Community, `Location in Park` = Sampling_Frame_Formal) |>
+  rename(`Park Code` = Unit_Code, `Plant Community` = Community, 
+         `Location in Park` = Sampling_Frame_Formal) |>
   select(`Plant Community`, `Park Code`, `Location in Park`) |>
-  distinct() |>
-  arrange(desc(`Plant Community`), `Park Code`) |>
-  na.omit() 
+  distinct() 
+
+pacn_veg_locations2 <- pacn_veg_locations |>
+  select(`Location in Park`) |>
+  left_join(names_all, by = join_by(`Location in Park` == Formal_Sampling_Frame)) 
+  #arrange(desc(`Plant Community`), `Park Code`) |>
+  #na.omit()
+
+tab1_cap <- paste("Vegetation communities monitored by PACN. This report examines the", samp_frame, "dataset only (highlighted).")
 
 pacn_veg_locations |>
-  kable(booktabs = T) %>%
+  kable(booktabs = T, label = NA, caption = tab1_cap) %>%
   kable_styling() %>%
   row_spec(which(pacn_veg_locations$`Location in Park` == samp_frame), bold = T, color = "white", background = "darkgreen")
 ```
+
+# Methods
+
+## Protocols (Vital Signs)
+
+-   PACN’s primary vegetation monitoring protocol is titled [**Focal Terrestrial Plant Communities (FTPC)**](https://www.nps.gov/im/pacn/focal_communities.htm). This protocol utilizes 20m x 50m plots (except in coastal strand communities where plots are 10m x 20m). Native and non-native plant composition and structure are assessed in terms of vascular plant species diversity, understory cover, species density (of woody species by height or size class), and species distribution frequency. Additional measurements are collected on canopy height and coarse woody debris ([Ainsworth et al. 2011](#refs)).
+
+-   In select locations, additional data regarding non-native plant species are collected via PACN’s [**Established Invasive Plant Species (EIPS)**](https://www.nps.gov/im/pacn/established_invasive.htm) protocol. This protocol utilizes 5m-wide transects divided into contiguous sub-plots (segments). Transect length is 1000m in the wet forest (except Kahuku in HAVO) and 500 m in the subalpine shrubland, while segments along the transects are 5m x 20m. At Coastal Strand, Mangrove Forest, and Kahuku-wet forest plant communities, transect length is variable (250m at Kahuku) and segments are 5m x 10m. Non-native species presence and estimates of cover are collected at each segment and summarized across each transect to provide data on non-native plant richness, frequency, and cover ([Ainsworth et al. 2012](#refs)).
+
+All data utilized in this report are available for public use and can be downloaded using the NPS [DataStore](https://irma.nps.gov/DataStore/).
+
+## Sample Size
+
+Both vegetation monitoring protocols utilize a split panel design with two panels: (1) permanent sites (fixed) that are reread each sampling cycle and (2) temporary sites (rotational) that are visited only once. The intention is for the fixed sites to detect temporal changes and rotational sites to assess status and increase spatial coverage over time. In Figure \@ref(fig:sampling-map), fixed plots/transects are displayed as blue, while rotational plots/transects are displayed as red.
 
 ```{r message=FALSE, warning=FALSE, include=FALSE}
 sites <- PlotAndTransectLocations(sample_frame = params$sample_frame, protocol = var_protocol)
@@ -148,28 +171,72 @@ sites |>
 **Map of `r samp_frame` monitoring sites**
 
 ```{r include=FALSE}
-main_map_cap <- paste("All community plots (squares) and non-native transects (cirle with line) monitored within the", samp_frame, "-", community, "Plant Community. Fixed plots = blue; Rotational plots = red.")
+main_map_cap <- paste("All community plots (squares) and non-native transects (cirle with line) monitored within the", samp_frame, "-", community, "Plant Community. Fixed sites [blue]; Rotational sites [red].")
 ```
 
 ```{r sampling-map, out.width = '100%', echo=FALSE, fig.cap= paste(main_map_cap), message=FALSE, warning=FALSE}
 MapPACNVeg(sample_frame = params$sample_frame, protocol = var_protocol)
 ```
 
-# Methods
+The number of fixed and rotational sites monitored depends upon the size and arrangement of the plant community within the park and, to some extent, the degree of difficulty accessing the sites. Financial and logistical challenges can result in reduced sample size during a monitoring cycle. Table \@ref(tab:samp-size-table) shows the total plots and transects monitored for each cycle for the `r sf_title` dataset.
 
-X fixed plots and X fixed transects were monitored in <Years> Numbers can be auto calculated here. (Figure \@ref(fig:sampling-map)).
+```{r samp-size-table, echo=FALSE, message=FALSE, warning=FALSE, layout="l-body-outset"}
+n_EIPS_table <- FilterPACNVeg(data_name = "Events_extra_other_EIPS") |>
+  dplyr::filter(Sampling_Frame == params$sample_frame) |>
+  dplyr::mutate(Protocol = "EIPS",
+                `Sampling Unit` = "Transects",
+                sample_type = Transect_Type,
+                site_number = as.numeric(Transect_Number)) |>
+  dplyr::select(Sampling_Frame, Cycle, Year, Protocol, `Sampling Unit`, sample_type, site_number)
 
--   Understory Cover: Plant species understory cover was sampled within 50 x 20 m plots. Two height layers were recorded: 0-1 m from ground (Low) and 1-2 m from ground (High). Cover data was collected using the pole-intercept method (Ainsworth et al. 2011).
+n_table <- FilterPACNVeg(data_name = "Events_extra_other") |>
+  dplyr::filter(Sampling_Frame == params$sample_frame) |>
+  dplyr::mutate(Protocol = "FTPC",
+                `Sampling Unit` = "Plots",
+                sample_type = Plot_Type,
+                site_number = Plot_Number) |>
+  dplyr::select(Sampling_Frame, Cycle, Year, Protocol, `Sampling Unit`, sample_type, site_number) |>
+  dplyr::bind_rows(n_EIPS_table) |>
+  dplyr::group_by(Sampling_Frame, Protocol, Cycle) |>
+  dplyr::mutate(Year = min(Year)) |>
+  dplyr::group_by(Sampling_Frame, Protocol, `Sampling Unit`, sample_type, Cycle, Year) |>
+  dplyr::summarise(n = n(), .groups = "drop") |>
+  dplyr::select(Sampling_Frame, Protocol, Cycle, Year, `Sampling Unit`, sample_type, n) |>
+  dplyr::arrange(desc(Protocol), Year) |>
+  tidyr::pivot_wider(names_from = sample_type, values_from = n) |>
+  dplyr::select(-Sampling_Frame)
+  
 
--   Invasive Plant Transects: Additional data on non-native plants were collected using frequency of occurrence along 500 m transects (Ainsworth et al. 2012).
+tab2_cap <- paste("Sample size of plots (FTPC) and transects (EIPS) by cycle for ", samp_frame, ".")
+
+if (!any(n_table$Protocol == "EIPS")) {
+  tab2_cap <- paste("Sample size of plots (FTPC) for ", samp_frame, ". No transect (EIPS) monitoring conducted in ", samp_frame, ".")
+}
+
+n_table |>
+  kable(booktabs = T, label = NA, caption = tab2_cap) |>
+  kable_styling() 
+```
+
+## Vegetation Attributes
+
+The results section of this report is organized by the vegetation attributes listed below. A quick overview of the methods used to collect the vegetation attributes is provided. If further details are needed, please see the protocols and standard operating procedures (SOPs) for FTPC ([Ainsworth et al. 2011](#refs)) and EIPS ([Ainsworth et al. 2012](#refs)).
+
+-   **Understory Cover:** Understory cover is sampled using the pole intercept method. The percent cover of a plant species is calculated by the frequency in which that species touches a vertical pole that is repeatedly positioned at specific points across the plot. Each plot contains 300 cover points. Two distinct height layers (strata) are recorded: 0-1 m from ground (Low) and 1-2 m from ground (High). Note that several visuals within this report combine these two strata into one 0-2 meter stratum in order to simplify the visual. Understory cover for individual plant species cannot be greater than 100%, however, any combined grouping of species (e.g. all shrubs, all native plants) are reported as total cover and can exceed 100% cover due to overlapping vegetation layers (multiple species touching the pole at a point).
+
+-   **Plot Presence/Absence:** All vascular plant species rooted within the plot boundaries are recorded. Plot size is 20 x 50 m (with the exception of coastal strand plots, which are 10 x 20 m).
+
+-   **\*Invasive Plant Transects (EIPS):** While both native and non-native plant data are collected within the FTPC plots, the EIPS invasive plant transects provide wider spatial coverage of non-native plant presence and abundance which can help managers strategize control efforts. Transects are made up of contiguous rectangular plots, referred to as segments to distinguish from FTPC, and within each segement all non-native species and their estimated cover class within the segment are recorded. \*Note that EIPS is not implemented at all locations (often due to steep terrain which prevents long linear traversal).
+
+    -   *Nonnative frequency -* Percentage of segments with presence of species, life forms, or other groupings.
+
+    -   *Nonnative cover class -* Percentage of segments with a particular cover class for a species.
+
+    -   *Nonnative richness* - Count of nonnative species per segment.
 
 # Results
 
 ## Understory - Species Composition
-
--   Species composition within <Park Unit> <Plant Community or Sampling Frame> is primary <dominant plant canopy and understory types> (Figure \@ref(fig:cover-composition-graph)).
-
--   <Discuss and contrast major species components across sampling frame as necessary>.
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE}
 # prep colors for sunburst plots
@@ -186,20 +253,22 @@ sunburst_all <- understorySunburst(sample_frame = params$sample_frame, cycle = m
 sunburst_all
 ```
 
-```{r cover-composition-graph, echo=FALSE, fig.cap= paste0("Average understory species cover across the monitoring area from the most recent monitoring event (", max(years), "). Click on a section of the sunburst plot to drill down and click in the center to go back to the previous level of data."), message=FALSE, warning=FALSE, out.height="0px"}
+```{r cover-composition-graph, echo=FALSE, fig.cap= paste0("Average understory species cover across the ", sf_title," monitoring area from the most recent monitoring cycle (", max(years), ") including data from both fixed and rotational plots. Total average cover for each ring can exceed 100 percent due to overlapping layers in the understory. 'No Veg' is recorded when no vegetation touches the cover pole at a given point (even though vegetation may be just centimeters away). Hover over the species code to see the full scientific name and average cover value. Click on a section of the sunburst plot to drill down and click in the center to go back to the previous level of data."), message=FALSE, warning=FALSE, out.height="0px"}
 # Dumb hack to get fig caption to show below plot + map
 htmltools::span(class = "dummy-fig")
 knitr::include_graphics(here("inst", "rmarkdown", "dummy_fig.PNG"))
 ```
 
-<br/> <br/>
+<br/> <br/> <br/>
 
 ```{r echo=FALSE, warning=FALSE, message=FALSE}
 
+# may need to update management unit table first:
+# pacnvegetation::add_mgmt_unit(sample_frame = "All")
 understoryBarCover(params$sample_frame)
 ```
 
-```{r avg-cover-bar, echo=FALSE, fig.cap= "Average understory species cover across the monitoring area (Fixed AND Rotational plots included) by management unit and monitoring cycle", message=FALSE, warning=FALSE, out.height="0px"}
+```{r avg-cover-bar, echo=FALSE, fig.cap= "Average understory species cover across the monitoring area (Fixed AND Rotational plots included) by management unit and monitoring cycle.", message=FALSE, warning=FALSE, out.height="0px"}
 # Dumb hack to get fig caption to show below plot + map
 htmltools::span(class = "dummy-fig")
 knitr::include_graphics(here("inst", "rmarkdown", "dummy_fig.PNG"))
@@ -209,19 +278,13 @@ knitr::include_graphics(here("inst", "rmarkdown", "dummy_fig.PNG"))
 
 ### Community Level
 
--   <Describe total understory cover across years shown in bar graph> (Figure \@ref(fig:bar-tot-cover-graph)).
-
-```{r bar-tot-cover-graph, echo=FALSE, fig.cap=paste0("Total native and non-native cover from ", years[length(years)-1], "-", max(years), " (Mean +/- 95% CI). High = Understory 1-2 m; Low = Understory 0-1 m."), message=FALSE, warning=FALSE}
+```{r bar-tot-cover-graph, echo=FALSE, fig.cap=paste0("Total native and non-native understory cover from ", years[length(years)-1], "-", max(years), " (Mean +/- 95% CI). High = Understory 1-2 m; Low = Understory 0-1 m. Means calculated from pooled data across fixed AND rotational plots."), message=FALSE, warning=FALSE}
 v_cover_plot_bar_nativity(sample_frame = params$sample_frame, paired_change = FALSE, param = "Cover")
 ```
 
 <br> <br> <br>
 
 ### Plot Level
-
--   \<Highlght overall picture of native vs. non-native cover across all plots and highlight plots of high or low non-native cover if appropriate\> (Figure \@ref(fig:tot-cover-graph)).
-
--   <Describe the magnitude of difference between plots if appropriate>.
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE}
 grp1 <- "cov_total"
@@ -243,7 +306,7 @@ map1 <- MapCoverTotal2(crosstalk = TRUE,
 bscols(widths = c(6, NA), plt1, map1)
 ```
 
-```{r tot-cover-graph, echo=FALSE, fig.cap= paste0("Native and non-native understory cover for the most recent monitoring (", max(years), "). Point numbers corrspond to fixed monitoring sites."), message=FALSE, warning=FALSE, out.height="0px"}
+```{r tot-cover-graph, echo=FALSE, fig.cap= paste0("Native versus non-native understory cover at the monitoring plot level. LEFT GRAPH: Each bubble represents a vegetation monitoring plot. Larger bubbles represent greater total understory cover within the plot. The 1:1 line represents an equal percentage of native and non-native cover within the understory. Percent cover can be greater than 100 due to overlapping vegetation in the understory. RIGHT MAP: Squares represent the spatial location of the plot and are linked to the graph on the left. The YEAR buttons at the bottom of the figure filter the points for both the graph and the map."), message=FALSE, warning=FALSE, out.height="0px"}
 # Dumb hack to get fig caption to show below plot + map
 htmltools::span(class = "dummy-fig")
 knitr::include_graphics(here("inst", "rmarkdown", "dummy_fig.PNG"))
@@ -251,7 +314,7 @@ knitr::include_graphics(here("inst", "rmarkdown", "dummy_fig.PNG"))
 
 <br> <br> <br>
 
-#### Check understory cover within a specific plot:
+**Compare understory cover between plots:**
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE, fig.cap= paste0("Choose a 'Year' and 'Plot #' for left figure and right figure to compare species understory cover at specific location or time.")}
 plot_v_plot1 <- v_cover_bar_spp_plot(sample_frame = params$sample_frame, crosstalk_filters = TRUE, crosstalk_group = "spp_plot1")
@@ -414,15 +477,7 @@ if ("EIPS" %in% var_protocol) {
 3. Particular species of interest (site specific). 
 ```
 
-# Summary
-
--   Summary text here.
-
--   Summary text here.
-
--   Summary text here.
-
-# References
+# References {#refs}
 
 | [Ainsworth, A., J.D. Jacobi, R. K. Loh, J.A. Christian, C. Yanger, and P. Berkowitz. 2012. Established invasive plant species monitoring protocol: Pacific Island Network. Natural Resource Report NPS/ PACN/NRR---2012/514. National Park Service, Fort Collins, Colorado.](https://irma.nps.gov/DataStore/DownloadFile/448810)
 | 

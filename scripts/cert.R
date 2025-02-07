@@ -13,7 +13,7 @@ all_EIPS <- FilterPACNVeg(data_name = "EIPS_data")
 
 #--- 2. variable specification -------------------------------------------------
 
-var_sframe <- "Kahuku"
+var_sframe <- "Kipahulu District"
 
 #nahuku_plots <- c(1, 4, 10, 12, 13, 14, 15, #fixed
 #                  46, 49, 51, 52, 54, 55, 56, 58, #2021 rotational
@@ -55,6 +55,17 @@ nrow(needs_certified)
 
 
 ## have photos been exported?----------------------------------------------------
+
+
+##plot sample size -------------------------------------------------------
+n_FTPC_table <- FilterPACNVeg(data_name = "Events_extra_other") |>
+  dplyr::group_by(Sampling_Frame, Cycle) |>
+  dplyr::mutate(Year = min(Year)) |>
+  dplyr::group_by(Sampling_Frame, Plot_Type, Cycle, Year) |>
+  dplyr::summarise(n = n())
+
+n_FTPC_table_sf <- n_FTPC_table |>
+  dplyr::filter(Sampling_Frame == var_sframe)
 
 
 ## qc_presence ---------------------------------------------------------------
@@ -318,6 +329,16 @@ Boles_DBH_list <- Boles_DBH |>
 # EIPS ---------
 
 var_sframe
+
+## transect sample size -------------------------------------------------------
+n_EIPS_table <- FilterPACNVeg(data_name = "Events_extra_other_EIPS") |>
+  dplyr::group_by(Sampling_Frame, Cycle) |>
+  dplyr::mutate(Year = min(Year)) |>
+  dplyr::group_by(Sampling_Frame, Transect_Type, Cycle, Year) |>
+  dplyr::summarise(n = n())
+
+n_EIPS_table_sf <- n_EIPS_table |>
+  dplyr::filter(Sampling_Frame == var_sframe)
 
 # EIPS certification status
 

@@ -799,6 +799,8 @@ add_mgmt_unit <- function(sample_frame){
   new_folder
   dir.create(new_folder)
   readr::write_csv(plots_mgmt, file = paste0(getwd(),"/R/Events_extra_xy_mgmt.csv"))
+  #** skeleton path needed for Rmarkdown report, but need better approach than absolute path:*
+  readr::write_csv(plots_mgmt, file = paste0("C:/Users/JJGross/Documents/R_projects/pacnvegetation/inst/rmarkdown/templates/resource-brief-template/skeleton/R/Events_extra_xy_mgmt.csv"))
 
 }
 
