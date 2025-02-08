@@ -1,6 +1,6 @@
 ---
 author: "Pacific Island Inventory & Monitoring Network (PACN)"
-date: "31 JAN 2025"
+date: "07 FEB 2025"
 output: 
   bookdown::html_document2:
     toc: true
@@ -19,7 +19,7 @@ params:
   access_dbs: !expr c("established_invasives_BE_master_20240715.mdb", "2021-2022_established_invasives_20241016.mdb", "2023_established_invasives_20241004.mdb")
   protocol: !expr c("EIPS", "FTPC")
   park: !expr NA
-  sample_frame: "Mauna Loa"
+  sample_frame: "Olaa"
   cycle: !expr NA 
   plot_type: !expr NA
   is_qa_plot: !expr NA
@@ -228,11 +228,11 @@ The results section of this report is organized by the vegetation attributes lis
 
 -   **\*Invasive Plant Transects (EIPS):** While both native and non-native plant data are collected within the FTPC plots, the EIPS invasive plant transects provide wider spatial coverage of non-native plant presence and abundance which can help managers strategize control efforts. Transects are made up of contiguous rectangular plots, referred to as segments to distinguish from FTPC, and within each segement all non-native species and their estimated cover class within the segment are recorded. \*Note that EIPS is not implemented at all locations (often due to steep terrain which prevents long linear traversal).
 
-    -   *Nonnative frequency -* Percentage of segments with presence of species, life forms, or other groupings.
+    -   *Non-native frequency -* Percentage of segments with presence of species, life forms, or other groupings.
 
-    -   *Nonnative cover class -* Percentage of segments with a particular cover class for a species.
+    -   *Non-native cover class -* Percentage of segments with a particular cover class for a species.
 
-    -   *Nonnative richness* - Count of nonnative species per segment.
+    -   *Non-native richness* - Count of nonnative species per segment.
 
 # Results
 
@@ -259,7 +259,7 @@ htmltools::span(class = "dummy-fig")
 knitr::include_graphics(here("inst", "rmarkdown", "dummy_fig.PNG"))
 ```
 
-<br/> <br/> <br/>
+<br/> <br/>
 
 ```{r echo=FALSE, warning=FALSE, message=FALSE}
 
@@ -268,21 +268,23 @@ knitr::include_graphics(here("inst", "rmarkdown", "dummy_fig.PNG"))
 understoryBarCover(params$sample_frame)
 ```
 
-```{r avg-cover-bar, echo=FALSE, fig.cap= "Average understory species cover across the monitoring area (Fixed AND Rotational plots included) by management unit and monitoring cycle.", message=FALSE, warning=FALSE, out.height="0px"}
+```{r avg-cover-bar, echo=FALSE, fig.cap= "Average understory species cover across the monitoring area (Fixed and rotational plots included) by management unit and monitoring cycle. Management units are areas within the plant community that may receive distinct management actions and often correspond with fenced areas and/or geographic discontinuities. Management unit areas (if present) can be viewed and toggled in the overview map of monitoing sites above.", message=FALSE, warning=FALSE, out.height="0px"}
 # Dumb hack to get fig caption to show below plot + map
 htmltools::span(class = "dummy-fig")
 knitr::include_graphics(here("inst", "rmarkdown", "dummy_fig.PNG"))
 ```
 
+<br/> <br/> <br/>
+
 ## Understory - Total Cover
 
 ### Community Level
 
-```{r bar-tot-cover-graph, echo=FALSE, fig.cap=paste0("Total native and non-native understory cover from ", years[length(years)-1], "-", max(years), " (Mean +/- 95% CI). High = Understory 1-2 m; Low = Understory 0-1 m. Means calculated from pooled data across fixed AND rotational plots."), message=FALSE, warning=FALSE}
+```{r bar-tot-cover-graph, echo=FALSE, fig.cap=paste0("Total native and non-native understory cover from ", years[length(years)-1], "-", max(years), " (Mean +/- 95% CI). High = Understory 1-2 m; Low = Understory 0-1 m. Means calculated from pooled data across fixed and rotational plots. A more precise estimate of change between years using fixed plot differences is provided in the [Change in Cover](#chg-community) section below."), message=FALSE, warning=FALSE}
 v_cover_plot_bar_nativity(sample_frame = params$sample_frame, paired_change = FALSE, param = "Cover")
 ```
 
-<br> <br> <br>
+<br> <br>
 
 ### Plot Level
 
@@ -306,23 +308,29 @@ map1 <- MapCoverTotal2(crosstalk = TRUE,
 bscols(widths = c(6, NA), plt1, map1)
 ```
 
-```{r tot-cover-graph, echo=FALSE, fig.cap= paste0("Native versus non-native understory cover at the monitoring plot level. LEFT GRAPH: Each bubble represents a vegetation monitoring plot. Larger bubbles represent greater total understory cover within the plot. The 1:1 line represents an equal percentage of native and non-native cover within the understory. Percent cover can be greater than 100 due to overlapping vegetation in the understory. RIGHT MAP: Squares represent the spatial location of the plot and are linked to the graph on the left. The YEAR buttons at the bottom of the figure filter the points for both the graph and the map."), message=FALSE, warning=FALSE, out.height="0px"}
+```{r tot-cover-graph, echo=FALSE, fig.cap= paste0("Native versus non-native understory cover at the monitoring plot level. LEFT GRAPH: Each bubble represents a vegetation monitoring plot. Larger bubbles represent greater total understory cover within the plot. The 1:1 line represents an equal percentage of native and non-native cover within the understory. Percent cover can be greater than 100 due to overlapping vegetation in the understory. Hover over a point on the graph to see it highlighted on the map. Double click anywhere in the graph to deselect point. RIGHT MAP: Squares represent the spatial location of the plot and are linked to the graph on the left. Click on a square to see the year the plot was monitored and the native and non-native cover values (fixed plots will overlap if multiple years are selected). The YEAR buttons at the bottom of the figure toggles the points for both the graph and the map."), message=FALSE, warning=FALSE, out.height="0px"}
 # Dumb hack to get fig caption to show below plot + map
 htmltools::span(class = "dummy-fig")
 knitr::include_graphics(here("inst", "rmarkdown", "dummy_fig.PNG"))
 ```
 
-<br> <br> <br>
+<br> <br>
 
 **Compare understory cover between plots:**
 
-```{r echo=FALSE, message=FALSE, warning=FALSE, fig.cap= paste0("Choose a 'Year' and 'Plot #' for left figure and right figure to compare species understory cover at specific location or time.")}
+```{r echo=FALSE, message=FALSE, warning=FALSE}
 plot_v_plot1 <- v_cover_bar_spp_plot(sample_frame = params$sample_frame, crosstalk_filters = TRUE, crosstalk_group = "spp_plot1")
 plot_v_plot2 <- v_cover_bar_spp_plot(sample_frame = params$sample_frame, crosstalk_filters = TRUE, crosstalk_group = "spp_plot2")
 bscols(plot_v_plot1, plot_v_plot2, widths = c(6,6))
 ```
 
-<br> <br> <br>
+```{r two-plots, echo=FALSE, fig.cap= paste0("Choose a 'Year' and 'Plot #' for left figure and right figure to compare species understory cover at plot level. Note that the scale of Y-axis may be different between the two figures."), message=FALSE, warning=FALSE, out.height="0px"}
+# Dumb hack to get fig caption to show below plot + map
+htmltools::span(class = "dummy-fig")
+knitr::include_graphics(here("inst", "rmarkdown", "dummy_fig.PNG"))
+```
+
+<br> <br>
 
 ```{r tot-cover-table, eval=FALSE, message=FALSE, warning=FALSE, include=FALSE}
 cover_by_nativity <- UnderNativityCover(rm_unk_natv = TRUE, 
@@ -339,26 +347,24 @@ pacn_dt(cover_by_nativity)
 
 ```
 
+<br/> <br/> <br/>
+
 ## Understory - Change in Cover
 
-### Community Level
+### Community Level {#chg-community}
 
--   Paired change in cover between fixed plots indicated... <Highlight total change in native vs non-native cover across all plots> (Figure \@ref(fig:bar-tot-cover-chg-graph)).
-
-```{r bar-tot-cover-chg-graph, echo=FALSE, fig.cap=paste0("Total change in native and non-native cover from ", years[length(years)-1], "-", max(years), " (Mean +/- 95% CI). High = Understory 1-2 m; Low = Understory 0-1 m."), message=FALSE, warning=FALSE}
+```{r bar-tot-cover-chg-graph, echo=FALSE, fig.cap=paste0("Average change in understory cover per year (Mean +/- 95% CI) across all fixed plots for ", sf_title," ", years[length(years)-1], "-", max(years), ". The cover within a fixed plot for the listed year was subtracted from the cover reported in that same plot from the previous cycle and divided by the number of years between cycles to account for uneven time periods between cycles. High = Understory 1-2 m; Low = Understory 0-1 m."), message=FALSE, warning=FALSE}
 v_cover_plot_bar_nativity(sample_frame = params$sample_frame, paired_change = TRUE, param = "Chg_Per_Year")
 ```
 
+<br> <br>
+
 ### Plot Level
-
--   Highlight particular plots with high/low amount of change (Figure \@ref(fig:chg-cover-graph)).
-
--   Additional Highlights if needed.
-
--   Hover over a point in the graph to see it highlighted on the map. Double click anywhere in the graph to deselect.
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE}
 grp <- "cov_change"
+
+# Can multiple cycles/years be added to figure just like total cover figure above? If so add this to caption: Click on a square to see the year the plot was monitored and the native and non-native cover values (fixed plots will overlap if multiple years are selected). The YEAR buttons at the bottom of the figure toggles the points for both the graph and the map.")
 
 plt <- UnderNativityCover.plot.nat_v_non(sample_frame = params$sample_frame, 
                                   cycle = max(cycles), 
@@ -373,6 +379,15 @@ map <- MapCoverChange(crosstalk = TRUE, crosstalk_group = grp, sample_frame = pa
 
 bscols(plt, map)
 ```
+
+```{r chg-cover-graph, echo=FALSE, fig.cap= paste0("Change in native versus non-native understory cover at the monitoring plot level. Here we compare fixed plots from the most recent cycle (", max(years), ") to the same plots in the first cycle (", min(years), "). LEFT GRAPH: Each point represents a vegetation monitoring plot. Points in the red area indicate increasing non-native cover and decreasing native cover. Points in the green area indicate increasing native cover and decreasing non-native cover. Orange and Yellow indicate increases in both non-native and non-native cover with a higher proportion non-native (orange) or native (yellow). The gray area indicates decreases in both native and non-native cover. Hover over a point on the graph to see it highlighted on the map. Double click anywhere in the graph to deselect point. RIGHT MAP: Squares represent the spatial location of the plot and are linked to the graph on the left."), message=FALSE, warning=FALSE, out.height="0px"}
+
+# Dumb hack to get fig caption to show below plot + map
+htmltools::span(class = "dummy-fig")
+knitr::include_graphics(here("inst", "rmarkdown", "dummy_fig.PNG"))
+```
+
+<br/> <br/> <br/>
 
 ## Presence/Absence
 
@@ -389,18 +404,12 @@ n_list <- paste(n_list, collapse = "; ")
 #n_list
 ```
 
-```{r presence}
-
+```{r echo=FALSE, message=FALSE, warning=FALSE}
 # Presence Table
-
-# Note that presence table alignment is out of wack after knitting due to 
-# an issue with the bookdown header line: 'css: journalnps.min.css'
-# This error is caused by the NPS custom css ('cascading style sheets' programming language)
-# that is loaded at the start of the Rmarkdown document. 
 v_presence_table(sample_frame = params$sample_frame, table_type = "html")
 ```
 
-```{r chg-cover-graph, echo=FALSE, fig.cap= paste0("Proportion of plots in which a species was present during a monitoring year. Values are listed for the first and last monitoring year, while the trend line in the middle includes all monitoring years. “All Plots” includes both fixed and rotational plots, while fixed plots include only the “fixed” plots that do not change locations. The following list shows the number of plots (n) monitored for each year, displayed as YEAR = [All n, Fixed n]: ", n_list, "."), message=FALSE, warning=FALSE, out.height="0px"}
+```{r presence-table, echo=FALSE, fig.cap= paste0("Proportion of plots in which a species was present during a monitoring year. Values are listed for the first and last monitoring year, while the trend line in the middle includes all monitoring years. “All Plots” includes both fixed and rotational plots, while fixed plots include only the “fixed” plots that do not change locations. The following list shows the number of plots (n) monitored for each year, displayed as YEAR = [All n, Fixed n]: ", n_list, "."), message=FALSE, warning=FALSE, out.height="0px"}
 # Dumb hack to get fig caption to show below plot + map
 htmltools::span(class = "dummy-fig")
 knitr::include_graphics(here("inst", "rmarkdown", "dummy_fig.PNG"))
