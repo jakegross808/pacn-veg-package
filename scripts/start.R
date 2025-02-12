@@ -69,6 +69,8 @@ WAPA_vegmap_db_paths <- c("C:/Users/JJGross/Documents/Veg_Map_Data/wapadata.mdb"
 
 Hawaii_vegmap_data2 <- read_vegmap_db(hi_vegmap_db_paths)
 
+readr::write_csv(Hawaii_vegmap_data2, paste0("C:/Users/JJGross/Downloads/vegmap_data_", Sys.Date(), ".csv"))
+
 WAPA_vegmap_data <- read_vegmap_db(WAPA_vegmap_db_paths)
 
 leaflet::addCircleMarkers()

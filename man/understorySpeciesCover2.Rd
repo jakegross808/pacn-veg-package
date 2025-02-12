@@ -15,3 +15,22 @@ A tibble
 \description{
 Title
 }
+\examples{
+\dontrun{
+
+Compare understorySpeciesCover2() vs. summarize_understory()
+
+comp_usc2 <- understorySpeciesCover2(sample_frame = "Olaa", cycle = 3)
+
+comp_su <- summarize_understory(plant_grouping = "Species", sample_frame = "Olaa", cycle = 3, combine_strata = TRUE)
+
+comp_su_summarize <- comp_su |>
+ group_by(Unit_Code, Sampling_Frame, Nativity, Life_Form, Scientific_Name, Code) |>
+ dplyr::summarize(n = dplyr::n(),
+                  plots_present = sum(Cover > 0),
+                  Avg_Cover = round(mean(Cover), 3),
+                  Std_Dev = round(sd(Cover), 3),
+                  .groups = "drop")
+
+}
+}

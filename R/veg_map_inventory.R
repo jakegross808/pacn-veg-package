@@ -29,7 +29,8 @@ read_vegmap_db <- function(db_paths) {
     conn <- DBI::dbConnect(odbc::odbc(), .connection_string = conn_string)
     #Sites
     tbl_Sites <- dplyr::tbl(conn, "tPlotEvents") %>%
-      dplyr::select(Plot_Event, Plot_Code, Event_Date, Field_X, Field_Y, GPS_Error, UTM_Zone) %>%
+      dplyr::select(Plot_Event, Plot_Code, Event_Date, Field_X, Field_Y, GPS_Error, UTM_Zone,
+                    Plot_Shape, Plot_Radius, Plot_Width, Plot_Length, Observation_pt) %>%
       dplyr::collect()
     names(tbl_Sites)
 
