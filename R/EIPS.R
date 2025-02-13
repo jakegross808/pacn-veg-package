@@ -484,7 +484,7 @@ v_EIPS_map_interstation <- function(.data, parameter, change = FALSE, agol_sampl
              crosstalk::filter_checkbox("monitoring sites", "Monitoring Sites", sd_all_sites, ~Year),
              crosstalk::filter_select("species", "Species", sd_cover, ~Scientific_Name, multiple = FALSE)
              ),
-           leaflet::leaflet(width = "100%", height = 900) %>%
+           leaflet::leaflet(width = "100%", height = 700) %>%
              leaflet::addTiles(group = "Basic", urlTemplate = NPSbasic, attribution = NPSAttrib) %>%
              leaflet::addTiles(group = "Imagery", urlTemplate = NPSimagery, attribution = NPSAttrib) %>%
              leaflet::addTiles(group = "Slate", urlTemplate = NPSslate, attribution = NPSAttrib) %>%
@@ -535,7 +535,7 @@ v_EIPS_map_interstation <- function(.data, parameter, change = FALSE, agol_sampl
                                crosstalk::filter_checkbox("year", "Year", sd_cover, ~Year)#,
                                #crosstalk::filter_select("species", "Species", sd_cover, ~Scientific_Name, multiple = TRUE)
                              ),
-                             leaflet::leaflet(sd_cover, width = "100%", height = 900) %>%
+                             leaflet::leaflet(sd_cover, width = "100%", height = 700) %>%
                                leaflet::addTiles(group = "Basic", urlTemplate = NPSbasic, attribution = NPSAttrib) %>%
                                leaflet::addTiles(group = "Imagery", urlTemplate = NPSimagery, attribution = NPSAttrib) %>%
                                leaflet::addTiles(group = "Slate", urlTemplate = NPSslate, attribution = NPSAttrib) %>%
@@ -575,7 +575,7 @@ v_EIPS_map_interstation <- function(.data, parameter, change = FALSE, agol_sampl
                                crosstalk::filter_select("year", "Year", sd_cover, ~Year, multiple = FALSE)#,
                                #crosstalk::filter_select("species", "Species", sd_cover, ~Scientific_Name, multiple = FALSE)
                                ),
-                             leaflet::leaflet(sd_cover, width = "100%", height = 900) %>%
+                             leaflet::leaflet(sd_cover, width = "100%", height = 700) %>%
                                leaflet::addTiles(group = "Basic", urlTemplate = NPSbasic, attribution = NPSAttrib) %>%
                                leaflet::addTiles(group = "Imagery", urlTemplate = NPSimagery, attribution = NPSAttrib) %>%
                                leaflet::addTiles(group = "Slate", urlTemplate = NPSslate, attribution = NPSAttrib) %>%
@@ -620,7 +620,7 @@ v_EIPS_map_interstation <- function(.data, parameter, change = FALSE, agol_sampl
                                crosstalk::filter_select("year", "Year", sd_cover, ~Year, multiple = FALSE),
                                crosstalk::filter_select("species", "Species", sd_cover, ~Scientific_Name, multiple = FALSE)
                              ),
-                             leaflet::leaflet(sd_cover, width = "100%", height = 900) %>%
+                             leaflet::leaflet(sd_cover, width = "100%", height = 700) %>%
                                leaflet::addTiles(group = "Basic", urlTemplate = NPSbasic, attribution = NPSAttrib) %>%
                                leaflet::addTiles(group = "Imagery", urlTemplate = NPSimagery, attribution = NPSAttrib) %>%
                                leaflet::addTiles(group = "Slate", urlTemplate = NPSslate, attribution = NPSAttrib) %>%
@@ -1105,7 +1105,18 @@ v_EIPS_map_interstation2 <- function(.data, parameter, change = FALSE, agol_samp
     dplyr::mutate(long = unlist(purrr::map(geometry,1)),
                   lat = unlist(purrr::map(geometry,2)))
 
-  # Create Null data that can be mapped to show all sites sampled
+  EIPS_inter_station_absence <- EIPS_inter_station |>
+    dplyr::mutate(Year = as.numeric(as.character(Year))) |>
+    #dplyr::mutate(Year = as.Date(ISOdate(as.character(Year), 1, 1))) |>
+    dplyr::mutate(Code = replace_na(Code, "no_invasives")) |>
+    dplyr::mutate(Scientific_Name = replace_na(Scientific_Name, "no_invasives")) |>
+    dplyr::mutate(Life_Form = replace_na(Life_Form, "no_invasives")) |>
+    dplyr::mutate(Nativity = replace_na(Nativity, "no_invasives")) |>
+    complete(Scientific_Name, nesting(Transect_Number, Cycle, Year, long, lat)) |>
+    dplyr::mutate(col_Mean_MaxCover = case_when(is.na(col_Mean_MaxCover) ~ "#FF000000",
+                                                .default = as.character(col_Mean_MaxCover)))
+
+  #Create Null data that can be mapped to show all sites sampled
   all_sites <- EIPS_inter_station %>%
     dplyr::ungroup() %>%
     dplyr::distinct(Cycle, Year, Unit_Code, Community, Sampling_Frame,
@@ -1139,24 +1150,25 @@ v_EIPS_map_interstation2 <- function(.data, parameter, change = FALSE, agol_samp
   NPSlight = "https://atlas-stg.geoplatform.gov/styles/v1/atlas-user/ck5cpia2u0auf01p9vbugvcpv/tiles/256/{z}/{x}/{y}@2x?access_token=pk.eyJ1IjoiYXRsYXMtdXNlciIsImEiOiJjazFmdGx2bjQwMDAwMG5wZmYwbmJwbmE2In0.lWXK2UexpXuyVitesLdwUg"
 
   # Set up cross-talk shared object
-  sd_cover <- crosstalk::SharedData$new(EIPS_inter_station)
-  sd_all_sites <- crosstalk::SharedData$new(all_sites)
+  #sd_cover <- crosstalk::SharedData$new(EIPS_inter_station)
+  sd_cover <- crosstalk::SharedData$new(EIPS_inter_station_absence)
+  sd_all_sites <- crosstalk::SharedData$new(EIPS_inter_station_absence)
 
   # Species Cover (no change)----
   if (parameter == "Mean_Species_Cover" & change == FALSE) {
 
     Palette <- c("#FFFFFF", "#F6F4C6", "#EEE98D", "#EAC07D", "#E7976E", "#E36E5F", "#E04550", "#DD1C41")
     Levels <- as.factor(c(0,1,2,3,4,5,6,7))
-    Labels <- c("0","<1", "1 - 5","5 - 10","10 - 25", "25 - 50", "50 - 75", "75+")
+    Labels <- c("Out","<1", "1 - 5","5 - 10","10 - 25", "25 - 50", "50 - 75", "75+")
     custom_leg <- data.frame(Palette, Levels, Labels)
 
     map <- crosstalk::bscols(widths = c(3,NA),device = "lg",
                              list(
-                               crosstalk::filter_checkbox("cover data", "Cover Data", sd_cover, ~Year),
-                               crosstalk::filter_checkbox("monitoring sites", "Monitoring Sites", sd_all_sites, ~Year),
+                               crosstalk::filter_slider("cover data", "Cover Data", sd_cover, ~Year, step = 5, ticks = FALSE, sep = ""),
+                               crosstalk::filter_slider("sites", "Sites", sd_all_sites, ~Year, step = 5, sep = "", ticks = FALSE),
                                crosstalk::filter_select("species", "Species", sd_cover, ~Scientific_Name, multiple = FALSE)
                              ),
-                             leaflet::leaflet(width = "100%", height = 900) %>%
+                             leaflet::leaflet(width = "100%", height = 700) %>%
                                leaflet::addTiles(group = "Basic", urlTemplate = NPSbasic, attribution = NPSAttrib) %>%
                                leaflet::addTiles(group = "Imagery", urlTemplate = NPSimagery, attribution = NPSAttrib) %>%
                                leaflet::addTiles(group = "Slate", urlTemplate = NPSslate, attribution = NPSAttrib) %>%
@@ -1167,17 +1179,31 @@ v_EIPS_map_interstation2 <- function(.data, parameter, change = FALSE, agol_samp
                                                                  useServiceSymbology = TRUE,
                                                                  labelProperty = "Sampling_Frame") %>%
                                leaflet::addLayersControl(baseGroups = c("Basic", "Imagery", "Slate", "Light"),
-                                                         overlayGroups = c("Sampling Frame", "Absence", "Non-native Cover"),
+                                                         overlayGroups = c("Sampling Frame", "Sites", "Non-native Cover"),
                                                          options=leaflet::layersControlOptions(collapsed = TRUE)) %>%
+
+                               # leaflet::addCircleMarkers(data = sd_all_sites,
+                               #                           group = "Absence",
+                               #                           color = "#FFFFFF",
+                               #                           stroke = FALSE,
+                               #                           radius = 6,
+                               #                           fillOpacity = 1,
+                               #                           popup = ~paste(sep = "<br/>",
+                               #                                          paste("Transect", Transect_Number)
+                               #                           )) %>%
                                leaflet::addCircleMarkers(data = sd_all_sites,
-                                                         group = "Absence",
-                                                         color = "#FFFFFF",
-                                                         stroke = FALSE,
-                                                         radius = 6,
-                                                         fillOpacity = 1,
-                                                         popup = ~paste(sep = "<br/>",
-                                                                        paste("Transect", Transect_Number)
-                                                         )) %>%
+                                                         group = "Sites",
+                                                         color = "black",
+                                                         weight = 3,
+                                                         stroke = TRUE,
+                                                         radius = 7,
+                                                         fillOpacity = 0,
+                                                         # popup = ~paste(sep = "<br/>",
+                                                         #                paste("Transect", Transect_Number),
+                                                         #                Scientific_Name,
+                                                         #                Txt_Range)
+                               ) %>%
+
                                leaflet::addCircleMarkers(data = sd_cover,
                                                          group = "Non-native Cover",
                                                          color = ~col_Mean_MaxCover,
@@ -1185,9 +1211,15 @@ v_EIPS_map_interstation2 <- function(.data, parameter, change = FALSE, agol_samp
                                                          radius = 6,
                                                          fillOpacity = 1,
                                                          popup = ~paste(sep = "<br/>",
-                                                                        paste("Transect", Transect_Number),
+                                                                        as.character(Year),
+                                                                        paste("Transect",
+                                                                              Transect_Number),
                                                                         Scientific_Name,
-                                                                        Txt_Range)) %>%
+                                                                        Txt_Range)
+                               ) %>%
+
+
+
                                leaflet::addLegend(colors = custom_leg$Palette, labels = custom_leg$Labels,
                                                   title = "Cover (%)",
                                                   opacity = 1))
@@ -1207,7 +1239,7 @@ v_EIPS_map_interstation2 <- function(.data, parameter, change = FALSE, agol_samp
                                crosstalk::filter_checkbox("year", "Year", sd_cover, ~Year)#,
                                #crosstalk::filter_select("species", "Species", sd_cover, ~Scientific_Name, multiple = TRUE)
                              ),
-                             leaflet::leaflet(sd_cover, width = "100%", height = 900) %>%
+                             leaflet::leaflet(sd_cover, width = "100%", height = 700) %>%
                                leaflet::addTiles(group = "Basic", urlTemplate = NPSbasic, attribution = NPSAttrib) %>%
                                leaflet::addTiles(group = "Imagery", urlTemplate = NPSimagery, attribution = NPSAttrib) %>%
                                leaflet::addTiles(group = "Slate", urlTemplate = NPSslate, attribution = NPSAttrib) %>%
@@ -1247,7 +1279,7 @@ v_EIPS_map_interstation2 <- function(.data, parameter, change = FALSE, agol_samp
                                crosstalk::filter_select("year", "Year", sd_cover, ~Year, multiple = FALSE)#,
                                #crosstalk::filter_select("species", "Species", sd_cover, ~Scientific_Name, multiple = FALSE)
                              ),
-                             leaflet::leaflet(sd_cover, width = "100%", height = 900) %>%
+                             leaflet::leaflet(sd_cover, width = "100%", height = 700) %>%
                                leaflet::addTiles(group = "Basic", urlTemplate = NPSbasic, attribution = NPSAttrib) %>%
                                leaflet::addTiles(group = "Imagery", urlTemplate = NPSimagery, attribution = NPSAttrib) %>%
                                leaflet::addTiles(group = "Slate", urlTemplate = NPSslate, attribution = NPSAttrib) %>%
@@ -1292,7 +1324,7 @@ v_EIPS_map_interstation2 <- function(.data, parameter, change = FALSE, agol_samp
                                crosstalk::filter_select("year", "Year", sd_cover, ~Year, multiple = FALSE),
                                crosstalk::filter_select("species", "Species", sd_cover, ~Scientific_Name, multiple = FALSE)
                              ),
-                             leaflet::leaflet(sd_cover, width = "100%", height = 900) %>%
+                             leaflet::leaflet(sd_cover, width = "100%", height = 700) %>%
                                leaflet::addTiles(group = "Basic", urlTemplate = NPSbasic, attribution = NPSAttrib) %>%
                                leaflet::addTiles(group = "Imagery", urlTemplate = NPSimagery, attribution = NPSAttrib) %>%
                                leaflet::addTiles(group = "Slate", urlTemplate = NPSslate, attribution = NPSAttrib) %>%

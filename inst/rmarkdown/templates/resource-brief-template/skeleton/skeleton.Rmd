@@ -426,7 +426,7 @@ if ("EIPS" %in% var_protocol) {
   test_data <- v_EIPS_prep(sample_frame = params$sample_frame)
 
   ### Non-Native Species
-  v_EIPS_map_interstation(.data = test_data,
+  v_EIPS_map_interstation2(.data = test_data,
                         parameter = "Mean_Species_Cover",
                         change = FALSE)
 }
