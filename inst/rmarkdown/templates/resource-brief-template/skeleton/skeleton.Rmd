@@ -1,6 +1,6 @@
 ---
 author: "Pacific Island Inventory & Monitoring Network (PACN)"
-date: "07 FEB 2025"
+date: "14 FEB 2025"
 output: 
   bookdown::html_document2:
     toc: true
@@ -424,13 +424,34 @@ knitr::include_graphics(here("inst", "rmarkdown", "dummy_fig.PNG"))
 ```{r echo=FALSE, message=FALSE, warning=FALSE}
 if ("EIPS" %in% var_protocol) {
   test_data <- v_EIPS_prep(sample_frame = params$sample_frame)
-
+  most_frequent <- names(which.max(table(test_data$Scientific_Name))) 
+  most_frequent
   ### Non-Native Species
   v_EIPS_map_interstation2(.data = test_data,
                         parameter = "Mean_Species_Cover",
-                        change = FALSE)
+                        change = FALSE, agol_sample_frame = samp_frame)
 }
 ```
+
+```{r echo=FALSE}
+# Function adapted from Nick Strayer's at 
+# http://livefreeordichotomize.com/2017/01/24/custom-javascript-visualizations-in-rmarkdown/
+df_to_js <- function(x, var_name = paste0(deparse(substitute(x)),"_js"), ...){
+  json_data <- jsonlite::toJSON(x, ...)
+  htmltools::tags$script(paste0("var ",var_name," = ", json_data, ";"))
+}
+
+df_to_js(most_frequent)
+```
+
+```{js echo=FALSE}
+function filter_default() {
+    document.getElementById("species").getElementsByClassName("selectized") 
+[0].selectize.setValue(most_frequent_js, false);
+ }
+window.onload = filter_default;
+```
+
 
 ### Non-Native Cover (Total)
 
@@ -492,11 +513,8 @@ if ("EIPS" %in% var_protocol) {
 | 
 | [Ainsworth, A., Berkowitz, P., Jacobi, J.D., Loh, R.K., & Kozar, K. 2011. Focal Terrestrial Plant Communities Monitoring Protocol: Pacific Island Network. Natural Resource Report NPS/PACN/NRR---2011/410. National Park Service, Fort Collins, Colorado.](https://irma.nps.gov/DataStore/DownloadFile/429572)
 
-## More Information
+## Contact Information
 
-| Ryan Monello, PACN I&M Program Manager
-| ryan_monello\@nps.gov, 808-985-6183
-| 
 | Jacob Gross, Botanist
 | Jacob_Gross\@nps.gov, 808-985-6187
 | 

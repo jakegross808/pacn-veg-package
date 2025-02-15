@@ -1149,6 +1149,24 @@ v_EIPS_map_interstation2 <- function(.data, parameter, change = FALSE, agol_samp
   NPSslate = "https://atlas-stg.geoplatform.gov/styles/v1/atlas-user/ck5cpvc2e0avf01p9zaw4co8o/tiles/256/{z}/{x}/{y}@2x?access_token=pk.eyJ1IjoiYXRsYXMtdXNlciIsImEiOiJjazFmdGx2bjQwMDAwMG5wZmYwbmJwbmE2In0.lWXK2UexpXuyVitesLdwUg"
   NPSlight = "https://atlas-stg.geoplatform.gov/styles/v1/atlas-user/ck5cpia2u0auf01p9vbugvcpv/tiles/256/{z}/{x}/{y}@2x?access_token=pk.eyJ1IjoiYXRsYXMtdXNlciIsImEiOiJjazFmdGx2bjQwMDAwMG5wZmYwbmJwbmE2In0.lWXK2UexpXuyVitesLdwUg"
 
+  # PACN/GIS polygons:
+  if (agol_sample_frame == "Mauna Loa") {
+    agol_sample_frame <- "Subalpine Shrubland"
+  }
+
+  url <- httr::parse_url("https://services1.arcgis.com/fBc8EJBxQRMcHlei/arcgis/rest/services/")
+  url$path <- paste(url$path, "PACN_DBO_VEG_sampling_frames_ply/FeatureServer/0/query", sep = "/")
+  url$query <- list(where = paste0("Sampling_Frame = '", agol_sample_frame, "'"),
+                    outFields = "*",
+                    returnGeometry = "true",
+                    f = "geojson")
+  request <- httr::build_url(url)
+  request #print url request
+  mgmt_unit <- sf::st_read(request, quiet = TRUE)
+  # Colors for polygons:
+  factpal <- leaflet::colorFactor(c("#F8573A", "#F4C47B", "#28468B", "#AED5CB"),
+                                  mgmt_unit$Zone)
+
   # Set up cross-talk shared object
   #sd_cover <- crosstalk::SharedData$new(EIPS_inter_station)
   sd_cover <- crosstalk::SharedData$new(EIPS_inter_station_absence)
@@ -1164,8 +1182,8 @@ v_EIPS_map_interstation2 <- function(.data, parameter, change = FALSE, agol_samp
 
     map <- crosstalk::bscols(widths = c(3,NA),device = "lg",
                              list(
-                               crosstalk::filter_slider("cover data", "Cover Data", sd_cover, ~Year, step = 5, ticks = FALSE, sep = ""),
-                               crosstalk::filter_slider("sites", "Sites", sd_all_sites, ~Year, step = 5, sep = "", ticks = FALSE),
+                               crosstalk::filter_slider("cover data", "Cover Data (Select Years)", sd_cover, ~Year, step = 5, ticks = FALSE, sep = ""),
+                               crosstalk::filter_slider("sites", "Sites (Select Years)", sd_all_sites, ~Year, step = 5, sep = "", ticks = FALSE),
                                crosstalk::filter_select("species", "Species", sd_cover, ~Scientific_Name, multiple = FALSE)
                              ),
                              leaflet::leaflet(width = "100%", height = 700) %>%
@@ -1173,11 +1191,12 @@ v_EIPS_map_interstation2 <- function(.data, parameter, change = FALSE, agol_samp
                                leaflet::addTiles(group = "Imagery", urlTemplate = NPSimagery, attribution = NPSAttrib) %>%
                                leaflet::addTiles(group = "Slate", urlTemplate = NPSslate, attribution = NPSAttrib) %>%
                                leaflet::addTiles(group = "Light", urlTemplate = NPSlight, attribution = NPSAttrib) %>%
-                               leaflet.esri::addEsriFeatureLayer(group = "Sampling Frame",
-                                                                 options = leaflet.esri::featureLayerOptions(where = paste0("Sampling_Frame = '", agol_sample_frame, "'")),
-                                                                 url = "https://services1.arcgis.com/fBc8EJBxQRMcHlei/arcgis/rest/services/PACN_DBO_VEG_sampling_frames_ply/FeatureServer/0",
-                                                                 useServiceSymbology = TRUE,
-                                                                 labelProperty = "Sampling_Frame") %>%
+                               # leaflet.esri::addEsriFeatureLayer(group = "Sampling Frame",
+                               #                                   options = leaflet.esri::featureLayerOptions(where = paste0("Sampling_Frame = '", agol_sample_frame, "'")),
+                               #                                   url = "https://services1.arcgis.com/fBc8EJBxQRMcHlei/arcgis/rest/services/PACN_DBO_VEG_sampling_frames_ply/FeatureServer/0",
+                               #                                   useServiceSymbology = TRUE,
+                               #                                   labelProperty = "Sampling_Frame") %>%
+                               leaflet::addPolygons(data = mgmt_unit, group = "Zone", color =  ~factpal(Zone), label = ~Zone) |>
                                leaflet::addLayersControl(baseGroups = c("Basic", "Imagery", "Slate", "Light"),
                                                          overlayGroups = c("Sampling Frame", "Sites", "Non-native Cover"),
                                                          options=leaflet::layersControlOptions(collapsed = TRUE)) %>%
