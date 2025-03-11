@@ -13,7 +13,7 @@ all_EIPS <- FilterPACNVeg(data_name = "EIPS_data")
 
 #--- 2. variable specification -------------------------------------------------
 
-var_sframe <- "Kipahulu District"
+var_sframe <- "Kahuku"
 
 #nahuku_plots <- c(1, 4, 10, 12, 13, 14, 15, #fixed
 #                  46, 49, 51, 52, 54, 55, 56, 58, #2021 rotational

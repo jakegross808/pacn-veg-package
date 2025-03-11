@@ -87,7 +87,7 @@ names <- names_all |>
 
 park <- names$Park_Name
 park_abbr <- names$Unit_Code
-samp_frame <- names$Formal_Sampling_Frame
+samp_frame <- stringr::str_trim(names$Formal_Sampling_Frame)
 community <- names$Community
 
 # Get monitoring years
@@ -133,18 +133,23 @@ pacn_veg_locations <- FilterPACNVeg(data_name = "Presence") |>
   select(`Plant Community`, `Park Code`, `Location in Park`) |>
   distinct() 
 
+park_names <- names_all |>
+  mutate(Unit_Code = stringr::str_trim(Unit_Code)) |>
+  select(Park = Park_Name, Unit_Code) |>
+  distinct()
+
 pacn_veg_locations2 <- pacn_veg_locations |>
-  select(`Location in Park`) |>
-  left_join(names_all, by = join_by(`Location in Park` == Formal_Sampling_Frame)) 
-  #arrange(desc(`Plant Community`), `Park Code`) |>
+  left_join(park_names, by = join_by(`Park Code` == Unit_Code)) |>
+  select(`Plant Community`, `Location in Park`, `Park Code`, `Park`) |>
+  arrange(desc(`Plant Community`), `Park Code`) 
   #na.omit()
 
 tab1_cap <- paste("Vegetation communities monitored by PACN. This report examines the", samp_frame, "dataset only (highlighted).")
 
-pacn_veg_locations |>
+pacn_veg_locations2 |>
   kable(booktabs = T, label = NA, caption = tab1_cap) %>%
   kable_styling() %>%
-  row_spec(which(pacn_veg_locations$`Location in Park` == samp_frame), bold = T, color = "white", background = "darkgreen")
+  row_spec(which(pacn_veg_locations2$`Location in Park` == samp_frame), bold = T, color = "white", background = "darkgreen")
 ```
 
 # Methods
@@ -171,7 +176,7 @@ sites |>
 **Map of `r samp_frame` monitoring sites**
 
 ```{r include=FALSE}
-main_map_cap <- paste("All community plots (squares) and non-native transects (cirle with line) monitored within the", samp_frame, "-", community, "Plant Community. Fixed sites [blue]; Rotational sites [red].")
+main_map_cap <- paste("All community plots (squares) and non-native transects (circle with line) monitored within the", samp_frame, "-", community, "Plant Community. Fixed sites [blue]; Rotational sites [red].")
 ```
 
 ```{r sampling-map, out.width = '100%', echo=FALSE, fig.cap= paste(main_map_cap), message=FALSE, warning=FALSE}
@@ -268,7 +273,7 @@ knitr::include_graphics(here("inst", "rmarkdown", "dummy_fig.PNG"))
 understoryBarCover(params$sample_frame)
 ```
 
-```{r avg-cover-bar, echo=FALSE, fig.cap= "Average understory species cover across the monitoring area (Fixed and rotational plots included) by management unit and monitoring cycle. Management units are areas within the plant community that may receive distinct management actions and often correspond with fenced areas and/or geographic discontinuities. Management unit areas (if present) can be viewed and toggled in the overview map of monitoing sites above.", message=FALSE, warning=FALSE, out.height="0px"}
+```{r avg-cover-bar, echo=FALSE, fig.cap= "Average understory species cover across the monitoring area (fixed and rotational plots included) by management unit and monitoring cycle. Management units are areas within the plant community that may receive distinct management actions and often correspond with fenced areas and/or geographic discontinuities. Management unit areas (if present) can be viewed and toggled in the overview map of monitoing sites above.", message=FALSE, warning=FALSE, out.height="0px"}
 # Dumb hack to get fig caption to show below plot + map
 htmltools::span(class = "dummy-fig")
 knitr::include_graphics(here("inst", "rmarkdown", "dummy_fig.PNG"))
@@ -429,11 +434,13 @@ if ("EIPS" %in% var_protocol) {
   ### Non-Native Species
   v_EIPS_map_interstation2(.data = test_data,
                         parameter = "Mean_Species_Cover",
-                        change = FALSE, agol_sample_frame = samp_frame)
+                        change = FALSE, 
+                        agol_sample_frame = params$sample_frame)
 }
 ```
 
 ```{r echo=FALSE}
+if ("EIPS" %in% var_protocol) {
 # Function adapted from Nick Strayer's at 
 # http://livefreeordichotomize.com/2017/01/24/custom-javascript-visualizations-in-rmarkdown/
 df_to_js <- function(x, var_name = paste0(deparse(substitute(x)),"_js"), ...){
@@ -442,14 +449,17 @@ df_to_js <- function(x, var_name = paste0(deparse(substitute(x)),"_js"), ...){
 }
 
 df_to_js(most_frequent)
+}
 ```
 
 ```{js echo=FALSE}
+
 function filter_default() {
     document.getElementById("species").getElementsByClassName("selectized") 
 [0].selectize.setValue(most_frequent_js, false);
  }
 window.onload = filter_default;
+
 ```
 
 
@@ -464,6 +474,13 @@ if ("EIPS" %in% var_protocol) {
                         agol_sample_frame = "Haleakalā Subalpine")  # TODO: create sample frame to AGOL sample frame crosswalk
 }
 
+if ("EIPS" %in% var_protocol) {
+  v_EIPS_map_interstation3(.data = test_data,
+                        parameter = "Mean_Total_Cover",
+                        change = FALSE,
+                        agol_sample_frame = params$sample_frame)
+}
+
 ```
 
 ### Non-Native Richness
@@ -473,6 +490,13 @@ if ("EIPS" %in% var_protocol) {
   v_EIPS_map_interstation(.data = test_data,
                         parameter = "Max_Richness",
                         change = FALSE)
+}
+
+if ("EIPS" %in% var_protocol) {
+  v_EIPS_map_interstation3(.data = test_data,
+                        parameter = "Max_Richness",
+                        change = FALSE, 
+                        agol_sample_frame = params$sample_frame)
 }
 
 ```
