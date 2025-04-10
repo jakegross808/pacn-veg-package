@@ -7,8 +7,11 @@ library(tidyverse)
 LoadPACNVeg(force_refresh = FALSE, eips_paths = "foo")
 
 all_presence <- FilterPACNVeg(data_name = "Presence")
+
 all_cover <- FilterPACNVeg(data_name = "Understory")
+
 all_EIPS <- FilterPACNVeg(data_name = "EIPS_data")
+
 
 
 #--- 2. variable specification -------------------------------------------------
@@ -425,3 +428,44 @@ raw_spp_data <- read_spp_db(veg_species_db_full_path)
 
 # Get master species list for a park (with ID_Field for field maps):
 spp_list_master <- master_spp_list(veg_species_db_full_path, park = "HAVO")
+
+
+
+
+#--- Target Species Locations----------------------------------------------------
+
+
+# Target Species
+target_species <- c("Arundina graminifolia", "Spathoglottis plicata", "Phaius tankervilleae")
+
+
+
+#**  Make sure to download latest FTPC and EIPS data using start.R  *
+LoadPACNVeg(force_refresh = FALSE, eips_paths = "foo")
+names(FilterPACNVeg())
+
+Events_extra_xy <- FilterPACNVeg(data_name = "Events_extra_xy")
+
+EIPS_image_pts <- FilterPACNVeg(data_name = "EIPS_image_pts") |>
+  mutate(Year = as.factor(Year))
+
+EIPS_prep <- pacnvegetation::v_EIPS_prep() |>
+  filter(Scientific_Name %in% target_species) |>
+  dplyr::mutate(Start_Image_Point = as.character(Start_Station_m)) #|>
+  dplyr::left_join(EIPS_image_pts, by = c("Unit_Code", "Community", "Sampling_Frame", "Cycle", "Year", "Transect_Type", "Transect_Number", "Start_Image_Point" = "Image_Point"))
+
+
+pacnvegetation::v_EIPS_map_interstation3()
+
+all_presence <- FilterPACNVeg(data_name = "Presence") |>
+  left_join(Events_extra_xy) |>
+  filter(Scientific_Name %in% target_species)
+
+all_cover <- FilterPACNVeg(data_name = "Understory") |>
+  filter(Scientific_Name %in% target_species)
+
+all_EIPS <- FilterPACNVeg(data_name = "EIPS_data") |>
+  filter(Scientific_Name %in% target_species)
+
+
+all_locations
