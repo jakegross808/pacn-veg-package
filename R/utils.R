@@ -1242,7 +1242,7 @@ read_spp_db <- function(db_paths) {
   names(tlu_Species)
 
   # Download park specific Species checklists
-  xref_Park_Species <- dplyr::tbl(conn, "xref_Park_Species") %>%
+  xref_Park_Species <- dplyr::tbl(conn, "xref_Park_Species_Nativity") %>%
     dplyr::collect()
 
   # Join Park Species checklists to with the additional species information

@@ -127,18 +127,18 @@ veg_species_db_full_path
 raw_spp_data <- read_spp_db(veg_species_db_full_path)
 
 # Get master species list for a park (with ID_Field for field maps):
-spp_list_master <- master_spp_list(veg_species_db_full_path, park = 'All')
 
-spp_list_KALA <- master_spp_list(veg_species_db_full_path, park = "KALA")
-readr::write_excel_csv(spp_list_KALA, paste0("C:/Users/JJGross/Downloads/spp_list_KALA_", Sys.Date(), ".csv"))
+# KAHO
+spp_list_KAHO <- master_spp_list(veg_species_db_full_path, park = 'KAHO')
+readr::write_excel_csv(spp_list_KAHO, paste0("C:/Users/JJGross/Downloads/spp_list_KAHO_", Sys.Date(), ".csv"))
 
+# KALA
 spp_list_KALA_coast <- master_spp_list(veg_species_db_full_path, park = "KALA", sample_frame = c("Hoolehua", "Kalawao"))
-
-spp_list_KALA_coast_EIPS <- spp_list_KALA_coast %>%
-  filter(Nativeness != "Native")
-
 readr::write_excel_csv(spp_list_KALA_coast_EIPS, paste0("C:/Users/JJGross/Downloads/spp_list_KALA_coast_EIPS_", Sys.Date(), ".csv"))
 
+# HAVO
+spp_list_HAVO <- master_spp_list(veg_species_db_full_path, park = 'HAVO')
+readr::write_excel_csv(spp_list_HAVO, paste0("C:/Users/JJGross/Downloads/spp_list_HAVO_", Sys.Date(), ".csv"))
 
 
 # This is pain, not going to use it:

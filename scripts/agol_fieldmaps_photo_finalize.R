@@ -7,25 +7,24 @@ library(tidyverse)
 
 #--- 1. Read latest cache ----
 
-# Write/Read csv from pacnvegetation package:
-pacnveg_cache_path <- "C:/Users/JJGross/OneDrive - DOI/Documents/Certification_Local/Databases/R_WritePACNVeg"
-
-# Read
-path_file_info <- file.info(list.files(pacnveg_cache_path, full.names = T))
-latest_folder <- rownames(path_file_info)[which.max(path_file_info$mtime)]
-
-LoadPACNVeg(data_path = latest_folder,
-            data_source = "file")
+LoadPACNVeg(force_refresh = FALSE, eips_paths = "foo")
 
 
 
 # FTPC user inputs -------------------------------------------------------------
 
+# AGOL downloaded geodatabase info: Kahuku
+#var_AGOL_Layer <- "FTPC"
+#gdb_name_var <- "FTPC_Kahuku_Maunaloa_20240910.gdb"
+#gdb_location_var <- "C:/Users/JJGross/OneDrive - DOI/Documents/Parks/HAVO/HAVO"
+#gdb_layer_var <- "FTPC_Kahuku_Maunaloa_20240910"
+
 # AGOL downloaded geodatabase info:
 var_AGOL_Layer <- "FTPC"
-gdb_name_var <- "FTPC_Kahuku_Maunaloa_20240910.gdb"
-gdb_location_var <- "C:/Users/JJGross/OneDrive - DOI/Documents/Parks/HAVO/HAVO"
-gdb_layer_var <- "FTPC_Kahuku_Maunaloa_20240910"
+gdb_name_var <- "FTPC_KAHO_20250415.gdb"
+gdb_location_var <- "C:/Users/JJGross/OneDrive - DOI/Documents/ArcGIS/Projects/KAHO"
+gdb_layer_var <- "FTPC_KAHO_20250415"
+gdb_layer_var2 <- "FTPC_KAHO_20250415_PA11"
 
 # temp save location locally
 temp_root <- "C:/Users/JJGross/Downloads/Images"
@@ -39,7 +38,7 @@ reston_root <- "A:/Files/FTPC/Database_Images"
 photos_table <- process_photos(AGOL_Layer = var_AGOL_Layer,
                        gdb_name = gdb_name_var,
                        gdb_location = gdb_location_var,
-                       gdb_layer = gdb_layer_var,
+                       gdb_layer = gdb_layer_var2,
                        #test_n_rows = 30,
                        #add_watermark = TRUE
                        return_last_table = TRUE
@@ -51,7 +50,7 @@ look <- photos_table |>
 
 # Number of points in dataset:
 length(unique(photos_table$REL_GLOBALID))
-length(unique(photos_table$REL_GLOBALID))+ 4#add number dropped here to check
+length(unique(photos_table$REL_GLOBALID))+ 3#add number dropped here to check
 # that all points are present
 
 # Process Photos ---------------------------------------------------------------
@@ -59,7 +58,7 @@ length(unique(photos_table$REL_GLOBALID))+ 4#add number dropped here to check
 process_photos(AGOL_Layer = var_AGOL_Layer,
               gdb_name = gdb_name_var,
               gdb_location = gdb_location_var,
-              gdb_layer = gdb_layer_var,
+              gdb_layer = gdb_layer_var2,
               add_watermark = TRUE,
               return_last_table = FALSE)
 
@@ -126,18 +125,23 @@ photos_table_final <- process_photos(
   add_watermark = FALSE,
   return_last_table = TRUE)
 
+photos_table_final2 <- process_photos(
+  AGOL_Layer = var_AGOL_Layer,
+  gdb_name = gdb_name_var,
+  gdb_location = gdb_location_var,
+  gdb_layer = gdb_layer_var2,
+  add_watermark = FALSE,
+  return_last_table = TRUE)
+
+photos_table_final3 <- photos_table_final |>
+  dplyr::bind_rows(photos_table_final2)
+
+photos_table_final <- photos_table_final3
+
 # Get Event ID lookup table ----------------------------------------------------
 #** Download latest FTPC and EIPS data first!*
 
-# Write/Read csv from pacnvegetation package:
-pacnveg_cache_path <- "C:/Users/JJGross/OneDrive - DOI/Documents/Certification_Local/Databases/R_WritePACNVeg"
-
-# Read
-path_file_info <- file.info(list.files(pacnveg_cache_path, full.names = T))
-latest_folder <- rownames(path_file_info)[which.max(path_file_info$mtime)]
-
-LoadPACNVeg(data_path = latest_folder,
-            data_source = "file")
+LoadPACNVeg(force_refresh = FALSE, eips_paths = "foo")
 
 # FTPC -------------------------------------------------------------------------
 

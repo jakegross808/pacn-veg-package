@@ -6,17 +6,21 @@ library(tidyverse)
 #**  Make sure to download latest FTPC and EIPS data using start.R  *
 LoadPACNVeg(force_refresh = FALSE, eips_paths = "foo")
 
+names(FilterPACNVeg())
+
 all_presence <- FilterPACNVeg(data_name = "Presence")
 
 all_cover <- FilterPACNVeg(data_name = "Understory")
 
 all_EIPS <- FilterPACNVeg(data_name = "EIPS_data")
 
+all_shrubbelt <- FilterPACNVeg(data_name = "SmWoody")
+
 
 
 #--- 2. variable specification -------------------------------------------------
 
-var_sframe <- "Kahuku"
+var_sframe <- "Kaloko-Honokohau"
 
 #nahuku_plots <- c(1, 4, 10, 12, 13, 14, 15, #fixed
 #                  46, 49, 51, 52, 54, 55, 56, 58, #2021 rotational
@@ -104,7 +108,7 @@ all_pres_count <- all_pres |>
 
 
 ## Presence Dot Plots-----------------------------------------------------------
-var_plot_numbers <- c(1:15, 46:60)
+var_plot_numbers <- c(1:10, 21:28)
 var_sframe
 save_folder_var <- "C:/Users/JJGross/OneDrive - DOI/Documents/Certification_Local/2021-2022 Certification/R_output"
 

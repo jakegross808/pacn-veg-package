@@ -12,26 +12,35 @@ var_temp_dest <- "C:/Users/JJGross/Downloads/Check_Photos"
 ## AGOL urls: ------------------------------------------------------------------
 
 # Type in new AGOL layer rest services here:
-EIPS_KALA_2024 <- "https://services1.arcgis.com/fBc8EJBxQRMcHlei/arcgis/rest/services/KALA_2024_EIPS_Sampling_Points_Photos/FeatureServer/29"
-var_photo_layers <- c("EIPS_KALA_2024")
+FTPC_KAHO_2022_PA11 <- "https://services1.arcgis.com/fBc8EJBxQRMcHlei/arcgis/rest/services/KAHO_2022_FTPC_Sampling_Points_PA11/FeatureServer/43"
+FTPC_KAHO_2022 <- "https://services1.arcgis.com/fBc8EJBxQRMcHlei/arcgis/rest/services/KAHO_2022_FTPC_Sampling_Points_Photos/FeatureServer/30"
+
+var_photo_layers <- c("FTPC_KAHO_2022_PA11")
+var_sharepoint_dest <- "https://doimspp.sharepoint.com/:f:/r/sites/nps-PWR-PACNIM/vital_signs/05_focal_terr_plant_communities/Images/2022/KAHO/Originals/FTPC"
+master_spreadsheet_folder <- "C:/Users/JJGross/OneDrive - DOI/2024/KALA/Originals/FTPC/master_spreadsheet"
+
+
+# KALA EIPS
+#EIPS_KALA_2024 <- "https://services1.arcgis.com/fBc8EJBxQRMcHlei/arcgis/rest/services/KALA_2024_EIPS_Sampling_Points_Photos/FeatureServer/29"
+#var_photo_layers <- c("EIPS_KALA_2024")
 
 # KALA FTPC
-FTPC_KALA_2024 <- "https://services1.arcgis.com/fBc8EJBxQRMcHlei/arcgis/rest/services/KALA_2024_FTPC_Sampling_Points_Photos/FeatureServer/3"
-var_photo_layers <- c("FTPC_KALA_2024")
-var_sharepoint_dest <- "https://doimspp.sharepoint.com/:f:/r/sites/nps-PWR-PACNIM/vital_signs/05_focal_terr_plant_communities/Images/2024/KALA/Originals/FTPC"
-master_spreadsheet_folder <- "C:/Users/JJGross/OneDrive - DOI/2024/KALA/Originals/FTPC/master_spreadsheet"
+#FTPC_KALA_2024 <- "https://services1.arcgis.com/fBc8EJBxQRMcHlei/arcgis/rest/services/KALA_2024_FTPC_Sampling_Points_Photos/FeatureServer/3"
+#var_photo_layers <- c("FTPC_KALA_2024")
+#var_sharepoint_dest <- "https://doimspp.sharepoint.com/:f:/r/sites/nps-PWR-PACNIM/vital_signs/05_focal_terr_plant_communities/Images/2024/KALA/Originals/FTPC"
+#master_spreadsheet_folder <- "C:/Users/JJGross/OneDrive - DOI/2024/KALA/Originals/FTPC/master_spreadsheet"
 #master_spreadsheet_folder <-"C:/Users/JJGross/Downloads/Check_Photos/test_master"
 
 # KALA Plants
-Plants_KALA_2024v2 <- "https://services1.arcgis.com/fBc8EJBxQRMcHlei/arcgis/rest/services/KALA_2024_VEG_Sampling_Plant_Photos_v2/FeatureServer/2"
-var_photo_layers <- c("Plants_KALA_2024v2")
-var_sharepoint_dest <- "https://doimspp.sharepoint.com/:f:/r/sites/nps-PWR-PACNIM/vital_signs/05_focal_terr_plant_communities/Images/2024/KALA/Plants/Plants_photos"
-master_spreadsheet_folder <- "C:/Users/JJGross/OneDrive - DOI/2024/KALA/Plants/Plants_KALA_2024_Spreadsheet"
+#Plants_KALA_2024v2 <- "https://services1.arcgis.com/fBc8EJBxQRMcHlei/arcgis/rest/services/KALA_2024_VEG_Sampling_Plant_Photos_v2/FeatureServer/2"
+#var_photo_layers <- c("Plants_KALA_2024v2")
+#var_sharepoint_dest <- "https://doimspp.sharepoint.com/:f:/r/sites/nps-PWR-PACNIM/vital_signs/05_focal_terr_plant_communities/Images/2024/KALA/Plants/Plants_photos"
+#master_spreadsheet_folder <- "C:/Users/JJGross/OneDrive - DOI/2024/KALA/Plants/Plants_KALA_2024_Spreadsheet"
 
 ## First Download -----------------------------------------------------------
 
 # Test Run
-field_maps_data <- download_agol(
+field_maps_data_KAHO_PA11 <- download_agol(
   photo_layers = var_photo_layers,
   temp_dest = var_temp_dest,
   sharepoint_dest = var_sharepoint_dest,
