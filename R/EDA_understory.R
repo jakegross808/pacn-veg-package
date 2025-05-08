@@ -1132,7 +1132,7 @@ understoryBarCover <- function(sample_frame, crosstalk_filters = TRUE,
   if (crosstalk_filters) {
     sp_filter <- crosstalk::filter_select("select-sp", "Filter on species", sp_w_cover, ~Scientific_Name, allLevels = FALSE)
     nat_filter <- crosstalk::filter_select("select-nat", "Filter on nativity", sp_w_cover, ~Nativity, allLevels = FALSE)
-    mgmt_filter <- crosstalk::filter_select("select-sp", "Filter on management unit", sp_w_cover, ~Zone, allLevels = FALSE)
+    mgmt_filter <- crosstalk::filter_select("select-sp", "Filter on Zone", sp_w_cover, ~Zone, allLevels = FALSE)
     nat_filter <- crosstalk::filter_select("select-nat", "Filter on nativity", sp_w_cover, ~Nativity, allLevels = FALSE)
 
     show_all <- crosstalk::filter_select("show_all", "", sp_w_cover, ~all, allLevels = FALSE, multiple = FALSE)

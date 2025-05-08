@@ -581,7 +581,28 @@ MapPACNVeg <- function(protocol = c("FTPC", "EIPS"), crosstalk = FALSE, crosstal
                     returnGeometry = "true",
                     f = "geojson")
   agol_request <- httr::build_url(url)
-  agol_sf <- sf::st_read(agol_request, quiet = TRUE)
+
+  # sf::st_read() will not silence message when AGOL layer not available
+  # message is: "Re-reading with feature count reset from 1 to 0"
+  # This is showing up in knitted html so I have to remove following function
+  # until AGOL works again.
+  agol_sf <- dplyr::tibble()
+  #agol_sf <- sf::st_read(agol_request, quiet = TRUE)
+
+  if (nrow(agol_sf) == 0) {
+    # If agol request does not work (zero observation returned), then pull
+    # sampling frame polygons from static file in data folder:
+    #gdb <- "data/sampling_frames.gdb"
+    #gdb_layer <- "sampling_frames"
+    #agol_sf <- sf::read_sf(gdb, gdb_layer)
+    #agol_sf <- sf::st_read("data/PACN_Vegetation_Sampling_Frames/PACN_Vegetation_Sampling_Frames.shp")
+    gdb <- "spatial/PACN_Vegetation_Sampling_Frames_view/aae67c1a-113a-4c2a-beaa-16139b2d6f7a.gdb"
+    gdb_layer <- "PACN_Vegetation_Sampling_Frames"
+    agol_sf <- sf::read_sf(gdb, gdb_layer, quiet = TRUE)
+    agol_sf <- sf::st_transform(agol_sf, crs = 4326)
+    agol_sf <- agol_sf |>
+      dplyr::filter(Sampling_Frame == sample_frame)
+  }
 
   # if na's present replace with 'No Zone Assigned':
   agol_sf <- agol_sf %>%

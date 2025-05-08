@@ -1,6 +1,6 @@
 ---
 author: "Pacific Island Inventory & Monitoring Network (PACN)"
-date: "01 MAY 2025"
+date: "07 MAY 2025"
 output: 
   bookdown::html_document2:
     toc: true
@@ -19,7 +19,7 @@ params:
   access_dbs: !expr c("established_invasives_BE_master_20240715.mdb", "2021-2022_established_invasives_20241016.mdb", "2023_established_invasives_20241004.mdb")
   protocol: !expr c("EIPS", "FTPC")
   park: !expr NA
-  sample_frame: "Kaloko-Honokohau"
+  sample_frame: "Olaa"
   cycle: !expr NA 
   plot_type: !expr NA
   is_qa_plot: !expr NA
@@ -176,7 +176,7 @@ All data utilized in this report are available for public use and can be downloa
 
 ## Sample Size
 
-Both vegetation monitoring protocols utilize a split panel design with two panels: (1) permanent sites (fixed) that are reread each sampling cycle and (2) temporary sites (rotational) that are visited only once. The intention is for the fixed sites to detect temporal changes and rotational sites to assess status and increase spatial coverage over time. In Figure \@ref(fig:sampling-map), fixed plots/transects are displayed as blue, while rotational plots/transects are displayed as red.
+Both vegetation monitoring protocols utilize a split panel design with two panels: (1) permanent sites (fixed) that are reread each sampling cycle and (2) temporary sites (rotational) that are visited only once. This study design assumes that the fixed sites provide greater ability to detect temporal changes, while the rotational sites greatly increase spatial coverage and help highlight spatial differences across the monitored area (and provide some temporal change detection over longer periods of time). In Figure \@ref(fig:sampling-map), fixed plots/transects are displayed as blue, while rotational plots/transects are displayed as red.
 
 ```{r message=FALSE, warning=FALSE, include=FALSE}
 sites <- PlotAndTransectLocations(sample_frame = params$sample_frame, protocol = var_protocol)
@@ -188,14 +188,14 @@ sites |>
 **Map of `r samp_frame` monitoring sites**
 
 ```{r include=FALSE}
-main_map_cap <- paste("All community plots (squares) and non-native transects (circle with line) monitored within the", samp_frame, "-", community, "Plant Community. Fixed sites [blue]; Rotational sites [red].")
+main_map_cap <- paste("All community plots (squares) and non-native transects (circle with line; if present in dataset) monitored within the", samp_frame, "-", community, "Plant Community. Fixed sites are blue. Rotational sites are red. The polygons represent the locations in which a rotational plot can be randomly placed - these 'sampling frames' are currectly labled by distinct 'Zones' if present within the dataset. If Zones are not present within the dataset, than the 'Location in Park' in Table 1 is used as the polygon lable. Mouse over the polygon to see the label. Click on the plot to see additional information about that plot. IF the plot is fixed, the most recent visit of that plot will appear on top.")
 ```
 
 ```{r sampling-map, out.width = '100%', echo=FALSE, fig.cap= paste(main_map_cap), message=FALSE, warning=FALSE}
-#MapPACNVeg(sample_frame = params$sample_frame, protocol = var_protocol)
+MapPACNVeg(sample_frame = params$sample_frame, protocol = var_protocol)
 ```
 
-The number of fixed and rotational sites monitored depends upon the size and arrangement of the plant community within the park and, to some extent, the degree of difficulty accessing the sites. Financial and logistical challenges can result in reduced sample size during a monitoring cycle. Table \@ref(tab:samp-size-table) shows the total plots and transects monitored for each cycle for the `r sf_title` dataset.
+It should be noted that the number of fixed and rotational sites monitored depends upon the size and arrangement of the plant community within the park and, to some extent, the degree of difficulty accessing the sites. Financial and logistical challenges can result in reduced sample size during a monitoring cycle. Table \@ref(tab:samp-size-table) shows the total plots and transects monitored for each cycle for the `r sf_title` dataset.
 
 ```{r samp-size-table, echo=FALSE, message=FALSE, warning=FALSE, layout="l-body-outset"}
 n_EIPS_table <- FilterPACNVeg(data_name = "Events_extra_other_EIPS") |>
@@ -237,7 +237,7 @@ n_table |>
 
 ## Vegetation Attributes
 
-The results section of this report is organized by the vegetation attributes listed below. A quick overview of the methods used to collect the vegetation attributes is provided. If further details are needed, please see the protocols and standard operating procedures (SOPs) for FTPC ([Ainsworth et al. 2011](#refs)) and EIPS ([Ainsworth et al. 2012](#refs)).
+The results section of this report is organized by the vegetation attributes listed below. A quick overview of the methods used to collect the vegetation attributes is provided. If further details are needed, please see the protocols and standard operating procedures (SOPs) for FTPC ([Ainsworth et al. 2011](#refs)) and EIPS ([Ainsworth et al. 2012](#refs) vital signs).
 
 -   **Understory Cover:** Understory cover is sampled using the pole intercept method. The percent cover of a plant species is calculated by the frequency in which that species touches a vertical pole that is repeatedly positioned at specific points across the plot. Each plot contains 300 cover points. Two distinct height layers (strata) are recorded: 0-1 m from ground (Low) and 1-2 m from ground (High). Note that several visuals within this report combine these two strata into one 0-2 meter stratum in order to simplify the visual. Understory cover for individual plant species cannot be greater than 100%, however, any combined grouping of species (e.g. all shrubs, all native plants) are reported as total cover and can exceed 100% cover due to overlapping vegetation layers (multiple species touching the pole at a point).
 
@@ -285,7 +285,7 @@ knitr::include_graphics(here("inst", "rmarkdown", "dummy_fig.PNG"))
 understoryBarCover(params$sample_frame)
 ```
 
-```{r avg-cover-bar, echo=FALSE, fig.cap= "Average understory species cover across the monitoring area (fixed and rotational plots included) by management unit and monitoring cycle. Management units are areas within the plant community that may receive distinct management actions and often correspond with fenced areas and/or geographic discontinuities. Management unit areas (if present) can be viewed and toggled in the overview map of monitoing sites above.", message=FALSE, warning=FALSE, out.height="0px"}
+```{r avg-cover-bar, echo=FALSE, fig.cap= paste0("Average understory species cover across the monitoring area (fixed and rotational plots included) by 'Zone' and monitoring cycle. Zones represent disjointed geographic regions and were established to ensure well-interspersed plots across geographically complex plant communities. If only one colored 'Zone' appears in the overview map (Figure 2), then this dataset does not contain Zones and the 'Filter on Zone' box in this figure can be ignored. The 'No Veg' category represent the average percentage of the plot where no vegetation cover was recorded for any species."), message=FALSE, warning=FALSE, out.height="0px"}
 # Dumb hack to get fig caption to show below plot + map
 htmltools::span(class = "dummy-fig")
 knitr::include_graphics(here("inst", "rmarkdown", "dummy_fig.PNG"))
@@ -500,13 +500,13 @@ knitr::include_graphics(here("inst", "rmarkdown", "dummy_fig.PNG"))
 decline_natives <- pacnvegetation::understory_spp_trends_rank(sample_frame = params$sample_frame, paired_change = TRUE, remove_nativity = "Non-Native", rank_by = "negative", top_n = 16) 
 
 decline_natives +
-  ggforce::facet_wrap_paginate(vars(rank_and_names), ncol = 4, nrow = 1, page = 1)
+  ggforce::facet_wrap_paginate(vars(rank_and_names), ncol = 4, nrow = 1, page = 1, scales = "free")
 decline_natives +
-  ggforce::facet_wrap_paginate(vars(rank_and_names), ncol = 4, nrow = 1, page = 2)
+  ggforce::facet_wrap_paginate(vars(rank_and_names), ncol = 4, nrow = 1, page = 2, scales = "free")
 decline_natives +
-  ggforce::facet_wrap_paginate(vars(rank_and_names), ncol = 4, nrow = 1, page = 3)
+  ggforce::facet_wrap_paginate(vars(rank_and_names), ncol = 4, nrow = 1, page = 3, scales = "free")
 decline_natives +
-  ggforce::facet_wrap_paginate(vars(rank_and_names), ncol = 4, nrow = 1, page = 4)
+  ggforce::facet_wrap_paginate(vars(rank_and_names), ncol = 4, nrow = 1, page = 4, scales = "free")
 ```
 :::
 ```{r decline-natives-cap, echo=FALSE, fig.cap= paste0("Native species ranked by the greatest decline in understory percent cover. Each grey point represents a plot. The plot with greatest rate of increase in cover between two cycles is highlighted and is used as the ranking score. The larger, black points represent the mean cover per cycle. The vertical lines represent the 0.95 confidence interval for the mean (calculated via nonparametric bootstrap). Only fixed plots are evaluated. Scroll down to see additional species."), message=FALSE, warning=FALSE, out.height="0px"}
@@ -548,7 +548,7 @@ knitr::include_graphics(here("inst", "rmarkdown", "dummy_fig.PNG"))
 
 ## Invasive Plant Transect Data
 
-### Non-native Species
+### Non-Native Species
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE}
 if ("EIPS" %in% var_protocol) {
@@ -556,10 +556,12 @@ if ("EIPS" %in% var_protocol) {
   most_frequent <- names(which.max(table(test_data$Scientific_Name))) 
   most_frequent
   ### Non-Native Species
-  v_EIPS_map_interstation2(.data = test_data,
+  v_EIPS_map_interstation3(.data = test_data,
                         parameter = "Mean_Species_Cover",
                         change = FALSE, 
                         agol_sample_frame = params$sample_frame)
+} else {
+  paste("No invasive plant transect data collected at this study location.")
 }
 ```
 
@@ -591,17 +593,12 @@ window.onload = filter_default;
 ```{r message=FALSE, warning=FALSE, echo=FALSE}
 
 if ("EIPS" %in% var_protocol) {
-  v_EIPS_map_interstation(.data = test_data,
-                        parameter = "Mean_Total_Cover",
-                        change = FALSE,
-                        agol_sample_frame = "Haleakalā Subalpine")  # TODO: create sample frame to AGOL sample frame crosswalk
-}
-
-if ("EIPS" %in% var_protocol) {
   v_EIPS_map_interstation3(.data = test_data,
                         parameter = "Mean_Total_Cover",
                         change = FALSE,
                         agol_sample_frame = params$sample_frame)
+} else {
+  paste("No invasive plant transect data collected at this study location.")
 }
 
 ```
@@ -610,31 +607,30 @@ if ("EIPS" %in% var_protocol) {
 
 ```{r message=FALSE, warning=FALSE, echo=FALSE}
 if ("EIPS" %in% var_protocol) {
-  v_EIPS_map_interstation(.data = test_data,
-                        parameter = "Max_Richness",
-                        change = FALSE)
-}
-
-if ("EIPS" %in% var_protocol) {
   v_EIPS_map_interstation3(.data = test_data,
                         parameter = "Max_Richness",
                         change = FALSE, 
                         agol_sample_frame = params$sample_frame)
+} else {
+  paste("No invasive plant transect data collected at this study location.")
 }
 
 ```
 
 ```{r eval=FALSE, message=FALSE, warning=FALSE, include=FALSE}
 if ("EIPS" %in% var_protocol) {
-  v_EIPS_map_interstation(.data = test_data,
+  v_EIPS_map_interstation3(.data = test_data,
                         parameter = "Mean_Species_Cover",
                         change = TRUE)
+} else {
+  paste("No invasive plant transect data collected at this study location.")
 }
 ```
 
 ## Tree Data
 
 ```         
+# In development...
 # 1-3 graphs & 1-3 tables 
 
 1. Total Native vs. Non-native Basal Area
@@ -647,6 +643,7 @@ if ("EIPS" %in% var_protocol) {
 ## Shrub / Tree-fern / Vine Data
 
 ```         
+# In development...
 # 1-3 graphs & 1-3 tables 
 
 1. Count/ha of Native vs. Non-native 

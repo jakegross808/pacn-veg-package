@@ -1161,8 +1161,28 @@ v_EIPS_map_interstation2 <- function(.data, parameter, change = FALSE, agol_samp
                     returnGeometry = "true",
                     f = "geojson")
   request <- httr::build_url(url)
+
   request #print url request
-  mgmt_unit <- sf::st_read(request, quiet = TRUE)
+
+
+  # sf::st_read() will not silence message when AGOL layer not available
+  # message is: "Re-reading with feature count reset from 1 to 0"
+  # This is showing up in knitted html so I have to remove following function (highlighted with **)
+  # until AGOL public layer works again.
+  mgmt_unit <- dplyr::tibble()
+  #**mgmt_unit <- sf::st_read(request, quiet = TRUE)*
+
+  if (nrow(mgmt_unit) == 0) {
+    # If agol request does not work (zero observation returned), then pull
+    # sampling frame polygons from static file in Rmarkdown file (.Rmd) folder:
+    gdb <- "spatial/PACN_Vegetation_Sampling_Frames_view/aae67c1a-113a-4c2a-beaa-16139b2d6f7a.gdb"
+    gdb_layer <- "PACN_Vegetation_Sampling_Frames"
+    mgmt_unit <- sf::read_sf(gdb, gdb_layer, quiet = TRUE)
+    mgmt_unit <- sf::st_transform(mgmt_unit, crs = 4326)
+    mgmt_unit <- mgmt_unit |>
+      dplyr::filter(Sampling_Frame == agol_sample_frame)
+  }
+
   # Colors for polygons:
   factpal <- leaflet::colorFactor(c("#F8573A", "#F4C47B", "#28468B", "#AED5CB"),
                                   mgmt_unit$Zone)
@@ -1653,7 +1673,25 @@ v_EIPS_map_interstation3 <- function(.data, parameter, change = FALSE, agol_samp
                     f = "geojson")
   request <- httr::build_url(url)
   request #print url request
-  mgmt_unit <- sf::st_read(request, quiet = TRUE)
+
+
+  # sf::st_read() will not silence message when AGOL layer not available
+  # message is: "Re-reading with feature count reset from 1 to 0"
+  # This is showing up in knitted html so I have to remove following function (highlighted with **)
+  # until AGOL public layer works again.
+  mgmt_unit <- dplyr::tibble()
+  #**mgmt_unit <- sf::st_read(request, quiet = TRUE)*
+
+  if (nrow(mgmt_unit) == 0) {
+    # If agol request does not work (zero observation returned), then pull
+    # sampling frame polygons from static file in Rmarkdown file (.Rmd) folder:
+    gdb <- "spatial/PACN_Vegetation_Sampling_Frames_view/aae67c1a-113a-4c2a-beaa-16139b2d6f7a.gdb"
+    gdb_layer <- "PACN_Vegetation_Sampling_Frames"
+    mgmt_unit <- sf::read_sf(gdb, gdb_layer, quiet = TRUE)
+    mgmt_unit <- sf::st_transform(mgmt_unit, crs = 4326)
+    mgmt_unit <- mgmt_unit |>
+      dplyr::filter(Sampling_Frame == agol_sample_frame)
+  }
   # Colors for polygons:
   factpal <- leaflet::colorFactor(c("#F8573A", "#F4C47B", "#28468B", "#AED5CB"),
                                   mgmt_unit$Zone)
@@ -1768,7 +1806,7 @@ v_EIPS_map_interstation3 <- function(.data, parameter, change = FALSE, agol_samp
 
     map <- crosstalk::bscols(widths = c(3,NA),device = "lg",
                              list(
-                               crosstalk::filter_select("year", "Year", sd_cover, ~Year, multiple = FALSE)#,
+                               crosstalk::filter_checkbox("year", "Year", sd_cover, ~Year)#,
                                #crosstalk::filter_select("species", "Species", sd_cover, ~Scientific_Name, multiple = FALSE)
                              ),
                              leaflet::leaflet(sd_cover, width = "100%", height = 700) %>%
