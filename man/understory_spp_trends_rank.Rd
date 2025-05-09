@@ -12,7 +12,8 @@ understory_spp_trends_rank(
   cycle = cycle,
   top_n = 5,
   rank_by = "positive",
-  remove_nativity = NULL
+  remove_nativity = NULL,
+  return_table = FALSE
 )
 }
 \arguments{
@@ -37,6 +38,8 @@ If \code{TRUE}, drops "Rotational" plots and uses only "Fixed" plots for analysi
 \item{rank_by}{Used with paired_change = TRUE. Should the final graph be ranked by "positive" trend (default) or "negative" trend.}
 
 \item{remove_nativity}{option to remove a Nativity category. For example remove_nativity = "Native" will only show non-native species in final graph.}
+
+\item{return_table}{Default == FALSE. If TRUE, return table instead of graph.}
 }
 \value{
 Figure showing species cover per plot as geom_jitter graph with mean trend over all cycles

@@ -1,6 +1,6 @@
 ---
 author: "Pacific Island Inventory & Monitoring Network (PACN)"
-date: "07 MAY 2025"
+date: "08 MAY 2025"
 output: 
   bookdown::html_document2:
     toc: true
@@ -19,7 +19,7 @@ params:
   access_dbs: !expr c("established_invasives_BE_master_20240715.mdb", "2021-2022_established_invasives_20241016.mdb", "2023_established_invasives_20241004.mdb")
   protocol: !expr c("EIPS", "FTPC")
   park: !expr NA
-  sample_frame: "Olaa"
+  sample_frame: "Mauna Loa"
   cycle: !expr NA 
   plot_type: !expr NA
   is_qa_plot: !expr NA
@@ -112,7 +112,8 @@ max_cycle <- max(cycles)
 
 # Get front page photo
 file.path(getwd())
-front_photo <- paste0(file.path(getwd()), file.path("/images", "/"), paste0(names$Sampling_Frame, "_", max_cycle, ".jpg"))
+sampling_frame_file_name <- stringr::str_replace(names$Sampling_Frame, "/", "_")
+front_photo <- paste0(file.path(getwd()), file.path("/images", "/"), paste0(sampling_frame_file_name, "_", max_cycle, ".jpg"))
 front_photo_cap <- paste0("Vegetation monitoring site within the ", samp_frame, " ", community, " Plant Community at ", park, ".")
 
 if (params$sample_frame == "Olaa" |
@@ -285,7 +286,7 @@ knitr::include_graphics(here("inst", "rmarkdown", "dummy_fig.PNG"))
 understoryBarCover(params$sample_frame)
 ```
 
-```{r avg-cover-bar, echo=FALSE, fig.cap= paste0("Average understory species cover across the monitoring area (fixed and rotational plots included) by 'Zone' and monitoring cycle. Zones represent disjointed geographic regions and were established to ensure well-interspersed plots across geographically complex plant communities. If only one colored 'Zone' appears in the overview map (Figure 2), then this dataset does not contain Zones and the 'Filter on Zone' box in this figure can be ignored. The 'No Veg' category represent the average percentage of the plot where no vegetation cover was recorded for any species."), message=FALSE, warning=FALSE, out.height="0px"}
+```{r avg-cover-bar, echo=FALSE, fig.cap= paste0("This figure is provided to help understand understory composition differences across the monitored area, especially in expansive and discontinuous monitoring areas (e.g. Mauna Loa Subalpine Shrubland). The graph is similar to the pie chart in Fig 3 (above) but shows average understory species cover as stackable bars (fixed and rotational plots included in average) to compare across 'Zones' (if present in dataset) and monitoring cycle. Zones represent disjointed geographic regions and were established to ensure well-interspersed plots across geographically complex plant communities. If only one 'Zone' is available in this dataset it will utilize the same name as the 'Location in Park' in Table 1. In the future, management units could be added here to compare results by management types (e.g. fenced vs. un-fenced). The 'No Veg' category represents the average percentage of the plot where no vegetation cover was recorded for any species."), message=FALSE, warning=FALSE, out.height="0px"}
 # Dumb hack to get fig caption to show below plot + map
 htmltools::span(class = "dummy-fig")
 knitr::include_graphics(here("inst", "rmarkdown", "dummy_fig.PNG"))
@@ -428,11 +429,20 @@ dom_invasives +
   ggforce::facet_wrap_paginate(vars(rank_and_names), ncol = 4, nrow = 1, page = 4)
 ```
 :::
+
 ```{r dominate-invasives-cap, echo=FALSE, fig.cap= paste0("Non-native species ranked by the greatest percent cover within a single plot at any time. Each grey point represents a plot. The plot with greatest cover is highlighted and is used as the ranking score. The larger, black points represent the mean cover per cycle. The vertical lines represent the 0.95 confidence interval for the mean (calculated via nonparametric bootstrap). Both fixed and rotational plots are included. Scroll down to see additional species."), message=FALSE, warning=FALSE, out.height="0px"}
 
 # Dumb hack to get fig caption to show below plot + map
 htmltools::span(class = "dummy-fig")
 knitr::include_graphics(here("inst", "rmarkdown", "dummy_fig.PNG"))
+```
+
+```{r dominate-invasives-list, echo=FALSE, message=FALSE, warning=FALSE, fig.width=10, fig.height=4.2}
+dom_invasives_list <- pacnvegetation::understory_spp_trends_rank(sample_frame = params$sample_frame, paired_change = FALSE, remove_nativity = "Native", rank_by = "positive", top_n = 10, return_table = TRUE) 
+
+dom_invasives_list |>
+  kable(booktabs = T, label = NA) |>
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive")) 
 ```
 
 <br/> <br/> <br/>
@@ -455,11 +465,20 @@ fast_invasives +
   ggforce::facet_wrap_paginate(vars(rank_and_names), ncol = 4, nrow = 1, page = 4)
 ```
 :::
+
 ```{r fast-invasives-cap, echo=FALSE, fig.cap= paste0("Non-native species ranked by the greatest increase in percent cover within a single plot at any time. Each grey point represents a plot. The plot with greatest rate of increase in cover between two cycles is highlighted and is used as the ranking score. The larger, black points represent the mean cover per cycle. The vertical lines represent the 0.95 confidence interval for the mean (calculated via nonparametric bootstrap). Only fixed plots are evaluated. Scroll down to see additional species."), message=FALSE, warning=FALSE, out.height="0px"}
 
 # Dumb hack to get fig caption to show below plot + map
 htmltools::span(class = "dummy-fig")
 knitr::include_graphics(here("inst", "rmarkdown", "dummy_fig.PNG"))
+```
+
+```{r fast-invasives-list, echo=FALSE, message=FALSE, warning=FALSE, fig.width=10, fig.height=4.2}
+fast_invasives_list <- pacnvegetation::understory_spp_trends_rank(sample_frame = params$sample_frame, paired_change = TRUE, remove_nativity = "Native", rank_by = "positive", top_n = 10, return_table = TRUE) 
+
+fast_invasives_list |>
+  kable(booktabs = T, label = NA) |>
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"))
 ```
 
 <br/> <br/> <br/>
@@ -473,15 +492,16 @@ knitr::include_graphics(here("inst", "rmarkdown", "dummy_fig.PNG"))
 keystone_natives <- pacnvegetation::understory_spp_trends_rank(sample_frame = params$sample_frame, paired_change = FALSE, remove_nativity = "Non-Native", rank_by = "positive", top_n = 16) 
 
 keystone_natives +
-  ggforce::facet_wrap_paginate(vars(rank_and_names), ncol = 4, nrow = 1, page = 1)
+  ggforce::facet_wrap_paginate(vars(rank_and_names), ncol = 4, nrow = 1, page = 1, scales = "free")
 keystone_natives +
-  ggforce::facet_wrap_paginate(vars(rank_and_names), ncol = 4, nrow = 1, page = 2)
+  ggforce::facet_wrap_paginate(vars(rank_and_names), ncol = 4, nrow = 1, page = 2, scales = "free")
 keystone_natives +
-  ggforce::facet_wrap_paginate(vars(rank_and_names), ncol = 4, nrow = 1, page = 3)
+  ggforce::facet_wrap_paginate(vars(rank_and_names), ncol = 4, nrow = 1, page = 3, scales = "free")
 keystone_natives +
-  ggforce::facet_wrap_paginate(vars(rank_and_names), ncol = 4, nrow = 1, page = 4)
+  ggforce::facet_wrap_paginate(vars(rank_and_names), ncol = 4, nrow = 1, page = 4, scales = "free")
 ```
 :::
+
 ```{r keystone-cap, echo=FALSE, fig.cap= paste0("Native species ranked by the greatest percent cover within a single plot at any time. Each grey point represents a plot. The plot with greatest cover is highlighted and is used as the ranking score. The larger, black points represent the mean cover per cycle. The vertical lines represent the 0.95 confidence interval for the mean (calculated via nonparametric bootstrap). Both fixed and rotational plots are included. Scroll down to see additional species."), message=FALSE, warning=FALSE, out.height="0px"}
 
 # Dumb hack to get fig caption to show below plot + map
@@ -489,15 +509,27 @@ htmltools::span(class = "dummy-fig")
 knitr::include_graphics(here("inst", "rmarkdown", "dummy_fig.PNG"))
 ```
 
+```{r keystone-list, echo=FALSE, message=FALSE, warning=FALSE, fig.width=10, fig.height=4.2}
+keystone_list <- pacnvegetation::understory_spp_trends_rank(sample_frame = params$sample_frame, paired_change = FALSE, remove_nativity = "Non-Native", rank_by = "positive", top_n = 10, return_table = TRUE) 
+
+keystone_list |>
+  kbl() |>
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"))
+```
+
 <br/> <br/> <br/>
 
-#### Declining Natives
+#### Native Plant Declines
 
-*Native plant species ranked by greatest decrease in cover within a plot.*
+*Native plant species ranked by maximum cover decrease observed in a plot.*
+
+-   Location of plot with steepest decrease should be examined further to understand cause and if similar declines are occurring elsewhere.
+
+-   Species with declining trends in overall means should receive special attention.
 
 ::: vscroll-plot
 ```{r decline-natives, echo=FALSE, message=FALSE, warning=FALSE, fig.width=10, fig.height=4.2}
-decline_natives <- pacnvegetation::understory_spp_trends_rank(sample_frame = params$sample_frame, paired_change = TRUE, remove_nativity = "Non-Native", rank_by = "negative", top_n = 16) 
+decline_natives <- pacnvegetation::understory_spp_trends_rank(sample_frame = params$sample_frame, paired_change = TRUE, remove_nativity = "Non-Native", rank_by = "negative", top_n = 20) 
 
 decline_natives +
   ggforce::facet_wrap_paginate(vars(rank_and_names), ncol = 4, nrow = 1, page = 1, scales = "free")
@@ -506,14 +538,26 @@ decline_natives +
 decline_natives +
   ggforce::facet_wrap_paginate(vars(rank_and_names), ncol = 4, nrow = 1, page = 3, scales = "free")
 decline_natives +
-  ggforce::facet_wrap_paginate(vars(rank_and_names), ncol = 4, nrow = 1, page = 4, scales = "free")
+  ggforce::facet_wrap_paginate(vars(rank_and_names), ncol = 4, nrow = 1, page = 4, scales = "free") +
+  ggforce::facet_wrap_paginate(vars(rank_and_names), ncol = 4, nrow = 1, page = 5, scales = "free")
+
 ```
 :::
+
 ```{r decline-natives-cap, echo=FALSE, fig.cap= paste0("Native species ranked by the greatest decline in understory percent cover. Each grey point represents a plot. The plot with greatest rate of increase in cover between two cycles is highlighted and is used as the ranking score. The larger, black points represent the mean cover per cycle. The vertical lines represent the 0.95 confidence interval for the mean (calculated via nonparametric bootstrap). Only fixed plots are evaluated. Scroll down to see additional species."), message=FALSE, warning=FALSE, out.height="0px"}
 
 # Dumb hack to get fig caption to show below plot + map
 htmltools::span(class = "dummy-fig")
 knitr::include_graphics(here("inst", "rmarkdown", "dummy_fig.PNG"))
+```
+
+```{r decline-natives-list, echo=FALSE, message=FALSE, warning=FALSE, fig.width=10, fig.height=4.2}
+decline_natives_list <- pacnvegetation::understory_spp_trends_rank(sample_frame = params$sample_frame, paired_change = TRUE, remove_nativity = "Non-Native", rank_by = "negative", top_n = 20, return_table = TRUE) 
+
+decline_natives_list|>
+  kbl() |>
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive")) |>
+  scroll_box(height = "365px")
 ```
 
 <br/> <br/> <br/>

@@ -1309,6 +1309,7 @@ understorySpeciesCover2 <- function(sample_frame, cycle,
 #' @param top_n default set to top_n = 5. The number of ranked species to include in output (e.g. top 5, top 10, etc.)
 #' @param rank_by Used with paired_change = TRUE. Should the final graph be ranked by "positive" trend (default) or "negative" trend.
 #' @param remove_nativity option to remove a Nativity category. For example remove_nativity = "Native" will only show non-native species in final graph.
+#' @param return_table Default == FALSE. If TRUE, return table instead of graph.
 #'
 #' @return Figure showing species cover per plot as geom_jitter graph with mean trend over all cycles
 #' @export
@@ -1327,7 +1328,8 @@ understory_spp_trends_rank <- function(combine_strata = TRUE,
                                        cycle = cycle,
                                        top_n = 5,
                                        rank_by = "positive",
-                                       remove_nativity = NULL) {
+                                       remove_nativity = NULL,
+                                       return_table = FALSE) {
 
   if (missing(sample_frame)) {
     stop("sample_frame variable is missing")
@@ -1355,11 +1357,11 @@ understory_spp_trends_rank <- function(combine_strata = TRUE,
     }
 
     nahuku_only <- und_spp |>
-      filter(Sampling_Frame == "Nahuku/East Rift") |>
-      filter(Plot_Number %in% nahuku_plots)
+      dplyr::filter(Sampling_Frame == "Nahuku/East Rift") |>
+      dplyr::filter(Plot_Number %in% nahuku_plots)
     und_spp <- und_spp |>
-      filter(Sampling_Frame != "Nahuku/East Rift") |>
-      bind_rows(nahuku_only)
+      dplyr::filter(Sampling_Frame != "Nahuku/East Rift") |>
+      dplyr::bind_rows(nahuku_only)
   }
 
   # plot count
@@ -1417,6 +1419,9 @@ understory_spp_trends_rank <- function(combine_strata = TRUE,
 
   common_names <- FilterPACNVeg(data_name = "Species_extra") |>
     dplyr::filter(Park == park_variable) |>
+    #*** Needs fixed in species database: Eucalyptus spp. has duplicated Code**
+    dplyr::mutate(Code = case_when(Scientific_Name == "Eucalyptus spp." ~ "EUCSP.2",
+                                   .default = Code)) |>
     dplyr::select(Park_Common_Name, Code)
 
   max_chg_rank <- max_chg_rank |>
@@ -1429,7 +1434,36 @@ understory_spp_trends_rank <- function(combine_strata = TRUE,
 
   top_n_baddies_common <- max_chg_rank |>
     dplyr::pull(rank_and_names)
+  #############################################################################-
+  # Tables ----
+  #############################################################################-
+  if (return_table == TRUE) {
 
+    if (paired_change == FALSE) {
+      nice_table <- max_chg_rank |>
+        dplyr::select(ranking, Scientific_Name, Park_Common_Name,
+                      Cover, Year, Plot_Number) |>
+        dplyr::mutate(Cover = format(round(Cover, digits=2), nsmall = 2)) |>
+        dplyr::rename(`% Cover` = Cover) |>
+        dplyr::rename(`Common Name` = Park_Common_Name)|>
+        dplyr::rename(`Plot Number` = Plot_Number)
+      }
+
+    if (paired_change == TRUE) {
+      nice_table <- max_chg_rank |>
+        dplyr::mutate(prior_year = as.integer(as.character(max_chg_rank$Year)) - Years_Prior) |>
+        dplyr::mutate(Years = paste0(prior_year, "-", Year)) |>
+        dplyr::select(ranking, Scientific_Name, Park_Common_Name, Chg_Per_Year,
+                      Years, Plot_Number) |>
+        dplyr::mutate(Chg_Per_Year = format(round(Chg_Per_Year, digits=2), nsmall = 2)) |>
+        dplyr::rename(`% Cover (chg/year)` = Chg_Per_Year) |>
+        dplyr::rename(`Common Name` = Park_Common_Name) |>
+        dplyr::rename(`Plot Number` = Plot_Number)
+      }
+
+    return(nice_table)
+
+  }
   #############################################################################-
   # All Plots ----
   #############################################################################-

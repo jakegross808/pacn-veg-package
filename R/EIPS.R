@@ -1661,9 +1661,10 @@ v_EIPS_map_interstation3 <- function(.data, parameter, change = FALSE, agol_samp
   NPSlight = "https://atlas-stg.geoplatform.gov/styles/v1/atlas-user/ck5cpia2u0auf01p9vbugvcpv/tiles/256/{z}/{x}/{y}@2x?access_token=pk.eyJ1IjoiYXRsYXMtdXNlciIsImEiOiJjazFmdGx2bjQwMDAwMG5wZmYwbmJwbmE2In0.lWXK2UexpXuyVitesLdwUg"
 
   # PACN/GIS polygons:
-  if (agol_sample_frame == "Mauna Loa") {
-    agol_sample_frame <- "Subalpine Shrubland"
-  }
+  #**after changing to local shapefile I didn't need this - did it get updated?*
+  #if (agol_sample_frame == "Mauna Loa") {
+  #  agol_sample_frame <- "Subalpine Shrubland"
+  #}
 
   url <- httr::parse_url("https://services1.arcgis.com/fBc8EJBxQRMcHlei/arcgis/rest/services/")
   url$path <- paste(url$path, "PACN_Vegetation_Sampling_Frames_vlyr/FeatureServer/0/query", sep = "/")
