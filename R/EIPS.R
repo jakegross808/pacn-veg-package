@@ -1691,6 +1691,8 @@ v_EIPS_map_interstation3 <- function(.data, parameter, change = FALSE, agol_samp
     mgmt_unit <- sf::read_sf(gdb, gdb_layer, quiet = TRUE)
     mgmt_unit <- sf::st_transform(mgmt_unit, crs = 4326)
     mgmt_unit <- mgmt_unit |>
+      #**need to trim whitespace on GIS file*
+      dplyr::mutate(Sampling_Frame = stringr::str_trim(Sampling_Frame)) |>
       dplyr::filter(Sampling_Frame == agol_sample_frame)
   }
   # Colors for polygons:

@@ -1263,7 +1263,8 @@ understorySpeciesCover2 <- function(sample_frame, cycle,
   mgmt <- readr::read_csv(file = paste0(getwd(),"/R/Events_extra_xy_mgmt.csv"))
   und <- und %>%
     dplyr::left_join(dplyr::select(mgmt, Zone, Unit_Code, Sampling_Frame, Cycle, Plot_Number),
-                     by = c("Unit_Code", "Sampling_Frame", "Cycle", "Plot_Number"))
+                     by = c("Unit_Code", "Sampling_Frame", "Cycle", "Plot_Number")) |>
+    dplyr::mutate(Zone = dplyr::case_when(is.na(Zone) ~ Sampling_Frame, .default = Zone))
 
 
   #und <- und %>%
@@ -1444,7 +1445,7 @@ understory_spp_trends_rank <- function(combine_strata = TRUE,
         dplyr::select(ranking, Scientific_Name, Park_Common_Name,
                       Cover, Year, Plot_Number) |>
         dplyr::mutate(Cover = format(round(Cover, digits=2), nsmall = 2)) |>
-        dplyr::rename(`% Cover` = Cover) |>
+        dplyr::rename(`% Cover (max)` = Cover) |>
         dplyr::rename(`Common Name` = Park_Common_Name)|>
         dplyr::rename(`Plot Number` = Plot_Number)
       }

@@ -601,6 +601,8 @@ MapPACNVeg <- function(protocol = c("FTPC", "EIPS"), crosstalk = FALSE, crosstal
     agol_sf <- sf::read_sf(gdb, gdb_layer, quiet = TRUE)
     agol_sf <- sf::st_transform(agol_sf, crs = 4326)
     agol_sf <- agol_sf |>
+      #**need to trim whitespace on GIS file*
+      dplyr::mutate(Sampling_Frame = stringr::str_trim(Sampling_Frame)) |>
       dplyr::filter(Sampling_Frame == sample_frame)
   }
 
