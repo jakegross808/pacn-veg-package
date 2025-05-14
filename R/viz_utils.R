@@ -8,14 +8,14 @@
 #' @return A vector of years
 #' @export
 #'
-get_years <- function(sample_frame) {
-  years <- FilterPACNVeg("Events_extra_xy", sample_frame = sample_frame) %>%
-    dplyr::select(Year, Cycle) %>%
+get_years <- function(park, sample_frame, community, year, cycle, plot_type, plot_number, is_qa_plot, transect_type, species_code, sci_name, nativity, certified, verified, case_sensitive = FALSE, silent = FALSE) {
+  years <- FilterPACNVeg(data_name = "Events_extra_xy", park = park, sample_frame = sample_frame, community = community, year = year, cycle = cycle, plot_type = plot_type, is_qa_plot = FALSE, silent = silent) %>%
+    dplyr::select(Sampling_Frame, Year, Cycle) %>%
     dplyr::arrange(Cycle, Year) %>%
-    dplyr::group_by(Cycle, Year) %>%
+    dplyr::group_by(Sampling_Frame, Cycle, Year) %>%
     dplyr::mutate(Count = n()) %>%
     unique() %>%
-    dplyr::group_by(Cycle) %>%
+    dplyr::group_by(Sampling_Frame, Cycle) %>%
     dplyr::mutate(MaxCount = max(Count)) %>%
     dplyr::filter(Count == MaxCount)
   years <- years[["Year"]]  # get years as vector instead of tibble
@@ -30,11 +30,11 @@ get_years <- function(sample_frame) {
 #' @return A vector of cycles
 #' @export
 #'
-get_cycles <- function(sample_frame) {
-  cycles <- FilterPACNVeg("Events_extra_xy", sample_frame = sample_frame) %>%
-    dplyr::select(Cycle) %>%
+get_cycles <- function(park, sample_frame, community, year, cycle, plot_type, plot_number, is_qa_plot, transect_type, species_code, sci_name, nativity, certified, verified, case_sensitive = FALSE, silent = FALSE) {
+  cycles <- FilterPACNVeg(data_name = "Events_extra_xy", park = park, sample_frame = sample_frame, community = community, year = year, cycle = cycle, plot_type = plot_type, is_qa_plot = FALSE, silent = silent) %>%
+    dplyr::select(Sampling_Frame, Cycle) %>%
     unique() %>%
-    dplyr::arrange(Cycle)
+    dplyr::arrange(Sampling_Frame, Cycle)
   cycles <- cycles[["Cycle"]]
 
   return(cycles)

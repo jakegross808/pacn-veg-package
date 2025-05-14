@@ -156,10 +156,10 @@ master_spp_list <- function(db_path, park, presence_matrix = FALSE, sample_frame
 #' \dontrun{
 #' FTPC_Olaa_Presence <- v_presence_table(sample_frame, table_type = "html")
 #' }
-v_presence_table <- function(sample_frame, table_type = "html") {
+v_presence_table <- function(sample_frame, cycle, table_type = "html") {
   # Table Prep ----
   # Stadard table prep (should consider moving into FiterPACNVeg)
-  Presence <- FilterPACNVeg("Presence", sample_frame = sample_frame) %>%
+  Presence <- FilterPACNVeg("Presence", sample_frame = sample_frame, cycle = cycle) %>%
     dplyr::filter(QA_Plot == FALSE) %>% # Make sure no QA plots
     dplyr::group_by(Sampling_Frame, Cycle) %>%
     dplyr::mutate(Year = min(Year)) %>%

@@ -922,7 +922,7 @@ v_cover_plot_bar_nativity <- function(combine_strata = FALSE,
 #' @return An HTML object (if `crosstalk_filters == TRUE`) or a plotly object.
 #' @export
 #'
-v_cover_bar_spp_plot <- function(sample_frame, crosstalk_filters = TRUE, crosstalk_group) {
+v_cover_bar_spp_plot <- function(sample_frame, cycle, crosstalk_filters = TRUE, crosstalk_group) {
 
   if (missing(sample_frame)) {
     stop("`sample_frame` is required")
@@ -931,7 +931,8 @@ v_cover_bar_spp_plot <- function(sample_frame, crosstalk_filters = TRUE, crossta
   sum_und1 <- summarize_understory(combine_strata = TRUE,
                                    plant_grouping = "Species",
                                    paired_change = FALSE,
-                                   sample_frame = sample_frame)
+                                   sample_frame = sample_frame,
+                                   cycle = cycle)
 
   sum_und2 <-sum_und1 %>%
     dplyr::mutate(Cycle = as.factor(Cycle),
@@ -1099,14 +1100,14 @@ understorySunburst <- function(sample_frame, cycle, mgmt_unit = TRUE, colors = "
 #' @return An HTML object (if `crosstalk_filters == TRUE`) or a plotly object.
 #' @export
 #'
-understoryBarCover <- function(sample_frame, crosstalk_filters = TRUE,
+understoryBarCover <- function(sample_frame, cycle, crosstalk_filters = TRUE,
                                colors = c("#F8573A", "#F4C47B", "#28468B", "#AED5CB")) {
 
   if (missing(sample_frame)) {
     stop("`sample_frame` is required")
   }
 
-  und <- understorySpeciesCover2(sample_frame = sample_frame) %>%
+  und <- understorySpeciesCover2(sample_frame = sample_frame, cycle =cycle) %>%
     dplyr::mutate(Cycle = as.factor(Cycle),
                   all = "Select all",
                   hovertext = paste(Scientific_Name, Nativity,
@@ -1557,7 +1558,7 @@ understory_spp_trends_rank <- function(combine_strata = TRUE,
                        by = join_by(Unit_Code, Sampling_Frame, Cycle, Year,
                                     Plot_Type, Plot_Number, Stratum, Nativity,
                                     Life_Form, Code, Scientific_Name, Cover,
-                                    Chg_Prior, Years_Prior, Chg_Per_Year, Cycle3vs1)) |>
+                                    Chg_Prior, Years_Prior, Chg_Per_Year)) |>
       dplyr::mutate(Scientific_Name = factor(Scientific_Name, top_n_baddies_sci)) |>
       #dplyr::mutate(rank_and_names = factor(rank_and_names, top_n_baddies_common)) |>
       dplyr::mutate(highlight_this = case_when(is.na(highlight_this) ~ NA, .default = highlight_this)) |>

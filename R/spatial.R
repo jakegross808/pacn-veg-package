@@ -14,38 +14,42 @@
 #' eips_transects <- PlotAndTransectLocations("EIPS")
 #' }
 PlotAndTransectLocations <- function(protocol = c("FTPC", "EIPS"), crosstalk = FALSE, crosstalk_group = "map", park, sample_frame, cycle, plot_type, is_qa_plot = FALSE, transect_type, certified, verified) {
-  if (!all(toupper(protocol) %in% c("FTPC", "EIPS"))) {
+  if (!all(protocol %in% c("FTPC", "EIPS"))) {
     stop("Invalid protocol selection. Protocol must be 'FTPC', 'EIPS', or c('FTPC', 'EIPS')")
   }
 
-  ftpc_pts <- FilterPACNVeg(data_name = "Events_extra_xy", park = park, sample_frame = sample_frame, cycle = cycle, plot_type = plot_type, is_qa_plot = is_qa_plot, certified = certified, verified = verified) %>%
-    dplyr::mutate(Protocol = "FTPC", Sample_Unit = "Plot") %>%
-    dplyr::rename(Sample_Unit_Number = Plot_Number, Sample_Unit_Type = Plot_Type, Lat = Start_Lat, Long = Start_Long) %>%
-    dplyr::select(Protocol, Unit_Code, Sampling_Frame, Sample_Unit, Sample_Unit_Type, Sample_Unit_Number, Lat, Long, Year, Cycle) %>%
-    # Change so all sampling cyles have same year (ie first year of new cycle)
-    dplyr::group_by(Sampling_Frame, Cycle) %>%
-    dplyr::mutate(Year = min(Year)) %>%
-    dplyr::ungroup()
+  if ("FTPC" %in% protocol) {
+    ftpc_pts <- FilterPACNVeg(data_name = "Events_extra_xy", park = park, sample_frame = sample_frame, cycle = cycle, plot_type = plot_type, is_qa_plot = is_qa_plot, certified = certified, verified = verified) %>%
+      dplyr::mutate(Protocol = "FTPC", Sample_Unit = "Plot") %>%
+      dplyr::rename(Sample_Unit_Number = Plot_Number, Sample_Unit_Type = Plot_Type, Lat = Start_Lat, Long = Start_Long) %>%
+      dplyr::select(Protocol, Unit_Code, Sampling_Frame, Sample_Unit, Sample_Unit_Type, Sample_Unit_Number, Lat, Long, Year, Cycle) %>%
+      # Change so all sampling cyles have same year (ie first year of new cycle)
+      dplyr::group_by(Sampling_Frame, Cycle) %>%
+      dplyr::mutate(Year = min(Year)) %>%
+      dplyr::ungroup()
+  }
 
-  eips_pts <- FilterPACNVeg(data_name = "Events_extra_xy_EIPS", park = park, sample_frame = sample_frame, cycle = cycle, transect_type = transect_type, certified = certified, verified = verified) %>%
-    dplyr::mutate(Protocol = "EIPS", Sample_Unit = "Transect") %>%
-    dplyr::rename(Sample_Unit_Number = Transect_Number, Sample_Unit_Type = Transect_Type) %>%
-    dplyr::select(Protocol, Unit_Code, Sampling_Frame, Sample_Unit, Sample_Unit_Type, Sample_Unit_Number, Lat, Long, Year, Cycle) %>%
-    # Change so all sampling cyles have same year (ie first year of new cycle)
-    #dplyr::group_by(Sampling_Frame, Cycle) %>% ***removed these two line 10/3/2024 - causing join issues on the upstream side (just use cycle if needing to group***)
-    #dplyr::mutate(Year = min(Year)) %>%
-    dplyr::ungroup()
+  if ("EIPS" %in% protocol) {
+    eips_pts <- FilterPACNVeg(data_name = "Events_extra_xy_EIPS", park = park, sample_frame = sample_frame, cycle = cycle, transect_type = transect_type, certified = certified, verified = verified) %>%
+      dplyr::mutate(Protocol = "EIPS", Sample_Unit = "Transect") %>%
+      dplyr::rename(Sample_Unit_Number = Transect_Number, Sample_Unit_Type = Transect_Type) %>%
+      dplyr::select(Protocol, Unit_Code, Sampling_Frame, Sample_Unit, Sample_Unit_Type, Sample_Unit_Number, Lat, Long, Year, Cycle) %>%
+      # Change so all sampling cyles have same year (ie first year of new cycle)
+      #dplyr::group_by(Sampling_Frame, Cycle) %>% ***removed these two line 10/3/2024 - causing join issues on the upstream side (just use cycle if needing to group***)
+      #dplyr::mutate(Year = min(Year)) %>%
+      dplyr::ungroup()
 
-  eips_tsects <- FilterPACNVeg(data_name = "EIPS_image_pts", park = park, sample_frame = sample_frame, cycle = cycle, transect_type = transect_type, certified = certified, verified = verified) %>%
-    dplyr::select(-Event_ID, -Image_Point_ID) |>
-    dplyr::group_by(Unit_Code, Community, Sampling_Frame, Transect_Type, Transect_Number) %>%
-    #only take coordinates for last cycle
-    dplyr::filter(Cycle == max(Cycle), Year == max(Year),
-                  !is.na(Latitude), !is.na(Longitude)) %>%
-    dplyr::ungroup()
-  # execute the following line separately so we can suppress the warning that as.numeric is generating NA values
-  suppressWarnings(eips_tsects <- dplyr::mutate(eips_tsects, Image_Point = as.numeric(Image_Point), Protocol = "EIPS", Sample_Unit = "Transect"))
-  eips_tsects <- eips_tsects %>%
+    eips_tsects <- FilterPACNVeg(data_name = "EIPS_image_pts", park = park, sample_frame = sample_frame, cycle = cycle, transect_type = transect_type, certified = certified, verified = verified) %>%
+      dplyr::select(-Event_ID, -Image_Point_ID) |>
+      dplyr::group_by(Unit_Code, Community, Sampling_Frame, Transect_Type, Transect_Number) %>%
+      #only take coordinates for last cycle
+      dplyr::filter(Cycle == max(Cycle), Year == max(Year),
+                    !is.na(Latitude), !is.na(Longitude)) %>%
+      dplyr::ungroup()
+
+    # execute the following line separately so we can suppress the warning that as.numeric is generating NA values
+    suppressWarnings(eips_tsects <- dplyr::mutate(eips_tsects, Image_Point = as.numeric(Image_Point), Protocol = "EIPS", Sample_Unit = "Transect"))
+    eips_tsects <- eips_tsects %>%
     dplyr::rename(Sample_Unit_Number = Transect_Number, Sample_Unit_Type = Transect_Type) %>%
     dplyr::arrange(Unit_Code, Community, Sampling_Frame, Year, Cycle, Sample_Unit_Type, Sample_Unit_Number, Image_Point) %>%
     tidyr::nest(Transect_Line = c(Image_Point, Latitude, Latitude_Dir, Longitude, Longitude_Dir, GCS, GPS_Error)) %>%
@@ -56,25 +60,33 @@ PlotAndTransectLocations <- function(protocol = c("FTPC", "EIPS"), crosstalk = F
       sp::Line(df)}
     ))
 
-  eips_pts <- eips_pts %>%
-    dplyr::group_by(Protocol, Unit_Code, Sampling_Frame, Sample_Unit, Sample_Unit_Type, Sample_Unit_Number, Lat, Long) %>%
-    dplyr::arrange(Protocol, Unit_Code, Sampling_Frame, Sample_Unit_Type, Sample_Unit_Number, Year, Cycle) %>%
-    dplyr::mutate(Tsect_Line_Cycle = max(Cycle),
-                     Tsect_Line_Year = max(Year)) %>%
-                     #Cycle_Text = paste(Cycle, collapse = ", "),
-                     #Year_Text = paste(Year, collapse = ", ")#,
-                     #) %>%
-    dplyr::ungroup() %>%
-    dplyr::left_join(eips_tsects, by = c("Protocol", "Unit_Code", "Sampling_Frame", "Sample_Unit", "Sample_Unit_Type", "Sample_Unit_Number", "Tsect_Line_Cycle" = "Cycle", "Tsect_Line_Year" = "Year")) %>%
-    dplyr::select(-Community)
+    eips_pts <- eips_pts %>%
+      dplyr::group_by(Protocol, Unit_Code, Sampling_Frame, Sample_Unit, Sample_Unit_Type, Sample_Unit_Number, Lat, Long) %>%
+      dplyr::arrange(Protocol, Unit_Code, Sampling_Frame, Sample_Unit_Type, Sample_Unit_Number, Year, Cycle) %>%
+      dplyr::mutate(Tsect_Line_Cycle = max(Cycle),
+                       Tsect_Line_Year = max(Year)) %>%
+                       #Cycle_Text = paste(Cycle, collapse = ", "),
+                       #Year_Text = paste(Year, collapse = ", ")#,
+                       #) %>%
+      dplyr::ungroup() %>%
+      dplyr::left_join(eips_tsects, by = c("Protocol", "Unit_Code", "Sampling_Frame", "Sample_Unit", "Sample_Unit_Type", "Sample_Unit_Number", "Tsect_Line_Cycle" = "Cycle", "Tsect_Line_Year" = "Year")) %>%
+      dplyr::select(-Community)
+  } else {
+    # Empty EIPS table if no EIPS
+    eips_pts <- tibble()
+  }
 
-  ftpc_pts <- ftpc_pts %>%
-    dplyr::group_by(Protocol, Unit_Code, Sampling_Frame, Sample_Unit, Sample_Unit_Type, Sample_Unit_Number, Lat, Long) %>%
-    dplyr::arrange(Protocol, Unit_Code, Sampling_Frame, Sample_Unit_Type, Sample_Unit_Number, Year, Cycle) %>%
-    #dplyr::summarise(Cycle = paste(Cycle, collapse = ", "),
-    #                 Year = paste(Year, collapse = ", ")) %>%
-    dplyr::mutate(Tsect_Line_Cycle = NA, Tsect_Line_Year = NA, Transect_Line = NA) %>%
-    dplyr::ungroup()
+  if ("FTPC" %in% protocol) {
+    ftpc_pts <- ftpc_pts %>%
+      dplyr::group_by(Protocol, Unit_Code, Sampling_Frame, Sample_Unit, Sample_Unit_Type, Sample_Unit_Number, Lat, Long) %>%
+      dplyr::arrange(Protocol, Unit_Code, Sampling_Frame, Sample_Unit_Type, Sample_Unit_Number, Year, Cycle) %>%
+      #dplyr::summarise(Cycle = paste(Cycle, collapse = ", "),
+      #                 Year = paste(Year, collapse = ", ")) %>%
+      dplyr::mutate(Tsect_Line_Cycle = NA, Tsect_Line_Year = NA, Transect_Line = NA) %>%
+      dplyr::ungroup()
+  } else {
+    ftpc_pts <- tibble()
+  }
 
   all_pts <- rbind(ftpc_pts, eips_pts) %>%
     dplyr::filter(Protocol %in% toupper(protocol))
