@@ -118,7 +118,9 @@ front_photo_cap <- paste0("Vegetation monitoring site within the ", samp_frame, 
 
 if (params$sample_frame == "Olaa" |
     params$sample_frame == "Kahuku" |
-    params$sample_frame == "Nahuku/East Rift") {
+    params$sample_frame == "Nahuku/East Rift" |
+    params$sample_frame == "Hoolehua" |
+    params$sample_frame == "Kalawao") {
   sf_title <- paste0(samp_frame)
 } else {
   sf_title <- ""
@@ -425,7 +427,7 @@ knitr::include_graphics(here("inst", "rmarkdown", "dummy_fig.PNG"))
 *Non-native plant species. Ranked by max cover in a plot.*
 
 ::: vscroll-plot
-```{r dominate-invasives, echo=FALSE, message=FALSE, warning=FALSE, fig.width=10, fig.height=4.2}
+```{r dominate-invasives, results = 'asis', echo=FALSE, message=FALSE, warning=FALSE, fig.width=10, fig.height=4.2}
 dom_invasives <- pacnvegetation::understory_spp_trends_rank(
   sample_frame = params$sample_frame, 
   cycle = params$cycle, 
@@ -434,14 +436,14 @@ dom_invasives <- pacnvegetation::understory_spp_trends_rank(
   rank_by = "positive", 
   top_n = 16) 
 
-dom_invasives +
+dom_invasives_paginate <- dom_invasives +
   ggforce::facet_wrap_paginate(vars(rank_and_names), ncol = 4, nrow = 1, page = 1)
-dom_invasives +
-  ggforce::facet_wrap_paginate(vars(rank_and_names), ncol = 4, nrow = 1, page = 2)
-#dom_invasives +
-#  ggforce::facet_wrap_paginate(vars(rank_and_names), ncol = 4, nrow = 1, page = 3)
-#dom_invasives +
-#  ggforce::facet_wrap_paginate(vars(rank_and_names), ncol = 4, nrow = 1, page = 4)
+total_page_count <- n_pages(dom_invasives_paginate)
+ 
+for (i in 1:total_page_count) {
+  print(dom_invasives + ggforce::facet_wrap_paginate(vars(rank_and_names), 
+                                               ncol = 4, nrow = 1, page = i)) 
+}
 ```
 :::
 
@@ -474,7 +476,7 @@ dom_invasives_list |>
 *Non-native plant species. Ranked by greatest increase in cover within a plot.*
 
 ::: vscroll-plot
-```{r fast-invasives, echo=FALSE, message=FALSE, warning=FALSE, fig.width=10, fig.height=4.2}
+```{r fast-invasives, results='asis', echo=FALSE, message=FALSE, warning=FALSE, fig.width=10, fig.height=4.2}
 fast_invasives <- pacnvegetation::understory_spp_trends_rank(
   sample_frame = params$sample_frame, 
   cycle = params$cycle,  
@@ -483,14 +485,14 @@ fast_invasives <- pacnvegetation::understory_spp_trends_rank(
   rank_by = "positive", 
   top_n = 16) 
 
-fast_invasives +
+fast_invasives_paginate <- fast_invasives +
   ggforce::facet_wrap_paginate(vars(rank_and_names), ncol = 4, nrow = 1, page = 1)
-fast_invasives +
-  ggforce::facet_wrap_paginate(vars(rank_and_names), ncol = 4, nrow = 1, page = 2)
-fast_invasives +
-  ggforce::facet_wrap_paginate(vars(rank_and_names), ncol = 4, nrow = 1, page = 3)
-fast_invasives +
-  ggforce::facet_wrap_paginate(vars(rank_and_names), ncol = 4, nrow = 1, page = 4)
+total_page_count <- n_pages(fast_invasives_paginate)
+ 
+for (i in 1:total_page_count) {
+  print(fast_invasives + ggforce::facet_wrap_paginate(vars(rank_and_names), 
+                                               ncol = 4, nrow = 1, page = i)) 
+}
 ```
 :::
 
@@ -523,7 +525,7 @@ fast_invasives_list |>
 *The keystone plant species. Ranked by greatest cover in a plot.*
 
 ::: vscroll-plot
-```{r keystone, echo=FALSE, message=FALSE, warning=FALSE, fig.width=10, fig.height=4.2}
+```{r keystone, results='asis', echo=FALSE, message=FALSE, warning=FALSE, fig.width=10, fig.height=4.2}
 keystone_natives <- pacnvegetation::understory_spp_trends_rank(
   sample_frame = params$sample_frame, 
   cycle = params$cycle, 
@@ -532,14 +534,14 @@ keystone_natives <- pacnvegetation::understory_spp_trends_rank(
   rank_by = "positive", 
   top_n = 16) 
 
-keystone_natives +
-  ggforce::facet_wrap_paginate(vars(rank_and_names), ncol = 4, nrow = 1, page = 1, scales = "free")
-keystone_natives +
-  ggforce::facet_wrap_paginate(vars(rank_and_names), ncol = 4, nrow = 1, page = 2, scales = "free")
-keystone_natives +
-  ggforce::facet_wrap_paginate(vars(rank_and_names), ncol = 4, nrow = 1, page = 3, scales = "free")
-keystone_natives +
-  ggforce::facet_wrap_paginate(vars(rank_and_names), ncol = 4, nrow = 1, page = 4, scales = "free")
+keystone_natives_paginate <- keystone_natives +
+  ggforce::facet_wrap_paginate(vars(rank_and_names), ncol = 4, nrow = 1, page = 1)
+total_page_count <- n_pages(keystone_natives_paginate)
+ 
+for (i in 1:total_page_count) {
+  print(keystone_natives + ggforce::facet_wrap_paginate(vars(rank_and_names), 
+                                               ncol = 4, nrow = 1, page = i)) 
+}
 ```
 :::
 
@@ -576,7 +578,7 @@ keystone_list |>
 -   Species with declining trends in overall means should receive special attention.
 
 ::: vscroll-plot
-```{r decline-natives, echo=FALSE, message=FALSE, warning=FALSE, fig.width=10, fig.height=4.2}
+```{r decline-natives, results='asis', echo=FALSE, message=FALSE, warning=FALSE, fig.width=10, fig.height=4.2}
 decline_natives <- pacnvegetation::understory_spp_trends_rank(
   sample_frame = params$sample_frame, 
   cycle = params$cycle, 
@@ -585,20 +587,19 @@ decline_natives <- pacnvegetation::understory_spp_trends_rank(
   rank_by = "negative", 
   top_n = 20) 
 
-decline_natives +
-  ggforce::facet_wrap_paginate(vars(rank_and_names), ncol = 4, nrow = 1, page = 1, scales = "free")
-decline_natives +
-  ggforce::facet_wrap_paginate(vars(rank_and_names), ncol = 4, nrow = 1, page = 2, scales = "free")
-decline_natives +
-  ggforce::facet_wrap_paginate(vars(rank_and_names), ncol = 4, nrow = 1, page = 3, scales = "free")
-decline_natives +
-  ggforce::facet_wrap_paginate(vars(rank_and_names), ncol = 4, nrow = 1, page = 4, scales = "free") 
-#   ggforce::facet_wrap_paginate(vars(rank_and_names), ncol = 4, nrow = 1, page = 5, scales = "free")
+decline_natives_paginate <- decline_natives +
+  ggforce::facet_wrap_paginate(vars(rank_and_names), ncol = 4, nrow = 1, page = 1)
+total_page_count <- n_pages(decline_natives_paginate)
+ 
+for (i in 1:total_page_count) {
+  print(decline_natives + ggforce::facet_wrap_paginate(vars(rank_and_names), 
+                                               ncol = 4, nrow = 1, page = i)) 
+}
 
 ```
 :::
 
-```{r decline-natives-cap, echo=FALSE, fig.cap= paste0("Native species ranked by the greatest decline in understory percent cover. Each grey point represents a plot. The plot with greatest rate of increase in cover between two cycles is highlighted and is used as the ranking score. The larger, black points represent the mean cover per cycle. The vertical lines represent the 0.95 confidence interval for the mean (calculated via nonparametric bootstrap). Only fixed plots are evaluated. Scroll down to see additional species."), message=FALSE, warning=FALSE, out.height="0px"}
+```{r decline-natives-cap, echo=FALSE, fig.cap= paste0("Native species ranked by the greatest decline in understory percent cover. Each grey point represents a plot. The plot with greatest rate of decrease in cover between two cycles is highlighted and is used as the ranking score. The larger, black points represent the mean cover per cycle. The vertical lines represent the 0.95 confidence interval for the mean (calculated via nonparametric bootstrap). Only fixed plots are evaluated. Scroll down to see additional species."), message=FALSE, warning=FALSE, out.height="0px"}
 
 # Dumb hack to get fig caption to show below plot + map
 htmltools::span(class = "dummy-fig")
@@ -648,6 +649,8 @@ v_presence_table(sample_frame = params$sample_frame, cycle = params$cycle, table
 htmltools::span(class = "dummy-fig")
 knitr::include_graphics(here("inst", "rmarkdown", "dummy_fig.PNG"))
 ```
+
+
 
 <br> <br> <br>
 

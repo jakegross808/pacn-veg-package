@@ -4,7 +4,7 @@
 \alias{v_presence_table}
 \title{FTPC Species Presence Table}
 \usage{
-v_presence_table(sample_frame, table_type = "html")
+v_presence_table(sample_frame, cycle, table_type = "html")
 }
 \arguments{
 \item{sample_frame}{Name of sampling frame}

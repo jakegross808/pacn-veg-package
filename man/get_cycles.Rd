@@ -4,10 +4,55 @@
 \alias{get_cycles}
 \title{Get cycles for a sample frame}
 \usage{
-get_cycles(sample_frame)
+get_cycles(
+  park,
+  sample_frame,
+  community,
+  year,
+  cycle,
+  plot_type,
+  plot_number,
+  is_qa_plot,
+  transect_type,
+  species_code,
+  sci_name,
+  nativity,
+  certified,
+  verified,
+  case_sensitive = FALSE,
+  silent = FALSE
+)
 }
 \arguments{
+\item{park}{Four letter unit code of park(s)}
+
 \item{sample_frame}{Name of sample frame}
+
+\item{community}{Name of plant community}
+
+\item{year}{Monitoring year}
+
+\item{cycle}{Monitoring cycle}
+
+\item{plot_type}{Type of plot (fixed vs. rotational)}
+
+\item{is_qa_plot}{Whether the plots are QA plots or not (TRUE/FALSE) No argument defaults to FALSE. Can use "c(TRUE, FALSE)" without quotes to return both regular and QA plots.}
+
+\item{transect_type}{Type of transect (fixed vs. rotational)}
+
+\item{species_code}{6 letter species code}
+
+\item{sci_name}{Scientific name}
+
+\item{nativity}{Whether species are native (TRUE/FALSE)}
+
+\item{certified}{Whether data are certified (TRUE/FALSE)}
+
+\item{verified}{Whether data are verified (TRUE/FALSE)}
+
+\item{case_sensitive}{Should non-numeric filters be treated as case-sensitive?}
+
+\item{silent}{Suppress informational messages?}
 }
 \value{
 A vector of cycles

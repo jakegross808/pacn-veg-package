@@ -6,6 +6,7 @@
 \usage{
 understoryBarCover(
   sample_frame,
+  cycle,
   crosstalk_filters = TRUE,
   colors = c("#F8573A", "#F4C47B", "#28468B", "#AED5CB")
 )

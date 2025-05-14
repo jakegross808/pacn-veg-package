@@ -4,7 +4,12 @@
 \alias{v_cover_bar_spp_plot}
 \title{Bar plot of species \% cover for each sampling plot}
 \usage{
-v_cover_bar_spp_plot(sample_frame, crosstalk_filters = TRUE, crosstalk_group)
+v_cover_bar_spp_plot(
+  sample_frame,
+  cycle,
+  crosstalk_filters = TRUE,
+  crosstalk_group
+)
 }
 \arguments{
 \item{sample_frame}{(required)}
