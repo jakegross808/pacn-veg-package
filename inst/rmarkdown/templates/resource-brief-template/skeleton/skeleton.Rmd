@@ -19,8 +19,8 @@ params:
   access_dbs: !expr c("established_invasives_BE_master_20240715.mdb", "2021-2022_established_invasives_20241016.mdb", "2023_established_invasives_20241004.mdb")
   protocol: !expr c("EIPS", "FTPC")
   park: !expr NA
-  sample_frame: "Puu Alii"
-  cycle: !r c(1, 2)
+  sample_frame: 0
+  cycle: !expr c(1, 2, 3)
   plot_type: !expr NA
   is_qa_plot: !expr NA
   transect_type: !expr NA
@@ -107,7 +107,7 @@ years <- get_years(sample_frame = params$sample_frame, cycle = params$cycle)
 years_string <- paste(min(years), "-", max(years))
 
 # Get monitoring cycles
-cycles <- get_cycles(params$sample_frame, cycle = params$cycle)
+cycles <- get_cycles(sample_frame = params$sample_frame, cycle = params$cycle)
 max_cycle <- max(cycles)
 
 # Get front page photo
@@ -118,7 +118,9 @@ front_photo_cap <- paste0("Vegetation monitoring site within the ", samp_frame, 
 
 if (params$sample_frame == "Olaa" |
     params$sample_frame == "Kahuku" |
-    params$sample_frame == "Nahuku/East Rift") {
+    params$sample_frame == "Nahuku/East Rift" |
+    params$sample_frame == "Hoolehua" |
+    params$sample_frame == "Kalawao") {
   sf_title <- paste0(samp_frame)
 } else {
   sf_title <- ""
@@ -193,22 +195,24 @@ main_map_cap <- paste("All community plots (squares) and non-native transects (c
 ```
 
 ```{r sampling-map, out.width = '100%', echo=FALSE, fig.cap= paste(main_map_cap), message=FALSE, warning=FALSE}
-MapPACNVeg(sample_frame = params$sample_frame, protocol = var_protocol)
+MapPACNVeg(sample_frame = params$sample_frame, protocol = var_protocol, cycle = params$cycle)
 ```
 
 It should be noted that the number of fixed and rotational sites monitored depends upon the size and arrangement of the plant community within the park and, to some extent, the degree of difficulty accessing the sites. Financial and logistical challenges can result in reduced sample size during a monitoring cycle. Table \@ref(tab:samp-size-table) shows the total plots and transects monitored for each cycle for the `r sf_title` dataset.
 
 ```{r samp-size-table, echo=FALSE, message=FALSE, warning=FALSE, layout="l-body-outset"}
-n_EIPS_table <- FilterPACNVeg(data_name = "Events_extra_other_EIPS") |>
-  dplyr::filter(Sampling_Frame == params$sample_frame) |>
+n_EIPS_table <- FilterPACNVeg(data_name = "Events_extra_other_EIPS", 
+                              sample_frame = params$sample_frame, 
+                              cycle = params$cycle) |>
   dplyr::mutate(Protocol = "EIPS",
                 `Sampling Unit` = "Transects",
                 sample_type = Transect_Type,
                 site_number = as.numeric(Transect_Number)) |>
   dplyr::select(Sampling_Frame, Cycle, Year, Protocol, `Sampling Unit`, sample_type, site_number)
 
-n_table <- FilterPACNVeg(data_name = "Events_extra_other") |>
-  dplyr::filter(Sampling_Frame == params$sample_frame) |>
+n_table <- FilterPACNVeg(data_name = "Events_extra_other", 
+                              sample_frame = params$sample_frame, 
+                              cycle = params$cycle) |>
   dplyr::mutate(Protocol = "FTPC",
                 `Sampling Unit` = "Plots",
                 sample_type = Plot_Type,
@@ -283,7 +287,7 @@ knitr::include_graphics(here("inst", "rmarkdown", "dummy_fig.PNG"))
 
 # may need to update management unit table first:
 # pacnvegetation::add_mgmt_unit(sample_frame = "All")
-understoryBarCover(params$sample_frame)
+understoryBarCover(sample_frame = params$sample_frame, cycle = params$cycle)
 ```
 
 ```{r avg-cover-bar, echo=FALSE, fig.cap= paste0("This figure is provided to help understand understory composition differences across the monitored area, especially in expansive and discontinuous monitoring areas (e.g. Mauna Loa Subalpine Shrubland). The graph is similar to the pie chart in Fig 3 (above) but shows average understory species cover as stackable bars (fixed and rotational plots included in average) to compare across 'Zones' (if present in dataset) and monitoring cycle. Zones represent disjointed geographic regions and were established to ensure well-interspersed plots across geographically complex plant communities. If only one 'Zone' is available in this dataset it will utilize the same name as the 'Location in Park' in Table 1. In the future, management units could be added here to compare results by management types (e.g. fenced vs. un-fenced). The 'No Veg' category represents the average percentage of the plot where no vegetation cover was recorded for any species."), message=FALSE, warning=FALSE, out.height="0px"}
@@ -299,7 +303,7 @@ knitr::include_graphics(here("inst", "rmarkdown", "dummy_fig.PNG"))
 ### Community Level
 
 ```{r bar-tot-cover-graph, echo=FALSE, fig.cap=paste0("Total native and non-native understory cover from ", years[length(years)-1], "-", max(years), " (Mean +/- 95% CI). High = Understory 1-2 m; Low = Understory 0-1 m. Means calculated from pooled data across fixed and rotational plots. A more precise estimate of change between years using fixed plot differences is provided in the [Change in Cover](#chg-community) section below."), message=FALSE, warning=FALSE}
-v_cover_plot_bar_nativity(sample_frame = params$sample_frame, paired_change = FALSE, param = "Cover")
+v_cover_plot_bar_nativity(sample_frame = params$sample_frame, cycle = params$cycle, paired_change = FALSE, param = "Cover")
 ```
 
 <br> <br>
@@ -311,7 +315,7 @@ grp1 <- "cov_total"
 
 plt1 <- UnderNativityCover.plot.nat_v_non(
   sample_frame = params$sample_frame,
-  #cycle = max(cycles),
+  cycle = params$cycle,
   year_filter = TRUE,
   paired_change = FALSE,
   combine_strata = TRUE,
@@ -321,7 +325,8 @@ plt1 <- UnderNativityCover.plot.nat_v_non(
 
 map1 <- MapCoverTotal2(crosstalk = TRUE, 
                       crosstalk_group = grp1, 
-                      sample_frame = params$sample_frame)
+                      sample_frame = params$sample_frame, 
+                      cycle = params$cycle)
 
 bscols(widths = c(6, NA), plt1, map1)
 ```
@@ -337,8 +342,14 @@ knitr::include_graphics(here("inst", "rmarkdown", "dummy_fig.PNG"))
 **Compare understory cover between plots:**
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE}
-plot_v_plot1 <- v_cover_bar_spp_plot(sample_frame = params$sample_frame, crosstalk_filters = TRUE, crosstalk_group = "spp_plot1")
-plot_v_plot2 <- v_cover_bar_spp_plot(sample_frame = params$sample_frame, crosstalk_filters = TRUE, crosstalk_group = "spp_plot2")
+plot_v_plot1 <- v_cover_bar_spp_plot(sample_frame = params$sample_frame, 
+                                     cycle = params$cycle,
+                                     crosstalk_filters = TRUE, 
+                                     crosstalk_group = "spp_plot1")
+plot_v_plot2 <- v_cover_bar_spp_plot(sample_frame = params$sample_frame, 
+                                     cycle = params$cycle,
+                                     crosstalk_filters = TRUE, 
+                                     crosstalk_group = "spp_plot2")
 bscols(plot_v_plot1, plot_v_plot2, widths = c(6,6))
 ```
 
@@ -372,7 +383,7 @@ pacn_dt(cover_by_nativity)
 ### Community Level {#chg-community}
 
 ```{r bar-tot-cover-chg-graph, echo=FALSE, fig.cap=paste0("Average change in understory cover per year (Mean +/- 95% CI) across all fixed plots for ", sf_title," ", years[length(years)-1], "-", max(years), ". The cover within a fixed plot for the listed year was subtracted from the cover reported in that same plot from the previous cycle and divided by the number of years between cycles to account for uneven time periods between cycles. High = Understory 1-2 m; Low = Understory 0-1 m."), message=FALSE, warning=FALSE}
-v_cover_plot_bar_nativity(sample_frame = params$sample_frame, paired_change = TRUE, param = "Chg_Per_Year")
+v_cover_plot_bar_nativity(sample_frame = params$sample_frame, cycle = params$cycle, paired_change = TRUE, param = "Chg_Per_Year")
 ```
 
 <br> <br>
@@ -416,17 +427,24 @@ knitr::include_graphics(here("inst", "rmarkdown", "dummy_fig.PNG"))
 *Non-native plant species. Ranked by max cover in a plot.*
 
 ::: vscroll-plot
-```{r dominate-invasives, echo=FALSE, message=FALSE, warning=FALSE, fig.width=10, fig.height=4.2}
-dom_invasives <- pacnvegetation::understory_spp_trends_rank(sample_frame = params$sample_frame, paired_change = FALSE, remove_nativity = "Native", rank_by = "positive", top_n = 16) 
+```{r dominate-invasives, results = 'asis', echo=FALSE, message=FALSE, warning=FALSE, fig.width=10, fig.height=4.2}
+dom_invasives <- pacnvegetation::understory_spp_trends_rank(
+  sample_frame = params$sample_frame, 
+  cycle = params$cycle, 
+  paired_change = FALSE, 
+  remove_nativity = "Native", 
+  rank_by = "positive", 
+  top_n = 16) 
 
-dom_invasives +
-  ggforce::facet_wrap_paginate(vars(rank_and_names), ncol = 4, nrow = 1, page = 1)
-dom_invasives +
-  ggforce::facet_wrap_paginate(vars(rank_and_names), ncol = 4, nrow = 1, page = 2)
-dom_invasives +
-  ggforce::facet_wrap_paginate(vars(rank_and_names), ncol = 4, nrow = 1, page = 3)
-dom_invasives +
-  ggforce::facet_wrap_paginate(vars(rank_and_names), ncol = 4, nrow = 1, page = 4)
+dom_invasives_paginate <- dom_invasives +
+  ggforce::facet_wrap_paginate(vars(rank_and_names), 
+                               ncol = 4, nrow = 1, page = 1)
+total_page_count <- n_pages(dom_invasives_paginate)
+ 
+for (i in 1:total_page_count) {
+  print(dom_invasives + ggforce::facet_wrap_paginate(vars(rank_and_names), 
+                                               ncol = 4, nrow = 1, page = i)) 
+}
 ```
 :::
 
@@ -438,7 +456,14 @@ knitr::include_graphics(here("inst", "rmarkdown", "dummy_fig.PNG"))
 ```
 
 ```{r dominate-invasives-list, echo=FALSE, message=FALSE, warning=FALSE, fig.width=10, fig.height=4.2}
-dom_invasives_list <- pacnvegetation::understory_spp_trends_rank(sample_frame = params$sample_frame, paired_change = FALSE, remove_nativity = "Native", rank_by = "positive", top_n = 10, return_table = TRUE) 
+dom_invasives_list <- pacnvegetation::understory_spp_trends_rank(
+  sample_frame = params$sample_frame,
+  cycle = params$cycle, 
+  paired_change = FALSE, 
+  remove_nativity = "Native", 
+  rank_by = "positive", 
+  top_n = 10, 
+  return_table = TRUE) 
 
 dom_invasives_list |>
   kable(booktabs = T, label = NA) |>
@@ -452,17 +477,23 @@ dom_invasives_list |>
 *Non-native plant species. Ranked by greatest increase in cover within a plot.*
 
 ::: vscroll-plot
-```{r fast-invasives, echo=FALSE, message=FALSE, warning=FALSE, fig.width=10, fig.height=4.2}
-fast_invasives <- pacnvegetation::understory_spp_trends_rank(sample_frame = params$sample_frame, paired_change = TRUE, remove_nativity = "Native", rank_by = "positive", top_n = 16) 
+```{r fast-invasives, results='asis', echo=FALSE, message=FALSE, warning=FALSE, fig.width=10, fig.height=4.2}
+fast_invasives <- pacnvegetation::understory_spp_trends_rank(
+  sample_frame = params$sample_frame, 
+  cycle = params$cycle,  
+  paired_change = TRUE, 
+  remove_nativity = "Native", 
+  rank_by = "positive", 
+  top_n = 16) 
 
-fast_invasives +
+fast_invasives_paginate <- fast_invasives +
   ggforce::facet_wrap_paginate(vars(rank_and_names), ncol = 4, nrow = 1, page = 1)
-fast_invasives +
-  ggforce::facet_wrap_paginate(vars(rank_and_names), ncol = 4, nrow = 1, page = 2)
-fast_invasives +
-  ggforce::facet_wrap_paginate(vars(rank_and_names), ncol = 4, nrow = 1, page = 3)
-fast_invasives +
-  ggforce::facet_wrap_paginate(vars(rank_and_names), ncol = 4, nrow = 1, page = 4)
+total_page_count <- n_pages(fast_invasives_paginate)
+ 
+for (i in 1:total_page_count) {
+  print(fast_invasives + ggforce::facet_wrap_paginate(vars(rank_and_names), 
+                                               ncol = 4, nrow = 1, page = i)) 
+}
 ```
 :::
 
@@ -474,7 +505,14 @@ knitr::include_graphics(here("inst", "rmarkdown", "dummy_fig.PNG"))
 ```
 
 ```{r fast-invasives-list, echo=FALSE, message=FALSE, warning=FALSE, fig.width=10, fig.height=4.2}
-fast_invasives_list <- pacnvegetation::understory_spp_trends_rank(sample_frame = params$sample_frame, paired_change = TRUE, remove_nativity = "Native", rank_by = "positive", top_n = 10, return_table = TRUE) 
+fast_invasives_list <- pacnvegetation::understory_spp_trends_rank(
+  sample_frame = params$sample_frame, 
+  cycle = params$cycle, 
+  paired_change = TRUE, 
+  remove_nativity = "Native", 
+  rank_by = "positive", 
+  top_n = 10, 
+  return_table = TRUE) 
 
 fast_invasives_list |>
   kable(booktabs = T, label = NA) |>
@@ -488,17 +526,25 @@ fast_invasives_list |>
 *The keystone plant species. Ranked by greatest cover in a plot.*
 
 ::: vscroll-plot
-```{r keystone, echo=FALSE, message=FALSE, warning=FALSE, fig.width=10, fig.height=4.2}
-keystone_natives <- pacnvegetation::understory_spp_trends_rank(sample_frame = params$sample_frame, paired_change = FALSE, remove_nativity = "Non-Native", rank_by = "positive", top_n = 16) 
+```{r keystone, results='asis', echo=FALSE, message=FALSE, warning=FALSE, fig.width=10, fig.height=4.2}
+keystone_natives <- pacnvegetation::understory_spp_trends_rank(
+  sample_frame = params$sample_frame, 
+  cycle = params$cycle, 
+  paired_change = FALSE, 
+  remove_nativity = "Non-Native", 
+  rank_by = "positive", 
+  top_n = 16) 
 
-keystone_natives +
-  ggforce::facet_wrap_paginate(vars(rank_and_names), ncol = 4, nrow = 1, page = 1, scales = "free")
-keystone_natives +
-  ggforce::facet_wrap_paginate(vars(rank_and_names), ncol = 4, nrow = 1, page = 2, scales = "free")
-keystone_natives +
-  ggforce::facet_wrap_paginate(vars(rank_and_names), ncol = 4, nrow = 1, page = 3, scales = "free")
-keystone_natives +
-  ggforce::facet_wrap_paginate(vars(rank_and_names), ncol = 4, nrow = 1, page = 4, scales = "free")
+keystone_natives_paginate <- keystone_natives +
+  ggforce::facet_wrap_paginate(vars(rank_and_names), 
+                               ncol = 4, nrow = 1, page = 1)
+total_page_count <- n_pages(keystone_natives_paginate)
+ 
+for (i in 1:total_page_count) {
+  print(keystone_natives + ggforce::facet_wrap_paginate(vars(rank_and_names), 
+                                               ncol = 4, nrow = 1, scales = "free", 
+                                               page = i)) 
+}
 ```
 :::
 
@@ -510,7 +556,14 @@ knitr::include_graphics(here("inst", "rmarkdown", "dummy_fig.PNG"))
 ```
 
 ```{r keystone-list, echo=FALSE, message=FALSE, warning=FALSE, fig.width=10, fig.height=4.2}
-keystone_list <- pacnvegetation::understory_spp_trends_rank(sample_frame = params$sample_frame, paired_change = FALSE, remove_nativity = "Non-Native", rank_by = "positive", top_n = 10, return_table = TRUE) 
+keystone_list <- pacnvegetation::understory_spp_trends_rank(
+  sample_frame = params$sample_frame, 
+  cycle = params$cycle, 
+  paired_change = FALSE, 
+  remove_nativity = "Non-Native", 
+  rank_by = "positive", 
+  top_n = 10, 
+  return_table = TRUE) 
 
 keystone_list |>
   kbl() |>
@@ -528,23 +581,30 @@ keystone_list |>
 -   Species with declining trends in overall means should receive special attention.
 
 ::: vscroll-plot
-```{r decline-natives, echo=FALSE, message=FALSE, warning=FALSE, fig.width=10, fig.height=4.2}
-decline_natives <- pacnvegetation::understory_spp_trends_rank(sample_frame = params$sample_frame, paired_change = TRUE, remove_nativity = "Non-Native", rank_by = "negative", top_n = 20) 
+```{r decline-natives, results='asis', echo=FALSE, message=FALSE, warning=FALSE, fig.width=10, fig.height=4.2}
+decline_natives <- pacnvegetation::understory_spp_trends_rank(
+  sample_frame = params$sample_frame, 
+  cycle = params$cycle, 
+  paired_change = TRUE, 
+  remove_nativity = "Non-Native", 
+  rank_by = "negative", 
+  top_n = 20) 
 
-decline_natives +
-  ggforce::facet_wrap_paginate(vars(rank_and_names), ncol = 4, nrow = 1, page = 1, scales = "free")
-decline_natives +
-  ggforce::facet_wrap_paginate(vars(rank_and_names), ncol = 4, nrow = 1, page = 2, scales = "free")
-decline_natives +
-  ggforce::facet_wrap_paginate(vars(rank_and_names), ncol = 4, nrow = 1, page = 3, scales = "free")
-# decline_natives +
-#   ggforce::facet_wrap_paginate(vars(rank_and_names), ncol = 4, nrow = 1, page = 4, scales = "free") +
-#   ggforce::facet_wrap_paginate(vars(rank_and_names), ncol = 4, nrow = 1, page = 5, scales = "free")
+decline_natives_paginate <- decline_natives +
+  ggforce::facet_wrap_paginate(vars(rank_and_names), 
+                               ncol = 4, nrow = 1, page = 1)
+total_page_count <- n_pages(decline_natives_paginate)
+ 
+for (i in 1:total_page_count) {
+  print(decline_natives + ggforce::facet_wrap_paginate(vars(rank_and_names), 
+                                               ncol = 4, nrow = 1, scales = "free", 
+                                               page = i)) 
+}
 
 ```
 :::
 
-```{r decline-natives-cap, echo=FALSE, fig.cap= paste0("Native species ranked by the greatest decline in understory percent cover. Each grey point represents a plot. The plot with greatest rate of increase in cover between two cycles is highlighted and is used as the ranking score. The larger, black points represent the mean cover per cycle. The vertical lines represent the 0.95 confidence interval for the mean (calculated via nonparametric bootstrap). Only fixed plots are evaluated. Scroll down to see additional species."), message=FALSE, warning=FALSE, out.height="0px"}
+```{r decline-natives-cap, echo=FALSE, fig.cap= paste0("Native species ranked by the maximum decline in understory percent cover in a plot. Each grey point represents a plot. The plot with the maximum rate of decrease in cover between two cycles is highlighted and is used as the ranking score. The larger, black points represent the mean cover per cycle. The vertical lines represent the 0.95 confidence interval for the mean (calculated via nonparametric bootstrap). Only fixed plots are evaluated. Scroll down to see additional species."), message=FALSE, warning=FALSE, out.height="0px"}
 
 # Dumb hack to get fig caption to show below plot + map
 htmltools::span(class = "dummy-fig")
@@ -552,7 +612,14 @@ knitr::include_graphics(here("inst", "rmarkdown", "dummy_fig.PNG"))
 ```
 
 ```{r decline-natives-list, echo=FALSE, message=FALSE, warning=FALSE, fig.width=10, fig.height=4.2}
-decline_natives_list <- pacnvegetation::understory_spp_trends_rank(sample_frame = params$sample_frame, paired_change = TRUE, remove_nativity = "Non-Native", rank_by = "negative", top_n = 20, return_table = TRUE) 
+decline_natives_list <- pacnvegetation::understory_spp_trends_rank(
+  sample_frame = params$sample_frame, 
+  cycle = params$cycle, 
+  paired_change = TRUE, 
+  remove_nativity = "Non-Native", 
+  rank_by = "negative", 
+  top_n = 20, 
+  return_table = TRUE) 
 
 decline_natives_list|>
   kbl() |>
@@ -566,7 +633,7 @@ decline_natives_list|>
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE}
 # Get the number of plots monitored for each year for the table caption. 
-n_df <- v_presence_table(sample_frame = params$sample_frame, table_type = "tibble")
+n_df <- v_presence_table(sample_frame = params$sample_frame, cycle = params$cycle, table_type = "tibble")
 n_df <- n_df %>%
   dplyr::select(Year, All_N, Fixed_N) %>%
   tidyr::drop_na() %>%
@@ -579,7 +646,7 @@ n_list <- paste(n_list, collapse = "; ")
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE}
 # Presence Table
-v_presence_table(sample_frame = params$sample_frame, table_type = "html")
+v_presence_table(sample_frame = params$sample_frame, cycle = params$cycle, table_type = "html")
 ```
 
 ```{r presence-table, echo=FALSE, fig.cap= paste0("Proportion of plots in which a species was present during a monitoring year. Values are listed for the first and last monitoring year, while the trend line in the middle includes all monitoring years. “All Plots” includes both fixed and rotational plots, while fixed plots include only the “fixed” plots that do not change locations. The following list shows the number of plots (n) monitored for each year, displayed as YEAR = [All n, Fixed n]: ", n_list, "."), message=FALSE, warning=FALSE, out.height="0px"}
@@ -587,6 +654,8 @@ v_presence_table(sample_frame = params$sample_frame, table_type = "html")
 htmltools::span(class = "dummy-fig")
 knitr::include_graphics(here("inst", "rmarkdown", "dummy_fig.PNG"))
 ```
+
+
 
 <br> <br> <br>
 
@@ -596,7 +665,7 @@ knitr::include_graphics(here("inst", "rmarkdown", "dummy_fig.PNG"))
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE}
 if ("EIPS" %in% var_protocol) {
-  test_data <- v_EIPS_prep(sample_frame = params$sample_frame)
+  test_data <- v_EIPS_prep(sample_frame = params$sample_frame, cycle = params$cycle)
   most_frequent <- names(which.max(table(test_data$Scientific_Name))) 
   most_frequent
   ### Non-Native Species
@@ -637,7 +706,7 @@ window.onload = filter_default;
 ```{r message=FALSE, warning=FALSE, echo=FALSE}
 
 if ("EIPS" %in% var_protocol) {
-  v_EIPS_map_interstation3(.data = test_data,
+  v_EIPS_map_interstation3(.data = test_data, 
                         parameter = "Mean_Total_Cover",
                         change = FALSE,
                         agol_sample_frame = params$sample_frame)
