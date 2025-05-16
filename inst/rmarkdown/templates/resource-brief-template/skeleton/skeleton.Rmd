@@ -19,7 +19,7 @@ params:
   access_dbs: !expr c("established_invasives_BE_master_20240715.mdb", "2021-2022_established_invasives_20241016.mdb", "2023_established_invasives_20241004.mdb")
   protocol: !expr c("EIPS", "FTPC")
   park: !expr NA
-  sample_frame: 0
+  sample_frame: "Olaa"
   cycle: !expr c(1, 2, 3)
   plot_type: !expr NA
   is_qa_plot: !expr NA
@@ -92,10 +92,15 @@ if (params$sample_frame %in% no_EIPS) {
 }
 
 # Get park name
-names_all <- readxl::read_xlsx(here::here("R", "PACN_veg_names.xlsx")) 
+#names_all2 <- readxl::read_xlsx(here::here("R", "PACN_veg_names.xlsx")) 
+names_all <- readr::read_csv(here::here("R", "PACN_veg_names_excel_csv.csv")) 
 
 names <- names_all |>
   dplyr::filter(Sampling_Frame == params$sample_frame)
+
+stringi::stri_enc_isutf8(names$Sampling_Frame)
+stringi::stri_enc_isutf8(params$sample_frame)
+stringi::stri_enc_isutf8(names$Formal_Sampling_Frame)
 
 park <- names$Park_Name
 park_abbr <- names$Unit_Code
@@ -126,7 +131,7 @@ if (params$sample_frame == "Olaa" |
   sf_title <- ""
 }
 
-sf_title
+#sf_title
 ```
 
 ---
