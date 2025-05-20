@@ -1,15 +1,19 @@
+# Load libraries:
 library(pacnvegetation)
 #LoadPACNVeg(force_refresh = FALSE, eips_paths = "foo")
 #library(tidyverse)
 # Field Maps ----
 
-## Set download folder location (local workspace): ----
-var_temp_dest <- "C:/Users/JJGross/Downloads/Check_Photos2"
+# Set download folder location (local workspace): ----
+# Can be any folder on local machine
+var_temp_dest <- "C:/Users/JJGross/Downloads/Check_Photos4"
 
 
 
 
 ## AGOL urls: ------------------------------------------------------------------
+
+# Provide URLs to the AGOL rest service that is being downloaded:
 
 # Type in new AGOL layer rest services here:
 #FTPC_KAHO_2022_PA11 <- "https://services1.arcgis.com/fBc8EJBxQRMcHlei/arcgis/rest/services/KAHO_2022_FTPC_Sampling_Points_PA11/FeatureServer/43"

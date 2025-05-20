@@ -19,7 +19,7 @@ params:
   access_dbs: !expr c("established_invasives_BE_master_20240715.mdb", "2021-2022_established_invasives_20241016.mdb", "2023_established_invasives_20241004.mdb")
   protocol: !expr c("EIPS", "FTPC")
   park: !expr NA
-  sample_frame: "Olaa"
+  sample_frame: "Mauna Loa"
   cycle: !expr c(1, 2, 3)
   plot_type: !expr NA
   is_qa_plot: !expr NA
@@ -453,7 +453,7 @@ for (i in 1:total_page_count) {
 ```
 :::
 
-```{r dominate-invasives-cap, echo=FALSE, fig.cap= paste0("Non-native species ranked by the greatest percent cover within a single plot at any time. Each grey point represents a plot. The plot with greatest cover is highlighted and is used as the ranking score. The larger, black points represent the mean cover per cycle. The vertical lines represent the 0.95 confidence interval for the mean (calculated via nonparametric bootstrap). Both fixed and rotational plots are included. Scroll down to see additional species."), message=FALSE, warning=FALSE, out.height="0px"}
+```{r dominate-invasives-cap, echo=FALSE, fig.cap= paste0("Non-native species ranked by the maximum percent cover found within a single plot at any time. Each grey point represents a plot. The plot with greatest cover is highlighted and is used as the ranking score. The larger, black points represent the mean cover per cycle. The vertical lines represent the 0.95 confidence interval for the mean (calculated via nonparametric bootstrap). Both fixed and rotational plots are included. Note that the grey points are jittered (small random noise added) to avoid overlap. Scroll down to see additional species."), message=FALSE, warning=FALSE, out.height="0px"}
 
 # Dumb hack to get fig caption to show below plot + map
 htmltools::span(class = "dummy-fig")
@@ -502,7 +502,7 @@ for (i in 1:total_page_count) {
 ```
 :::
 
-```{r fast-invasives-cap, echo=FALSE, fig.cap= paste0("Non-native species ranked by the greatest increase in percent cover within a single plot at any time. Each grey point represents a plot. The plot with greatest rate of increase in cover between two cycles is highlighted and is used as the ranking score. The larger, black points represent the mean cover per cycle. The vertical lines represent the 0.95 confidence interval for the mean (calculated via nonparametric bootstrap). Only fixed plots are evaluated. Scroll down to see additional species."), message=FALSE, warning=FALSE, out.height="0px"}
+```{r fast-invasives-cap, echo=FALSE, fig.cap= paste0("Non-native species ranked by the greatest increase in percent cover within a single plot at any time. Each grey point represents a plot. The plot with greatest rate of increase in cover between two cycles is highlighted and is used as the ranking score. The larger, black points represent the mean cover per cycle. The vertical lines represent the 0.95 confidence interval for the mean (calculated via nonparametric bootstrap). Only fixed plots are evaluated. Note that the grey points are jittered (small random noise added) to avoid overlap.Scroll down to see additional species."), message=FALSE, warning=FALSE, out.height="0px"}
 
 # Dumb hack to get fig caption to show below plot + map
 htmltools::span(class = "dummy-fig")
@@ -553,7 +553,7 @@ for (i in 1:total_page_count) {
 ```
 :::
 
-```{r keystone-cap, echo=FALSE, fig.cap= paste0("Native species ranked by the greatest percent cover within a single plot at any time. Each grey point represents a plot. The plot with greatest cover is highlighted and is used as the ranking score. The larger, black points represent the mean cover per cycle. The vertical lines represent the 0.95 confidence interval for the mean (calculated via nonparametric bootstrap). Both fixed and rotational plots are included. Scroll down to see additional species."), message=FALSE, warning=FALSE, out.height="0px"}
+```{r keystone-cap, echo=FALSE, fig.cap= paste0("Native species ranked by the greatest percent cover within a single plot at any time. Each grey point represents a plot. The plot with greatest cover is highlighted and is used as the ranking score. The larger, black points represent the mean cover per cycle. The vertical lines represent the 0.95 confidence interval for the mean (calculated via nonparametric bootstrap). Both fixed and rotational plots are included. Note that the grey points are jittered (small random noise added) to avoid overlap.Scroll down to see additional species."), message=FALSE, warning=FALSE, out.height="0px"}
 
 # Dumb hack to get fig caption to show below plot + map
 htmltools::span(class = "dummy-fig")
@@ -609,7 +609,7 @@ for (i in 1:total_page_count) {
 ```
 :::
 
-```{r decline-natives-cap, echo=FALSE, fig.cap= paste0("Native species ranked by the maximum decline in understory percent cover in a plot. Each grey point represents a plot. The plot with the maximum rate of decrease in cover between two cycles is highlighted and is used as the ranking score. The larger, black points represent the mean cover per cycle. The vertical lines represent the 0.95 confidence interval for the mean (calculated via nonparametric bootstrap). Only fixed plots are evaluated. Scroll down to see additional species."), message=FALSE, warning=FALSE, out.height="0px"}
+```{r decline-natives-cap, echo=FALSE, fig.cap= paste0("Native species ranked by the maximum decline in understory percent cover in a plot. Each grey point represents a plot. The plot with the maximum rate of decrease in cover between two cycles is highlighted and is used as the ranking score. The larger, black points represent the mean cover per cycle. The vertical lines represent the 0.95 confidence interval for the mean (calculated via nonparametric bootstrap). Only fixed plots are evaluated. Note that the grey points are jittered (small random noise added) to avoid overlap. Scroll down to see additional species."), message=FALSE, warning=FALSE, out.height="0px"}
 
 # Dumb hack to get fig caption to show below plot + map
 htmltools::span(class = "dummy-fig")
