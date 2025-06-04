@@ -121,6 +121,7 @@ native_chg_und_cyc2 <- nat_chg_und %>%
   #ungroup() %>%
   filter(Nativity == "Native") %>%
   filter(Cycle == 2) %>%
+  filter(Sampling_Frame %in% c("Kahuku", "Kipahulu District", "Olaa", "Puu Alii", "Nahuku/East Rift")) |>
   ggplot(aes(x=fct_reorder(.na_rm = TRUE, Sampling_Frame2, desc(Chg_Prior), median),
              y=Chg_Prior,
              fill = high_low)) +
