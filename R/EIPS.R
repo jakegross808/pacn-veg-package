@@ -1173,14 +1173,16 @@ v_EIPS_map_interstation2 <- function(.data, parameter, change = FALSE, agol_samp
   #**mgmt_unit <- sf::st_read(request, quiet = TRUE)*
 
   if (nrow(mgmt_unit) == 0) {
-    # If agol request does not work (zero observation returned), then pull
-    # sampling frame polygons from static file in Rmarkdown file (.Rmd) folder:
-    gdb <- "spatial/PACN_Vegetation_Sampling_Frames_view/aae67c1a-113a-4c2a-beaa-16139b2d6f7a.gdb"
-    gdb_layer <- "PACN_Vegetation_Sampling_Frames"
-    mgmt_unit <- sf::read_sf(gdb, gdb_layer, quiet = TRUE)
-    mgmt_unit <- sf::st_transform(mgmt_unit, crs = 4326)
-    mgmt_unit <- mgmt_unit |>
-      dplyr::filter(Sampling_Frame == agol_sample_frame)
+    # # If agol request does not work (zero observation returned), then pull
+    # # sampling frame polygons from static file in Rmarkdown file (.Rmd) folder:
+    # gdb <- "spatial/PACN_Vegetation_Sampling_Frames_view/aae67c1a-113a-4c2a-beaa-16139b2d6f7a.gdb"
+    # gdb_layer <- "PACN_Vegetation_Sampling_Frames"
+    # mgmt_unit <- sf::read_sf(gdb, gdb_layer, quiet = TRUE)
+    # mgmt_unit <- sf::st_transform(mgmt_unit, crs = 4326)
+    # mgmt_unit <- mgmt_unit |>
+    #   dplyr::filter(Sampling_Frame == agol_sample_frame)
+
+    sf::st_read(here::here("data", "spatial", "sampling_frames_st_write.shp"), quiet = TRUE)
   }
 
   # Colors for polygons:
@@ -1686,14 +1688,17 @@ v_EIPS_map_interstation3 <- function(.data, parameter, change = FALSE, agol_samp
   if (nrow(mgmt_unit) == 0) {
     # If agol request does not work (zero observation returned), then pull
     # sampling frame polygons from static file in Rmarkdown file (.Rmd) folder:
-    gdb <- "spatial/PACN_Vegetation_Sampling_Frames_view/aae67c1a-113a-4c2a-beaa-16139b2d6f7a.gdb"
-    gdb_layer <- "PACN_Vegetation_Sampling_Frames"
-    mgmt_unit <- sf::read_sf(gdb, gdb_layer, quiet = TRUE)
-    mgmt_unit <- sf::st_transform(mgmt_unit, crs = 4326)
-    mgmt_unit <- mgmt_unit |>
-      #**need to trim whitespace on GIS file*
-      dplyr::mutate(Sampling_Frame = stringr::str_trim(Sampling_Frame)) |>
-      dplyr::filter(Sampling_Frame == agol_sample_frame)
+
+    # gdb <- "inst/rmarkdown/templates/resource-brief-template/skeleton/spatial/PACN_Vegetation_Sampling_Frames_view/aae67c1a-113a-4c2a-beaa-16139b2d6f7a.gdb"
+    # gdb_layer <- "PACN_Vegetation_Sampling_Frames"
+    # mgmt_unit <- sf::read_sf(gdb, gdb_layer, quiet = TRUE)
+    # mgmt_unit <- sf::st_transform(mgmt_unit, crs = 4326)
+    # mgmt_unit <- mgmt_unit |>
+    #   #**need to trim whitespace on GIS file*
+    #   dplyr::mutate(Sampling_Frame = stringr::str_trim(Sampling_Frame)) |>
+    #   dplyr::filter(Sampling_Frame == agol_sample_frame)
+
+    mgmt_unit <- sf::st_read(here::here("data", "spatial", "sampling_frames_st_write.shp"), quiet = TRUE)
   }
   # Colors for polygons:
   factpal <- leaflet::colorFactor(c("#F8573A", "#F4C47B", "#28468B", "#AED5CB"),
