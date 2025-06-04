@@ -1261,7 +1261,7 @@ understorySpeciesCover2 <- function(sample_frame, cycle,
 
   # NEW PLACEHOLDER
   # TODO: fix location of mgmt unit (ie where should it first appear?)
-  mgmt <- readr::read_csv(file = paste0(getwd(),"/R/Events_extra_xy_mgmt.csv"))
+  mgmt <- readr::read_csv(file = here::here("data", "Events_extra_xy_mgmt.csv"))
 
   und <- und %>%
     dplyr::left_join(dplyr::select(mgmt, Zone, Unit_Code, Sampling_Frame, Cycle, Plot_Number),
