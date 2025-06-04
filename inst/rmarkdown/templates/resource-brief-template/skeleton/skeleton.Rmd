@@ -1,6 +1,6 @@
 ---
 author: "Pacific Island Inventory & Monitoring Network (PACN)"
-date: "08 MAY 2025"
+date: "22 MAY 2025"
 output: 
   bookdown::html_document2:
     toc: true
@@ -19,7 +19,7 @@ params:
   access_dbs: !expr c("established_invasives_BE_master_20240715.mdb", "2021-2022_established_invasives_20241016.mdb", "2023_established_invasives_20241004.mdb")
   protocol: !expr c("EIPS", "FTPC")
   park: !expr NA
-  sample_frame: "Mauna Loa"
+  sample_frame: "Kaloko-Honokohau"
   cycle: !expr c(1, 2, 3)
   plot_type: !expr NA
   is_qa_plot: !expr NA
@@ -77,11 +77,21 @@ library(ggforce)
 ```
 
 ```{r load data, include=FALSE}
-access_dbs <- here(params$data_folder, params$access_dbs)
+#access_dbs <- here(params$data_folder, params$access_dbs)
 
-# Load the data
-data <- LoadPACNVeg(ftpc_params = "pacnveg", eips_paths = access_dbs, 
-                    cache = TRUE, force_refresh = FALSE)
+# Load the data (directly pull from remote database)
+#data <- LoadPACNVeg(ftpc_params = "pacnveg", eips_paths = access_dbs, 
+#                    cache = TRUE, force_refresh = FALSE)
+
+# Load the data (use csv files)
+data <- here::here("data")
+path_file_info <- file.info(list.files(data, full.names = T))
+latest_folder <- rownames(path_file_info)[which.max(path_file_info$mtime)]
+
+LoadPACNVeg(data_path = latest_folder,
+            data_source = "file")
+
+names(FilterPACNVeg())
 
 # Specify protocol (whether or not to include EIPS based on sampling frame)
 no_EIPS <- c("Guam", "Tau", "Tutuila", "Puu Alii", "Kaloko-Honokohau")
@@ -438,8 +448,7 @@ dom_invasives <- pacnvegetation::understory_spp_trends_rank(
   cycle = params$cycle, 
   paired_change = FALSE, 
   remove_nativity = "Native", 
-  rank_by = "positive", 
-  top_n = 16) 
+  rank_by = "positive") 
 
 dom_invasives_paginate <- dom_invasives +
   ggforce::facet_wrap_paginate(vars(rank_and_names), 
@@ -453,7 +462,7 @@ for (i in 1:total_page_count) {
 ```
 :::
 
-```{r dominate-invasives-cap, echo=FALSE, fig.cap= paste0("Non-native species ranked by the maximum percent cover found within a single plot at any time. Each grey point represents a plot. The plot with greatest cover is highlighted and is used as the ranking score. The larger, black points represent the mean cover per cycle. The vertical lines represent the 0.95 confidence interval for the mean (calculated via nonparametric bootstrap). Both fixed and rotational plots are included. Note that the grey points are jittered (small random noise added) to avoid overlap. Scroll down to see additional species."), message=FALSE, warning=FALSE, out.height="0px"}
+```{r dominate-invasives-cap, echo=FALSE, fig.cap= paste0("Non-native species ranked by the maximum percent cover recorded within a single plot at any time. Each grey point represents a plot. The plot with greatest cover is highlighted and is used as the ranking score. The larger, black points represent the mean cover per cycle. The vertical lines represent the 0.95 confidence interval for the mean (calculated via nonparametric bootstrap). Both fixed and rotational plots are included. Note that the grey points are jittered (small random noise added) to avoid overlap. Scroll down to see additional species. Only species with cover ≥ 1% (3 / 300 cover points) are displayed."), message=FALSE, warning=FALSE, out.height="0px"}
 
 # Dumb hack to get fig caption to show below plot + map
 htmltools::span(class = "dummy-fig")
@@ -467,19 +476,20 @@ dom_invasives_list <- pacnvegetation::understory_spp_trends_rank(
   paired_change = FALSE, 
   remove_nativity = "Native", 
   rank_by = "positive", 
-  top_n = 10, 
+  #top_n = 10, 
   return_table = TRUE) 
 
 dom_invasives_list |>
   kable(booktabs = T, label = NA) |>
-  kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive")) 
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive")) |>
+  scroll_box(height = "365px") 
 ```
 
 <br/> <br/> <br/>
 
 #### Fastest Spreading Non-natives
 
-*Non-native plant species. Ranked by greatest increase in cover within a plot.*
+*Non-native plant species. Ranked by maximum rate of increase in cover within a plot.*
 
 ::: vscroll-plot
 ```{r fast-invasives, results='asis', echo=FALSE, message=FALSE, warning=FALSE, fig.width=10, fig.height=4.2}
@@ -488,8 +498,7 @@ fast_invasives <- pacnvegetation::understory_spp_trends_rank(
   cycle = params$cycle,  
   paired_change = TRUE, 
   remove_nativity = "Native", 
-  rank_by = "positive", 
-  top_n = 16) 
+  rank_by = "positive") 
 
 fast_invasives_paginate <- fast_invasives +
   ggforce::facet_wrap_paginate(vars(rank_and_names), ncol = 4, nrow = 1, page = 1)
@@ -502,7 +511,7 @@ for (i in 1:total_page_count) {
 ```
 :::
 
-```{r fast-invasives-cap, echo=FALSE, fig.cap= paste0("Non-native species ranked by the greatest increase in percent cover within a single plot at any time. Each grey point represents a plot. The plot with greatest rate of increase in cover between two cycles is highlighted and is used as the ranking score. The larger, black points represent the mean cover per cycle. The vertical lines represent the 0.95 confidence interval for the mean (calculated via nonparametric bootstrap). Only fixed plots are evaluated. Note that the grey points are jittered (small random noise added) to avoid overlap.Scroll down to see additional species."), message=FALSE, warning=FALSE, out.height="0px"}
+```{r fast-invasives-cap, echo=FALSE, fig.cap= paste0("Non-native species ranked by the maximum increase in percent cover recorded within a single plot at any time. Each grey point represents a plot. The plot with the maximum rate of increase in cover between two cycles is highlighted and is used as the ranking score. The larger, black points represent the mean cover per cycle. The vertical lines represent the 0.95 confidence interval for the mean (calculated via nonparametric bootstrap). Only fixed plots are evaluated. Note that the grey points are jittered (small random noise added) to avoid overlap. Scroll down to see additional species. Only species with change per year  ≥ 0.16% (1% / 6 years) are displayed."), message=FALSE, warning=FALSE, out.height="0px"}
 
 # Dumb hack to get fig caption to show below plot + map
 htmltools::span(class = "dummy-fig")
@@ -516,12 +525,13 @@ fast_invasives_list <- pacnvegetation::understory_spp_trends_rank(
   paired_change = TRUE, 
   remove_nativity = "Native", 
   rank_by = "positive", 
-  top_n = 10, 
+  #top_n = 10, 
   return_table = TRUE) 
 
 fast_invasives_list |>
   kable(booktabs = T, label = NA) |>
-  kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"))
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive")) |>
+  scroll_box(height = "365px")
 ```
 
 <br/> <br/> <br/>
@@ -537,8 +547,7 @@ keystone_natives <- pacnvegetation::understory_spp_trends_rank(
   cycle = params$cycle, 
   paired_change = FALSE, 
   remove_nativity = "Non-Native", 
-  rank_by = "positive", 
-  top_n = 16) 
+  rank_by = "positive") 
 
 keystone_natives_paginate <- keystone_natives +
   ggforce::facet_wrap_paginate(vars(rank_and_names), 
@@ -553,7 +562,7 @@ for (i in 1:total_page_count) {
 ```
 :::
 
-```{r keystone-cap, echo=FALSE, fig.cap= paste0("Native species ranked by the greatest percent cover within a single plot at any time. Each grey point represents a plot. The plot with greatest cover is highlighted and is used as the ranking score. The larger, black points represent the mean cover per cycle. The vertical lines represent the 0.95 confidence interval for the mean (calculated via nonparametric bootstrap). Both fixed and rotational plots are included. Note that the grey points are jittered (small random noise added) to avoid overlap.Scroll down to see additional species."), message=FALSE, warning=FALSE, out.height="0px"}
+```{r keystone-cap, echo=FALSE, fig.cap= paste0("Native species ranked by the greatest percent cover within a single plot at any time. Each grey point represents a plot. The plot with greatest cover is highlighted and is used as the ranking score. The larger, black points represent the mean cover per cycle. The vertical lines represent the 0.95 confidence interval for the mean (calculated via nonparametric bootstrap). Both fixed and rotational plots are included. Note that the grey points are jittered (small random noise added) to avoid overlap.Scroll down to see additional species. Only species with cover ≥ 1% (3 / 300 cover points) are displayed."), message=FALSE, warning=FALSE, out.height="0px"}
 
 # Dumb hack to get fig caption to show below plot + map
 htmltools::span(class = "dummy-fig")
@@ -567,12 +576,13 @@ keystone_list <- pacnvegetation::understory_spp_trends_rank(
   paired_change = FALSE, 
   remove_nativity = "Non-Native", 
   rank_by = "positive", 
-  top_n = 10, 
+  #top_n = 10, 
   return_table = TRUE) 
 
 keystone_list |>
   kbl() |>
-  kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"))
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive")) |>
+  scroll_box(height = "365px")
 ```
 
 <br/> <br/> <br/>
@@ -581,7 +591,7 @@ keystone_list |>
 
 *Native plant species ranked by maximum cover decrease observed in a plot.*
 
--   Location of plot with steepest decrease should be examined further to understand cause and if similar declines are occurring elsewhere.
+-   Location of plot# with max decrease should be examined further to understand cause and if similar declines are occurring elsewhere.
 
 -   Species with declining trends in overall means should receive special attention.
 
@@ -592,8 +602,7 @@ decline_natives <- pacnvegetation::understory_spp_trends_rank(
   cycle = params$cycle, 
   paired_change = TRUE, 
   remove_nativity = "Non-Native", 
-  rank_by = "negative", 
-  top_n = 20) 
+  rank_by = "negative") 
 
 decline_natives_paginate <- decline_natives +
   ggforce::facet_wrap_paginate(vars(rank_and_names), 
@@ -609,7 +618,7 @@ for (i in 1:total_page_count) {
 ```
 :::
 
-```{r decline-natives-cap, echo=FALSE, fig.cap= paste0("Native species ranked by the maximum decline in understory percent cover in a plot. Each grey point represents a plot. The plot with the maximum rate of decrease in cover between two cycles is highlighted and is used as the ranking score. The larger, black points represent the mean cover per cycle. The vertical lines represent the 0.95 confidence interval for the mean (calculated via nonparametric bootstrap). Only fixed plots are evaluated. Note that the grey points are jittered (small random noise added) to avoid overlap. Scroll down to see additional species."), message=FALSE, warning=FALSE, out.height="0px"}
+```{r decline-natives-cap, echo=FALSE, fig.cap= paste0("Native species ranked by the maximum decline in understory percent cover in a plot. Each grey point represents a plot. The plot with the maximum rate of decrease in cover between two cycles is highlighted and is used as the ranking score. The larger, black points represent the mean cover per cycle. The vertical lines represent the 0.95 confidence interval for the mean (calculated via nonparametric bootstrap). Only fixed plots are evaluated. Note that the grey points are jittered (small random noise added) to avoid overlap. Scroll down to see additional species. Only species with change per year ≤ -0.16% (-1% / 6 years) are displayed."), message=FALSE, warning=FALSE, out.height="0px"}
 
 # Dumb hack to get fig caption to show below plot + map
 htmltools::span(class = "dummy-fig")
@@ -623,7 +632,7 @@ decline_natives_list <- pacnvegetation::understory_spp_trends_rank(
   paired_change = TRUE, 
   remove_nativity = "Non-Native", 
   rank_by = "negative", 
-  top_n = 20, 
+  #top_n = 20, 
   return_table = TRUE) 
 
 decline_natives_list|>

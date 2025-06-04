@@ -1,0 +1,758 @@
+Event_ID,Unit_Code,Community,Sampling_Frame,Sampling_Frame_Formal,Year,Cycle,Plot_Type,QA_Plot,Plot_Number,Max_Veg_Ht,Site_Name,Images,Certified,Verified
+0033A530-DD6E-4F50-8D20-4E4336983D06,KAHO,Coastal Strand,Kaloko-Honokohau,Kaloko-Honokōhau,2016,2,Fixed,FALSE,8,,Kaloko-Honokahau National Historical Park,FALSE,TRUE,TRUE
+007816D6-7032-4305-AD91-A5B3EFE9E405,NPSA,Wet Forest,Tutuila,Tutuila,2018,2,Fixed,FALSE,10,,National Park of American Samoa,FALSE,TRUE,TRUE
+00F45435-3B82-4441-B845-D86CB1D56C0A,KAHO,Coastal Strand,Kaloko-Honokohau,Kaloko-Honokōhau,2016,2,Rotational,FALSE,20,,Kaloko-Honokahau National Historical Park,FALSE,TRUE,TRUE
+0140DAFF-6B5C-4E27-BBCB-8AA725DC8E00,HAVO,Subalpine Shrubland,Mauna Loa,Mauna Loa,2016,2,Rotational,FALSE,33,5,Hawaii Volcanoes National Park,FALSE,TRUE,TRUE
+0167477D-7674-49D5-BDA0-F55F52856D95,KAHO,Coastal Strand,Kaloko-Honokohau,Kaloko-Honokōhau,2016,2,Fixed,FALSE,1,,Kaloko-Honokahau National Historical Park,FALSE,TRUE,TRUE
+016C6E10-059B-4670-8B27-B130F448E329,HALE,Subalpine Shrubland,Haleakala,Haleakalā,2017,2,Rotational,FALSE,37,,Haleakala National Park,FALSE,TRUE,TRUE
+018A4690-B471-4428-8D22-E7DB1E23063D,NPSA,Wet Forest,Tau,Ta‘ū,2018,2,Fixed,FALSE,7,,National Park of American Samoa,FALSE,TRUE,TRUE
+02B32519-21BD-4347-9382-ADDDFEBA9C73,KALA,Wet Forest,Puu Alii,Puʻu Aliʻi,2017,2,Fixed,FALSE,3,,Kalaupapa National Historical Park,FALSE,TRUE,TRUE
+038394D0-8481-4580-879B-0A093542BE3C,KALA,Wet Forest,Puu Alii,Puʻu Aliʻi,2017,2,Rotational,FALSE,44,,Kalaupapa National Historical Park,FALSE,TRUE,TRUE
+04199210-DBC1-471E-8DC9-5A1B0E9C0513,HALE,Subalpine Shrubland,Haleakala,Haleakalā,2012,1,Fixed,FALSE,2,2,Haleakala National Park,TRUE,TRUE,TRUE
+0465B979-606D-447A-BC6B-4A88A68E438A,HAVO,Subalpine Shrubland,Mauna Loa,Mauna Loa,2016,2,Rotational,FALSE,44,3.5,Hawaii Volcanoes National Park,FALSE,TRUE,TRUE
+05637A44-E9CB-4AD7-9138-0836E0BAC452,HAVO,Wet Forest,Olaa,ʻŌlaʻa,2021,3,Rotational,FALSE,58,,Hawaii Volcanoes National Park,FALSE,TRUE,TRUE
+071ABF84-687A-481E-A021-60DDC521FB3C,KALA,Coastal Strand,Hoolehua,Hoʻolehua,2017,2,Fixed,FALSE,7,0.5,Kalaupapa National Historical Park,FALSE,TRUE,TRUE
+081A7293-4637-48D7-B5AF-1530CED300BE,KALA,Coastal Strand,Hoolehua,Hoʻolehua,2017,2,Fixed,FALSE,9,0.8,Kalaupapa National Historical Park,FALSE,TRUE,TRUE
+08AAFE42-C4EF-4639-BF11-DE10D95F1F1B,NPSA,Wet Forest,Tau,Ta‘ū,2018,2,Rotational,FALSE,34,,National Park of American Samoa,FALSE,TRUE,TRUE
+0991C9DC-FC24-412F-9F9E-686FC384A957,NPSA,Wet Forest,Tau,Ta‘ū,2018,2,Rotational,FALSE,44,,National Park of American Samoa,FALSE,TRUE,TRUE
+09EA3440-87EF-468E-A182-8DA686069B58,HAVO,Wet Forest,Olaa,ʻŌlaʻa,2015,2,Rotational,FALSE,37,12.1,Hawaii Volcanoes National Park,FALSE,TRUE,TRUE
+0A9C38A3-A2CF-4FC2-B4D8-49D627B7BD8E,WAPA,Limestone Forest,Guam,Guam,2019,2,Rotational,FALSE,17,,War in the Pacific National Historical Park,FALSE,TRUE,TRUE
+0B651411-DD02-433D-95F9-738038BE3671,HAVO,Wet Forest,Nahuku/East Rift,Nāhuku / East Rift,2021,3,Rotational,FALSE,56,,Hawaii Volcanoes National Park,FALSE,TRUE,TRUE
+0B7C1C5D-72ED-456E-ACCF-B8D6D5ED5005,AMME,Mangrove Wetland,Muchot,Muchot,2014,1,Fixed,FALSE,2,24,American Memorial Park,TRUE,TRUE,TRUE
+0BDDB37D-91DC-4DAC-93FA-A0A2E56520CE,HAVO,Subalpine Shrubland,Mauna Loa,Mauna Loa,2016,2,Fixed,FALSE,1,5,Hawaii Volcanoes National Park,FALSE,TRUE,TRUE
+0BE731EB-4610-4EAA-BB29-D0BBEE907BA0,HAVO,Wet Forest,Kahuku,Kahuku,2022,3,Fixed,FALSE,5,,Hawaii Volcanoes National Park,FALSE,TRUE,TRUE
+0C0E732B-C4A1-433D-8CF0-9D7FC62E389E,KAHO,Coastal Strand,Kaloko-Honokohau,Kaloko-Honokōhau,2022,3,Fixed,FALSE,2,5.5,Kaloko-Honokahau National Historical Park,FALSE,TRUE,TRUE
+0D4485C3-4442-47B9-9E8A-2EBC0FFA2FAE,HAVO,Subalpine Shrubland,Mauna Loa,Mauna Loa,2011,1,Rotational,FALSE,22,7.5,Hawaii Volcanoes National Park,TRUE,TRUE,TRUE
+0D6ED7E7-B005-4E67-BABC-13BACD603D91,KALA,Coastal Strand,Kalawao,Kalawao,2012,1,Fixed,FALSE,4,0.1,Kalaupapa National Historical Park,TRUE,TRUE,TRUE
+0D6EE3A6-066F-4B7D-8990-0D4EDF0CF7E3,HAVO,Subalpine Shrubland,Mauna Loa,Mauna Loa,2022,3,Rotational,FALSE,48,,Hawaii Volcanoes National Park,FALSE,TRUE,TRUE
+0D903072-E4A8-43BB-A0C7-E5C6826E7ECA,HAVO,Wet Forest,Olaa,ʻŌlaʻa,2015,2,Rotational,FALSE,40,21.1,Hawaii Volcanoes National Park,FALSE,TRUE,TRUE
+0E54F909-6249-4E8E-8D47-0B60C749BE08,KAHO,Coastal Strand,Kaloko-Honokohau,Kaloko-Honokōhau,2016,2,Fixed,FALSE,6,,Kaloko-Honokahau National Historical Park,FALSE,TRUE,TRUE
+0E87C910-F4B6-4427-AF6A-5D73DB36AF6B,HAVO,Wet Forest,Nahuku/East Rift,Nāhuku / East Rift,2021,3,Rotational Alternate,FALSE,54,,Hawaii Volcanoes National Park,FALSE,TRUE,TRUE
+0EC61175-C582-4004-ADC2-FD19324B4546,KALA,Coastal Strand,Kalawao,Kalawao,2012,1,Rotational,FALSE,14,0.1,Kalaupapa National Historical Park,TRUE,TRUE,TRUE
+0FF7ABA3-0C89-431C-8F26-24C177E4D6A2,HAVO,Subalpine Shrubland,Mauna Loa,Mauna Loa,2022,3,Rotational,FALSE,58,,Hawaii Volcanoes National Park,FALSE,TRUE,TRUE
+10620E04-42B6-4917-B0DF-6C6680442C90,HAVO,Wet Forest,Olaa,ʻŌlaʻa,2021,3,Fixed,FALSE,6,,Hawaii Volcanoes National Park,FALSE,TRUE,TRUE
+10FD8A61-1D04-4320-AA64-48D0B668B2A5,HALE,Subalpine Shrubland,Haleakala,Haleakalā,2017,2,Fixed,FALSE,5,,Haleakala National Park,FALSE,TRUE,TRUE
+11841570-8AE8-4297-A337-B11DB61B6364,HALE,Subalpine Shrubland,Haleakala,Haleakalā,2012,1,Fixed,FALSE,5,1.5,Haleakala National Park,TRUE,TRUE,TRUE
+11CAF643-D080-4865-A08F-6F845579311D,HALE,Wet Forest,Kipahulu District,Kīpahulu District,2012,1,Fixed,FALSE,10,19.7,Haleakala National Park,FALSE,TRUE,TRUE
+1200F8E2-C1DD-4EAB-834E-F2E827F8CA79,HAVO,Subalpine Shrubland,Mauna Loa,Mauna Loa,2022,3,Fixed,FALSE,10,,Hawaii Volcanoes National Park,FALSE,TRUE,TRUE
+127CE307-157B-4684-9DAE-77EE58B7A876,KAHO,Coastal Strand,Kaloko-Honokohau,Kaloko-Honokōhau,2022,3,Fixed,FALSE,5,6,Kaloko-Honokahau National Historical Park,FALSE,TRUE,TRUE
+12AF4169-7168-467E-93AC-C8A04393C071,HAVO,Wet Forest,Nahuku/East Rift,Nāhuku / East Rift,2015,2,Fixed,FALSE,4,12.2,Hawaii Volcanoes National Park,FALSE,TRUE,TRUE
+12C665B8-CCB2-4D3C-8CD6-59BC2CF14CEF,HALE,Wet Forest,Kipahulu District,Kīpahulu District,2017,2,Fixed,FALSE,3,,Haleakala National Park,FALSE,TRUE,TRUE
+12E00865-8AAB-4664-A559-DFDA410F542E,HALE,Subalpine Shrubland,Haleakala,Haleakalā,2017,2,Fixed,FALSE,6,,Haleakala National Park,FALSE,TRUE,TRUE
+13B46550-0E7D-46D6-B0ED-9E100ED548ED,HAVO,Wet Forest,Olaa,ʻŌlaʻa,2021,3,Fixed,FALSE,13,,Hawaii Volcanoes National Park,FALSE,TRUE,TRUE
+13D61C1D-8FC4-4321-8F23-EF0468903F76,HAVO,Wet Forest,Olaa,ʻŌlaʻa,2015,2,Rotational,FALSE,41,16.2,Hawaii Volcanoes National Park,FALSE,TRUE,TRUE
+140211F1-B561-4E91-949B-3D1339A799B9,KALA,Coastal Strand,Kalawao,Kalawao,2012,1,Fixed,FALSE,2,0.1,Kalaupapa National Historical Park,TRUE,TRUE,TRUE
+14364B1B-6DEF-4F98-8BD3-975C3325E7B4,WAPA,Limestone Forest,Guam,Guam,2019,2,Rotational,FALSE,18,,War in the Pacific National Historical Park,FALSE,TRUE,TRUE
+1515DA17-3C80-4236-AF96-F419E10AA24D,HAVO,Wet Forest,Kahuku,Kahuku,2022,3,Fixed,FALSE,13,,Hawaii Volcanoes National Park,FALSE,TRUE,TRUE
+15215382-D050-4E88-8022-D20A649E654C,HALE,Subalpine Shrubland,Haleakala,Haleakalā,2017,2,Fixed,FALSE,3,,Haleakala National Park,FALSE,TRUE,TRUE
+15ACECCA-66DB-4BB0-A12B-FBA68FB5EBA5,AMME,Mangrove Wetland,Muchot,Muchot,2014,1,Fixed,FALSE,8,11.9,American Memorial Park,TRUE,TRUE,TRUE
+175909A8-066F-48A6-84D5-427801F0CC8B,NPSA,Wet Forest,Tutuila,Tutuila,2018,2,Fixed,FALSE,5,,National Park of American Samoa,FALSE,TRUE,TRUE
+181A1D22-0246-451C-8064-6EF423103961,KALA,Wet Forest,Puu Alii,Puʻu Aliʻi,2017,2,Fixed,FALSE,8,,Kalaupapa National Historical Park,FALSE,TRUE,TRUE
+1822B250-08C6-4EF3-826D-24CD99D823E1,HAVO,Wet Forest,Kahuku,Kahuku,2016,2,Rotational,FALSE,36,18.6,Hawaii Volcanoes National Park,FALSE,TRUE,TRUE
+1833F767-9997-4973-AF2C-7BCC617E3EC4,HAVO,Wet Forest,Kahuku,Kahuku,2022,3,Rotational,FALSE,46,,Hawaii Volcanoes National Park,FALSE,TRUE,TRUE
+18577E4A-0A36-4E5C-A08B-D22BCBA198BD,AMME,Mangrove Wetland,Muchot,Muchot,2019,2,Fixed,FALSE,9,,American Memorial Park,FALSE,TRUE,TRUE
+18F5EA3E-B405-4E00-9959-5CFA9EF527F8,KALA,Wet Forest,Puu Alii,Puʻu Aliʻi,2012,1,Rotational,FALSE,25,12,Kalaupapa National Historical Park,TRUE,TRUE,TRUE
+1941EC30-3EF9-4670-BCD8-BBA5C2B69AEC,HAVO,Wet Forest,Olaa,ʻŌlaʻa,2015,2,Rotational,FALSE,34,15.4,Hawaii Volcanoes National Park,TRUE,TRUE,TRUE
+1A2697C8-DF16-4B64-A2FD-30FE18F178D2,KALA,Wet Forest,Puu Alii,Puʻu Aliʻi,2017,2,Fixed,FALSE,14,,Kalaupapa National Historical Park,FALSE,TRUE,TRUE
+1AEC9F51-600C-49A0-BF51-12963D80FAE4,WAPA,Limestone Forest,Guam,Guam,2019,2,Fixed,FALSE,6,,War in the Pacific National Historical Park,FALSE,TRUE,TRUE
+1B19EB7E-13CE-4F09-80F6-7031065A66B8,HAVO,Wet Forest,Nahuku/East Rift,Nāhuku / East Rift,2015,2,Fixed,FALSE,6,19.8,Hawaii Volcanoes National Park,FALSE,TRUE,TRUE
+1B2725D2-E2EC-4D75-8402-E53842139D8F,KAHO,Coastal Strand,Kaloko-Honokohau,Kaloko-Honokōhau,2022,3,Fixed,FALSE,8,8,Kaloko-Honokahau National Historical Park,FALSE,TRUE,TRUE
+1B48F5ED-B372-44B9-AE9C-A559A600CA9A,HALE,Wet Forest,Kipahulu District,Kīpahulu District,2013,1,Fixed,FALSE,4,16.5,Haleakala National Park,FALSE,TRUE,TRUE
+1B66652B-6BDD-4BB2-B075-18AAE506C639,HALE,Subalpine Shrubland,Haleakala,Haleakalā,2017,2,Fixed,FALSE,14,,Haleakala National Park,FALSE,TRUE,TRUE
+1CC0CA34-A5A0-4BFD-A58D-1727A4245BA3,HAVO,Wet Forest,Nahuku/East Rift,Nāhuku / East Rift,2015,2,Fixed,FALSE,5,15.4,Hawaii Volcanoes National Park,FALSE,TRUE,TRUE
+1D22732F-A56D-4A82-84F7-23870781698C,HAVO,Wet Forest,Olaa,ʻŌlaʻa,2015,2,Rotational,FALSE,38,10.1,Hawaii Volcanoes National Park,FALSE,TRUE,TRUE
+1D5E4568-280C-471E-824F-57D86B6C793E,NPSA,Wet Forest,Tau,Ta‘ū,2018,2,Rotational,FALSE,35,,National Park of American Samoa,FALSE,TRUE,TRUE
+1D8C5373-9A92-40AD-A452-E3D430B1CD37,NPSA,Wet Forest,Tau,Ta‘ū,2018,2,Rotational,FALSE,41,,National Park of American Samoa,FALSE,TRUE,TRUE
+1DDF8EE4-53F4-437B-919A-FD054213270B,HALE,Subalpine Shrubland,Haleakala,Haleakalā,2012,1,Rotational,FALSE,16,1,Haleakala National Park,TRUE,TRUE,TRUE
+1DE9BEB9-9415-447A-BE2A-69883E6B076F,HAVO,Wet Forest,Nahuku/East Rift,Nāhuku / East Rift,2015,2,Rotational,FALSE,31,20,Hawaii Volcanoes National Park,FALSE,TRUE,TRUE
+1E1254DB-FAA0-4C96-BF41-E99A7D791150,KAHO,Coastal Strand,Kaloko-Honokohau,Kaloko-Honokōhau,2016,2,Fixed,FALSE,7,,Kaloko-Honokahau National Historical Park,FALSE,TRUE,TRUE
+1E7BBDC6-C440-4850-8AFC-5828F7BCA2FF,HAVO,Subalpine Shrubland,Mauna Loa,Mauna Loa,2022,3,Rotational,FALSE,57,,Hawaii Volcanoes National Park,FALSE,TRUE,TRUE
+1F5EF753-51E3-403C-A9FB-C76C3B917804,WAPA,Limestone Forest,Guam,Guam,2014,1,Fixed,FALSE,1,16.1,War in the Pacific National Historical Park,FALSE,TRUE,TRUE
+1F6355AC-765C-4FC8-BB61-F95AE6C6257A,HALE,Wet Forest,Kipahulu District,Kīpahulu District,2017,2,Rotational,FALSE,42,,Haleakala National Park,FALSE,TRUE,TRUE
+1FADF1CB-8FB7-463B-9203-2F2F4AAF7837,HAVO,Wet Forest,Olaa,ʻŌlaʻa,2015,2,Rotational,FALSE,35,24.3,Hawaii Volcanoes National Park,FALSE,TRUE,TRUE
+20100601105310-284480273.723602,HAVO,Wet Forest,Olaa,ʻŌlaʻa,2010,1,Rotational,FALSE,16,25,Hawaii Volcanoes National Park,FALSE,TRUE,TRUE
+20100623102610-871445834.636688,HAVO,Wet Forest,Olaa,ʻŌlaʻa,2010,1,Fixed,FALSE,2,15,Hawaii Volcanoes National Park,FALSE,TRUE,TRUE
+20100624085903-401374340.057373,HAVO,Wet Forest,Olaa,ʻŌlaʻa,2010,1,Fixed,FALSE,1,21,Hawaii Volcanoes National Park,FALSE,TRUE,TRUE
+20100624145025-261368274.688721,HAVO,Wet Forest,Olaa,ʻŌlaʻa,2010,1,Fixed,FALSE,6,16.5,Hawaii Volcanoes National Park,FALSE,TRUE,TRUE
+20100625130232-862619340.419769,HAVO,Wet Forest,Olaa,ʻŌlaʻa,2010,1,Fixed,FALSE,7,18.5,Hawaii Volcanoes National Park,FALSE,TRUE,TRUE
+20100625153609-647821187.973022,HAVO,Wet Forest,Olaa,ʻŌlaʻa,2010,1,Rotational,FALSE,24,21.5,Hawaii Volcanoes National Park,FALSE,TRUE,TRUE
+20100628084720-364018678.665161,HAVO,Wet Forest,Olaa,ʻŌlaʻa,2010,1,Rotational,FALSE,30,25,Hawaii Volcanoes National Park,FALSE,TRUE,TRUE
+20100712151053-373536169.528961,HAVO,Wet Forest,Olaa,ʻŌlaʻa,2010,1,Fixed,FALSE,14,22.5,Hawaii Volcanoes National Park,FALSE,TRUE,TRUE
+20100714070546-373536169.528961,HAVO,Wet Forest,Olaa,ʻŌlaʻa,2010,1,Fixed,FALSE,9,22,Hawaii Volcanoes National Park,FALSE,TRUE,TRUE
+20100723095048-373536169.528961,HAVO,Wet Forest,Nahuku/East Rift,Nāhuku / East Rift,2010,1,Fixed,FALSE,3,29,Hawaii Volcanoes National Park,FALSE,TRUE,TRUE
+20100723142350-373536169.528961,HAVO,Wet Forest,Nahuku/East Rift,Nāhuku / East Rift,2010,1,Fixed,FALSE,8,28,Hawaii Volcanoes National Park,TRUE,TRUE,TRUE
+20100728085311-871445834.636688,HAVO,Wet Forest,Olaa,ʻŌlaʻa,2010,1,Fixed,FALSE,4,19,Hawaii Volcanoes National Park,FALSE,TRUE,TRUE
+20100728085442-824602127.075195,HAVO,Wet Forest,Nahuku/East Rift,Nāhuku / East Rift,2010,1,Fixed,FALSE,11,16.6,Hawaii Volcanoes National Park,TRUE,TRUE,TRUE
+20100802132836-364018678.665161,HAVO,Wet Forest,Olaa,ʻŌlaʻa,2010,1,Fixed,FALSE,8,17,Hawaii Volcanoes National Park,FALSE,TRUE,TRUE
+20100809121726-622696697.711945,HAVO,Wet Forest,Nahuku/East Rift,Nāhuku / East Rift,2010,1,Fixed,FALSE,2,20,Hawaii Volcanoes National Park,FALSE,TRUE,TRUE
+20100810125200-542029261.58905,HAVO,Wet Forest,Nahuku/East Rift,Nāhuku / East Rift,2010,1,Fixed,FALSE,6,19.5,Hawaii Volcanoes National Park,TRUE,TRUE,TRUE
+20100811113113-161743700.504303,HAVO,Wet Forest,Nahuku/East Rift,Nāhuku / East Rift,2010,1,Rotational,FALSE,20,20.9,Hawaii Volcanoes National Park,TRUE,TRUE,TRUE
+20100819083143-871445834.636688,HAVO,Wet Forest,Nahuku/East Rift,Nāhuku / East Rift,2010,1,Fixed,FALSE,4,16,Hawaii Volcanoes National Park,FALSE,TRUE,TRUE
+20100819083411-910964310.16922,HAVO,Wet Forest,Nahuku/East Rift,Nāhuku / East Rift,2010,1,Fixed,FALSE,10,14.2,Hawaii Volcanoes National Park,TRUE,TRUE,TRUE
+20100823073322-373536169.528961,HAVO,Wet Forest,Nahuku/East Rift,Nāhuku / East Rift,2010,1,Rotational,FALSE,27,27.1,Hawaii Volcanoes National Park,TRUE,TRUE,TRUE
+20100823084527-871445834.636688,HAVO,Wet Forest,Nahuku/East Rift,Nāhuku / East Rift,2010,1,Rotational,FALSE,21,12.6,Hawaii Volcanoes National Park,TRUE,TRUE,TRUE
+20100830065814-767111659.049988,HAVO,Wet Forest,Nahuku/East Rift,Nāhuku / East Rift,2010,1,Rotational,FALSE,18,23,Hawaii Volcanoes National Park,TRUE,TRUE,TRUE
+20100907085404-949556648.731232,HAVO,Wet Forest,Nahuku/East Rift,Nāhuku / East Rift,2010,1,Rotational,FALSE,26,17.7,Hawaii Volcanoes National Park,TRUE,TRUE,TRUE
+20100914101832-364018678.665161,HAVO,Wet Forest,Nahuku/East Rift,Nāhuku / East Rift,2010,1,Fixed,FALSE,1,15.7,Hawaii Volcanoes National Park,FALSE,TRUE,TRUE
+20100920070504-905729830.265045,HAVO,Wet Forest,Nahuku/East Rift,Nāhuku / East Rift,2010,1,Rotational,FALSE,19,14.2,Hawaii Volcanoes National Park,TRUE,TRUE,TRUE
+20100921151910-364018678.665161,HAVO,Wet Forest,Nahuku/East Rift,Nāhuku / East Rift,2010,1,Fixed,FALSE,7,15.3,Hawaii Volcanoes National Park,TRUE,TRUE,TRUE
+20100929095145-373536169.528961,HAVO,Wet Forest,Nahuku/East Rift,Nāhuku / East Rift,2010,1,Rotational,FALSE,24,13.3,Hawaii Volcanoes National Park,TRUE,TRUE,TRUE
+20101006130905-373536169.528961,HAVO,Wet Forest,Olaa,ʻŌlaʻa,2010,1,Fixed,FALSE,5,15,Hawaii Volcanoes National Park,FALSE,TRUE,TRUE
+20101014071153-373536169.528961,HAVO,Wet Forest,Olaa,ʻŌlaʻa,2010,1,Fixed,FALSE,10,25,Hawaii Volcanoes National Park,FALSE,TRUE,TRUE
+20101014084147-862619340.419769,HAVO,Wet Forest,Nahuku/East Rift,Nāhuku / East Rift,2010,1,Rotational,FALSE,17,22,Hawaii Volcanoes National Park,FALSE,TRUE,TRUE
+20101021161140-862619340.419769,HAVO,Wet Forest,Olaa,ʻŌlaʻa,2010,1,Fixed,FALSE,3,14.5,Hawaii Volcanoes National Park,FALSE,TRUE,TRUE
+20101101095144-814490020.275116,HAVO,Wet Forest,Olaa,ʻŌlaʻa,2010,1,Fixed,FALSE,12,13.5,Hawaii Volcanoes National Park,FALSE,TRUE,TRUE
+20101102094458-767111659.049988,HAVO,Wet Forest,Nahuku/East Rift,Nāhuku / East Rift,2010,1,Rotational,FALSE,25,11,Hawaii Volcanoes National Park,TRUE,TRUE,TRUE
+20101103081223-373536169.528961,HAVO,Wet Forest,Nahuku/East Rift,Nāhuku / East Rift,2010,1,Rotational,FALSE,29,18.2,Hawaii Volcanoes National Park,TRUE,TRUE,TRUE
+20101103083152-373536169.528961,HAVO,Wet Forest,Nahuku/East Rift,Nāhuku / East Rift,2010,1,Rotational,FALSE,30,24.6,Hawaii Volcanoes National Park,TRUE,TRUE,TRUE
+20101103115412-949556648.731232,HAVO,Wet Forest,Nahuku/East Rift,Nāhuku / East Rift,2010,1,Rotational,FALSE,16,14.6,Hawaii Volcanoes National Park,TRUE,TRUE,TRUE
+20101103150403-373536169.528961,HAVO,Wet Forest,Nahuku/East Rift,Nāhuku / East Rift,2010,1,Rotational,FALSE,28,12.5,Hawaii Volcanoes National Park,TRUE,TRUE,TRUE
+20101104064911-373536169.528961,HAVO,Wet Forest,Olaa,ʻŌlaʻa,2010,1,Rotational,FALSE,28,30,Hawaii Volcanoes National Park,FALSE,TRUE,TRUE
+20101108083813-298165440.559387,HAVO,Wet Forest,Olaa,ʻŌlaʻa,2010,1,Rotational,FALSE,26,21.5,Hawaii Volcanoes National Park,FALSE,TRUE,TRUE
+20120405075456-295772850.513458,HAVO,Wet Forest,Kahuku,Kahuku,2011,1,Fixed,FALSE,1,17,Hawaii Volcanoes National Park,TRUE,TRUE,TRUE
+20120405082022-832730174.064636,HAVO,Wet Forest,Kahuku,Kahuku,2011,1,Fixed,FALSE,3,16.2,Hawaii Volcanoes National Park,TRUE,TRUE,TRUE
+20120405083317-480474710.464478,HAVO,Wet Forest,Kahuku,Kahuku,2011,1,Fixed,FALSE,4,20.5,Hawaii Volcanoes National Park,TRUE,TRUE,TRUE
+20120405083640-871445834.636688,HAVO,Subalpine Shrubland,Mauna Loa,Mauna Loa,2011,1,Rotational,FALSE,30,8,Hawaii Volcanoes National Park,FALSE,TRUE,TRUE
+20120405083959-412967801.094055,HAVO,Wet Forest,Kahuku,Kahuku,2011,1,Fixed,FALSE,5,22.4,Hawaii Volcanoes National Park,TRUE,TRUE,TRUE
+20120405091818-909204125.404358,HAVO,Wet Forest,Kahuku,Kahuku,2011,1,Fixed,FALSE,9,15.2,Hawaii Volcanoes National Park,TRUE,TRUE,TRUE
+20120405092517-164234161.376953,HAVO,Wet Forest,Kahuku,Kahuku,2011,1,Fixed,FALSE,10,19,Hawaii Volcanoes National Park,TRUE,TRUE,TRUE
+20120405093918-364018678.665161,HAVO,Wet Forest,Kahuku,Kahuku,2011,1,Fixed,FALSE,11,11.2,Hawaii Volcanoes National Park,TRUE,TRUE,TRUE
+20120405094508-186013519.763947,HAVO,Wet Forest,Kahuku,Kahuku,2011,1,Fixed,FALSE,12,23.9,Hawaii Volcanoes National Park,TRUE,TRUE,TRUE
+20120405095326-542070209.980011,HAVO,Wet Forest,Kahuku,Kahuku,2011,1,Fixed,FALSE,13,15.1,Hawaii Volcanoes National Park,TRUE,TRUE,TRUE
+20120405095708-401842057.704926,HAVO,Wet Forest,Kahuku,Kahuku,2011,1,Fixed,FALSE,14,18.2,Hawaii Volcanoes National Park,TRUE,TRUE,TRUE
+20120405100132-923445165.157318,HAVO,Wet Forest,Kahuku,Kahuku,2011,1,Fixed,FALSE,15,20.8,Hawaii Volcanoes National Park,TRUE,TRUE,TRUE
+20120405100421-489830434.322357,HAVO,Wet Forest,Kahuku,Kahuku,2011,1,Rotational,FALSE,16,20.1,Hawaii Volcanoes National Park,TRUE,TRUE,TRUE
+20120405100938-431144356.7276,HAVO,Wet Forest,Kahuku,Kahuku,2011,1,Rotational,FALSE,17,27.7,Hawaii Volcanoes National Park,TRUE,TRUE,TRUE
+20120405101500-784488618.373871,HAVO,Wet Forest,Kahuku,Kahuku,2011,1,Rotational,FALSE,19,32.5,Hawaii Volcanoes National Park,TRUE,TRUE,TRUE
+20120405102529-868453681.468964,HAVO,Wet Forest,Kahuku,Kahuku,2011,1,Rotational,FALSE,20,20.9,Hawaii Volcanoes National Park,TRUE,TRUE,TRUE
+20120405102906-270359218.120575,HAVO,Wet Forest,Kahuku,Kahuku,2011,1,Rotational,FALSE,21,27.3,Hawaii Volcanoes National Park,TRUE,TRUE,TRUE
+20120405103414-257789969.444275,HAVO,Wet Forest,Kahuku,Kahuku,2011,1,Rotational,FALSE,22,22.9,Hawaii Volcanoes National Park,TRUE,TRUE,TRUE
+20120405103913-409597158.432007,HAVO,Wet Forest,Kahuku,Kahuku,2011,1,Rotational,FALSE,24,15.8,Hawaii Volcanoes National Park,TRUE,TRUE,TRUE
+20120405104231-415376365.184784,HAVO,Wet Forest,Kahuku,Kahuku,2011,1,Rotational,FALSE,26,29.6,Hawaii Volcanoes National Park,TRUE,TRUE,TRUE
+20120405104815-602104067.802429,HAVO,Wet Forest,Kahuku,Kahuku,2011,1,Rotational,FALSE,27,10,Hawaii Volcanoes National Park,TRUE,TRUE,TRUE
+20120405105153-248069584.369659,HAVO,Wet Forest,Kahuku,Kahuku,2011,1,Rotational,FALSE,28,13.3,Hawaii Volcanoes National Park,TRUE,TRUE,TRUE
+20120405105648-673949241.638184,HAVO,Wet Forest,Kahuku,Kahuku,2011,1,Rotational,FALSE,29,21,Hawaii Volcanoes National Park,TRUE,TRUE,TRUE
+20120405105910-597795426.845551,HAVO,Wet Forest,Kahuku,Kahuku,2011,1,Rotational,FALSE,30,23.7,Hawaii Volcanoes National Park,TRUE,TRUE,TRUE
+20120405114340-439576029.777527,HAVO,Wet Forest,Kahuku,Kahuku,2011,1,Fixed,FALSE,2,30.3,Hawaii Volcanoes National Park,TRUE,TRUE,TRUE
+20120405114754-44667840.0039673,HAVO,Wet Forest,Kahuku,Kahuku,2011,1,Fixed,FALSE,6,30,Hawaii Volcanoes National Park,TRUE,TRUE,TRUE
+20120405115245-505815804.004669,HAVO,Wet Forest,Kahuku,Kahuku,2011,1,Rotational,FALSE,18,18.1,Hawaii Volcanoes National Park,TRUE,TRUE,TRUE
+20120405120450-314586102.962494,HAVO,Wet Forest,Kahuku,Kahuku,2011,1,Rotational,FALSE,23,13.2,Hawaii Volcanoes National Park,TRUE,TRUE,TRUE
+20120405120903-517351627.349854,HAVO,Wet Forest,Kahuku,Kahuku,2011,1,Fixed,FALSE,7,16.8,Hawaii Volcanoes National Park,TRUE,TRUE,TRUE
+20120405121259-579042971.134186,HAVO,Wet Forest,Kahuku,Kahuku,2011,1,Rotational,FALSE,25,18.2,Hawaii Volcanoes National Park,TRUE,TRUE,TRUE
+20120423133430-676175892.353058,KAHO,Coastal Strand,Kaloko-Honokohau,Kaloko-Honokōhau,2011,1,Fixed,FALSE,1,6,Kaloko-Honokahau National Historical Park,TRUE,TRUE,TRUE
+20120423134503-80714643.0015564,KAHO,Coastal Strand,Kaloko-Honokohau,Kaloko-Honokōhau,2011,1,Fixed,FALSE,2,5,Kaloko-Honokahau National Historical Park,TRUE,TRUE,TRUE
+20120423134715-677947700.023651,KAHO,Coastal Strand,Kaloko-Honokohau,Kaloko-Honokōhau,2011,1,Fixed,FALSE,3,4.5,Kaloko-Honokahau National Historical Park,TRUE,TRUE,TRUE
+20120423135325-390471458.435059,KAHO,Coastal Strand,Kaloko-Honokohau,Kaloko-Honokōhau,2011,1,Fixed,FALSE,4,4,Kaloko-Honokahau National Historical Park,TRUE,TRUE,TRUE
+20120423135508-678913354.873657,KAHO,Coastal Strand,Kaloko-Honokohau,Kaloko-Honokōhau,2011,1,Fixed,FALSE,5,5,Kaloko-Honokahau National Historical Park,TRUE,TRUE,TRUE
+20120423135732-272942364.215851,KAHO,Coastal Strand,Kaloko-Honokohau,Kaloko-Honokōhau,2011,1,Fixed,FALSE,6,4,Kaloko-Honokahau National Historical Park,TRUE,TRUE,TRUE
+20120423140006-114623308.181763,KAHO,Coastal Strand,Kaloko-Honokohau,Kaloko-Honokōhau,2011,1,Fixed,FALSE,7,4.5,Kaloko-Honokahau National Historical Park,TRUE,TRUE,TRUE
+20120423140304-695281803.607941,KAHO,Coastal Strand,Kaloko-Honokohau,Kaloko-Honokōhau,2011,1,Fixed,FALSE,8,7.5,Kaloko-Honokahau National Historical Park,TRUE,TRUE,TRUE
+20120423140937-161743700.504303,KAHO,Coastal Strand,Kaloko-Honokohau,Kaloko-Honokōhau,2011,1,Fixed,FALSE,9,3,Kaloko-Honokahau National Historical Park,TRUE,TRUE,TRUE
+20120423141329-634571135.044098,KAHO,Coastal Strand,Kaloko-Honokohau,Kaloko-Honokōhau,2011,1,Fixed,FALSE,10,3,Kaloko-Honokahau National Historical Park,TRUE,TRUE,TRUE
+20120424142856-986093163.490295,KAHO,Coastal Strand,Kaloko-Honokohau,Kaloko-Honokōhau,2011,1,Rotational,FALSE,11,4.25,Kaloko-Honokahau National Historical Park,TRUE,TRUE,TRUE
+20120424150701-300970494.747162,KAHO,Coastal Strand,Kaloko-Honokohau,Kaloko-Honokōhau,2011,1,Rotational,FALSE,12,5,Kaloko-Honokahau National Historical Park,TRUE,TRUE,TRUE
+20120425074847-56236863.1362915,KAHO,Coastal Strand,Kaloko-Honokohau,Kaloko-Honokōhau,2011,1,Rotational,FALSE,13,5,Kaloko-Honokahau National Historical Park,TRUE,TRUE,TRUE
+20120425083014-243931353.092194,KAHO,Coastal Strand,Kaloko-Honokohau,Kaloko-Honokōhau,2011,1,Rotational,FALSE,14,2,Kaloko-Honokahau National Historical Park,TRUE,TRUE,TRUE
+20120425091153-862619340.419769,KAHO,Coastal Strand,Kaloko-Honokohau,Kaloko-Honokōhau,2011,1,Rotational,FALSE,15,2.5,Kaloko-Honokahau National Historical Park,TRUE,TRUE,TRUE
+20120427133609-824602127.075195,HAVO,Subalpine Shrubland,Mauna Loa,Mauna Loa,2011,1,Fixed,FALSE,2,1.5,Hawaii Volcanoes National Park,FALSE,TRUE,TRUE
+20120427140152-243845164.775848,HAVO,Subalpine Shrubland,Mauna Loa,Mauna Loa,2011,1,Fixed,FALSE,7,9.5,Hawaii Volcanoes National Park,FALSE,TRUE,TRUE
+20120427145742-547668516.635895,HAVO,Subalpine Shrubland,Mauna Loa,Mauna Loa,2011,1,Fixed,FALSE,12,,Hawaii Volcanoes National Park,FALSE,TRUE,TRUE
+20120427151223-696100771.427155,HAVO,Subalpine Shrubland,Mauna Loa,Mauna Loa,2011,1,Rotational,FALSE,18,2,Hawaii Volcanoes National Park,TRUE,TRUE,TRUE
+20120427153840-509720027.446747,HAVO,Subalpine Shrubland,Mauna Loa,Mauna Loa,2011,1,Rotational,FALSE,19,5,Hawaii Volcanoes National Park,FALSE,TRUE,TRUE
+20120522175551-862619340.419769,HAVO,Wet Forest,Kahuku,Kahuku,2011,1,Fixed,FALSE,8,11.8,Hawaii Volcanoes National Park,TRUE,TRUE,TRUE
+20130723081110-15703916.5496826,NPSA,Wet Forest,Tutuila,Tutuila,2013,1,Rotational,FALSE,20,,National Park of American Samoa,FALSE,TRUE,TRUE
+20130724112217-862619340.419769,NPSA,Wet Forest,Tutuila,Tutuila,2013,1,Rotational,FALSE,46,,National Park of American Samoa,FALSE,TRUE,TRUE
+20130725065114-55593490.6005859,NPSA,Wet Forest,Tutuila,Tutuila,2013,1,Rotational,FALSE,16,,National Park of American Samoa,FALSE,TRUE,TRUE
+20130729144137-401374340.057373,NPSA,Wet Forest,Tutuila,Tutuila,2013,1,Fixed,FALSE,10,,National Park of American Samoa,FALSE,TRUE,TRUE
+20130816072147-862619340.419769,NPSA,Wet Forest,Tutuila,Tutuila,2013,1,Rotational,FALSE,29,,National Park of American Samoa,FALSE,TRUE,TRUE
+20130820072554-767111659.049988,NPSA,Wet Forest,Tutuila,Tutuila,2013,1,Fixed,FALSE,1,,National Park of American Samoa,FALSE,TRUE,TRUE
+20130820122234-364018678.665161,NPSA,Wet Forest,Tutuila,Tutuila,2013,1,Fixed,FALSE,4,,National Park of American Samoa,FALSE,TRUE,TRUE
+20130820134645-695115506.649017,NPSA,Wet Forest,Tutuila,Tutuila,2013,1,Fixed,FALSE,5,,National Park of American Samoa,FALSE,TRUE,TRUE
+20130903083102-862619340.419769,NPSA,Wet Forest,Tutuila,Tutuila,2013,1,Rotational,FALSE,18,,National Park of American Samoa,FALSE,TRUE,TRUE
+20130903110814-373536169.528961,NPSA,Wet Forest,Tutuila,Tutuila,2013,1,Fixed,FALSE,8,,National Park of American Samoa,FALSE,TRUE,TRUE
+20130904062643-862619340.419769,NPSA,Wet Forest,Tutuila,Tutuila,2013,1,Fixed,FALSE,2,,National Park of American Samoa,FALSE,TRUE,TRUE
+20130905080933-373536169.528961,NPSA,Wet Forest,Tutuila,Tutuila,2013,1,Fixed,FALSE,6,,National Park of American Samoa,FALSE,TRUE,TRUE
+20130905112437-65851032.7339172,NPSA,Wet Forest,Tutuila,Tutuila,2013,1,Rotational,FALSE,21,,National Park of American Samoa,FALSE,TRUE,TRUE
+20130905115736-373536169.528961,NPSA,Wet Forest,Tutuila,Tutuila,2013,1,Fixed,FALSE,7,,National Park of American Samoa,FALSE,TRUE,TRUE
+20130909102412-871445834.636688,NPSA,Wet Forest,Tutuila,Tutuila,2013,1,Rotational,FALSE,22,,National Park of American Samoa,FALSE,TRUE,TRUE
+20130909120254-373536169.528961,NPSA,Wet Forest,Tutuila,Tutuila,2013,1,Fixed,FALSE,11,,National Park of American Samoa,FALSE,TRUE,TRUE
+20130910075024-191922485.8284,NPSA,Wet Forest,Tutuila,Tutuila,2013,1,Rotational,FALSE,27,,National Park of American Samoa,FALSE,TRUE,TRUE
+20130911075941-492165625.095367,NPSA,Wet Forest,Tutuila,Tutuila,2013,1,Rotational,FALSE,24,,National Park of American Samoa,FALSE,TRUE,TRUE
+20130912105744-15703916.5496826,NPSA,Wet Forest,Tutuila,Tutuila,2013,1,Rotational,FALSE,47,,National Park of American Samoa,FALSE,TRUE,TRUE
+20130913131853-18758356.5711975,NPSA,Wet Forest,Tutuila,Tutuila,2013,1,Rotational,FALSE,30,,National Park of American Samoa,FALSE,TRUE,TRUE
+20130917142305-432759523.391724,NPSA,Wet Forest,Tutuila,Tutuila,2013,1,Rotational,FALSE,28,,National Park of American Samoa,FALSE,TRUE,TRUE
+20130925101555-364018678.665161,NPSA,Wet Forest,Tutuila,Tutuila,2013,1,Fixed,FALSE,9,,National Park of American Samoa,FALSE,TRUE,TRUE
+20130926073536-256628930.568695,NPSA,Wet Forest,Tutuila,Tutuila,2013,1,Fixed,FALSE,13,,National Park of American Samoa,FALSE,TRUE,TRUE
+20131204092037-986093163.490295,NPSA,Wet Forest,Tau,Ta‘ū,2013,1,Fixed,FALSE,7,,National Park of American Samoa,FALSE,TRUE,TRUE
+20131205084105-14017641.544342,NPSA,Wet Forest,Tau,Ta‘ū,2013,1,Fixed,FALSE,3,,National Park of American Samoa,FALSE,TRUE,TRUE
+20131206085930-301948010.921478,NPSA,Wet Forest,Tau,Ta‘ū,2013,1,Rotational,FALSE,17,,National Park of American Samoa,FALSE,TRUE,TRUE
+20131209134623-56236863.1362915,NPSA,Wet Forest,Tau,Ta‘ū,2013,1,Fixed,FALSE,2,,National Park of American Samoa,FALSE,TRUE,TRUE
+20131210104600-694485306.739807,NPSA,Wet Forest,Tutuila,Tutuila,2013,1,Rotational,FALSE,23,,National Park of American Samoa,FALSE,TRUE,TRUE
+20131211101916-14017641.544342,NPSA,Wet Forest,Tau,Ta‘ū,2013,1,Rotational,FALSE,20,,National Park of American Samoa,FALSE,TRUE,TRUE
+20131211133059-14017641.544342,NPSA,Wet Forest,Tau,Ta‘ū,2013,1,Fixed,FALSE,8,,National Park of American Samoa,FALSE,TRUE,TRUE
+20131213083822-364018678.665161,NPSA,Wet Forest,Tau,Ta‘ū,2013,1,Rotational,FALSE,16,,National Park of American Samoa,FALSE,TRUE,TRUE
+20131216073717-373536169.528961,NPSA,Wet Forest,Tau,Ta‘ū,2013,1,Rotational,FALSE,19,,National Park of American Samoa,FALSE,TRUE,TRUE
+20131219115101-206017196.178436,NPSA,Wet Forest,Tutuila,Tutuila,2013,1,Fixed,FALSE,14,,National Park of American Samoa,FALSE,TRUE,TRUE
+20131231090756-862619340.419769,NPSA,Wet Forest,Tutuila,Tutuila,2013,1,Rotational,FALSE,19,,National Park of American Samoa,FALSE,TRUE,TRUE
+20140102094902-862619340.419769,NPSA,Wet Forest,Tutuila,Tutuila,2013,1,Rotational,FALSE,17,,National Park of American Samoa,FALSE,TRUE,TRUE
+20140106105321-373536169.528961,NPSA,Wet Forest,Tau,Ta‘ū,2013,1,Fixed,FALSE,4,,National Park of American Samoa,FALSE,TRUE,TRUE
+20140108075021-373536169.528961,NPSA,Wet Forest,Tau,Ta‘ū,2013,1,Rotational,FALSE,18,,National Park of American Samoa,FALSE,TRUE,TRUE
+20140108113731-226866006.851196,NPSA,Wet Forest,Tau,Ta‘ū,2013,1,Fixed,FALSE,6,,National Park of American Samoa,FALSE,TRUE,TRUE
+20140108140926-862619340.419769,NPSA,Wet Forest,Tutuila,Tutuila,2013,1,Rotational,FALSE,26,,National Park of American Samoa,FALSE,TRUE,TRUE
+20140109085523-263792932.033539,NPSA,Wet Forest,Tau,Ta‘ū,2013,1,Fixed,FALSE,1,,National Park of American Samoa,FALSE,TRUE,TRUE
+20140113131706-862619340.419769,NPSA,Wet Forest,Tutuila,Tutuila,2013,1,Rotational,FALSE,25,,National Park of American Samoa,FALSE,TRUE,TRUE
+20E907AE-0F29-40CF-A072-FAC817D0332E,KAHO,Coastal Strand,Kaloko-Honokohau,Kaloko-Honokōhau,2016,2,Rotational,FALSE,16,,Kaloko-Honokahau National Historical Park,FALSE,TRUE,TRUE
+20F931AF-EAFF-4674-83A3-6C9E8D4B8BFB,NPSA,Wet Forest,Tutuila,Tutuila,2018,2,Fixed,FALSE,12,,National Park of American Samoa,FALSE,TRUE,TRUE
+211E961F-8A66-4415-A452-440CD2739D7A,HAVO,Wet Forest,Nahuku/East Rift,Nāhuku / East Rift,2015,2,Rotational,FALSE,34,12.7,Hawaii Volcanoes National Park,FALSE,TRUE,TRUE
+21AB79BB-161E-4D3A-B06E-29700363FBD6,HALE,Wet Forest,Kipahulu District,Kīpahulu District,2012,1,Rotational,FALSE,27,24,Haleakala National Park,TRUE,TRUE,TRUE
+21D29277-65BF-45A5-B6ED-6EE9483683EB,HALE,Subalpine Shrubland,Haleakala,Haleakalā,2018,2,Rotational,FALSE,35,,Haleakala National Park,FALSE,TRUE,TRUE
+228DBC00-71BE-428C-8783-B33D55A7992F,HAVO,Subalpine Shrubland,Mauna Loa,Mauna Loa,2022,3,Fixed,FALSE,3,,Hawaii Volcanoes National Park,FALSE,TRUE,TRUE
+22E34EA1-2756-464A-B485-C3E0C1D92A9A,KAHO,Coastal Strand,Kaloko-Honokohau,Kaloko-Honokōhau,2022,3,Rotational,FALSE,27,4,Kaloko-Honokahau National Historical Park,FALSE,TRUE,TRUE
+23ABFE8D-CDF4-40B0-B971-AD62BEB3695D,HAVO,Subalpine Shrubland,Mauna Loa,Mauna Loa,2022,3,Fixed,FALSE,7,,Hawaii Volcanoes National Park,FALSE,TRUE,TRUE
+2404D3C4-0B5F-4636-A995-BE3FEB1501AB,HALE,Subalpine Shrubland,Haleakala,Haleakalā,2017,2,Rotational,FALSE,38,,Haleakala National Park,FALSE,TRUE,TRUE
+242867BF-5C2B-45AF-A1C8-C8974524154D,KALA,Coastal Strand,Hoolehua,Hoʻolehua,2012,1,Fixed,FALSE,7,0.5,Kalaupapa National Historical Park,TRUE,TRUE,TRUE
+244817E6-159E-45D9-9CEB-B77E10158790,HAVO,Wet Forest,Nahuku/East Rift,Nāhuku / East Rift,2021,3,Fixed,FALSE,15,,Hawaii Volcanoes National Park,FALSE,TRUE,TRUE
+248A56C6-84B6-4EA0-81F6-8ED8EC5166A1,KALA,Coastal Strand,Kalawao,Kalawao,2012,1,Fixed,FALSE,7,0.2,Kalaupapa National Historical Park,TRUE,TRUE,TRUE
+250B5C98-E582-49B9-AAE6-C26DC445F4E6,HAVO,Wet Forest,Kahuku,Kahuku,2022,3,Fixed,FALSE,12,,Hawaii Volcanoes National Park,FALSE,TRUE,TRUE
+252E3EFF-6CFD-4058-BBCC-474EA507F6D9,HALE,Subalpine Shrubland,Haleakala,Haleakalā,2012,1,Fixed,FALSE,11,1.3,Haleakala National Park,FALSE,TRUE,TRUE
+25B9BBF5-2224-4B27-BC5E-B34583B65523,HAVO,Wet Forest,Kahuku,Kahuku,2016,2,Rotational,FALSE,40,16.7,Hawaii Volcanoes National Park,FALSE,TRUE,TRUE
+266430DE-2214-43BA-9785-B0DFD0A612A5,HALE,Subalpine Shrubland,Haleakala,Haleakalā,2012,1,Fixed,FALSE,15,1,Haleakala National Park,TRUE,TRUE,TRUE
+27A6EBAB-D6D7-401F-B456-EFC3BD8F8EEA,KALA,Wet Forest,Puu Alii,Puʻu Aliʻi,2012,1,Fixed,FALSE,12,10.4,Kalaupapa National Historical Park,FALSE,TRUE,TRUE
+27E85BEE-FE05-4703-8FC6-EFADFF0B0C8A,HAVO,Wet Forest,Kahuku,Kahuku,2022,3,Rotational,FALSE,57,,Hawaii Volcanoes National Park,FALSE,TRUE,TRUE
+27F8AC1B-38E8-4C88-984D-8124BF3FCD7D,HALE,Wet Forest,Kipahulu District,Kīpahulu District,2013,1,Fixed,FALSE,6,11.9,Haleakala National Park,FALSE,TRUE,TRUE
+280C11E3-3D92-44F1-9535-6BBEA094243A,HAVO,Wet Forest,Kahuku,Kahuku,2022,3,Rotational,FALSE,55,,Hawaii Volcanoes National Park,FALSE,TRUE,TRUE
+2810850E-6C1E-4E26-8EF9-95F946BA1F35,HAVO,Subalpine Shrubland,Mauna Loa,Mauna Loa,2022,3,Rotational,FALSE,56,,Hawaii Volcanoes National Park,FALSE,TRUE,TRUE
+2823F3A1-2159-491A-A35D-A9E7A006901C,HAVO,Subalpine Shrubland,Mauna Loa,Mauna Loa,2016,2,Rotational,FALSE,40,10,Hawaii Volcanoes National Park,FALSE,TRUE,TRUE
+285A0DC1-ABC7-4FE2-A541-BB07CB3E67B2,HAVO,Wet Forest,Olaa,ʻŌlaʻa,2015,2,Fixed,FALSE,4,16.6,Hawaii Volcanoes National Park,FALSE,TRUE,TRUE
+28678EEA-9184-42BC-AFBB-B50D5A1FAA12,AMME,Mangrove Wetland,Muchot,Muchot,2014,1,Fixed,FALSE,4,22.3,American Memorial Park,TRUE,TRUE,TRUE
+28E1DF21-C243-4E5F-A191-02F459F7526F,KALA,Wet Forest,Puu Alii,Puʻu Aliʻi,2012,1,Fixed,FALSE,8,9.8,Kalaupapa National Historical Park,FALSE,TRUE,TRUE
+29395779-1034-40D7-B088-ECB4AF42E6DB,HALE,Wet Forest,Kipahulu District,Kīpahulu District,2012,1,Fixed,FALSE,9,22.5,Haleakala National Park,TRUE,TRUE,TRUE
+294B4D6B-21B1-49C1-BF04-0C26A9A40619,KALA,Wet Forest,Puu Alii,Puʻu Aliʻi,2012,1,Rotational,FALSE,16,5.7,Kalaupapa National Historical Park,TRUE,TRUE,TRUE
+2A797CC8-7AB4-4F82-82F6-8F8B691B2943,HAVO,Wet Forest,Olaa,ʻŌlaʻa,2021,3,Fixed,FALSE,7,,Hawaii Volcanoes National Park,FALSE,TRUE,TRUE
+2AE31A57-9A26-45D8-A650-F88F03F50A05,HAVO,Wet Forest,Olaa,ʻŌlaʻa,2015,2,Fixed,FALSE,2,15.3,Hawaii Volcanoes National Park,FALSE,TRUE,TRUE
+2B2A01D2-91A5-4E19-928D-7E0F37F57362,HAVO,Wet Forest,Kahuku,Kahuku,2022,3,Rotational,FALSE,49,,Hawaii Volcanoes National Park,FALSE,TRUE,TRUE
+2B9B4552-7552-4FEB-80D6-3E09E71A8236,HAVO,Subalpine Shrubland,Mauna Loa,Mauna Loa,2011,1,Rotational,FALSE,17,,Hawaii Volcanoes National Park,TRUE,TRUE,TRUE
+2B9DFB5B-3AFD-4C1D-B6CB-58FD5AEB6371,HAVO,Wet Forest,Kahuku,Kahuku,2016,2,Rotational,FALSE,44,28.5,Hawaii Volcanoes National Park,FALSE,TRUE,TRUE
+2C33A08E-BB75-42F4-B218-731726CA953C,HAVO,Subalpine Shrubland,Mauna Loa,Mauna Loa,2011,1,Fixed,FALSE,9,5,Hawaii Volcanoes National Park,TRUE,TRUE,TRUE
+2C35EB3E-7523-4B6B-9E7B-CD0DF8A1E475,KAHO,Coastal Strand,Kaloko-Honokohau,Kaloko-Honokōhau,2016,2,Fixed,FALSE,3,,Kaloko-Honokahau National Historical Park,FALSE,TRUE,TRUE
+2CA632B6-B565-4AF7-B02C-BEEEC2DD5A1E,HAVO,Wet Forest,Kahuku,Kahuku,2016,2,Fixed,FALSE,15,20,Hawaii Volcanoes National Park,FALSE,TRUE,TRUE
+2CDA88B0-D44F-4CCF-BBB9-C7829321915A,HAVO,Wet Forest,Kahuku,Kahuku,2022,3,Rotational,FALSE,52,,Hawaii Volcanoes National Park,FALSE,TRUE,TRUE
+2CFD1875-DA13-4EA3-8529-54CAC3C52720,HALE,Wet Forest,Kipahulu District,Kīpahulu District,2017,2,Fixed,FALSE,9,,Haleakala National Park,FALSE,TRUE,TRUE
+2D03623B-05A1-4CCE-A5FB-BFC79DBDB1C6,KALA,Wet Forest,Puu Alii,Puʻu Aliʻi,2012,1,Fixed,FALSE,13,10.8,Kalaupapa National Historical Park,TRUE,TRUE,TRUE
+2D2B11C7-D26C-49E5-98E7-9E0F61F3883F,HALE,Wet Forest,Kipahulu District,Kīpahulu District,2012,1,Fixed,FALSE,8,6.4,Haleakala National Park,FALSE,TRUE,TRUE
+2D4EE546-4551-474E-B184-8863315ADA2E,WAPA,Limestone Forest,Guam,Guam,2019,2,Fixed,FALSE,2,,War in the Pacific National Historical Park,FALSE,TRUE,TRUE
+2D9514CE-3AC9-413D-B97A-771DDCEC66DB,KALA,Wet Forest,Puu Alii,Puʻu Aliʻi,2012,1,Rotational,FALSE,17,9.3,Kalaupapa National Historical Park,FALSE,TRUE,TRUE
+2DEC7BC3-979D-4923-8332-65086BBAE21F,HAVO,Wet Forest,Nahuku/East Rift,Nāhuku / East Rift,2021,3,Rotational,FALSE,46,,Hawaii Volcanoes National Park,FALSE,TRUE,TRUE
+2E297948-BC35-4D3D-99B3-77BEA0EB3506,WAPA,Limestone Forest,Guam,Guam,2019,2,Fixed,FALSE,1,,War in the Pacific National Historical Park,FALSE,TRUE,TRUE
+2EC7F7AC-0201-41EC-91B7-DA92AE0A9B95,KALA,Wet Forest,Puu Alii,Puʻu Aliʻi,2017,2,Fixed,FALSE,11,,Kalaupapa National Historical Park,FALSE,TRUE,TRUE
+2ED07167-5925-4746-BDFD-9BAA8907A06A,NPSA,Wet Forest,Tutuila,Tutuila,2018,2,Fixed,FALSE,14,,National Park of American Samoa,FALSE,TRUE,TRUE
+2F446A8C-5AA7-4863-B6AC-332E48A018E8,HALE,Wet Forest,Kipahulu District,Kīpahulu District,2017,2,Fixed,FALSE,1,,Haleakala National Park,FALSE,TRUE,TRUE
+2FFACB86-F21B-4BDE-A4D3-9852705386DC,HAVO,Subalpine Shrubland,Mauna Loa,Mauna Loa,2022,3,Fixed,FALSE,1,,Hawaii Volcanoes National Park,FALSE,TRUE,TRUE
+3113C01A-E98E-481F-A3DA-6433FA9DB7F5,KAHO,Coastal Strand,Kaloko-Honokohau,Kaloko-Honokōhau,2022,3,Fixed,FALSE,4,4,Kaloko-Honokahau National Historical Park,FALSE,TRUE,TRUE
+3173A0A2-AB54-4674-8E0E-C46DE2A91F63,HAVO,Wet Forest,Kahuku,Kahuku,2016,2,Fixed,FALSE,13,19.1,Hawaii Volcanoes National Park,FALSE,TRUE,TRUE
+31AB0CF9-633C-4D1F-A9B5-AF4E5A2B1B5A,HAVO,Subalpine Shrubland,Mauna Loa,Mauna Loa,2016,2,Fixed,FALSE,12,,Hawaii Volcanoes National Park,FALSE,TRUE,TRUE
+3217FDD8-35C8-48EB-85F7-6EFB995B0E0B,HAVO,Wet Forest,Nahuku/East Rift,Nāhuku / East Rift,2015,2,Rotational,FALSE,37,15.6,Hawaii Volcanoes National Park,FALSE,TRUE,TRUE
+337AB769-C19C-4D25-A927-10CB101517BB,HAVO,Subalpine Shrubland,Mauna Loa,Mauna Loa,2011,1,Fixed,FALSE,1,3,Hawaii Volcanoes National Park,TRUE,TRUE,TRUE
+33D5A1E8-A2AD-4C69-BEFB-8A4C78E17162,HAVO,Subalpine Shrubland,Mauna Loa,Mauna Loa,2016,2,Fixed,FALSE,4,8,Hawaii Volcanoes National Park,FALSE,TRUE,TRUE
+34015F53-D2BF-4AA7-A573-4C2E821CD594,HAVO,Wet Forest,Olaa,ʻŌlaʻa,2021,3,Fixed,FALSE,8,,Hawaii Volcanoes National Park,FALSE,TRUE,TRUE
+34B2B560-3666-46D5-91B5-F9A85481BE85,KALA,Wet Forest,Puu Alii,Puʻu Aliʻi,2017,2,Fixed,FALSE,7,,Kalaupapa National Historical Park,FALSE,TRUE,TRUE
+351A9C33-4214-4525-9F47-09D8788C883B,HALE,Wet Forest,Kipahulu District,Kīpahulu District,2012,1,Fixed,FALSE,15,12.5,Haleakala National Park,TRUE,TRUE,TRUE
+3672F90B-8641-462C-A232-F20774BC3853,KALA,Coastal Strand,Kalawao,Kalawao,2017,2,Fixed,FALSE,6,0.1,Kalaupapa National Historical Park,FALSE,TRUE,TRUE
+36830B7B-CBCF-45E8-8741-99CE710A2C95,NPSA,Wet Forest,Tutuila,Tutuila,2018,2,Fixed,FALSE,1,,National Park of American Samoa,FALSE,TRUE,TRUE
+36978286-6FEB-4E8F-9D03-06FEFB642EE0,NPSA,Wet Forest,Tutuila,Tutuila,2018,2,Fixed,FALSE,11,,National Park of American Samoa,FALSE,TRUE,TRUE
+36C9CC05-B4FE-4972-B9C6-51483CF6369E,HAVO,Subalpine Shrubland,Mauna Loa,Mauna Loa,2011,1,Fixed,FALSE,5,,Hawaii Volcanoes National Park,FALSE,TRUE,TRUE
+3801CCB7-054F-477E-A671-76AE1188F394,AMME,Mangrove Wetland,Muchot,Muchot,2019,2,Fixed,FALSE,5,,American Memorial Park,FALSE,TRUE,TRUE
+380D4A3B-F08C-4141-B95E-21C3B3EE37F7,HAVO,Wet Forest,Olaa,ʻŌlaʻa,2021,3,Rotational,FALSE,59,,Hawaii Volcanoes National Park,FALSE,TRUE,TRUE
+38931ADF-B69E-42DF-AB6A-41904D38A57B,HALE,Subalpine Shrubland,Haleakala,Haleakalā,2012,1,Rotational,FALSE,21,1.5,Haleakala National Park,TRUE,TRUE,TRUE
+394D202E-A9AB-4536-9A62-CA4F7F65C36C,HAVO,Subalpine Shrubland,Mauna Loa,Mauna Loa,2016,2,Rotational,FALSE,42,,Hawaii Volcanoes National Park,FALSE,TRUE,TRUE
+397AAF00-EEFC-47C5-ADF8-76D23F8E5AA1,HAVO,Wet Forest,Kahuku,Kahuku,2022,3,Rotational,FALSE,59,,Hawaii Volcanoes National Park,FALSE,TRUE,TRUE
+39FA1CDA-41E3-4769-B76A-D6D3891CA46F,HALE,Subalpine Shrubland,Haleakala,Haleakalā,2017,2,Fixed,FALSE,11,,Haleakala National Park,FALSE,TRUE,TRUE
+3ADCB20E-B16E-4FCF-810E-E520B626F632,HAVO,Subalpine Shrubland,Mauna Loa,Mauna Loa,2016,2,Fixed,FALSE,9,4,Hawaii Volcanoes National Park,FALSE,TRUE,TRUE
+3B1F7D4B-C36D-4A75-B993-C51A24711A5C,NPSA,Wet Forest,Tau,Ta‘ū,2018,2,Fixed,FALSE,13,,National Park of American Samoa,FALSE,TRUE,TRUE
+3B536674-DAEE-4F8D-ACB3-7C2DC460012C,HAVO,Wet Forest,Olaa,ʻŌlaʻa,2021,3,Rotational,FALSE,51,,Hawaii Volcanoes National Park,FALSE,TRUE,TRUE
+3B5FDC6B-A21B-4807-B24D-05E85B7DCA7C,WAPA,Limestone Forest,Guam,Guam,2014,1,Fixed,FALSE,7,14,War in the Pacific National Historical Park,FALSE,TRUE,TRUE
+3B659D56-A155-4E3C-A6B4-834968050EBA,HAVO,Wet Forest,Kahuku,Kahuku,2022,3,Fixed,FALSE,10,,Hawaii Volcanoes National Park,FALSE,TRUE,TRUE
+3BB4BDBC-6631-4DB5-82A4-267D54E80D6F,HAVO,Subalpine Shrubland,Mauna Loa,Mauna Loa,2016,2,Fixed,FALSE,10,7,Hawaii Volcanoes National Park,FALSE,TRUE,TRUE
+3C258D50-9B5C-4D88-A408-FF19B74D025F,HAVO,Wet Forest,Olaa,ʻŌlaʻa,2021,3,Fixed,FALSE,2,,Hawaii Volcanoes National Park,FALSE,TRUE,TRUE
+3C3FE399-18E9-4F7B-AA6A-4FEE2BCEEA5D,HALE,Subalpine Shrubland,Haleakala,Haleakalā,2013,1,Rotational,FALSE,23,1.5,Haleakala National Park,FALSE,TRUE,TRUE
+3CDF4DF3-786F-4E42-8B40-C97C0A4D9727,HAVO,Wet Forest,Kahuku,Kahuku,2016,2,Fixed,FALSE,11,8.3,Hawaii Volcanoes National Park,FALSE,TRUE,TRUE
+3DE97E91-2833-402F-A7B4-6EE9D65483EA,HAVO,Wet Forest,Kahuku,Kahuku,2016,2,Rotational,FALSE,41,11.2,Hawaii Volcanoes National Park,FALSE,TRUE,TRUE
+3F68C558-A563-4AE0-B226-37153DA63A50,HALE,Wet Forest,Kipahulu District,Kīpahulu District,2012,1,Rotational,FALSE,26,4.1,Haleakala National Park,FALSE,TRUE,TRUE
+3F9D54A7-B2DD-4925-88ED-CF878C92E7ED,HAVO,Wet Forest,Olaa,ʻŌlaʻa,2021,3,Rotational,FALSE,48,,Hawaii Volcanoes National Park,FALSE,TRUE,TRUE
+3FF108EB-EA1F-4A15-92AC-BE5995FFBFC6,KALA,Coastal Strand,Kalawao,Kalawao,2012,1,Rotational,FALSE,13,0.1,Kalaupapa National Historical Park,TRUE,TRUE,TRUE
+4111CDD3-D5B6-46A8-B574-F656307EAC10,HAVO,Subalpine Shrubland,Mauna Loa,Mauna Loa,2011,1,Fixed,FALSE,10,7,Hawaii Volcanoes National Park,TRUE,TRUE,TRUE
+418B6832-2975-4273-AB37-7605284839A7,KALA,Wet Forest,Puu Alii,Puʻu Aliʻi,2012,1,Fixed,FALSE,11,6.9,Kalaupapa National Historical Park,TRUE,TRUE,TRUE
+419107C6-5EE9-4609-81F8-0D243C459C9C,HAVO,Wet Forest,Nahuku/East Rift,Nāhuku / East Rift,2015,2,Rotational,FALSE,42,9.5,Hawaii Volcanoes National Park,FALSE,TRUE,TRUE
+425CF5A5-CA2B-474A-AA76-8F3877F33020,WAPA,Limestone Forest,Guam,Guam,2019,2,Fixed,FALSE,8,,War in the Pacific National Historical Park,FALSE,TRUE,TRUE
+42AABAD4-8479-49C0-ADAC-DC4655D02FBB,WAPA,Limestone Forest,Guam,Guam,2014,1,Rotational,FALSE,12,24.4,War in the Pacific National Historical Park,FALSE,TRUE,TRUE
+432E4B58-4592-436A-9CA3-FBBD7C627F69,NPSA,Wet Forest,Tutuila,Tutuila,2018,2,Fixed,FALSE,13,,National Park of American Samoa,FALSE,TRUE,TRUE
+434963AE-46B4-4E34-89F8-2DBB83A75BF8,HALE,Subalpine Shrubland,Haleakala,Haleakalā,2017,2,Fixed,FALSE,10,,Haleakala National Park,TRUE,TRUE,TRUE
+434A8F89-D405-43B2-903B-9DC332170FBC,AMME,Mangrove Wetland,Muchot,Muchot,2014,1,Fixed,FALSE,1,11.8,American Memorial Park,TRUE,TRUE,TRUE
+43BD403E-1835-45A5-B314-E8AF6B4D5A08,HAVO,Wet Forest,Olaa,ʻŌlaʻa,2015,2,Fixed,FALSE,12,13.7,Hawaii Volcanoes National Park,FALSE,TRUE,TRUE
+43C23F14-DFA1-4E5F-9A1F-A0ED98A017C1,KALA,Wet Forest,Puu Alii,Puʻu Aliʻi,2012,1,Fixed,FALSE,1,9.7,Kalaupapa National Historical Park,FALSE,TRUE,TRUE
+43FF6A8A-407D-4F50-8AEC-825DACC68E9A,KALA,Wet Forest,Puu Alii,Puʻu Aliʻi,2012,1,Rotational,FALSE,29,11.4,Kalaupapa National Historical Park,TRUE,TRUE,TRUE
+444D81F0-161E-4112-B837-BC6E101B7081,HALE,Subalpine Shrubland,Haleakala,Haleakalā,2012,1,Rotational,FALSE,17,,Haleakala National Park,TRUE,TRUE,TRUE
+444F8370-6097-4550-A2A1-264D270FF286,HAVO,Wet Forest,Nahuku/East Rift,Nāhuku / East Rift,2015,2,Fixed,FALSE,10,11.9,Hawaii Volcanoes National Park,FALSE,TRUE,TRUE
+44573091-386B-49FE-A6A0-3B616295167F,NPSA,Wet Forest,Tau,Ta‘ū,2018,2,Rotational,FALSE,36,,National Park of American Samoa,FALSE,TRUE,TRUE
+44631ADE-1C5A-49A2-8D03-E24DE82ABB24,HAVO,Wet Forest,Nahuku/East Rift,Nāhuku / East Rift,2015,2,Rotational,FALSE,35,15.5,Hawaii Volcanoes National Park,FALSE,TRUE,TRUE
+4477F860-A0F5-499C-B21C-5CD2180BB548,NPSA,Wet Forest,Tau,Ta‘ū,2018,2,Fixed,FALSE,4,,National Park of American Samoa,FALSE,TRUE,TRUE
+4478FC8A-CC1A-4668-9634-C91328D7FBD3,HALE,Wet Forest,Kipahulu District,Kīpahulu District,2013,1,Rotational,FALSE,22,14.8,Haleakala National Park,FALSE,TRUE,TRUE
+44E2B9B9-B010-4C17-A6F9-70B8DBD9C5BE,HAVO,Wet Forest,Kahuku,Kahuku,2022,3,Fixed,FALSE,9,,Hawaii Volcanoes National Park,FALSE,TRUE,TRUE
+4542EB91-CFFB-4656-84EB-270F6236756D,HALE,Wet Forest,Kipahulu District,Kīpahulu District,2012,1,Rotational,FALSE,20,16.1,Haleakala National Park,TRUE,TRUE,TRUE
+45DCFFC8-7A75-4E0E-B764-4D4724935A8F,HAVO,Wet Forest,Olaa,ʻŌlaʻa,2015,2,Rotational,FALSE,42,25.5,Hawaii Volcanoes National Park,FALSE,TRUE,TRUE
+46721E64-E714-4BFC-8DAE-9915554D56C2,KALA,Wet Forest,Puu Alii,Puʻu Aliʻi,2017,2,Rotational,FALSE,38,,Kalaupapa National Historical Park,FALSE,TRUE,TRUE
+46726426-FC61-45D2-8965-E91E795215BE,HAVO,Subalpine Shrubland,Mauna Loa,Mauna Loa,2022,3,Rotational,FALSE,55,,Hawaii Volcanoes National Park,FALSE,TRUE,TRUE
+46CCA6F5-886C-4E99-849A-6CE9C994C89E,HALE,Subalpine Shrubland,Haleakala,Haleakalā,2017,2,Rotational,FALSE,41,,Haleakala National Park,FALSE,TRUE,TRUE
+46E222DF-03E3-492E-955E-AB68B5D54EE0,KAHO,Coastal Strand,Kaloko-Honokohau,Kaloko-Honokōhau,2022,3,Rotational,FALSE,23,5,Kaloko-Honokahau National Historical Park,FALSE,TRUE,TRUE
+46E7E33B-228C-4C32-A5E5-EF9CC2CFF1FA,HAVO,Subalpine Shrubland,Mauna Loa,Mauna Loa,2023,3,Rotational,FALSE,54,,Hawaii Volcanoes National Park,FALSE,TRUE,TRUE
+476BCAAB-616B-4A3E-8B9C-A90FB567F7B0,HAVO,Subalpine Shrubland,Mauna Loa,Mauna Loa,2022,3,Rotational,FALSE,46,,Hawaii Volcanoes National Park,FALSE,TRUE,TRUE
+47D13EA7-CD3A-464C-A2C8-A7EECBDD1D47,HAVO,Wet Forest,Kahuku,Kahuku,2022,3,Rotational,FALSE,47,,Hawaii Volcanoes National Park,FALSE,TRUE,TRUE
+4800242E-EE28-44CA-A522-D4A7BAF79F22,HAVO,Wet Forest,Nahuku/East Rift,Nāhuku / East Rift,2021,3,Rotational,FALSE,51,,Hawaii Volcanoes National Park,FALSE,TRUE,TRUE
+4806C9C1-C8F5-42EE-9BC2-350A47D24AA8,HALE,Wet Forest,Kipahulu District,Kīpahulu District,2017,2,Fixed,FALSE,15,,Haleakala National Park,FALSE,TRUE,TRUE
+48665A5A-3511-4DE6-963D-BA5F3DA5A1F8,HALE,Wet Forest,Kipahulu District,Kīpahulu District,2017,2,Fixed,FALSE,12,,Haleakala National Park,FALSE,TRUE,TRUE
+4873077A-0D2B-45B1-8D25-8081D705ADAE,HAVO,Wet Forest,Olaa,ʻŌlaʻa,2015,2,Fixed,FALSE,11,18.3,Hawaii Volcanoes National Park,FALSE,TRUE,TRUE
+48B55677-05CB-43F8-B3E4-9E8C7C92F707,KALA,Coastal Strand,Kalawao,Kalawao,2012,1,Fixed,FALSE,6,0.1,Kalaupapa National Historical Park,TRUE,TRUE,TRUE
+48FE624E-9A85-435A-BB54-EA929DD7993F,HAVO,Subalpine Shrubland,Mauna Loa,Mauna Loa,2011,1,Rotational,FALSE,28,1,Hawaii Volcanoes National Park,TRUE,TRUE,TRUE
+4946271E-EC16-44EF-BDB5-49C54627CA2B,HAVO,Wet Forest,Olaa,ʻŌlaʻa,2015,2,Fixed,FALSE,15,23.7,Hawaii Volcanoes National Park,FALSE,TRUE,TRUE
+497825E2-C2CC-4872-AA77-106EC09DB1AA,KALA,Coastal Strand,Kalawao,Kalawao,2012,1,Fixed,FALSE,9,0.1,Kalaupapa National Historical Park,TRUE,TRUE,TRUE
+49C89C9E-733F-4001-BBB6-0E395BCA082D,KALA,Wet Forest,Puu Alii,Puʻu Aliʻi,2012,1,Rotational,FALSE,26,7.9,Kalaupapa National Historical Park,TRUE,TRUE,TRUE
+4A2BFB06-11C1-4523-B6A1-AE40537428DB,KALA,Coastal Strand,Hoolehua,Hoʻolehua,2012,1,Fixed,FALSE,9,1,Kalaupapa National Historical Park,TRUE,TRUE,TRUE
+4A390C27-96FE-41C2-A535-1F9F1940434C,HALE,Wet Forest,Kipahulu District,Kīpahulu District,2012,1,Rotational,FALSE,19,24,Haleakala National Park,FALSE,TRUE,TRUE
+4B0A49C4-43B3-4908-939C-AB481FF9494C,HAVO,Subalpine Shrubland,Mauna Loa,Mauna Loa,2016,2,Rotational,FALSE,45,,Hawaii Volcanoes National Park,FALSE,TRUE,TRUE
+4B48B795-4E10-422B-B1D9-5A6F2832E1B7,NPSA,Wet Forest,Tutuila,Tutuila,2018,2,Rotational,FALSE,31,,National Park of American Samoa,FALSE,TRUE,TRUE
+4B64C65C-3ABD-4446-8450-335C8E41654E,KALA,Wet Forest,Puu Alii,Puʻu Aliʻi,2017,2,Rotational,FALSE,35,,Kalaupapa National Historical Park,FALSE,TRUE,TRUE
+4BD2677E-8361-4FD6-BC0C-867362A7602E,KALA,Coastal Strand,Hoolehua,Hoʻolehua,2012,1,Rotational,FALSE,14,0.5,Kalaupapa National Historical Park,TRUE,TRUE,TRUE
+4D16DAA8-6650-4CA9-B9D4-41ACB34B48EC,HALE,Wet Forest,Kipahulu District,Kīpahulu District,2012,1,Fixed,FALSE,2,19.2,Haleakala National Park,FALSE,TRUE,TRUE
+4D195DF0-F8BA-4427-BD03-A9AD36E5EA05,WAPA,Limestone Forest,Guam,Guam,2014,1,Fixed,FALSE,5,30.1,War in the Pacific National Historical Park,FALSE,TRUE,TRUE
+4D320B2A-891C-41AA-93E4-54CFE28AC960,HALE,Subalpine Shrubland,Haleakala,Haleakalā,2012,1,Rotational,FALSE,24,1.5,Haleakala National Park,TRUE,TRUE,TRUE
+4DEDB5D7-B1C0-43DD-9101-6B71B71DE1CC,HALE,Wet Forest,Kipahulu District,Kīpahulu District,2017,2,Fixed,FALSE,13,,Haleakala National Park,FALSE,TRUE,TRUE
+4EF7ECE0-6E84-4E5E-9F91-E39396A35564,HALE,Wet Forest,Kipahulu District,Kīpahulu District,2012,1,Rotational,FALSE,28,,Haleakala National Park,FALSE,TRUE,TRUE
+4EFB36A4-699B-42D9-94CA-06CAA63DCF10,HAVO,Wet Forest,Nahuku/East Rift,Nāhuku / East Rift,2015,2,Fixed,FALSE,13,8.3,Hawaii Volcanoes National Park,FALSE,TRUE,TRUE
+4F59FEAD-C4B0-4887-BEB7-DC523FE289D8,NPSA,Wet Forest,Tau,Ta‘ū,2018,2,Fixed,FALSE,11,,National Park of American Samoa,FALSE,TRUE,TRUE
+4FE7592D-299D-4D37-B291-B825FD171074,HAVO,Subalpine Shrubland,Mauna Loa,Mauna Loa,2016,2,Rotational,FALSE,34,13,Hawaii Volcanoes National Park,FALSE,TRUE,TRUE
+5011F829-0309-461E-9D73-5B02A00D8A72,KALA,Wet Forest,Puu Alii,Puʻu Aliʻi,2017,2,Rotational,FALSE,31,,Kalaupapa National Historical Park,FALSE,TRUE,TRUE
+505BBED8-1521-4032-9399-D7443CB24D8C,HAVO,Subalpine Shrubland,Mauna Loa,Mauna Loa,2016,2,Rotational,FALSE,37,4.5,Hawaii Volcanoes National Park,FALSE,TRUE,TRUE
+5087F3A3-4D24-40E2-A422-5DA01B4BBBFA,KALA,Coastal Strand,Hoolehua,Hoʻolehua,2012,1,Fixed,FALSE,8,0.5,Kalaupapa National Historical Park,TRUE,TRUE,TRUE
+5176447C-F8B0-41D2-9189-47E3651C8E0B,KALA,Coastal Strand,Kalawao,Kalawao,2017,2,Fixed,FALSE,10,0.4,Kalaupapa National Historical Park,FALSE,TRUE,TRUE
+5182A44A-857B-4029-8C16-E99A01486B7D,KALA,Coastal Strand,Hoolehua,Hoʻolehua,2017,2,Fixed,FALSE,3,,Kalaupapa National Historical Park,FALSE,TRUE,TRUE
+51FEBDEE-F3FA-4AFF-97DA-D3E6A9874FAA,HALE,Subalpine Shrubland,Haleakala,Haleakalā,2012,1,Rotational,FALSE,27,2,Haleakala National Park,TRUE,TRUE,TRUE
+526050AD-8DDB-4D58-8E9F-A0053058E696,KALA,Wet Forest,Puu Alii,Puʻu Aliʻi,2012,1,Rotational,FALSE,20,11.7,Kalaupapa National Historical Park,FALSE,TRUE,TRUE
+530013C4-3D18-44E0-9682-962F5FD0E008,KALA,Wet Forest,Puu Alii,Puʻu Aliʻi,2017,2,Rotational,FALSE,40,,Kalaupapa National Historical Park,FALSE,TRUE,TRUE
+53F22BC4-EB5D-441B-B4A1-A90F37744123,HALE,Wet Forest,Kipahulu District,Kīpahulu District,2012,1,Rotational,FALSE,17,10.6,Haleakala National Park,FALSE,TRUE,TRUE
+5503FF80-3A9E-4F33-9D38-815EA39BB1DA,HALE,Subalpine Shrubland,Haleakala,Haleakalā,2012,1,Fixed,FALSE,7,3,Haleakala National Park,FALSE,TRUE,TRUE
+55106DED-AFE5-49F3-998F-55F218A1CBFD,HAVO,Wet Forest,Kahuku,Kahuku,2022,3,Fixed,FALSE,15,,Hawaii Volcanoes National Park,FALSE,TRUE,TRUE
+551C59A8-95DB-4C20-AF5A-80380F306FD7,HAVO,Wet Forest,Olaa,ʻŌlaʻa,2015,2,Fixed,FALSE,9,16.1,Hawaii Volcanoes National Park,FALSE,TRUE,TRUE
+55FBEE3E-23F2-484A-9E5D-D7BFB0A85C56,KALA,Coastal Strand,Hoolehua,Hoʻolehua,2017,2,Rotational,FALSE,19,1,Kalaupapa National Historical Park,FALSE,TRUE,TRUE
+5629DC9B-639F-4C23-AD79-8451A106BB71,HAVO,Wet Forest,Olaa,ʻŌlaʻa,2021,3,Rotational,FALSE,47,,Hawaii Volcanoes National Park,FALSE,TRUE,TRUE
+56476941-59A5-4DFD-9567-F139F5F66575,HAVO,Wet Forest,Kahuku,Kahuku,2022,3,Fixed,FALSE,1,,Hawaii Volcanoes National Park,FALSE,TRUE,TRUE
+56D27118-10F1-4B6F-A18C-2C7C0BA50C66,HALE,Subalpine Shrubland,Haleakala,Haleakalā,2017,2,Rotational,FALSE,40,0.36,Haleakala National Park,FALSE,TRUE,TRUE
+5782EC96-2B1C-461A-B15B-3F2687516484,WAPA,Limestone Forest,Guam,Guam,2014,1,Rotational,FALSE,14,11,War in the Pacific National Historical Park,FALSE,TRUE,TRUE
+5839162A-6EFD-4014-BDCE-875861E3C6FF,HAVO,Wet Forest,Nahuku/East Rift,Nāhuku / East Rift,2015,2,Rotational,FALSE,45,15.1,Hawaii Volcanoes National Park,FALSE,TRUE,TRUE
+5841DE48-96A3-4D59-8C26-393D4449A9C1,HAVO,Wet Forest,Kahuku,Kahuku,2016,2,Fixed,FALSE,3,16.5,Hawaii Volcanoes National Park,FALSE,TRUE,TRUE
+584BE0CE-0ACC-4ED8-95BE-DD10F166396C,HAVO,Subalpine Shrubland,Mauna Loa,Mauna Loa,2011,1,Fixed,FALSE,14,0.5,Hawaii Volcanoes National Park,TRUE,TRUE,TRUE
+58A791A8-EC8D-459C-96E9-862A2E038D84,WAPA,Limestone Forest,Guam,Guam,2014,1,Fixed,FALSE,4,11.1,War in the Pacific National Historical Park,FALSE,TRUE,TRUE
+590049AE-C3F9-4C3E-8FF5-625A2DCB122B,HALE,Wet Forest,Kipahulu District,Kīpahulu District,2018,2,Fixed,FALSE,5,,Haleakala National Park,FALSE,TRUE,TRUE
+591E77E2-4A60-4C30-B802-297CBA156C62,HAVO,Wet Forest,Kahuku,Kahuku,2022,3,Fixed,FALSE,7,,Hawaii Volcanoes National Park,FALSE,TRUE,TRUE
+59A20257-03E0-4FEE-88B7-E5125A289352,HAVO,Subalpine Shrubland,Mauna Loa,Mauna Loa,2022,3,Rotational,FALSE,50,,Hawaii Volcanoes National Park,FALSE,TRUE,TRUE
+59E16AE9-3988-4B25-885D-206F780DB165,KAHO,Coastal Strand,Kaloko-Honokohau,Kaloko-Honokōhau,2022,3,Fixed,FALSE,10,4,Kaloko-Honokahau National Historical Park,FALSE,TRUE,TRUE
+5A13F47A-822A-4E71-9319-FD89020DD0B6,HAVO,Wet Forest,Olaa,ʻŌlaʻa,2015,2,Rotational,FALSE,33,13.8,Hawaii Volcanoes National Park,FALSE,TRUE,TRUE
+5A30AC07-48B2-408A-AE20-52E2A101C17E,HAVO,Subalpine Shrubland,Mauna Loa,Mauna Loa,2022,3,Fixed,FALSE,11,,Hawaii Volcanoes National Park,FALSE,TRUE,TRUE
+5B3104C9-BA12-4E1E-B9E5-ECD7F8021A28,HAVO,Subalpine Shrubland,Mauna Loa,Mauna Loa,2016,2,Fixed,FALSE,15,5,Hawaii Volcanoes National Park,FALSE,TRUE,TRUE
+5B40976A-22CE-4806-B69E-F912813D5653,NPSA,Wet Forest,Tutuila,Tutuila,2018,2,Rotational,FALSE,37,,National Park of American Samoa,FALSE,TRUE,TRUE
+5BFB1B88-3569-4378-8EAC-65F154050FF5,NPSA,Wet Forest,Tutuila,Tutuila,2018,2,Rotational,FALSE,35,,National Park of American Samoa,FALSE,TRUE,TRUE
+5CAD2E3F-01AF-4ACE-A166-EEF06B8FACC7,KALA,Coastal Strand,Hoolehua,Hoʻolehua,2017,2,Fixed,FALSE,4,1,Kalaupapa National Historical Park,FALSE,TRUE,TRUE
+5CC4C479-6CA3-4D01-BE02-1ED5E882C8ED,KALA,Coastal Strand,Hoolehua,Hoʻolehua,2012,1,Rotational,FALSE,12,0.5,Kalaupapa National Historical Park,TRUE,TRUE,TRUE
+5CEB1825-D65D-4E73-A071-D219FEB8C569,HALE,Subalpine Shrubland,Haleakala,Haleakalā,2017,2,Fixed,FALSE,9,,Haleakala National Park,FALSE,TRUE,TRUE
+5D4C5DD8-ED48-4D5D-B6CC-6C71FDE3AE75,WAPA,Limestone Forest,Guam,Guam,2019,2,Fixed,FALSE,7,,War in the Pacific National Historical Park,FALSE,TRUE,TRUE
+5D55D30D-C4D1-4C0E-A223-507F160C72BA,HAVO,Wet Forest,Nahuku/East Rift,Nāhuku / East Rift,2015,2,Fixed,FALSE,11,16.9,Hawaii Volcanoes National Park,FALSE,TRUE,TRUE
+5D75A0AB-74DF-4C4D-A611-8A4C87F06E0C,HAVO,Wet Forest,Olaa,ʻŌlaʻa,2015,2,Fixed,FALSE,13,16.3,Hawaii Volcanoes National Park,FALSE,TRUE,TRUE
+5D860021-5D74-4C7E-84FC-955BEC95BEEE,HAVO,Subalpine Shrubland,Mauna Loa,Mauna Loa,2016,2,Fixed,FALSE,6,,Hawaii Volcanoes National Park,FALSE,TRUE,TRUE
+5D939A9C-75A3-4448-A6DD-1B3E1D5AEAB4,HAVO,Subalpine Shrubland,Mauna Loa,Mauna Loa,2016,2,Fixed,FALSE,2,,Hawaii Volcanoes National Park,FALSE,TRUE,TRUE
+5DC9708E-45CD-40BC-91C8-4EFF98A97C8E,KALA,Wet Forest,Puu Alii,Puʻu Aliʻi,2012,1,Fixed,FALSE,5,7.8,Kalaupapa National Historical Park,FALSE,TRUE,TRUE
+5DF1340C-554E-4A32-81A2-4DFC10DCEBD6,WAPA,Limestone Forest,Guam,Guam,2014,1,Fixed,FALSE,2,18.9,War in the Pacific National Historical Park,FALSE,TRUE,TRUE
+5F541D6B-E123-41AE-9DB0-5D61E56B8EEC,HAVO,Subalpine Shrubland,Mauna Loa,Mauna Loa,2022,3,Fixed,FALSE,14,,Hawaii Volcanoes National Park,FALSE,TRUE,TRUE
+5F8CA2B4-6DAC-4E7E-96AF-67E89BDB6632,KALA,Wet Forest,Puu Alii,Puʻu Aliʻi,2017,2,Fixed,FALSE,10,,Kalaupapa National Historical Park,FALSE,TRUE,TRUE
+5FF6CBB1-C48F-4CB8-BDF2-52B38FEC7ED8,HAVO,Subalpine Shrubland,Mauna Loa,Mauna Loa,2011,1,Rotational,FALSE,26,3,Hawaii Volcanoes National Park,TRUE,TRUE,TRUE
+5FFAFF16-F5FE-4A45-8870-25849C72E177,HALE,Wet Forest,Kipahulu District,Kīpahulu District,2012,1,Rotational,FALSE,30,15,Haleakala National Park,TRUE,TRUE,TRUE
+60E584F4-5019-4683-8BFD-2068CCEFB1CC,KALA,Wet Forest,Puu Alii,Puʻu Aliʻi,2012,1,Fixed,FALSE,10,8.9,Kalaupapa National Historical Park,TRUE,TRUE,TRUE
+6139A65D-9B3A-4660-9E16-54E21A76D490,HAVO,Wet Forest,Kahuku,Kahuku,2016,2,Rotational,FALSE,33,26.6,Hawaii Volcanoes National Park,FALSE,TRUE,TRUE
+61F5C89C-221B-4198-AD0F-AE2251EF2131,WAPA,Limestone Forest,Guam,Guam,2019,2,Rotational,FALSE,19,,War in the Pacific National Historical Park,FALSE,TRUE,TRUE
+6267F329-149C-48E5-8435-B4E2DE64E709,KAHO,Coastal Strand,Kaloko-Honokohau,Kaloko-Honokōhau,2022,3,Fixed,FALSE,1,5,Kaloko-Honokahau National Historical Park,FALSE,TRUE,TRUE
+627CDF33-8B64-4442-A512-2C9C612D796D,KALA,Coastal Strand,Kalawao,Kalawao,2017,2,Fixed,FALSE,8,0.25,Kalaupapa National Historical Park,FALSE,TRUE,TRUE
+63EFCD64-5794-4011-9FB2-3E1D5D369D19,HAVO,Wet Forest,Olaa,ʻŌlaʻa,2015,2,Fixed,FALSE,3,17.6,Hawaii Volcanoes National Park,FALSE,TRUE,TRUE
+63FF53EE-DEA3-46D9-91E1-D5BFD87487A0,NPSA,Wet Forest,Tutuila,Tutuila,2018,2,Rotational,FALSE,40,,National Park of American Samoa,FALSE,TRUE,TRUE
+6428F78D-A19F-4C50-A19B-7BEA3C64EBF9,NPSA,Wet Forest,Tutuila,Tutuila,2018,2,Rotational,FALSE,39,,National Park of American Samoa,FALSE,TRUE,TRUE
+644F082F-9358-4FD7-9AF7-2183043BD39C,NPSA,Wet Forest,Tau,Ta‘ū,2018,2,Fixed,FALSE,12,,National Park of American Samoa,FALSE,TRUE,TRUE
+646D1460-B51F-4276-B3B8-6FF515140D5C,KALA,Wet Forest,Puu Alii,Puʻu Aliʻi,2017,2,Fixed,FALSE,2,,Kalaupapa National Historical Park,FALSE,TRUE,TRUE
+65514CF8-4DB9-4E67-A64D-62A92F57F160,HAVO,Subalpine Shrubland,Mauna Loa,Mauna Loa,2016,2,Fixed,FALSE,8,11,Hawaii Volcanoes National Park,FALSE,TRUE,TRUE
+65B72D5E-6DF5-450C-867B-48ACBA156E17,NPSA,Wet Forest,Tau,Ta‘ū,2018,2,Fixed,FALSE,3,,National Park of American Samoa,FALSE,TRUE,TRUE
+65F0583A-F275-4770-B2D1-C41EDD452869,KALA,Coastal Strand,Hoolehua,Hoʻolehua,2012,1,Fixed,FALSE,4,1,Kalaupapa National Historical Park,TRUE,TRUE,TRUE
+67025204-1806-4C82-AB3C-7793FA8A2B2F,KALA,Wet Forest,Puu Alii,Puʻu Aliʻi,2017,2,Rotational,FALSE,33,,Kalaupapa National Historical Park,FALSE,TRUE,TRUE
+67836872-FBF8-4B59-BB52-A75E19AF91D2,KALA,Coastal Strand,Kalawao,Kalawao,2017,2,Fixed,FALSE,4,0.5,Kalaupapa National Historical Park,FALSE,TRUE,TRUE
+67B9E041-C63E-4942-B851-DCD33AF73CA1,WAPA,Limestone Forest,Guam,Guam,2014,1,Rotational,FALSE,15,15,War in the Pacific National Historical Park,FALSE,TRUE,TRUE
+67BA4DED-200F-4905-8B8D-0C136434BC9C,HAVO,Subalpine Shrubland,Mauna Loa,Mauna Loa,2023,3,Rotational,FALSE,59,,Hawaii Volcanoes National Park,FALSE,TRUE,TRUE
+6902640A-ADD5-4A96-991B-3A5A0EEC7F20,HALE,Subalpine Shrubland,Haleakala,Haleakalā,2017,2,Rotational,FALSE,31,,Haleakala National Park,FALSE,TRUE,TRUE
+69F782D8-728B-45A1-8B08-56A0592A4301,HALE,Subalpine Shrubland,Haleakala,Haleakalā,2012,1,Fixed,FALSE,14,3,Haleakala National Park,FALSE,TRUE,TRUE
+6AAC5040-607E-4640-93A1-16AF522EF0C2,HAVO,Wet Forest,Olaa,ʻŌlaʻa,2021,3,Fixed,FALSE,3,,Hawaii Volcanoes National Park,FALSE,TRUE,TRUE
+6AFAEBC7-061B-409E-AD55-B3067648E675,KALA,Wet Forest,Puu Alii,Puʻu Aliʻi,2012,1,Fixed,FALSE,6,12.6,Kalaupapa National Historical Park,TRUE,TRUE,TRUE
+6B4C4DFA-11C5-4502-8546-E9FE39EC8712,HALE,Subalpine Shrubland,Haleakala,Haleakalā,2012,1,Rotational,FALSE,22,1,Haleakala National Park,TRUE,TRUE,TRUE
+6BF9C7A6-80DB-4548-9FE3-FED9201F3FEB,KALA,Wet Forest,Puu Alii,Puʻu Aliʻi,2017,2,Rotational,FALSE,45,,Kalaupapa National Historical Park,FALSE,TRUE,TRUE
+6C20C270-D5B0-4C0B-A628-0138AA7A4BC6,KALA,Coastal Strand,Hoolehua,Hoʻolehua,2017,2,Fixed,FALSE,8,0.25,Kalaupapa National Historical Park,FALSE,TRUE,TRUE
+6CF3A689-BF93-48C6-990A-D092B7F0AC75,HAVO,Wet Forest,Kahuku,Kahuku,2022,3,Fixed,FALSE,2,,Hawaii Volcanoes National Park,FALSE,TRUE,TRUE
+6D31B020-6CBC-4C8B-A0E8-31719A005CC7,HAVO,Subalpine Shrubland,Mauna Loa,Mauna Loa,2022,3,Rotational,FALSE,53,,Hawaii Volcanoes National Park,FALSE,TRUE,TRUE
+6D947E38-03F0-4ED0-98BE-641B2CE8CB5C,KALA,Wet Forest,Puu Alii,Puʻu Aliʻi,2012,1,Rotational,FALSE,28,7.9,Kalaupapa National Historical Park,FALSE,TRUE,TRUE
+6E1C5E65-1D4F-4FD1-AD20-8D2C64B4A517,AMME,Mangrove Wetland,Muchot,Muchot,2019,2,Fixed,FALSE,8,,American Memorial Park,FALSE,TRUE,TRUE
+6F5E5799-7947-4754-BFDE-2C1C9B410CB8,HAVO,Wet Forest,Kahuku,Kahuku,2016,2,Fixed,FALSE,6,25,Hawaii Volcanoes National Park,FALSE,TRUE,TRUE
+6F67663A-A506-42E2-82D1-C7317144EE2A,KALA,Wet Forest,Puu Alii,Puʻu Aliʻi,2012,1,Fixed,FALSE,2,9.1,Kalaupapa National Historical Park,FALSE,TRUE,TRUE
+6F9EE4C4-854E-4F4E-B21D-CF171387868C,HAVO,Wet Forest,Kahuku,Kahuku,2016,2,Fixed,FALSE,1,17,Hawaii Volcanoes National Park,FALSE,TRUE,TRUE
+701F1BDE-FE05-4240-B07E-0BE63EEDB578,HAVO,Subalpine Shrubland,Mauna Loa,Mauna Loa,2022,3,Fixed,FALSE,6,,Hawaii Volcanoes National Park,FALSE,TRUE,TRUE
+704E5AB3-FCAF-455C-9EA8-CCEC27F52736,HALE,Subalpine Shrubland,Haleakala,Haleakalā,2017,2,Rotational,FALSE,32,,Haleakala National Park,FALSE,TRUE,TRUE
+70896918-8C0F-4EFF-84CA-E96168AB82F1,NPSA,Wet Forest,Tutuila,Tutuila,2018,2,Rotational,FALSE,32,,National Park of American Samoa,FALSE,TRUE,TRUE
+709F870D-E71C-4ED2-9A0B-734462C80632,KALA,Coastal Strand,Kalawao,Kalawao,2012,1,Rotational,FALSE,15,0.1,Kalaupapa National Historical Park,TRUE,TRUE,TRUE
+72125877-A397-4E9F-9ADF-93DEA202A921,HAVO,Wet Forest,Olaa,ʻŌlaʻa,2015,2,Rotational,FALSE,36,14.3,Hawaii Volcanoes National Park,FALSE,TRUE,TRUE
+724276F7-7D11-4DFC-B5CF-AE2E7F123D06,KALA,Wet Forest,Puu Alii,Puʻu Aliʻi,2012,1,Rotational,FALSE,19,9.4,Kalaupapa National Historical Park,TRUE,TRUE,TRUE
+7269C0D3-7C64-4EA7-AC10-31F29415F4FA,HAVO,Subalpine Shrubland,Mauna Loa,Mauna Loa,2011,1,Fixed,FALSE,6,,Hawaii Volcanoes National Park,FALSE,TRUE,TRUE
+72703DBD-3F34-4FB4-B008-D36DFA072DCA,HALE,Wet Forest,Kipahulu District,Kīpahulu District,2012,1,Fixed,FALSE,3,18.5,Haleakala National Park,FALSE,TRUE,TRUE
+72A82B41-F1B2-4F37-B23D-4A793F42B778,HALE,Wet Forest,Kipahulu District,Kīpahulu District,2017,2,Fixed,FALSE,7,,Haleakala National Park,FALSE,TRUE,TRUE
+72F47363-FEF2-4A9B-9392-8319BDA08B74,NPSA,Wet Forest,Tutuila,Tutuila,2018,2,Rotational,FALSE,44,,National Park of American Samoa,FALSE,TRUE,TRUE
+730DFAE1-2656-4C02-B8D1-6075CE2D84A1,KALA,Coastal Strand,Hoolehua,Hoʻolehua,2012,1,Rotational,FALSE,13,0.6,Kalaupapa National Historical Park,TRUE,TRUE,TRUE
+7349885D-33AD-4983-9857-80DBBDEC40F8,HAVO,Wet Forest,Kahuku,Kahuku,2016,2,Fixed,FALSE,4,23,Hawaii Volcanoes National Park,FALSE,TRUE,TRUE
+73951A3B-84E9-4AD3-8507-FFC35428D781,HAVO,Wet Forest,Nahuku/East Rift,Nāhuku / East Rift,2021,3,Fixed,FALSE,13,,Hawaii Volcanoes National Park,FALSE,TRUE,TRUE
+73BFBDBC-7721-4B1B-AECE-E4F6BD1CA3CE,KALA,Coastal Strand,Hoolehua,Hoʻolehua,2017,2,Rotational,FALSE,16,0.4,Kalaupapa National Historical Park,FALSE,TRUE,TRUE
+7505774D-9553-4241-9083-C4E6F8EAE1C5,HALE,Wet Forest,Kipahulu District,Kīpahulu District,2018,2,Rotational,FALSE,35,,Haleakala National Park,FALSE,TRUE,TRUE
+75B87EB8-39B0-4C15-AB54-46EBEDB12E44,NPSA,Wet Forest,Tutuila,Tutuila,2018,2,Fixed,FALSE,4,,National Park of American Samoa,FALSE,TRUE,TRUE
+75D6714E-87CE-485E-B0A2-33620B645E50,KAHO,Coastal Strand,Kaloko-Honokohau,Kaloko-Honokōhau,2022,3,Rotational,FALSE,26,5,Kaloko-Honokahau National Historical Park,FALSE,TRUE,TRUE
+76B67CB3-C4B4-4A0D-A33F-3C4DCA5AC251,KALA,Coastal Strand,Hoolehua,Hoʻolehua,2012,1,Fixed,FALSE,3,0.3,Kalaupapa National Historical Park,TRUE,TRUE,TRUE
+76CCDA27-A62A-40D3-8C8D-E41A117B3FED,AMME,Mangrove Wetland,Muchot,Muchot,2014,1,Fixed,FALSE,5,13.3,American Memorial Park,TRUE,TRUE,TRUE
+770748F8-0E32-4CD9-93EC-EE3E1388E8A7,HAVO,Wet Forest,Olaa,ʻŌlaʻa,2021,3,Fixed,FALSE,5,,Hawaii Volcanoes National Park,FALSE,TRUE,TRUE
+77140BC4-1118-47E3-BA58-4D636B2AF99B,HAVO,Subalpine Shrubland,Mauna Loa,Mauna Loa,2016,2,Rotational,FALSE,31,,Hawaii Volcanoes National Park,FALSE,TRUE,TRUE
+7717FA40-9010-4F8E-93B7-21FB1AD3651C,HALE,Subalpine Shrubland,Haleakala,Haleakalā,2012,1,Fixed,FALSE,6,1.2,Haleakala National Park,FALSE,TRUE,TRUE
+774DEA54-3CE6-4F74-9430-B590EFCADF08,NPSA,Wet Forest,Tutuila,Tutuila,2018,2,Fixed,FALSE,7,,National Park of American Samoa,FALSE,TRUE,TRUE
+777010F7-44D8-4FD5-96DF-FE3BB9A7F412,KAHO,Coastal Strand,Kaloko-Honokohau,Kaloko-Honokōhau,2016,2,Fixed,FALSE,5,,Kaloko-Honokahau National Historical Park,FALSE,TRUE,TRUE
+785410CD-CFAC-4A95-BCAE-B8C41E46DA4A,HAVO,Subalpine Shrubland,Mauna Loa,Mauna Loa,2011,1,Rotational,FALSE,21,5.5,Hawaii Volcanoes National Park,TRUE,TRUE,TRUE
+7871B228-4097-4BA8-8DA0-587599B8E411,KALA,Coastal Strand,Hoolehua,Hoʻolehua,2017,2,Fixed,FALSE,10,0.1,Kalaupapa National Historical Park,FALSE,TRUE,TRUE
+787C6702-FDC2-4407-A56B-82CA2DF45BE5,HAVO,Subalpine Shrubland,Mauna Loa,Mauna Loa,2016,2,Fixed,FALSE,11,3,Hawaii Volcanoes National Park,FALSE,TRUE,TRUE
+78ED565E-347E-402A-BFA9-482489487671,WAPA,Limestone Forest,Guam,Guam,2014,1,Fixed,FALSE,8,18.2,War in the Pacific National Historical Park,FALSE,TRUE,TRUE
+79354BBE-AF7A-4DC7-98C0-7C95C2480DF3,HALE,Subalpine Shrubland,Haleakala,Haleakalā,2017,2,Fixed,FALSE,13,,Haleakala National Park,FALSE,TRUE,TRUE
+7967CFA0-7299-4519-AC0F-F6D9BEA68B74,HALE,Subalpine Shrubland,Haleakala,Haleakalā,2017,2,Rotational,FALSE,36,,Haleakala National Park,FALSE,TRUE,TRUE
+7A08E997-307A-4A6A-B47E-1D36B39CE02B,HAVO,Wet Forest,Kahuku,Kahuku,2022,3,Rotational,FALSE,50,,Hawaii Volcanoes National Park,FALSE,TRUE,TRUE
+7A61885B-8EB1-40DB-B3CA-0C57A76C7C44,HAVO,Wet Forest,Nahuku/East Rift,Nāhuku / East Rift,2015,2,Rotational,FALSE,38,13,Hawaii Volcanoes National Park,FALSE,TRUE,TRUE
+7B3F92E6-72BA-4499-8BEF-E6626DB4813B,NPSA,Wet Forest,Tutuila,Tutuila,2018,2,Rotational,FALSE,36,,National Park of American Samoa,FALSE,TRUE,TRUE
+7B814B90-1A10-46F3-AAFB-D06D2B9F28DE,HALE,Wet Forest,Kipahulu District,Kīpahulu District,2018,2,Rotational,FALSE,37,,Haleakala National Park,FALSE,TRUE,TRUE
+7C245B4C-A81A-46F6-8F32-42F9A407942C,WAPA,Limestone Forest,Guam,Guam,2019,2,Fixed,FALSE,5,,War in the Pacific National Historical Park,FALSE,TRUE,TRUE
+7CB501E0-38D7-434F-A047-7309C73234F2,HAVO,Wet Forest,Kahuku,Kahuku,2022,3,Rotational,FALSE,51,,Hawaii Volcanoes National Park,FALSE,TRUE,TRUE
+7CB574D7-239B-424D-B334-214BA7960438,HALE,Wet Forest,Kipahulu District,Kīpahulu District,2013,1,Rotational,FALSE,25,15,Haleakala National Park,FALSE,TRUE,TRUE
+7D80C457-D838-42E7-A88B-C504DA5822DC,KALA,Coastal Strand,Hoolehua,Hoʻolehua,2012,1,Fixed,FALSE,6,1,Kalaupapa National Historical Park,TRUE,TRUE,TRUE
+7D9CD435-0B16-4F8A-B9EC-6D5AC7246B30,NPSA,Wet Forest,Tutuila,Tutuila,2018,2,Fixed,FALSE,2,,National Park of American Samoa,FALSE,TRUE,TRUE
+7DA7ADCF-EE40-45CE-851D-8E1DE4AFCC31,HALE,Wet Forest,Kipahulu District,Kīpahulu District,2018,2,Rotational,FALSE,44,,Haleakala National Park,FALSE,TRUE,TRUE
+7E0CE1A4-9236-48E8-901F-93347781ACB3,KALA,Wet Forest,Puu Alii,Puʻu Aliʻi,2017,2,Rotational,FALSE,41,,Kalaupapa National Historical Park,FALSE,TRUE,TRUE
+7EFF1FC1-911E-492E-B3C7-39702C36BB55,KAHO,Coastal Strand,Kaloko-Honokohau,Kaloko-Honokōhau,2022,3,Rotational,FALSE,24,5,Kaloko-Honokahau National Historical Park,FALSE,TRUE,TRUE
+7F0316D7-A067-406A-8BD4-700128748628,WAPA,Limestone Forest,Guam,Guam,2019,2,Fixed,FALSE,10,,War in the Pacific National Historical Park,FALSE,TRUE,TRUE
+7F1DF18F-E1B7-4A42-9017-E2B2FF19636E,HAVO,Subalpine Shrubland,Mauna Loa,Mauna Loa,2016,2,Rotational,FALSE,32,3,Hawaii Volcanoes National Park,FALSE,TRUE,TRUE
+805C2DF8-8083-48D2-8FF6-264C832A8FD5,KALA,Wet Forest,Puu Alii,Puʻu Aliʻi,2012,1,Fixed,FALSE,3,9.5,Kalaupapa National Historical Park,FALSE,TRUE,TRUE
+821ED31A-5CC5-4780-BFA9-FD393F953EC8,NPSA,Wet Forest,Tau,Ta‘ū,2018,2,Fixed,FALSE,9,,National Park of American Samoa,FALSE,TRUE,TRUE
+825DFD9E-8357-4956-8240-DCC08F795AC6,AMME,Mangrove Wetland,Muchot,Muchot,2019,2,Fixed,FALSE,2,,American Memorial Park,FALSE,TRUE,TRUE
+82D7D99A-E06F-43ED-A45F-BAC594291195,HAVO,Wet Forest,Kahuku,Kahuku,2022,3,Rotational,FALSE,60,,Hawaii Volcanoes National Park,FALSE,TRUE,TRUE
+8358BD0D-1E79-4046-B96C-4A2B33118363,KALA,Coastal Strand,Kalawao,Kalawao,2012,1,Fixed,FALSE,3,0.1,Kalaupapa National Historical Park,TRUE,TRUE,TRUE
+83663EE4-0377-42E9-AD6C-BE1299CD5050,KALA,Coastal Strand,Kalawao,Kalawao,2017,2,Fixed,FALSE,9,0.2,Kalaupapa National Historical Park,FALSE,TRUE,TRUE
+83BC5417-C1C7-41C2-898B-8BA0070BE9DA,HALE,Subalpine Shrubland,Haleakala,Haleakalā,2012,1,Fixed,FALSE,4,1.5,Haleakala National Park,FALSE,TRUE,TRUE
+83F7733E-9FC5-488B-98E8-E5DF20F0C35D,HALE,Wet Forest,Kipahulu District,Kīpahulu District,2017,2,Fixed,FALSE,8,,Haleakala National Park,FALSE,TRUE,TRUE
+84799517-CED8-45DB-BECD-330A213F3B57,NPSA,Wet Forest,Tau,Ta‘ū,2018,2,Fixed,FALSE,5,,National Park of American Samoa,FALSE,TRUE,TRUE
+848B6A8B-852E-4A7F-8BF0-CECC777A3A3F,HAVO,Wet Forest,Nahuku/East Rift,Nāhuku / East Rift,2021,3,Fixed,FALSE,1,,Hawaii Volcanoes National Park,FALSE,TRUE,TRUE
+8521EF0D-EFEC-4FF2-BFB4-659EE0AEB37E,HALE,Wet Forest,Kipahulu District,Kīpahulu District,2012,1,Fixed,FALSE,14,17.7,Haleakala National Park,FALSE,TRUE,TRUE
+8580B105-AF83-4FB7-BC55-68AA0C244820,KALA,Wet Forest,Puu Alii,Puʻu Aliʻi,2017,2,Fixed,FALSE,4,,Kalaupapa National Historical Park,FALSE,TRUE,TRUE
+8606778E-5C78-4447-AD55-E8E9A247CB98,HAVO,Subalpine Shrubland,Mauna Loa,Mauna Loa,2011,1,Rotational,FALSE,23,1.5,Hawaii Volcanoes National Park,TRUE,TRUE,TRUE
+862C5F6F-0147-49D9-BFD8-C2C304DE2A9C,WAPA,Limestone Forest,Guam,Guam,2014,1,Fixed,FALSE,10,15,War in the Pacific National Historical Park,FALSE,TRUE,TRUE
+8638CB29-805C-44E4-8996-A036BD2D6210,HAVO,Wet Forest,Olaa,ʻŌlaʻa,2015,2,Rotational,FALSE,39,19.5,Hawaii Volcanoes National Park,FALSE,TRUE,TRUE
+86D7FF5C-D1DE-4884-8E75-5223F75EE867,HALE,Subalpine Shrubland,Haleakala,Haleakalā,2017,2,Fixed,FALSE,15,,Haleakala National Park,FALSE,TRUE,TRUE
+8851ECF9-DF43-46C4-91FC-E03C94D22200,KALA,Wet Forest,Puu Alii,Puʻu Aliʻi,2017,2,Fixed,FALSE,12,,Kalaupapa National Historical Park,FALSE,TRUE,TRUE
+8871B45C-1C2B-402C-BB72-14ECA190CE2E,HAVO,Wet Forest,Olaa,ʻŌlaʻa,2015,2,Fixed,FALSE,14,20.8,Hawaii Volcanoes National Park,FALSE,TRUE,TRUE
+88F18939-5D3C-478C-BC3A-ABCC39A4ED64,NPSA,Wet Forest,Tutuila,Tutuila,2018,2,Fixed,FALSE,6,,National Park of American Samoa,FALSE,TRUE,TRUE
+897F5FD8-355A-426F-878C-9830D89A190A,HALE,Subalpine Shrubland,Haleakala,Haleakalā,2013,1,Rotational,FALSE,28,2.5,Haleakala National Park,FALSE,TRUE,TRUE
+8B3D2079-9D87-4651-BA6E-6C7C587A4217,HAVO,Subalpine Shrubland,Mauna Loa,Mauna Loa,2011,1,Rotational,FALSE,20,7,Hawaii Volcanoes National Park,TRUE,TRUE,TRUE
+8BD2D919-8796-4A2D-BD5E-EC0B0407C04F,NPSA,Wet Forest,Tau,Ta‘ū,2018,2,Rotational,FALSE,42,,National Park of American Samoa,FALSE,TRUE,TRUE
+8C197A4A-90D6-4E20-A474-AF8C8D2934AE,AMME,Mangrove Wetland,Muchot,Muchot,2019,2,Fixed,FALSE,6,,American Memorial Park,FALSE,TRUE,TRUE
+8C53891A-54B2-446D-A94C-788B22AE6708,KALA,Wet Forest,Puu Alii,Puʻu Aliʻi,2017,2,Fixed,FALSE,13,,Kalaupapa National Historical Park,FALSE,TRUE,TRUE
+8C69C430-D60D-41A7-8AA0-921B0AF17A31,HAVO,Wet Forest,Kahuku,Kahuku,2022,3,Fixed,FALSE,8,,Hawaii Volcanoes National Park,FALSE,TRUE,TRUE
+8CA7972F-629E-43C6-91A8-8B9799958162,HAVO,Wet Forest,Kahuku,Kahuku,2016,2,Fixed,FALSE,10,18.5,Hawaii Volcanoes National Park,FALSE,TRUE,TRUE
+8D1B419B-F5B0-4F43-9000-050CBFCDB39A,HAVO,Wet Forest,Nahuku/East Rift,Nāhuku / East Rift,2015,2,Fixed,FALSE,7,16.4,Hawaii Volcanoes National Park,TRUE,TRUE,TRUE
+8DA40D55-94A6-4E75-BB56-86C2E01EC210,KALA,Wet Forest,Puu Alii,Puʻu Aliʻi,2017,2,Rotational,FALSE,34,,Kalaupapa National Historical Park,FALSE,TRUE,TRUE
+8E1CB396-444A-4248-8079-FE2CA7B173D4,KALA,Wet Forest,Puu Alii,Puʻu Aliʻi,2012,1,Fixed,FALSE,9,10.2,Kalaupapa National Historical Park,FALSE,TRUE,TRUE
+8E6F4FAE-5B05-4F6E-8D75-792E5FCA2D98,KAHO,Coastal Strand,Kaloko-Honokohau,Kaloko-Honokōhau,2016,2,Fixed,FALSE,4,,Kaloko-Honokahau National Historical Park,FALSE,TRUE,TRUE
+8EB6DBEB-6FBC-45F5-93AE-D234725DF5AA,AMME,Mangrove Wetland,Muchot,Muchot,2019,2,Fixed,FALSE,1,,American Memorial Park,FALSE,TRUE,TRUE
+8F1F0E46-0B90-48EA-806A-5E0DB3E2FC7F,HAVO,Wet Forest,Kahuku,Kahuku,2022,3,Rotational,FALSE,53,,Hawaii Volcanoes National Park,FALSE,TRUE,TRUE
+8F2A1CFD-B94F-4503-8480-157556861619,HAVO,Wet Forest,Kahuku,Kahuku,2022,3,Rotational,FALSE,58,,Hawaii Volcanoes National Park,FALSE,TRUE,TRUE
+901A3F33-14E1-48E0-8F0A-324781095BBA,NPSA,Wet Forest,Tutuila,Tutuila,2018,2,Rotational,FALSE,33,,National Park of American Samoa,FALSE,TRUE,TRUE
+902CD5F1-2920-4FAF-97E4-E47DB84C622C,HAVO,Wet Forest,Olaa,ʻŌlaʻa,2015,2,Fixed,FALSE,1,9.1,Hawaii Volcanoes National Park,TRUE,TRUE,TRUE
+906C1CCE-DE23-4DB6-B535-D57E9FE1B21A,HAVO,Wet Forest,Nahuku/East Rift,Nāhuku / East Rift,2015,2,Rotational,FALSE,43,14.7,Hawaii Volcanoes National Park,FALSE,TRUE,TRUE
+9092C3F2-AF33-43BE-B630-DF8F6249939C,HALE,Subalpine Shrubland,Haleakala,Haleakalā,2017,2,Fixed,FALSE,4,,Haleakala National Park,FALSE,TRUE,TRUE
+909DF3EC-A1DF-480F-8D35-3628E29E0D2F,HALE,Subalpine Shrubland,Haleakala,Haleakalā,2017,2,Rotational,FALSE,39,,Haleakala National Park,FALSE,TRUE,TRUE
+911EC2AB-B556-444B-8528-11E41595DAAC,HAVO,Wet Forest,Nahuku/East Rift,Nāhuku / East Rift,2023,3,Fixed,FALSE,14,,Hawaii Volcanoes National Park,FALSE,TRUE,TRUE
+915A3825-D451-4144-8F26-1FB93FF6546D,KALA,Wet Forest,Puu Alii,Puʻu Aliʻi,2012,1,Rotational,FALSE,27,11.9,Kalaupapa National Historical Park,TRUE,TRUE,TRUE
+9218C2A1-368B-44D9-B6ED-08A232888A71,KALA,Wet Forest,Puu Alii,Puʻu Aliʻi,2012,1,Rotational,FALSE,22,11.6,Kalaupapa National Historical Park,FALSE,TRUE,TRUE
+92AA7176-E4BE-4C90-B41E-D78134C3AC53,HALE,Wet Forest,Kipahulu District,Kīpahulu District,2012,1,Rotational,FALSE,18,19.2,Haleakala National Park,FALSE,TRUE,TRUE
+9332AB06-F353-49BF-9A6C-069A99FA4582,HAVO,Subalpine Shrubland,Mauna Loa,Mauna Loa,2022,3,Fixed,FALSE,4,,Hawaii Volcanoes National Park,FALSE,TRUE,TRUE
+933B9DC0-6FA9-43B9-99A2-D579D2DCDDC4,HAVO,Wet Forest,Olaa,ʻŌlaʻa,2021,3,Rotational,FALSE,56,,Hawaii Volcanoes National Park,FALSE,TRUE,TRUE
+939526D0-7D14-4E53-A2CB-95F6F34FE81B,KALA,Wet Forest,Puu Alii,Puʻu Aliʻi,2017,2,Rotational,FALSE,39,,Kalaupapa National Historical Park,FALSE,TRUE,TRUE
+93EF14B3-D908-47FA-A75B-99C3588C5B3E,HAVO,Wet Forest,Nahuku/East Rift,Nāhuku / East Rift,2021,3,Rotational,FALSE,52,,Hawaii Volcanoes National Park,FALSE,TRUE,TRUE
+94548DEE-48A9-4129-8A54-CD1A8EE2B3F3,KAHO,Coastal Strand,Kaloko-Honokohau,Kaloko-Honokōhau,2016,2,Rotational,FALSE,17,,Kaloko-Honokahau National Historical Park,FALSE,TRUE,TRUE
+9464BBEE-1C30-4820-B03C-AB82BB74DEB8,HALE,Wet Forest,Kipahulu District,Kīpahulu District,2012,1,Rotational,FALSE,16,10.3,Haleakala National Park,TRUE,TRUE,TRUE
+948500FD-3AE7-4F24-9BB6-ED5DDBC4B93E,HAVO,Wet Forest,Kahuku,Kahuku,2016,2,Rotational,FALSE,43,22.8,Hawaii Volcanoes National Park,FALSE,TRUE,TRUE
+94E71CA0-578F-4706-A7B3-F5B133E1F54B,HAVO,Wet Forest,Kahuku,Kahuku,2016,2,Rotational,FALSE,45,22.8,Hawaii Volcanoes National Park,FALSE,TRUE,TRUE
+95D02D33-8522-447D-BDDA-E896DD54913A,HALE,Wet Forest,Kipahulu District,Kīpahulu District,2012,1,Fixed,FALSE,5,19.4,Haleakala National Park,FALSE,TRUE,TRUE
+96719D87-5FF7-4B45-A954-5F5480D3FA13,AMME,Mangrove Wetland,Muchot,Muchot,2014,1,Fixed,FALSE,9,,American Memorial Park,TRUE,TRUE,TRUE
+9672BF53-15BC-42EC-881B-49E2059F026F,HAVO,Wet Forest,Olaa,ʻŌlaʻa,2021,3,Rotational,FALSE,54,,Hawaii Volcanoes National Park,FALSE,TRUE,TRUE
+969EAA03-62E4-49A5-AD43-A12730B5BDD6,KALA,Coastal Strand,Kalawao,Kalawao,2012,1,Fixed,FALSE,10,0.2,Kalaupapa National Historical Park,TRUE,TRUE,TRUE
+973ADB04-E454-4CE9-B5E8-F363FDF95A83,HALE,Subalpine Shrubland,Haleakala,Haleakalā,2017,2,Fixed,FALSE,8,,Haleakala National Park,FALSE,TRUE,TRUE
+981AA94E-5350-4435-9F51-75392D6529FB,KALA,Coastal Strand,Kalawao,Kalawao,2017,2,Rotational,FALSE,18,0.5,Kalaupapa National Historical Park,FALSE,TRUE,TRUE
+983AFE74-6770-49DB-ACB7-D72B890265EE,NPSA,Wet Forest,Tutuila,Tutuila,2018,2,Rotational,FALSE,34,,National Park of American Samoa,FALSE,TRUE,TRUE
+983B4DCE-88C3-4AAF-8EF7-1ECB561BF285,KALA,Wet Forest,Puu Alii,Puʻu Aliʻi,2017,2,Fixed,FALSE,6,,Kalaupapa National Historical Park,FALSE,TRUE,TRUE
+984A89E8-3BEC-4219-B1D9-7E1F58F8D87B,HAVO,Wet Forest,Olaa,ʻŌlaʻa,2021,3,Fixed,FALSE,1,,Hawaii Volcanoes National Park,FALSE,TRUE,TRUE
+98D731AB-8B8D-4F36-8A32-77A882951C23,HALE,Subalpine Shrubland,Haleakala,Haleakalā,2017,2,Rotational,FALSE,42,,Haleakala National Park,FALSE,TRUE,TRUE
+99481942-AF86-4419-B5CC-77DB01AFCBFA,HAVO,Subalpine Shrubland,Mauna Loa,Mauna Loa,2016,2,Rotational,FALSE,35,7,Hawaii Volcanoes National Park,FALSE,TRUE,TRUE
+99EE0E90-A692-4254-92E2-F3A540083382,HAVO,Subalpine Shrubland,Mauna Loa,Mauna Loa,2011,1,Fixed,FALSE,15,,Hawaii Volcanoes National Park,TRUE,TRUE,TRUE
+9A0B3800-9572-43C6-99E9-832903426F5D,HAVO,Subalpine Shrubland,Mauna Loa,Mauna Loa,2016,2,Rotational,FALSE,38,,Hawaii Volcanoes National Park,FALSE,TRUE,TRUE
+9A552F2F-34BA-499C-B07A-BD66B04529CF,KALA,Coastal Strand,Kalawao,Kalawao,2017,2,Fixed,FALSE,1,0.3,Kalaupapa National Historical Park,FALSE,TRUE,TRUE
+9A76A1FC-0BE2-4482-91F5-9E292962CF50,HALE,Wet Forest,Kipahulu District,Kīpahulu District,2017,2,Rotational,FALSE,31,,Haleakala National Park,FALSE,TRUE,TRUE
+9A961F50-9754-429E-95AB-979D934E1FF7,HAVO,Subalpine Shrubland,Mauna Loa,Mauna Loa,2016,2,Fixed,FALSE,3,7,Hawaii Volcanoes National Park,FALSE,TRUE,TRUE
+9ADFA4B5-CD73-42D7-AE0D-A194CEAEAA3C,HALE,Wet Forest,Kipahulu District,Kīpahulu District,2012,1,Rotational,FALSE,29,16.4,Haleakala National Park,FALSE,TRUE,TRUE
+9B33CD45-E82B-4833-AB63-D4516E75EDA0,HAVO,Wet Forest,Olaa,ʻŌlaʻa,2021,3,Fixed,FALSE,12,,Hawaii Volcanoes National Park,FALSE,TRUE,TRUE
+9B4364B6-E20D-4F1B-86F0-5AD7572E1052,KALA,Wet Forest,Puu Alii,Puʻu Aliʻi,2017,2,Rotational,FALSE,43,,Kalaupapa National Historical Park,FALSE,TRUE,TRUE
+9CA35B4A-B024-47C0-A93E-F8E85957BF8A,HAVO,Subalpine Shrubland,Mauna Loa,Mauna Loa,2016,2,Fixed,FALSE,7,8,Hawaii Volcanoes National Park,FALSE,TRUE,TRUE
+9CD2F090-80C0-4CD8-95B4-029C98C39738,HALE,Subalpine Shrubland,Haleakala,Haleakalā,2012,1,Fixed,FALSE,8,2,Haleakala National Park,FALSE,TRUE,TRUE
+9CF5667F-3581-4C97-A887-4FA9E7B80618,HALE,Wet Forest,Kipahulu District,Kīpahulu District,2017,2,Fixed,FALSE,14,,Haleakala National Park,FALSE,TRUE,TRUE
+9D624F95-27F2-4165-8542-533FB3F70B4E,KALA,Coastal Strand,Hoolehua,Hoʻolehua,2017,2,Fixed,FALSE,5,0.5,Kalaupapa National Historical Park,FALSE,TRUE,TRUE
+9D9654A9-D7A3-4E85-AE62-1751D1C4E9E9,AMME,Mangrove Wetland,Muchot,Muchot,2019,2,Fixed,FALSE,10,,American Memorial Park,FALSE,TRUE,TRUE
+9DD7A1DE-F19F-4437-B5A5-4DB957C370A9,KALA,Coastal Strand,Kalawao,Kalawao,2017,2,Rotational,FALSE,20,0.4,Kalaupapa National Historical Park,FALSE,TRUE,TRUE
+9DEB0C19-2690-4CD4-976E-F22F6AFE9B38,KALA,Wet Forest,Puu Alii,Puʻu Aliʻi,2012,1,Rotational,FALSE,18,5.3,Kalaupapa National Historical Park,FALSE,TRUE,TRUE
+9E49607F-5885-4D2F-9BCA-62B1722FFAE7,KAHO,Coastal Strand,Kaloko-Honokohau,Kaloko-Honokōhau,2022,3,Rotational,FALSE,28,0.23,Kaloko-Honokahau National Historical Park,FALSE,TRUE,TRUE
+9E63EF09-29FA-465C-864D-801CE451B17F,HALE,Subalpine Shrubland,Haleakala,Haleakalā,2017,2,Fixed,FALSE,2,,Haleakala National Park,FALSE,TRUE,TRUE
+9EF4AF54-8342-4810-B9DA-3D784C765D36,KALA,Wet Forest,Puu Alii,Puʻu Aliʻi,2012,1,Rotational,FALSE,23,11.1,Kalaupapa National Historical Park,FALSE,TRUE,TRUE
+9F4EFC43-9094-4BEC-BAE7-0C6F8E593AA6,NPSA,Wet Forest,Tau,Ta‘ū,2018,2,Rotational,FALSE,32,,National Park of American Samoa,FALSE,TRUE,TRUE
+A05BE38A-56B5-4965-9F89-CD1450ACA887,HAVO,Wet Forest,Kahuku,Kahuku,2022,3,Fixed,FALSE,3,,Hawaii Volcanoes National Park,FALSE,TRUE,TRUE
+A09CF7C8-F300-4086-94BB-7A34959CF3F3,NPSA,Wet Forest,Tutuila,Tutuila,2018,2,Rotational,FALSE,42,,National Park of American Samoa,FALSE,TRUE,TRUE
+A14B21FB-B78D-42DF-A777-09DC2EFD5742,HAVO,Wet Forest,Olaa,ʻŌlaʻa,2015,2,Fixed,FALSE,8,17,Hawaii Volcanoes National Park,FALSE,TRUE,TRUE
+A1C70151-9006-42D1-8EF8-F0BB253EA3A7,HAVO,Wet Forest,Olaa,ʻŌlaʻa,2021,3,Rotational,FALSE,53,,Hawaii Volcanoes National Park,FALSE,TRUE,TRUE
+A1C7B984-6798-4BEA-BE13-54FE7F134FA1,HALE,Subalpine Shrubland,Haleakala,Haleakalā,2017,2,Rotational,FALSE,33,,Haleakala National Park,FALSE,TRUE,TRUE
+A30E6ECF-4829-4F07-A814-506A9DA251C3,HAVO,Wet Forest,Nahuku/East Rift,Nāhuku / East Rift,2021,3,Fixed,FALSE,12,,Hawaii Volcanoes National Park,FALSE,TRUE,TRUE
+A36139D9-B1EA-461F-9D3A-88574D5D773F,HAVO,Wet Forest,Kahuku,Kahuku,2016,2,Rotational,FALSE,32,21,Hawaii Volcanoes National Park,FALSE,TRUE,TRUE
+A412E615-86EA-4ADC-A3F4-353A55CAB9A7,HAVO,Wet Forest,Nahuku/East Rift,Nāhuku / East Rift,2015,2,Rotational,FALSE,33,6.9,Hawaii Volcanoes National Park,FALSE,TRUE,TRUE
+A522883E-9A5D-40CD-9F3E-7D6C7A90CFCF,HAVO,Subalpine Shrubland,Mauna Loa,Mauna Loa,2016,2,Rotational,FALSE,39,6,Hawaii Volcanoes National Park,FALSE,TRUE,TRUE
+A5321F7D-ABD4-4BC2-9325-C986E48E8D74,HAVO,Wet Forest,Nahuku/East Rift,Nāhuku / East Rift,2015,2,Fixed,FALSE,9,10,Hawaii Volcanoes National Park,FALSE,TRUE,TRUE
+A605B6E5-93F5-4A2C-A4A8-4C99C94AF1ED,WAPA,Limestone Forest,Guam,Guam,2019,2,Fixed,FALSE,3,,War in the Pacific National Historical Park,FALSE,TRUE,TRUE
+A6749B01-CAF4-4972-B607-11F9407ABE00,HAVO,Wet Forest,Kahuku,Kahuku,2016,2,Rotational,FALSE,42,12.3,Hawaii Volcanoes National Park,FALSE,TRUE,TRUE
+A7A14794-0FB6-4523-B950-33F6AC36A218,HAVO,Wet Forest,Nahuku/East Rift,Nāhuku / East Rift,2015,2,Rotational,FALSE,32,13.8,Hawaii Volcanoes National Park,FALSE,TRUE,TRUE
+A80573DD-5EFD-474D-B96F-69563EE96116,NPSA,Wet Forest,Tutuila,Tutuila,2018,2,Fixed,FALSE,9,,National Park of American Samoa,FALSE,TRUE,TRUE
+A8C66F08-9FD9-4EC6-B655-CB2F51A8F9AC,KALA,Coastal Strand,Kalawao,Kalawao,2017,2,Fixed,FALSE,7,0.5,Kalaupapa National Historical Park,FALSE,TRUE,TRUE
+AA3B3FE9-E6E1-43FC-8A16-60AA650BDF2B,HAVO,Subalpine Shrubland,Mauna Loa,Mauna Loa,2022,3,Fixed,FALSE,2,,Hawaii Volcanoes National Park,FALSE,TRUE,TRUE
+AA5F6AFB-7464-44D3-AED7-5648C923A4C3,HALE,Wet Forest,Kipahulu District,Kīpahulu District,2013,1,Rotational,FALSE,23,13,Haleakala National Park,TRUE,TRUE,TRUE
+AA938073-B2E4-4597-986E-B63DE5074C8F,HAVO,Wet Forest,Kahuku,Kahuku,2016,2,Fixed,FALSE,7,12,Hawaii Volcanoes National Park,FALSE,TRUE,TRUE
+AA97CF17-672C-41FF-9927-9DD9358B9D8F,NPSA,Wet Forest,Tau,Ta‘ū,2018,2,Rotational,FALSE,38,,National Park of American Samoa,FALSE,TRUE,TRUE
+AACE7FA5-E3F2-4DD0-8FF6-12F6BA882FBF,HAVO,Wet Forest,Olaa,ʻŌlaʻa,2021,3,Rotational,FALSE,50,,Hawaii Volcanoes National Park,FALSE,TRUE,TRUE
+AAFB040A-D3B6-4AEA-AA22-E21F59EF487A,KAHO,Coastal Strand,Kaloko-Honokohau,Kaloko-Honokōhau,2016,2,Rotational,FALSE,18,,Kaloko-Honokahau National Historical Park,FALSE,TRUE,TRUE
+AB1CE755-FC5C-4718-A965-B41899380787,HAVO,Wet Forest,Nahuku/East Rift,Nāhuku / East Rift,2015,2,Rotational,FALSE,39,22.5,Hawaii Volcanoes National Park,FALSE,TRUE,TRUE
+ACC9DFFF-A9D6-4677-8E56-D3FEDC0657DF,HAVO,Subalpine Shrubland,Mauna Loa,Mauna Loa,2011,1,Fixed,FALSE,4,8,Hawaii Volcanoes National Park,FALSE,TRUE,TRUE
+AD6B7900-46C5-43F0-9139-0349DFB58AE2,KALA,Coastal Strand,Kalawao,Kalawao,2017,2,Fixed,FALSE,3,0.05,Kalaupapa National Historical Park,FALSE,TRUE,TRUE
+AD92689D-E2C3-4C3E-A812-4D617D2E022C,HALE,Wet Forest,Kipahulu District,Kīpahulu District,2017,2,Fixed,FALSE,11,,Haleakala National Park,FALSE,TRUE,TRUE
+ADE32A00-15DE-4AD8-801F-33D8C1801911,HAVO,Wet Forest,Nahuku/East Rift,Nāhuku / East Rift,2015,2,Fixed,FALSE,2,22.8,Hawaii Volcanoes National Park,FALSE,TRUE,TRUE
+AE70734F-67BB-4832-B470-EF2089BBD6BE,HAVO,Wet Forest,Kahuku,Kahuku,2022,3,Fixed,FALSE,14,,Hawaii Volcanoes National Park,FALSE,TRUE,TRUE
+AED94F8A-6BA2-4460-9C50-60E7D1B08E10,NPSA,Wet Forest,Tau,Ta‘ū,2018,2,Rotational,FALSE,31,,National Park of American Samoa,FALSE,TRUE,TRUE
+AF3A9D50-951F-4442-B5B0-AC9B877434BE,HAVO,Wet Forest,Olaa,ʻŌlaʻa,2015,2,Fixed,FALSE,7,13.5,Hawaii Volcanoes National Park,TRUE,TRUE,TRUE
+AFAE75E6-031F-4D85-84C7-9006C46D50A4,NPSA,Wet Forest,Tau,Ta‘ū,2018,2,Rotational,FALSE,40,,National Park of American Samoa,FALSE,TRUE,TRUE
+AFC60282-65FA-4100-945C-B64C086E0F44,KALA,Wet Forest,Puu Alii,Puʻu Aliʻi,2017,2,Fixed,FALSE,5,,Kalaupapa National Historical Park,FALSE,TRUE,TRUE
+B01CE368-8A32-422F-A1E8-74F37AAE4B27,HALE,Subalpine Shrubland,Haleakala,Haleakalā,2013,1,Fixed,FALSE,13,1.5,Haleakala National Park,FALSE,TRUE,TRUE
+B0A8EBA2-5219-4744-9F65-239176E4C20D,WAPA,Limestone Forest,Guam,Guam,2019,2,Rotational,FALSE,16,,War in the Pacific National Historical Park,FALSE,TRUE,TRUE
+B0B07A9B-982C-4477-8142-3A9579ECCC65,HAVO,Wet Forest,Olaa,ʻŌlaʻa,2021,3,Rotational,FALSE,49,,Hawaii Volcanoes National Park,FALSE,TRUE,TRUE
+B0E0B571-BA76-4D18-A43B-3F1731F44772,HAVO,Wet Forest,Kahuku,Kahuku,2016,2,Rotational,FALSE,37,29,Hawaii Volcanoes National Park,FALSE,TRUE,TRUE
+B1565B43-E604-44F0-8F06-8E73DDD24EDB,KALA,Coastal Strand,Hoolehua,Hoʻolehua,2017,2,Rotational,FALSE,18,0.75,Kalaupapa National Historical Park,FALSE,TRUE,TRUE
+B16D97EC-C10D-4AA1-A6A0-DF946AB4F0AB,NPSA,Wet Forest,Tau,Ta‘ū,2018,2,Rotational,FALSE,39,,National Park of American Samoa,FALSE,TRUE,TRUE
+B1B9A931-324E-4E54-8478-38CBFF77F799,HAVO,Wet Forest,Nahuku/East Rift,Nāhuku / East Rift,2015,2,Fixed,FALSE,8,22.2,Hawaii Volcanoes National Park,FALSE,TRUE,TRUE
+B2792BAD-1565-4D16-B02E-E70112B1449B,HAVO,Wet Forest,Olaa,ʻŌlaʻa,2021,3,Rotational,FALSE,55,,Hawaii Volcanoes National Park,FALSE,TRUE,TRUE
+B2A6FFB1-806D-4FB5-8F4B-29775C486BE1,KALA,Wet Forest,Puu Alii,Puʻu Aliʻi,2012,1,Rotational,FALSE,30,8,Kalaupapa National Historical Park,TRUE,TRUE,TRUE
+B2EBE29C-D76C-4400-8E57-E2CBC9F3EFC2,NPSA,Wet Forest,Tutuila,Tutuila,2018,2,Rotational,FALSE,38,,National Park of American Samoa,FALSE,TRUE,TRUE
+B38F8168-765F-44A3-9D21-5927D3864842,HAVO,Subalpine Shrubland,Mauna Loa,Mauna Loa,2022,3,Rotational,FALSE,60,,Hawaii Volcanoes National Park,FALSE,TRUE,TRUE
+B43241E1-FC1A-4BC0-AA5D-1ACA0B181823,KALA,Coastal Strand,Hoolehua,Hoʻolehua,2017,2,Fixed,FALSE,2,0.25,Kalaupapa National Historical Park,FALSE,TRUE,TRUE
+B467A7CF-1FC4-4F42-A250-1A33738A9C48,NPSA,Wet Forest,Tutuila,Tutuila,2018,2,Rotational,FALSE,41,,National Park of American Samoa,FALSE,TRUE,TRUE
+B5958001-2DDD-450C-B3A3-3D6D67640024,HALE,Subalpine Shrubland,Haleakala,Haleakalā,2012,1,Rotational,FALSE,20,0.5,Haleakala National Park,FALSE,TRUE,TRUE
+B59EFF0D-72C5-4B74-B9C9-2B9106F67A60,HAVO,Wet Forest,Kahuku,Kahuku,2022,3,Rotational,FALSE,56,,Hawaii Volcanoes National Park,FALSE,TRUE,TRUE
+B6364790-D203-4429-A83F-5C1DC828090A,HAVO,Wet Forest,Kahuku,Kahuku,2016,2,Fixed,FALSE,5,18.5,Hawaii Volcanoes National Park,FALSE,TRUE,TRUE
+B6CADEF4-2386-4166-9775-4988BA8F4D65,HAVO,Subalpine Shrubland,Mauna Loa,Mauna Loa,2011,1,Rotational,FALSE,24,7,Hawaii Volcanoes National Park,TRUE,TRUE,TRUE
+B6CDEA94-D46C-4AB5-92A2-5EF3A6A0D21F,HAVO,Wet Forest,Olaa,ʻŌlaʻa,2021,3,Fixed,FALSE,14,,Hawaii Volcanoes National Park,FALSE,TRUE,TRUE
+B75178A4-9695-4616-8EEF-16AC0632A874,KAHO,Coastal Strand,Kaloko-Honokohau,Kaloko-Honokōhau,2022,3,Fixed,FALSE,3,4,Kaloko-Honokahau National Historical Park,FALSE,TRUE,TRUE
+B7E2BF70-C68F-4FFB-9F0A-FBB076DC16E2,HAVO,Wet Forest,Nahuku/East Rift,Nāhuku / East Rift,2021,3,Fixed,FALSE,10,,Hawaii Volcanoes National Park,FALSE,TRUE,TRUE
+B8667869-7A9E-43AE-861E-9D3247068E0E,HAVO,Wet Forest,Kahuku,Kahuku,2016,2,Fixed,FALSE,8,12,Hawaii Volcanoes National Park,FALSE,TRUE,TRUE
+B86EE6BD-50F1-4111-8567-8A02C91014B3,HAVO,Wet Forest,Olaa,ʻŌlaʻa,2021,3,Rotational,FALSE,57,,Hawaii Volcanoes National Park,FALSE,TRUE,TRUE
+B89830B3-2FD2-458B-9952-F112A1BE4280,HAVO,Subalpine Shrubland,Mauna Loa,Mauna Loa,2022,3,Fixed,FALSE,13,,Hawaii Volcanoes National Park,FALSE,TRUE,TRUE
+B8B149EE-CE62-4505-B79F-2E2840CBF638,KALA,Coastal Strand,Kalawao,Kalawao,2012,1,Fixed,FALSE,5,0.1,Kalaupapa National Historical Park,TRUE,TRUE,TRUE
+B8D71B41-EB6C-4B25-8C73-409440786E98,HAVO,Wet Forest,Kahuku,Kahuku,2022,3,Fixed,FALSE,11,,Hawaii Volcanoes National Park,FALSE,TRUE,TRUE
+B946D32E-2D34-4E21-BA5E-CA836873114F,KALA,Coastal Strand,Kalawao,Kalawao,2012,1,Rotational,FALSE,12,0.3,Kalaupapa National Historical Park,TRUE,TRUE,TRUE
+B9666B61-7E10-4DD8-9869-F1C1A478AF63,HAVO,Subalpine Shrubland,Mauna Loa,Mauna Loa,2011,1,Fixed,FALSE,13,2,Hawaii Volcanoes National Park,TRUE,TRUE,TRUE
+B98EB031-35C1-44B4-B2DC-33E436A6609B,HAVO,Wet Forest,Kahuku,Kahuku,2016,2,Fixed,FALSE,12,11.5,Hawaii Volcanoes National Park,FALSE,TRUE,TRUE
+B99B0993-2F49-42C5-B8AF-D85DC895A759,HAVO,Wet Forest,Olaa,ʻŌlaʻa,2015,2,Rotational,FALSE,43,22,Hawaii Volcanoes National Park,FALSE,TRUE,TRUE
+B9C17344-1C78-459A-8858-D780DC5F3637,KALA,Coastal Strand,Hoolehua,Hoʻolehua,2012,1,Fixed,FALSE,10,0.1,Kalaupapa National Historical Park,TRUE,TRUE,TRUE
+BA0C91C8-227E-43DB-94E8-6A67539AF484,HALE,Wet Forest,Kipahulu District,Kīpahulu District,2012,1,Fixed,FALSE,7,18.4,Haleakala National Park,FALSE,TRUE,TRUE
+BAA6BC98-45FC-4B4E-99E5-E34DA33A30CE,HAVO,Subalpine Shrubland,Mauna Loa,Mauna Loa,2011,1,Rotational,FALSE,29,1,Hawaii Volcanoes National Park,TRUE,TRUE,TRUE
+BADD71D7-DDE9-45C6-ABD3-3579899F2957,HALE,Wet Forest,Kipahulu District,Kīpahulu District,2017,2,Fixed,FALSE,4,,Haleakala National Park,FALSE,TRUE,TRUE
+BB5EB770-FBEF-43C1-95EA-09670345B8DD,HAVO,Wet Forest,Nahuku/East Rift,Nāhuku / East Rift,2021,3,Fixed,FALSE,4,,Hawaii Volcanoes National Park,FALSE,TRUE,TRUE
+BB9C8534-B46D-493A-8A9C-C45790A15807,AMME,Mangrove Wetland,Muchot,Muchot,2014,1,Fixed,FALSE,10,22.5,American Memorial Park,TRUE,TRUE,TRUE
+BBD14A87-008E-4675-B489-39E12396B96F,AMME,Mangrove Wetland,Muchot,Muchot,2014,1,Fixed,FALSE,6,23.4,American Memorial Park,TRUE,TRUE,TRUE
+BBECCBF1-B7B5-40D9-BEE6-435802A8AA0E,HALE,Subalpine Shrubland,Haleakala,Haleakalā,2012,1,Fixed,FALSE,12,1,Haleakala National Park,TRUE,TRUE,TRUE
+BC5C6DAB-C20B-43F5-98A6-5C7DE3380B3E,NPSA,Wet Forest,Tutuila,Tutuila,2018,2,Fixed,FALSE,3,,National Park of American Samoa,FALSE,TRUE,TRUE
+BCCBF7D3-A87B-41DE-8890-C094D7E4D5E6,KALA,Coastal Strand,Kalawao,Kalawao,2012,1,Fixed,FALSE,1,0.2,Kalaupapa National Historical Park,TRUE,TRUE,TRUE
+BDD76D74-4E5F-4FD3-93F2-0D7CA677635B,HAVO,Wet Forest,Nahuku/East Rift,Nāhuku / East Rift,2015,2,Rotational,FALSE,40,13.8,Hawaii Volcanoes National Park,FALSE,TRUE,TRUE
+BDF2D32D-5423-4007-8A69-F5FAE0F8D8BA,KALA,Coastal Strand,Kalawao,Kalawao,2017,2,Rotational,FALSE,17,0.3,Kalaupapa National Historical Park,FALSE,TRUE,TRUE
+BE0DC52C-7AB2-453C-A22D-62EDD33519B9,HAVO,Subalpine Shrubland,Mauna Loa,Mauna Loa,2016,2,Fixed,FALSE,13,,Hawaii Volcanoes National Park,FALSE,TRUE,TRUE
+BE249C32-D538-4D97-9BBC-1D9D026EF19C,HAVO,Subalpine Shrubland,Mauna Loa,Mauna Loa,2016,2,Rotational,FALSE,41,,Hawaii Volcanoes National Park,FALSE,TRUE,TRUE
+BEF54B55-B53D-47BA-ADDF-D3F5C1216A2A,HAVO,Wet Forest,Nahuku/East Rift,Nāhuku / East Rift,2021,3,Rotational,FALSE,49,,Hawaii Volcanoes National Park,FALSE,TRUE,TRUE
+BF22DD07-0581-4CDB-A748-5805EEAF0999,KAHO,Coastal Strand,Kaloko-Honokohau,Kaloko-Honokōhau,2016,2,Fixed,FALSE,9,,Kaloko-Honokahau National Historical Park,FALSE,TRUE,TRUE
+BFA6E61E-8ED4-4483-B380-3E5BF62DF78E,WAPA,Limestone Forest,Guam,Guam,2019,2,Rotational,FALSE,20,,War in the Pacific National Historical Park,FALSE,TRUE,TRUE
+BFE7ABCE-C21C-4F8C-9801-FF366B4D08C7,HALE,Subalpine Shrubland,Haleakala,Haleakalā,2017,2,Rotational,FALSE,34,,Haleakala National Park,FALSE,TRUE,TRUE
+C01BA55F-C693-4279-A36F-4D5C9B042C68,WAPA,Limestone Forest,Guam,Guam,2014,1,Fixed,FALSE,9,12.1,War in the Pacific National Historical Park,FALSE,TRUE,TRUE
+C077D76F-9CA0-4FC0-ABC4-54DE9A081652,WAPA,Limestone Forest,Guam,Guam,2019,2,Fixed,FALSE,4,,War in the Pacific National Historical Park,FALSE,TRUE,TRUE
+C0DA0E4C-C412-4743-A0BD-310329345778,KAHO,Coastal Strand,Kaloko-Honokohau,Kaloko-Honokōhau,2022,3,Fixed,FALSE,9,5,Kaloko-Honokahau National Historical Park,FALSE,TRUE,TRUE
+C12DD343-4625-4FA7-8955-9EAA56D830D6,HAVO,Wet Forest,Kahuku,Kahuku,2016,2,Fixed,FALSE,14,19.1,Hawaii Volcanoes National Park,FALSE,TRUE,TRUE
+C17B1238-7A39-49A4-93A9-E07460D10049,HALE,Subalpine Shrubland,Haleakala,Haleakalā,2013,1,Rotational,FALSE,19,0.5,Haleakala National Park,TRUE,TRUE,TRUE
+C230757D-F68A-40EB-B63A-D67EF82D5E1D,KAHO,Coastal Strand,Kaloko-Honokohau,Kaloko-Honokōhau,2022,3,Fixed,FALSE,7,5,Kaloko-Honokahau National Historical Park,FALSE,TRUE,TRUE
+C235C6D7-691F-49DD-85C2-39C658FD69E1,KALA,Wet Forest,Puu Alii,Puʻu Aliʻi,2017,2,Fixed,FALSE,15,,Kalaupapa National Historical Park,TRUE,TRUE,TRUE
+C2C9C70D-1A12-4D11-B00A-A4A3C27447D8,NPSA,Wet Forest,Tutuila,Tutuila,2018,2,Fixed,FALSE,8,,National Park of American Samoa,FALSE,TRUE,TRUE
+C403F5AD-8D1F-4E3E-960C-15F15F285B13,HAVO,Wet Forest,Kahuku,Kahuku,2022,3,Rotational,FALSE,54,,Hawaii Volcanoes National Park,FALSE,TRUE,TRUE
+C4319F27-DF7E-40D5-9E05-3C224EBBE3CA,KALA,Wet Forest,Puu Alii,Puʻu Aliʻi,2017,2,Fixed,FALSE,1,,Kalaupapa National Historical Park,FALSE,TRUE,TRUE
+C48A40A7-A4BE-4666-B4C8-72964A9D9C1A,KALA,Coastal Strand,Hoolehua,Hoʻolehua,2017,2,Rotational,FALSE,17,0.5,Kalaupapa National Historical Park,FALSE,TRUE,TRUE
+C4FD5B98-33B9-4D86-85E0-1D6FF67F36E4,KALA,Coastal Strand,Kalawao,Kalawao,2017,2,Rotational,FALSE,16,0.28,Kalaupapa National Historical Park,FALSE,TRUE,TRUE
+C56F7297-5F46-4A68-8953-6C93843A6B82,HAVO,Subalpine Shrubland,Mauna Loa,Mauna Loa,2022,3,Fixed,FALSE,9,,Hawaii Volcanoes National Park,FALSE,TRUE,TRUE
+C5D1C178-8CCE-495D-B1F0-8CE89C73F22C,KALA,Coastal Strand,Hoolehua,Hoʻolehua,2012,1,Rotational,FALSE,15,0.3,Kalaupapa National Historical Park,TRUE,TRUE,TRUE
+C6C6CFD6-E87B-4663-8899-BC1A68285C93,NPSA,Wet Forest,Tau,Ta‘ū,2018,2,Fixed,FALSE,15,,National Park of American Samoa,FALSE,TRUE,TRUE
+C885B465-6902-4E38-AC3F-874532BCD847,HAVO,Wet Forest,Nahuku/East Rift,Nāhuku / East Rift,2015,2,Fixed,FALSE,14,12.7,Hawaii Volcanoes National Park,FALSE,TRUE,TRUE
+C94326B0-6842-441A-9D42-682EF3AF59EF,KALA,Coastal Strand,Hoolehua,Hoʻolehua,2017,2,Fixed,FALSE,1,0.2,Kalaupapa National Historical Park,FALSE,TRUE,TRUE
+C9D20AB4-843C-4B80-8D9E-4CB4F579F593,NPSA,Wet Forest,Tutuila,Tutuila,2018,2,Rotational,FALSE,45,,National Park of American Samoa,FALSE,TRUE,TRUE
+CA3175D4-23AC-4BB6-8C63-33F1208E8D15,HAVO,Subalpine Shrubland,Mauna Loa,Mauna Loa,2016,2,Fixed,FALSE,5,12,Hawaii Volcanoes National Park,FALSE,TRUE,TRUE
+CA742DDB-04B8-4B4F-A8B3-03B04600B13E,HAVO,Subalpine Shrubland,Mauna Loa,Mauna Loa,2022,3,Fixed,FALSE,5,,Hawaii Volcanoes National Park,FALSE,TRUE,TRUE
+CB73082E-41CC-45EC-A074-0C01EBAAD1FB,HALE,Subalpine Shrubland,Haleakala,Haleakalā,2012,1,Rotational,FALSE,18,1,Haleakala National Park,FALSE,TRUE,TRUE
+CBDE3601-FCE9-4D35-80E4-E013B56B17E2,NPSA,Wet Forest,Tau,Ta‘ū,2018,2,Fixed,FALSE,8,,National Park of American Samoa,FALSE,TRUE,TRUE
+CBE63F56-C685-4DEA-BA6B-E6F747078FD5,HAVO,Wet Forest,Olaa,ʻŌlaʻa,2015,2,Fixed,FALSE,5,17,Hawaii Volcanoes National Park,FALSE,TRUE,TRUE
+CC0AACA0-AF64-4B04-9D86-D027063602A9,HAVO,Wet Forest,Nahuku/East Rift,Nāhuku / East Rift,2021,3,Rotational,FALSE,55,,Hawaii Volcanoes National Park,FALSE,TRUE,TRUE
+CC0BAB30-9D61-44B5-BF7E-5DC10EAB54CF,HAVO,Subalpine Shrubland,Mauna Loa,Mauna Loa,2011,1,Rotational,FALSE,25,6,Hawaii Volcanoes National Park,TRUE,TRUE,TRUE
+CC505E59-4CF3-42C5-9A5B-3D28D61A2452,WAPA,Limestone Forest,Guam,Guam,2014,1,Rotational,FALSE,13,17,War in the Pacific National Historical Park,FALSE,TRUE,TRUE
+CCA24E88-A0C9-4983-BA62-5FE0619272EB,KALA,Wet Forest,Puu Alii,Puʻu Aliʻi,2017,2,Rotational,FALSE,36,,Kalaupapa National Historical Park,FALSE,TRUE,TRUE
+CD6FB9F3-75F5-4679-88FD-56DDA0F31153,KAHO,Coastal Strand,Kaloko-Honokohau,Kaloko-Honokōhau,2016,2,Rotational,FALSE,19,6,Kaloko-Honokahau National Historical Park,FALSE,TRUE,TRUE
+CD709CD6-774F-43B7-AB24-F7D72AC37B7D,HALE,Subalpine Shrubland,Haleakala,Haleakalā,2012,1,Fixed,FALSE,1,2,Haleakala National Park,FALSE,TRUE,TRUE
+CD7E3223-950D-4E08-A7F2-478746E468E1,KAHO,Coastal Strand,Kaloko-Honokohau,Kaloko-Honokōhau,2022,3,Rotational,FALSE,25,5,Kaloko-Honokahau National Historical Park,FALSE,TRUE,TRUE
+CD8930B0-FEE7-445A-9E9D-0D3B57BB770A,KALA,Coastal Strand,Hoolehua,Hoʻolehua,2012,1,Fixed,FALSE,1,0.3,Kalaupapa National Historical Park,TRUE,TRUE,TRUE
+CDB871C9-4479-4BDC-A745-62B4BC4F728A,HAVO,Wet Forest,Kahuku,Kahuku,2016,2,Rotational,FALSE,38,17.4,Hawaii Volcanoes National Park,FALSE,TRUE,TRUE
+CF4F47B4-A0F7-4BBA-817E-37401933574C,KAHO,Coastal Strand,Kaloko-Honokohau,Kaloko-Honokōhau,2022,3,Rotational,FALSE,22,4,Kaloko-Honokahau National Historical Park,FALSE,TRUE,TRUE
+CF561905-E4CD-4B85-9BE7-5EF2FFED2C5B,HAVO,Wet Forest,Nahuku/East Rift,Nāhuku / East Rift,2015,2,Fixed,FALSE,3,26.6,Hawaii Volcanoes National Park,FALSE,TRUE,TRUE
+CF70E4E5-D44C-4229-BF42-ADF777E2B119,HAVO,Wet Forest,Nahuku/East Rift,Nāhuku / East Rift,2015,2,Fixed,FALSE,1,14.5,Hawaii Volcanoes National Park,FALSE,TRUE,TRUE
+CF9932C5-0DE2-4B70-8476-529559A88613,HAVO,Wet Forest,Olaa,ʻŌlaʻa,2021,3,Rotational,FALSE,52,,Hawaii Volcanoes National Park,FALSE,TRUE,TRUE
+CFABBB96-7563-4941-8BD9-2ADDA2D6FA35,HALE,Wet Forest,Kipahulu District,Kīpahulu District,2012,1,Fixed,FALSE,1,,Haleakala National Park,FALSE,TRUE,TRUE
+CFEA18D9-FFF0-48FE-87C4-40CE67854C3C,HAVO,Wet Forest,Olaa,ʻŌlaʻa,2015,2,Rotational,FALSE,31,13.8,Hawaii Volcanoes National Park,FALSE,TRUE,TRUE
+D007D838-5BBF-4362-BB1A-0AB5D15CEC05,HAVO,Wet Forest,Kahuku,Kahuku,2016,2,Fixed,FALSE,2,29,Hawaii Volcanoes National Park,FALSE,TRUE,TRUE
+D00BB319-3316-41D6-AF3B-970624CF9737,NPSA,Wet Forest,Tau,Ta‘ū,2018,2,Rotational,FALSE,33,,National Park of American Samoa,FALSE,TRUE,TRUE
+D0DFC974-AE89-4E9B-860A-1A1E49EE276B,HALE,Subalpine Shrubland,Haleakala,Haleakalā,2012,1,Fixed,FALSE,3,1,Haleakala National Park,TRUE,TRUE,TRUE
+D15704B0-6E68-4AE5-9967-D66F0B72D475,HAVO,Subalpine Shrubland,Mauna Loa,Mauna Loa,2011,1,Fixed,FALSE,11,3.5,Hawaii Volcanoes National Park,TRUE,TRUE,TRUE
+D18F7154-1B8C-44CC-8331-70DB8EBF697F,KALA,Coastal Strand,Kalawao,Kalawao,2017,2,Rotational,FALSE,19,0.2,Kalaupapa National Historical Park,FALSE,TRUE,TRUE
+D1AF34C0-13A6-4DAE-B378-D12CC3FFAD72,HAVO,Wet Forest,Olaa,ʻŌlaʻa,2021,3,Fixed,FALSE,15,,Hawaii Volcanoes National Park,FALSE,TRUE,TRUE
+D2051FA3-205B-4CC3-A2FC-0C27AF55FC6A,KALA,Wet Forest,Puu Alii,Puʻu Aliʻi,2017,2,Fixed,FALSE,9,,Kalaupapa National Historical Park,FALSE,TRUE,TRUE
+D21E672C-8348-47EA-90A6-F113A2013D51,WAPA,Limestone Forest,Guam,Guam,2019,2,Fixed,FALSE,9,,War in the Pacific National Historical Park,FALSE,TRUE,TRUE
+D23C81E8-ED08-4B83-88F1-443871B7095A,HAVO,Wet Forest,Olaa,ʻŌlaʻa,2021,3,Fixed,FALSE,10,,Hawaii Volcanoes National Park,FALSE,TRUE,TRUE
+D3218BEB-872C-4A29-9CCC-A11ED1631D62,NPSA,Wet Forest,Tau,Ta‘ū,2018,2,Rotational,FALSE,37,,National Park of American Samoa,FALSE,TRUE,TRUE
+D349A3E1-1909-4176-8C18-964CA7E43190,HALE,Wet Forest,Kipahulu District,Kīpahulu District,2012,1,Rotational,FALSE,21,21,Haleakala National Park,FALSE,TRUE,TRUE
+D3DC089E-0440-4032-A7E0-27D624761EF4,HAVO,Wet Forest,Olaa,ʻŌlaʻa,2021,3,Fixed,FALSE,9,,Hawaii Volcanoes National Park,FALSE,TRUE,TRUE
+D43F361E-B305-48A6-9FF5-8970C5C75D7E,HAVO,Subalpine Shrubland,Mauna Loa,Mauna Loa,2016,2,Rotational,FALSE,43,4.5,Hawaii Volcanoes National Park,FALSE,TRUE,TRUE
+D469DA1C-2C6E-40C8-B73B-E72911E08100,NPSA,Wet Forest,Tau,Ta‘ū,2018,2,Rotational,FALSE,45,,National Park of American Samoa,FALSE,TRUE,TRUE
+D506DE81-895C-4E69-88D3-A43D7AF4948B,KALA,Wet Forest,Puu Alii,Puʻu Aliʻi,2017,2,Rotational,FALSE,32,,Kalaupapa National Historical Park,FALSE,TRUE,TRUE
+D5229F1C-4CE8-49F7-89C6-3D6D1DE5B9E4,HALE,Wet Forest,Kipahulu District,Kīpahulu District,2012,1,Rotational,FALSE,24,9.7,Haleakala National Park,TRUE,TRUE,TRUE
+D5DD59D4-344E-4E50-9E9E-AD7D5B230141,HAVO,Wet Forest,Olaa,ʻŌlaʻa,2021,3,Fixed,FALSE,11,,Hawaii Volcanoes National Park,FALSE,TRUE,TRUE
+D60888B9-3040-46CD-84CB-BBB72DFCD298,HAVO,Wet Forest,Kahuku,Kahuku,2016,2,Rotational,FALSE,31,15,Hawaii Volcanoes National Park,FALSE,TRUE,TRUE
+D6368DA3-56BF-4EA5-BAE1-740344F29184,HAVO,Wet Forest,Olaa,ʻŌlaʻa,2013,1,Rotational,FALSE,19,,Hawaii Volcanoes National Park,FALSE,TRUE,TRUE
+D7063FD9-8872-4467-A572-4374B6973125,HAVO,Wet Forest,Olaa,ʻŌlaʻa,2021,3,Fixed,FALSE,4,,Hawaii Volcanoes National Park,FALSE,TRUE,TRUE
+D766B7AB-8ED9-4632-9D1D-C6B78D1DAF96,HALE,Wet Forest,Kipahulu District,Kīpahulu District,2012,1,Fixed,FALSE,13,26.8,Haleakala National Park,FALSE,TRUE,TRUE
+D78F4839-03CB-4CB7-8BC1-B819DA1C632A,HAVO,Subalpine Shrubland,Mauna Loa,Mauna Loa,2022,3,Rotational,FALSE,49,,Hawaii Volcanoes National Park,FALSE,TRUE,TRUE
+D79F525B-56C5-45EC-A9BE-6333A481DD46,HAVO,Subalpine Shrubland,Mauna Loa,Mauna Loa,2022,3,Fixed,FALSE,12,,Hawaii Volcanoes National Park,FALSE,TRUE,TRUE
+D7ABB8FE-B8AE-4E8A-BA60-57E83EF665D7,HAVO,Subalpine Shrubland,Mauna Loa,Mauna Loa,2022,3,Fixed,FALSE,15,,Hawaii Volcanoes National Park,FALSE,TRUE,TRUE
+D7B57844-8537-4FFC-A1A4-D5E857BE9212,AMME,Mangrove Wetland,Muchot,Muchot,2014,1,Fixed,FALSE,3,14.6,American Memorial Park,TRUE,TRUE,TRUE
+D7C9E3C1-E465-4D72-93B3-3D0AF2E97EA5,KALA,Coastal Strand,Hoolehua,Hoʻolehua,2012,1,Rotational,FALSE,11,0.5,Kalaupapa National Historical Park,TRUE,TRUE,TRUE
+D81C3100-7524-461A-BF60-4059E331E81C,HAVO,Subalpine Shrubland,Mauna Loa,Mauna Loa,2011,1,Fixed,FALSE,8,9,Hawaii Volcanoes National Park,TRUE,TRUE,TRUE
+D9269226-F5A6-4133-9B57-466173A62E34,HALE,Wet Forest,Kipahulu District,Kīpahulu District,2017,2,Fixed,FALSE,2,,Haleakala National Park,FALSE,TRUE,TRUE
+DA22AF9F-439E-47ED-A478-0616AFC6A40A,NPSA,Wet Forest,Tau,Ta‘ū,2018,2,Fixed,FALSE,6,,National Park of American Samoa,FALSE,TRUE,TRUE
+DADDF8AA-7023-4829-9D41-16D5EA6370C8,NPSA,Wet Forest,Tau,Ta‘ū,2018,2,Fixed,FALSE,2,,National Park of American Samoa,FALSE,TRUE,TRUE
+DC74C225-3CF2-490E-8A51-E96F00B19AC1,KAHO,Coastal Strand,Kaloko-Honokohau,Kaloko-Honokōhau,2022,3,Rotational,FALSE,21,5,Kaloko-Honokahau National Historical Park,FALSE,TRUE,TRUE
+DC7B595E-66BC-42B9-B8CB-8DAE35EDA268,KALA,Wet Forest,Puu Alii,Puʻu Aliʻi,2012,1,Rotational,FALSE,21,9.4,Kalaupapa National Historical Park,TRUE,TRUE,TRUE
+DCDC7A70-7C0C-4762-A7FE-25E194FA9F6B,WAPA,Limestone Forest,Guam,Guam,2014,1,Fixed,FALSE,3,12,War in the Pacific National Historical Park,FALSE,TRUE,TRUE
+DD7F9C0D-6247-4173-BD8A-720231D068A3,HAVO,Subalpine Shrubland,Mauna Loa,Mauna Loa,2022,3,Fixed,FALSE,8,,Hawaii Volcanoes National Park,FALSE,TRUE,TRUE
+DD8816AB-6D3D-47A6-B53B-7792A8A945F7,HAVO,Wet Forest,Kahuku,Kahuku,2022,3,Rotational,FALSE,48,,Hawaii Volcanoes National Park,FALSE,TRUE,TRUE
+DE0F2827-EAA4-45B3-800B-B0A24DD9D2AE,KALA,Coastal Strand,Hoolehua,Hoʻolehua,2017,2,Rotational,FALSE,20,1,Kalaupapa National Historical Park,FALSE,TRUE,TRUE
+DE69AF52-9002-41C2-AD72-79A99B21D2F5,HAVO,Wet Forest,Nahuku/East Rift,Nāhuku / East Rift,2015,2,Fixed,FALSE,15,15.1,Hawaii Volcanoes National Park,FALSE,TRUE,TRUE
+DE9AF421-B571-46DD-B43D-8B28EB491E84,HAVO,Subalpine Shrubland,Mauna Loa,Mauna Loa,2022,3,Rotational,FALSE,52,,Hawaii Volcanoes National Park,FALSE,TRUE,TRUE
+DE9E5AEF-BA06-411A-A651-9BD10EDC3EB1,KALA,Coastal Strand,Kalawao,Kalawao,2012,1,Rotational,FALSE,11,0.1,Kalaupapa National Historical Park,TRUE,TRUE,TRUE
+DFDDDFFE-4B9D-4150-9FD5-7C6D3A5C2420,AMME,Mangrove Wetland,Muchot,Muchot,2019,2,Fixed,FALSE,7,,American Memorial Park,FALSE,TRUE,TRUE
+E096089A-CE54-46F7-BF0F-B60E02E05060,KALA,Wet Forest,Puu Alii,Puʻu Aliʻi,2012,1,Fixed,FALSE,15,10.2,Kalaupapa National Historical Park,FALSE,TRUE,TRUE
+E1E5EDCF-508B-4F7A-B45F-8403ECCEAAB7,HAVO,Wet Forest,Kahuku,Kahuku,2016,2,Rotational,FALSE,34,22.2,Hawaii Volcanoes National Park,FALSE,TRUE,TRUE
+E1FA4DEE-D5D2-458F-BBC7-0D717559B932,HAVO,Subalpine Shrubland,Mauna Loa,Mauna Loa,2011,1,Rotational,FALSE,16,5,Hawaii Volcanoes National Park,TRUE,TRUE,TRUE
+E2F2E81C-51BC-4460-AD68-2AE73DECB91B,HAVO,Wet Forest,Olaa,ʻŌlaʻa,2015,2,Fixed,FALSE,6,15.2,Hawaii Volcanoes National Park,FALSE,TRUE,TRUE
+E3A6C83C-6669-40B4-A6B4-88C726054996,HAVO,Wet Forest,Olaa,ʻŌlaʻa,2015,2,Rotational,FALSE,45,19.4,Hawaii Volcanoes National Park,TRUE,TRUE,TRUE
+E3D6F03E-FCD6-4155-988F-FA44CC50C000,HALE,Subalpine Shrubland,Haleakala,Haleakalā,2012,1,Fixed,FALSE,9,0.5,Haleakala National Park,FALSE,TRUE,TRUE
+E3EA7DD2-D3FB-4F55-8807-A850ABB942A9,HAVO,Subalpine Shrubland,Mauna Loa,Mauna Loa,2022,3,Rotational,FALSE,51,,Hawaii Volcanoes National Park,FALSE,TRUE,TRUE
+E4306969-E283-4BEC-8B0F-2EBF0A0FEBE0,AMME,Mangrove Wetland,Muchot,Muchot,2019,2,Fixed,FALSE,3,,American Memorial Park,FALSE,TRUE,TRUE
+E4C6936E-44FE-4E21-847A-E1EE01BBF2F8,HAVO,Wet Forest,Nahuku/East Rift,Nāhuku / East Rift,2015,2,Fixed,FALSE,12,16.6,Hawaii Volcanoes National Park,FALSE,TRUE,TRUE
+E4EBE4B3-E71A-4275-B79A-F49C0FA27E7A,KAHO,Coastal Strand,Kaloko-Honokohau,Kaloko-Honokōhau,2022,3,Fixed,FALSE,6,4,Kaloko-Honokahau National Historical Park,FALSE,TRUE,TRUE
+E5308085-6A5B-46E6-BB53-DF99BAF45A01,HALE,Subalpine Shrubland,Haleakala,Haleakalā,2012,1,Rotational,FALSE,26,3,Haleakala National Park,TRUE,TRUE,TRUE
+E57C3077-3FF5-4080-8C90-5611E917A614,HAVO,Wet Forest,Olaa,ʻŌlaʻa,2015,2,Rotational,FALSE,44,19.8,Hawaii Volcanoes National Park,FALSE,TRUE,TRUE
+E5B30E19-4988-4706-B778-8A8A5B1DAF6F,KALA,Coastal Strand,Kalawao,Kalawao,2017,2,Fixed,FALSE,2,0.3,Kalaupapa National Historical Park,FALSE,TRUE,TRUE
+E62A2C05-179A-4BDB-A983-DF700D259403,HAVO,Wet Forest,Nahuku/East Rift,Nāhuku / East Rift,2021,3,Rotational,FALSE,58,,Hawaii Volcanoes National Park,FALSE,TRUE,TRUE
+E70097AE-88B9-4EA9-BB83-E74B282A884D,NPSA,Wet Forest,Tutuila,Tutuila,2018,2,Fixed,FALSE,15,,National Park of American Samoa,FALSE,TRUE,TRUE
+E730D3E6-DF2D-477D-8C5D-015C66240577,KALA,Wet Forest,Puu Alii,Puʻu Aliʻi,2017,2,Rotational,FALSE,42,,Kalaupapa National Historical Park,FALSE,TRUE,TRUE
+E7CC4B11-DE47-4F73-A9F3-AB6C74A0E328,KALA,Wet Forest,Puu Alii,Puʻu Aliʻi,2012,1,Rotational,FALSE,24,8.2,Kalaupapa National Historical Park,FALSE,TRUE,TRUE
+E826C521-5B52-4194-924D-E2FE455F3090,NPSA,Wet Forest,Tau,Ta‘ū,2018,2,Fixed,FALSE,14,,National Park of American Samoa,FALSE,TRUE,TRUE
+E8C7B603-764D-4F9C-A71A-6C5725197B48,HAVO,Subalpine Shrubland,Mauna Loa,Mauna Loa,2016,2,Rotational,FALSE,36,8,Hawaii Volcanoes National Park,FALSE,TRUE,TRUE
+E92EE88B-0EEC-40A7-B4CC-3000B3C5BF34,HAVO,Subalpine Shrubland,Mauna Loa,Mauna Loa,2016,2,Fixed,FALSE,14,,Hawaii Volcanoes National Park,FALSE,TRUE,TRUE
+E953FEE1-490A-4947-AA98-BFB77037B722,KALA,Wet Forest,Puu Alii,Puʻu Aliʻi,2012,1,Fixed,FALSE,7,7.6,Kalaupapa National Historical Park,FALSE,TRUE,TRUE
+E9A18944-420D-4CAF-BA1A-8692B062A043,KALA,Wet Forest,Puu Alii,Puʻu Aliʻi,2017,2,Rotational,FALSE,37,,Kalaupapa National Historical Park,FALSE,TRUE,TRUE
+E9B36282-9325-47C3-B82A-A418976DB197,HAVO,Subalpine Shrubland,Mauna Loa,Mauna Loa,2022,3,Rotational,FALSE,47,,Hawaii Volcanoes National Park,FALSE,TRUE,TRUE
+EA120106-0C7C-45D2-AC70-118DB0E4DFC7,HAVO,Wet Forest,Olaa,ʻŌlaʻa,2021,3,Rotational,FALSE,46,,Hawaii Volcanoes National Park,FALSE,TRUE,TRUE
+EA718B9A-2653-4B45-A7EF-F3A3C5D0385F,HAVO,Wet Forest,Kahuku,Kahuku,2022,3,Fixed,FALSE,4,,Hawaii Volcanoes National Park,FALSE,TRUE,TRUE
+EAF9C272-6D93-4065-8FF8-42332172A461,KALA,Wet Forest,Puu Alii,Puʻu Aliʻi,2012,1,Fixed,FALSE,4,15.5,Kalaupapa National Historical Park,FALSE,TRUE,TRUE
+EB6DFB69-B3A2-4069-B30A-1E47413B2879,HALE,Wet Forest,Kipahulu District,Kīpahulu District,2012,1,Fixed,FALSE,11,13.3,Haleakala National Park,TRUE,TRUE,TRUE
+EBA131AA-76DC-443F-8EAC-466437C8280B,HALE,Subalpine Shrubland,Haleakala,Haleakalā,2012,1,Rotational,FALSE,29,,Haleakala National Park,FALSE,TRUE,TRUE
+EC1F2A78-1E60-4CB8-8A96-D34851D559B3,HAVO,Wet Forest,Kahuku,Kahuku,2016,2,Rotational,FALSE,35,12.6,Hawaii Volcanoes National Park,FALSE,TRUE,TRUE
+EC2D2EE9-E5FF-48F3-8599-45FD1F48DBE0,HAVO,Wet Forest,Kahuku,Kahuku,2022,3,Fixed,FALSE,6,,Hawaii Volcanoes National Park,FALSE,TRUE,TRUE
+EC46CBA9-8881-472B-A52D-E98EF2710294,KAHO,Coastal Strand,Kaloko-Honokohau,Kaloko-Honokōhau,2016,2,Fixed,FALSE,2,,Kaloko-Honokahau National Historical Park,FALSE,TRUE,TRUE
+EC834411-0EFA-426C-ABB5-54C5E3EA6B0D,HALE,Subalpine Shrubland,Haleakala,Haleakalā,2017,2,Fixed,FALSE,12,,Haleakala National Park,FALSE,TRUE,TRUE
+ECC93184-1AB1-4946-86D2-549491E52E88,HALE,Subalpine Shrubland,Haleakala,Haleakalā,2017,2,Rotational,FALSE,43,,Haleakala National Park,FALSE,TRUE,TRUE
+ECD77EA3-38E3-43F7-BB3B-46AE150A3741,AMME,Mangrove Wetland,Muchot,Muchot,2014,1,Fixed,FALSE,7,26.7,American Memorial Park,TRUE,TRUE,TRUE
+ED09BBBA-0229-48BB-9055-3A18F9F1CAAE,WAPA,Limestone Forest,Guam,Guam,2014,1,Fixed,FALSE,6,21,War in the Pacific National Historical Park,FALSE,TRUE,TRUE
+ED2DA18E-FE69-45AA-9863-8095E447A983,KALA,Coastal Strand,Kalawao,Kalawao,2017,2,Fixed,FALSE,5,0.07,Kalaupapa National Historical Park,FALSE,TRUE,TRUE
+ED4DEEFB-8E8D-42AF-BCDD-F7A6908286F4,NPSA,Wet Forest,Tau,Ta‘ū,2018,2,Fixed,FALSE,1,,National Park of American Samoa,FALSE,TRUE,TRUE
+EE761B91-3A22-4421-94BF-4203FF7A3707,HAVO,Wet Forest,Olaa,ʻŌlaʻa,2015,2,Fixed,FALSE,10,14.3,Hawaii Volcanoes National Park,FALSE,TRUE,TRUE
+EEAEFCEF-50B1-44E3-BF93-FE409F2A2373,HALE,Subalpine Shrubland,Haleakala,Haleakalā,2017,2,Rotational,FALSE,45,,Haleakala National Park,FALSE,TRUE,TRUE
+EF43635E-B41A-4F2D-8D9D-EA39EDF06751,HALE,Subalpine Shrubland,Haleakala,Haleakalā,2017,2,Fixed,FALSE,7,,Haleakala National Park,FALSE,TRUE,TRUE
+EF4DDF3B-0BF3-41E4-ACE7-B99F83240522,HAVO,Wet Forest,Nahuku/East Rift,Nāhuku / East Rift,2015,2,Rotational,FALSE,44,16.9,Hawaii Volcanoes National Park,FALSE,TRUE,TRUE
+EF67258D-BC63-4395-BAC6-954886E6142A,KALA,Coastal Strand,Hoolehua,Hoʻolehua,2012,1,Fixed,FALSE,5,0.5,Kalaupapa National Historical Park,TRUE,TRUE,TRUE
+EF8F4DD2-CC5E-41A5-BA28-39A88895E8C6,WAPA,Limestone Forest,Guam,Guam,2014,1,Rotational,FALSE,11,18.8,War in the Pacific National Historical Park,FALSE,TRUE,TRUE
+EFB1302D-2FBB-42A6-9829-F2E642700113,NPSA,Wet Forest,Tau,Ta‘ū,2018,2,Fixed,FALSE,10,,National Park of American Samoa,FALSE,TRUE,TRUE
+F0D25312-6671-47BA-97EA-FF5BBE34BC04,HALE,Subalpine Shrubland,Haleakala,Haleakalā,2012,1,Fixed,FALSE,10,2,Haleakala National Park,FALSE,TRUE,TRUE
+F0EF7B93-6C61-4E81-970E-D8143ADE6F34,HALE,Subalpine Shrubland,Haleakala,Haleakalā,2012,1,Rotational,FALSE,30,2,Haleakala National Park,TRUE,TRUE,TRUE
+F14425D2-9987-4690-85A4-35698DE22927,KALA,Coastal Strand,Hoolehua,Hoʻolehua,2012,1,Fixed,FALSE,2,0.3,Kalaupapa National Historical Park,TRUE,TRUE,TRUE
+F1767990-1FE5-406F-8A92-3FEDE3DBDB48,HALE,Subalpine Shrubland,Haleakala,Haleakalā,2012,1,Rotational,FALSE,25,0.5,Haleakala National Park,FALSE,TRUE,TRUE
+F268D438-C6D2-42BE-9DBD-A55799933B36,HAVO,Subalpine Shrubland,Mauna Loa,Mauna Loa,2011,1,Fixed,FALSE,3,5.5,Hawaii Volcanoes National Park,FALSE,TRUE,TRUE
+F342EF63-E611-4B80-A744-65A973DA7AC9,HALE,Wet Forest,Kipahulu District,Kīpahulu District,2017,2,Fixed,FALSE,6,,Haleakala National Park,FALSE,TRUE,TRUE
+F344ECFC-6532-4EBC-8E77-16DE563FB5F6,HAVO,Wet Forest,Olaa,ʻŌlaʻa,2015,2,Rotational,FALSE,32,21.8,Hawaii Volcanoes National Park,FALSE,TRUE,TRUE
+F46D8C91-CBDA-4362-89FF-42CDC43033FB,HAVO,Wet Forest,Nahuku/East Rift,Nāhuku / East Rift,2015,2,Rotational,FALSE,41,21.3,Hawaii Volcanoes National Park,FALSE,TRUE,TRUE
+F49201CD-0FEE-4745-A14F-C5B1A88CD1F8,HAVO,Subalpine Shrubland,Mauna Loa,Mauna Loa,2011,1,Rotational,FALSE,27,0.7,Hawaii Volcanoes National Park,TRUE,TRUE,TRUE
+F60ADBAB-9B35-4A4C-BE96-6B80CDE9168F,HAVO,Wet Forest,Kahuku,Kahuku,2016,2,Rotational,FALSE,39,20.6,Hawaii Volcanoes National Park,FALSE,TRUE,TRUE
+F6A206FA-DFE5-47E7-B5E0-ED3A951D0376,KALA,Coastal Strand,Hoolehua,Hoʻolehua,2017,2,Fixed,FALSE,6,1,Kalaupapa National Historical Park,FALSE,TRUE,TRUE
+F6C830EB-D94E-48C5-A0DC-D691CF5AB092,HALE,Wet Forest,Kipahulu District,Kīpahulu District,2012,1,Fixed,FALSE,12,14.9,Haleakala National Park,FALSE,TRUE,TRUE
+F6F5A685-FBDF-4360-8FDB-DA08308C0029,HAVO,Wet Forest,Nahuku/East Rift,Nāhuku / East Rift,2015,2,Rotational,FALSE,36,18.1,Hawaii Volcanoes National Park,FALSE,TRUE,TRUE
+F729494F-19E9-42CF-A204-DA8D08920E22,NPSA,Wet Forest,Tutuila,Tutuila,2018,2,Rotational,FALSE,43,,National Park of American Samoa,FALSE,TRUE,TRUE
+F7A843AF-662D-492B-8E76-60892C63D998,NPSA,Wet Forest,Tau,Ta‘ū,2018,2,Rotational,FALSE,43,,National Park of American Samoa,FALSE,TRUE,TRUE
+F8863D6B-4C11-4AA4-A237-442B3F29B8F5,HAVO,Wet Forest,Kahuku,Kahuku,2016,2,Fixed,FALSE,9,15,Hawaii Volcanoes National Park,FALSE,TRUE,TRUE
+F9BAED6E-97D7-4BBB-BE2B-49F17315D6BE,KALA,Coastal Strand,Kalawao,Kalawao,2012,1,Fixed,FALSE,8,0.6,Kalaupapa National Historical Park,TRUE,TRUE,TRUE
+F9FC8B88-4F7C-4D07-91C4-9AAC218ACBD4,HAVO,Wet Forest,Olaa,ʻŌlaʻa,2011,1,Rotational,FALSE,25,13.5,Hawaii Volcanoes National Park,TRUE,TRUE,TRUE
+FA46E65A-5344-4E70-9656-79B1E5AD412D,HALE,Subalpine Shrubland,Haleakala,Haleakalā,2017,2,Fixed,FALSE,1,,Haleakala National Park,FALSE,TRUE,TRUE
+FAFE6D42-E828-4411-96A1-22A87B98D1D1,AMME,Mangrove Wetland,Muchot,Muchot,2019,2,Fixed,FALSE,4,,American Memorial Park,FALSE,TRUE,TRUE
+FB26C0BD-8E44-47D8-A612-218666823988,HALE,Wet Forest,Kipahulu District,Kīpahulu District,2018,2,Rotational,FALSE,32,,Haleakala National Park,FALSE,TRUE,TRUE
+FB6EF418-6794-4FF4-BA5D-7F688F27F461,HALE,Subalpine Shrubland,Haleakala,Haleakalā,2017,2,Rotational,FALSE,44,,Haleakala National Park,FALSE,TRUE,TRUE
+FB7D0AEB-D15B-4C99-B825-A9C2AA5219C0,KALA,Wet Forest,Puu Alii,Puʻu Aliʻi,2012,1,Fixed,FALSE,14,10.4,Kalaupapa National Historical Park,FALSE,TRUE,TRUE
+FD0F7554-9F86-496E-875C-AD46BC824E9F,HALE,Wet Forest,Kipahulu District,Kīpahulu District,2017,2,Fixed,FALSE,10,,Haleakala National Park,FALSE,TRUE,TRUE
+FD560082-2D47-47EB-A02E-3D91D1160F5F,KAHO,Coastal Strand,Kaloko-Honokohau,Kaloko-Honokōhau,2016,2,Fixed,FALSE,10,,Kaloko-Honokahau National Historical Park,FALSE,TRUE,TRUE
+FE780F65-8938-456F-8E5D-64358F1258A9,HAVO,Wet Forest,Olaa,ʻŌlaʻa,2021,3,Rotational,FALSE,60,,Hawaii Volcanoes National Park,FALSE,TRUE,TRUE
+FF8923C1-28C5-4E9B-BBAB-A470296D81F0,HALE,Wet Forest,Kipahulu District,Kīpahulu District,2018,2,Rotational,FALSE,40,,Haleakala National Park,FALSE,TRUE,TRUE

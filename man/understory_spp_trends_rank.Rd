@@ -10,7 +10,7 @@ understory_spp_trends_rank(
   paired_change = TRUE,
   sample_frame = sample_frame,
   cycle = cycle,
-  top_n = 5,
+  top_n = NULL,
   rank_by = "positive",
   remove_nativity = NULL,
   return_table = FALSE
@@ -33,7 +33,7 @@ If \code{TRUE}, drops "Rotational" plots and uses only "Fixed" plots for analysi
 
 \item{cycle}{Monitoring cycle}
 
-\item{top_n}{default set to top_n = 5. The number of ranked species to include in output (e.g. top 5, top 10, etc.)}
+\item{top_n}{default = NULL which will set a minimum cutoff of species with Cover > 1\% for paired_change == FALSE or Chg_Per_Year > 0.2\% (1\%/5 years) if paired_change == TRUE. Alternatively, a custom number of ranked species to include in output (e.g. for top 5 enter '5', etc.)}
 
 \item{rank_by}{Used with paired_change = TRUE. Should the final graph be ranked by "positive" trend (default) or "negative" trend.}
 
