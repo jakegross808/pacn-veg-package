@@ -1309,7 +1309,7 @@ understorySpeciesCover2 <- function(sample_frame, cycle,
 #' "None" = No Groups, all vegetation (native & non-native) is lumped together,
 #' "Nativity" = Cover values lumped by native and non-native vegetation.
 #' "Life_Form" = Cover values grouped into native and non-native lifeforms (e.g. Trees, Shrubs, Ferns).
-#' @param top_n default set to top_n = 5. The number of ranked species to include in output (e.g. top 5, top 10, etc.)
+#' @param top_n default = NULL which will set a minimum cutoff of species with Cover > 1% for paired_change == FALSE or Chg_Per_Year > 0.2% (1%/5 years) if paired_change == TRUE. Alternatively, a custom number of ranked species to include in output (e.g. for top 5 enter '5', etc.)
 #' @param rank_by Used with paired_change = TRUE. Should the final graph be ranked by "positive" trend (default) or "negative" trend.
 #' @param remove_nativity option to remove a Nativity category. For example remove_nativity = "Native" will only show non-native species in final graph.
 #' @param return_table Default == FALSE. If TRUE, return table instead of graph.
@@ -1329,7 +1329,7 @@ understory_spp_trends_rank <- function(combine_strata = TRUE,
                                        paired_change = TRUE,
                                        sample_frame = sample_frame,
                                        cycle = cycle,
-                                       top_n = 5,
+                                       top_n = NULL,
                                        rank_by = "positive",
                                        remove_nativity = NULL,
                                        return_table = FALSE) {
@@ -1388,8 +1388,16 @@ understory_spp_trends_rank <- function(combine_strata = TRUE,
 
   if (paired_change == TRUE) {
     ranking_stat <- "Chg_Per_Year"
+    if (rank_by == "positive"){
+      min_cutoff <- 1/6 # 3 points out of 300 (x100 for %) divided by 6 years
+    }
+    if (rank_by == "negative"){
+      min_cutoff <- -1/6 # 3 points out of 300 (x100 for %) divided by 6 years
+    }
+
   } else {
     ranking_stat <- "Cover"
+    min_cutoff <- 1 # 3 points out of 300
   }
 
 
@@ -1398,7 +1406,7 @@ understory_spp_trends_rank <- function(combine_strata = TRUE,
       dplyr::group_by(Sampling_Frame, Scientific_Name, Code) |>
       dplyr::slice_max(.data[[ranking_stat]], n = 1, with_ties = FALSE) |>
       dplyr::arrange(desc(.data[[ranking_stat]])) |>
-      head(top_n) |>
+      #head(top_n) |>
       ungroup() |>
       mutate(ranking = row_number()) |>
       mutate(rank_and_name = paste0("#", ranking, "   ", Scientific_Name))
@@ -1409,10 +1417,25 @@ understory_spp_trends_rank <- function(combine_strata = TRUE,
       dplyr::group_by(Sampling_Frame, Scientific_Name, Code) |>
       dplyr::slice_min(.data[[ranking_stat]], n = 1, with_ties = FALSE) |>
       dplyr::arrange(.data[[ranking_stat]]) |>
-      head(top_n) |>
+      #head(top_n) |>
       ungroup() |>
       mutate(ranking = row_number()) |>
       mutate(rank_and_name = paste0("#", ranking, "  ", Scientific_Name))
+
+  }
+
+  if (is.numeric(top_n)) {
+    max_chg_rank <- max_chg_rank |>
+      head(top_n)
+  } else {
+    if (rank_by == "positive"){
+      max_chg_rank <- max_chg_rank |>
+        dplyr::filter(!!sym(ranking_stat) >= min_cutoff)
+    }
+    if (rank_by == "negative"){
+      max_chg_rank <- max_chg_rank |>
+        dplyr::filter(!!sym(ranking_stat) <= min_cutoff)
+    }
 
   }
 
