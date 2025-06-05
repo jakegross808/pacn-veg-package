@@ -1509,8 +1509,6 @@ understory_spp_trends_rank <- function(combine_strata = TRUE,
     max_chg_spp_rank <- max_chg_rank |>
       dplyr::select(Scientific_Name, ranking, rank_and_name, rank_and_names)
 
-    library(gghighlight)
-
     und_spp_filter <- und_spp |>
       dplyr::filter(Scientific_Name %in% top_n_baddies_sci)
 
