@@ -19,7 +19,7 @@ params:
   access_dbs: !expr c("established_invasives_BE_master_20240715.mdb", "2021-2022_established_invasives_20241016.mdb", "2023_established_invasives_20241004.mdb")
   protocol: !expr c("EIPS", "FTPC")
   park: !expr NA
-  sample_frame: "Kaloko-Honokohau"
+  sample_frame: "Mauna Loa"
   cycle: !expr c(1, 2, 3)
   plot_type: !expr NA
   is_qa_plot: !expr NA
@@ -84,7 +84,7 @@ library(ggforce)
 #                    cache = TRUE, force_refresh = FALSE)
 
 # Load the data (use csv files)
-data <- here::here("data")
+data <- here::here("data", "vital_signs")
 path_file_info <- file.info(list.files(data, full.names = T))
 latest_folder <- rownames(path_file_info)[which.max(path_file_info$mtime)]
 

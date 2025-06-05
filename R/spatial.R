@@ -611,13 +611,15 @@ MapPACNVeg <- function(protocol = c("FTPC", "EIPS"), crosstalk = FALSE, crosstal
     # gdb <- "spatial/PACN_Vegetation_Sampling_Frames_view/aae67c1a-113a-4c2a-beaa-16139b2d6f7a.gdb"
     # gdb_layer <- "PACN_Vegetation_Sampling_Frames"
     # agol_sf <- sf::read_sf(gdb, gdb_layer, quiet = TRUE)
-    # agol_sf <- sf::st_transform(agol_sf, crs = 4326)
-    # agol_sf <- agol_sf |>
-    #   #**need to trim whitespace on GIS file*
-    #   dplyr::mutate(Sampling_Frame = stringr::str_trim(Sampling_Frame)) |>
-    #   dplyr::filter(Sampling_Frame == sample_frame)
 
-    sf::st_read(here::here("data", "spatial", "sampling_frames_st_write.shp"), quiet = TRUE)
+    agol_sf <- sf::read_sf(here::here("data", "spatial", "samp_frames.gpkg"), quiet = TRUE)
+    agol_sf <- sf::st_transform(agol_sf, crs = 4326)
+    agol_sf <- agol_sf |>
+       #**need to trim whitespace on GIS file*
+       dplyr::mutate(Sampling_Frame = stringr::str_trim(Sampling_Frame)) |>
+       dplyr::filter(Sampling_Frame == sample_frame)
+
+
   }
 
   # if na's present replace with 'No Zone Assigned':

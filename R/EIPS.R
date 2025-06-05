@@ -1108,11 +1108,11 @@ v_EIPS_map_interstation2 <- function(.data, parameter, change = FALSE, agol_samp
   EIPS_inter_station_absence <- EIPS_inter_station |>
     dplyr::mutate(Year = as.numeric(as.character(Year))) |>
     #dplyr::mutate(Year = as.Date(ISOdate(as.character(Year), 1, 1))) |>
-    dplyr::mutate(Code = replace_na(Code, "no_invasives")) |>
-    dplyr::mutate(Scientific_Name = replace_na(Scientific_Name, "no_invasives")) |>
-    dplyr::mutate(Life_Form = replace_na(Life_Form, "no_invasives")) |>
-    dplyr::mutate(Nativity = replace_na(Nativity, "no_invasives")) |>
-    complete(Scientific_Name, nesting(Transect_Number, Cycle, Year, long, lat)) |>
+    dplyr::mutate(Code = tidyr::replace_na(Code, "no_invasives")) |>
+    dplyr::mutate(Scientific_Name = tidyr::replace_na(Scientific_Name, "no_invasives")) |>
+    dplyr::mutate(Life_Form = tidyr::replace_na(Life_Form, "no_invasives")) |>
+    dplyr::mutate(Nativity = tidyr::replace_na(Nativity, "no_invasives")) |>
+    tidyr::complete(Scientific_Name, tidyr::nesting(Transect_Number, Cycle, Year, long, lat)) |>
     dplyr::mutate(col_Mean_MaxCover = case_when(is.na(col_Mean_MaxCover) ~ "#FF000000",
                                                 .default = as.character(col_Mean_MaxCover)))
 
@@ -1182,7 +1182,12 @@ v_EIPS_map_interstation2 <- function(.data, parameter, change = FALSE, agol_samp
     # mgmt_unit <- mgmt_unit |>
     #   dplyr::filter(Sampling_Frame == agol_sample_frame)
 
-    sf::st_read(here::here("data", "spatial", "sampling_frames_st_write.shp"), quiet = TRUE)
+    mgmt_unit <- sf::st_read(here::here("data", "spatial", "samp_frames.gpkg"), quiet = TRUE)
+    mgmt_unit <- sf::st_transform(mgmt_unit, crs = 4326)
+    mgmt_unit <- mgmt_unit |>
+      #**need to trim whitespace on GIS file*
+      dplyr::mutate(Sampling_Frame = stringr::str_trim(Sampling_Frame)) |>
+      dplyr::filter(Sampling_Frame == agol_sample_frame)
   }
 
   # Colors for polygons:
@@ -1614,18 +1619,18 @@ v_EIPS_map_interstation3 <- function(.data, parameter, change = FALSE, agol_samp
   if (parameter == "Mean_Species_Cover" & change == FALSE) {
     station_summary_centroids <- station_summary_centroids |>
       dplyr::mutate(Year = as.numeric(as.character(Year))) |>
-      dplyr::mutate(Code = replace_na(Code, "no_invasives")) |>
-      dplyr::mutate(Scientific_Name = replace_na(Scientific_Name, "no_invasives")) |>
-      dplyr::mutate(Life_Form = replace_na(Life_Form, "no_invasives")) |>
-      dplyr::mutate(Nativity = replace_na(Nativity, "no_invasives")) |>
-      complete(Scientific_Name, nesting(Transect_Number, Cycle, Year, long, lat)) |>
-      dplyr::mutate(col_Mean_MaxCover = case_when(is.na(col_Mean_MaxCover) ~ "#FF000000",
+      dplyr::mutate(Code = tidyr::replace_na(Code, "no_invasives")) |>
+      dplyr::mutate(Scientific_Name = tidyr::replace_na(Scientific_Name, "no_invasives")) |>
+      dplyr::mutate(Life_Form = tidyr::replace_na(Life_Form, "no_invasives")) |>
+      dplyr::mutate(Nativity = tidyr::replace_na(Nativity, "no_invasives")) |>
+      tidyr::complete(Scientific_Name, tidyr::nesting(Transect_Number, Cycle, Year, long, lat)) |>
+      dplyr::mutate(col_Mean_MaxCover = dplyr::case_when(is.na(col_Mean_MaxCover) ~ "#FF000000",
                                                   .default = as.character(col_Mean_MaxCover)))
   }
 
   station_summary_centroids <- station_summary_centroids |>
     dplyr::mutate(Year = as.numeric(as.character(Year))) |>
-    dplyr::mutate(col_Mean_MaxCover = case_when(is.na(col_Mean_MaxCover) ~ "#FF000000",
+    dplyr::mutate(col_Mean_MaxCover = dplyr::case_when(is.na(col_Mean_MaxCover) ~ "#FF000000",
                                                 .default = as.character(col_Mean_MaxCover)))
 
 
@@ -1698,7 +1703,12 @@ v_EIPS_map_interstation3 <- function(.data, parameter, change = FALSE, agol_samp
     #   dplyr::mutate(Sampling_Frame = stringr::str_trim(Sampling_Frame)) |>
     #   dplyr::filter(Sampling_Frame == agol_sample_frame)
 
-    mgmt_unit <- sf::st_read(here::here("data", "spatial", "sampling_frames_st_write.shp"), quiet = TRUE)
+    mgmt_unit <- sf::st_read(here::here("data", "spatial", "samp_frames.gpkg"), quiet = TRUE)
+    mgmt_unit <- sf::st_transform(mgmt_unit, crs = 4326)
+    mgmt_unit <- mgmt_unit |>
+      #**need to trim whitespace on GIS file*
+      dplyr::mutate(Sampling_Frame = stringr::str_trim(Sampling_Frame)) |>
+      dplyr::filter(Sampling_Frame == agol_sample_frame)
   }
   # Colors for polygons:
   factpal <- leaflet::colorFactor(c("#F8573A", "#F4C47B", "#28468B", "#AED5CB"),
