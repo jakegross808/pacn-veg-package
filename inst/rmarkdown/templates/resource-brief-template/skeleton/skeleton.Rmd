@@ -103,7 +103,7 @@ if (params$sample_frame %in% no_EIPS) {
 
 # Get park name
 #names_all2 <- readxl::read_xlsx(here::here("R", "PACN_veg_names.xlsx")) 
-names_all <- readr::read_csv(here::here("R", "PACN_veg_names_excel_csv.csv")) 
+names_all <- readr::read_csv(here::here("data", "PACN_veg_names_excel_csv.csv")) 
 
 names <- names_all |>
   dplyr::filter(Sampling_Frame == params$sample_frame)
