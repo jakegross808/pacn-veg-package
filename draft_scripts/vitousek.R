@@ -9,7 +9,7 @@ library(gghighlight)
 
 LoadPACNVeg(force_refresh = FALSE, eips_paths = "foo")
 
-names_all <- readr::read_csv(here::here("R", "PACN_veg_names_excel_csv.csv"))
+names_all <- readr::read_csv(here::here("data", "PACN_veg_names_excel_csv.csv"))
 
 names_nahuku <- names_all |>
   dplyr::filter(Sampling_Frame == "Nahuku/East Rift") |>
@@ -108,7 +108,7 @@ Lg_Trees_nativity_ratio |>
   ggplot(aes(fct_reorder(.na_rm = TRUE, Sampling_Frame_n, stems_ratio, min), y = stems_ratio, fill = Nativity)) +
   geom_boxplot() +
   #coord_flip() +
-  scale_fill_manual(values=c("#336600")) +
+  scale_fill_manual(values=c("#1b9e77")) +
   ggtitle("Proportion of Native Trees (Stems >10 cm DBH)") +
   xlab("Sampling Frame") +
   ylab("%") +
@@ -127,10 +127,8 @@ nat_und <- summarize_understory(combine_strata = TRUE,
                                 paired_change = FALSE,
                                 sample_frame = var_samp_frames)
 nat_und <- nat_und |>
-  left_join(names_all, by = join_by(Sampling_Frame)) |>
-  mutate(max_cycle = max(Cycle)) |>
-  # Get just last cycle if fixed plot
-  filter(!(Plot_Type == "Fixed" & Cycle != max_cycle))
+  left_join(names_all, by = join_by(Unit_Code, Sampling_Frame)) |>
+  mutate(max_cycle = max(Cycle))
 
 if ("Nahuku/East Rift" %in% var_samp_frames) {
   # Temporary solution until zone/mgmt layer incorporated into package:
@@ -197,27 +195,57 @@ threshold <- 0.50
 
 # Native Ratio boxplot
 nat_und_ratio %>%
+  dplyr::filter(!Year %in% c(2023, 2024, 2025)) |>
   # Add n to sampling frame label ______________________________________________
   dplyr::group_by(Sampling_Frame) |>
   dplyr::mutate(n = dplyr::n_distinct(Cycle, Plot_Number)) |>
   dplyr::mutate(Sampling_Frame_n = paste0(Formal_Sampling_Frame, "\n [n=", n, "] ")) |>
   #_____________________________________________________________________________
-  filter(Cycle == 2) %>%
   #group_by("Unit_Code", "Sampling_Frame", "Cycle", "Year") %>%
   #ggplot() +
   ggplot(aes(x=fct_reorder(.na_rm = TRUE, Sampling_Frame_n, desc(Native_Ratio), median),
              y=Native_Ratio)) +
-  geom_boxplot(fill = "#336600") +
+  geom_boxplot(fill = "#1b9e77") +
   #ggplot(aes(fct_reorder(.na_rm = TRUE, Sampling_Frame_n, Native_Ratio, min), y = Native_Ratio, fill = Nativity)) +
   #scale_fill_manual(values=c("#336600")) +
   ggtitle("Proportion of Native Understory Cover") +
   xlab("Sampling Frame") +
   ylab("%") +
   theme(legend.position = "none") +
-  scale_y_continuous(limits = c(0, 100), breaks = seq(0, 100, by = 20)) +
+  scale_y_continuous(limits = c(0, 100), breaks = seq(0, 100, by = 20)) #+
   # Add horizontal line at y = 2O
-  geom_hline(yintercept=70, linetype="dashed",
+  #geom_hline(yintercept=70, linetype="dashed",
+  #           color = "red", linewidth=1)
+
+# Non_Native Ratio boxplot
+nat_und_ratio %>%
+  #dplyr::filter(Cycle == 1) |>
+  dplyr::filter(!(Plot_Type == "Fixed" & Cycle != max_cycle)) |>
+  dplyr::filter(!(Unit_Code ==  "HALE" & Cycle == 3)) |>
+  dplyr::filter(!(Unit_Code ==  "KALA" & Cycle == 3)) |>
+  # Add n to sampling frame label ______________________________________________
+  dplyr::group_by(Sampling_Frame) |>
+  dplyr::mutate(n = dplyr::n_distinct(Cycle, Plot_Number)) |>
+  dplyr::mutate(Sampling_Frame_n = paste0(Formal_Sampling_Frame, "\n [n=", n, "] ")) |>
+  #_____________________________________________________________________________
+  #group_by("Unit_Code", "Sampling_Frame", "Cycle", "Year") %>%
+  #ggplot() +
+  ggplot(aes(x=fct_reorder(.na_rm = TRUE, Sampling_Frame_n, desc(Non_Native_Ratio), median),
+             y=Non_Native_Ratio)) +
+  geom_boxplot(fill = "#d95f02") +
+  #ggplot(aes(fct_reorder(.na_rm = TRUE, Sampling_Frame_n, Native_Ratio, min), y = Native_Ratio, fill = Nativity)) +
+  #scale_fill_manual(values=c("#336600")) +
+  ggtitle("Proportion of Non-Native Understory Cover") +
+  xlab("Sampling Frame") +
+  ylab("%") +
+  theme(legend.position = "none") +
+  scale_y_continuous(limits = c(0, 100), breaks = seq(0, 100, by = 20)) +
+# Add horizontal line at y = 2O
+  geom_hline(yintercept=17, linetype="dashed",
+           color = "red", linewidth=1) +
+  geom_hline(yintercept=26.5, linetype="dashed",
              color = "red", linewidth=1)
+
 
 #Native Ratio x total veg point chart
  nat_und_ratio %>%
@@ -235,13 +263,66 @@ nat_und_ratio %>%
 
 
 
-#--- 3. Native/Non-native change
+# Trends ----
 nat_chg_und <- summarize_understory(combine_strata = TRUE,
                                     plant_grouping = "Nativity",
-                                    paired_change = TRUE)
+                                    paired_change = TRUE,
+                                    sample_frame = var_samp_frames)
 
 nat_chg_und <- nat_chg_und %>%
-  filter(Cycle > 1)
+  dplyr::filter(Cycle > 1) |>
+  left_join(names_all, by = join_by(Sampling_Frame)) |>
+  dplyr::rename(Unit_Code = Unit_Code.x) |>
+  select(-Unit_Code.y) |>
+  mutate(max_cycle = max(Cycle))
+
+if ("Nahuku/East Rift" %in% var_samp_frames) {
+  # Temporary solution until zone/mgmt layer incorporated into package:
+  print("Removing -East Rift- plots from analysis. Function needs updated when Nahuku/East Rift Cycle 4 data are added")
+
+  nahuku_plots <- c(1, 4, 10, 12, 13, 14, 15, #fixed
+                    46, 49, 51, 52, 54, 55, 56, 58, #2021 rotational
+                    24, 26, #2010 rotational
+                    31, 32, 33, 34, 35, 38, 41, 45)
+
+  #nahuku_plots <- c(1, 4, 10, 12, 13, 14, 15) #fixed only
+
+  nat_chg_und_nahuku_only <- nat_chg_und |>
+    dplyr::filter(Sampling_Frame == "Nahuku/East Rift") |>
+    dplyr::filter(Plot_Number %in% nahuku_plots) |>
+    dplyr::mutate(Sampling_Frame = "Nahuku") |>
+    dplyr::mutate(Formal_Sampling_Frame = "Nāhuku")
+  nat_chg_und <- nat_chg_und |>
+    dplyr::filter(Sampling_Frame != "Nahuku/East Rift") |>
+    dplyr::bind_rows(nat_chg_und_nahuku_only)
+}
+
+if ("Kahuku" %in% var_samp_frames) {
+  # Temporary solution until zone/mgmt layer incorporated into package:
+  print("Separating Kahuku plots into Kau and Paddocks. needs updated when Kahuku Cycle 4 data are added")
+
+  paddocks_plots <- c(7:15, #fixed
+                      22:30, #2011 rotational
+                      32, 36, 38, 40, 42, #2016 rotational
+                      47, 48, 49, 51, 53, 54, 56, 60) #2022
+
+  #nahuku_plots <- c(1, 4, 10, 12, 13, 14, 15) #fixed only
+
+  nat_chg_und_paddocks_only <- nat_chg_und |>
+    dplyr::filter(Sampling_Frame == "Kahuku") |>
+    dplyr::filter(Plot_Number %in% paddocks_plots) |>
+    dplyr::mutate(Sampling_Frame = "Paddocks") |>
+    dplyr::mutate(Formal_Sampling_Frame = "Kahuku (Paddocks)")
+  nat_chg_und_kau_only <- nat_chg_und |>
+    dplyr::filter(Sampling_Frame == "Kahuku") |>
+    dplyr::filter(!Plot_Number %in% paddocks_plots) |>
+    dplyr::mutate(Sampling_Frame = "Kau") |>
+    dplyr::mutate(Formal_Sampling_Frame = "Kahuku (Kaʻu)")
+  nat_chg_und <- nat_chg_und |>
+    dplyr::filter(Sampling_Frame != "Kahuku") |>
+    dplyr::bind_rows(nat_chg_und_paddocks_only) |>
+    dplyr::bind_rows(nat_chg_und_kau_only)
+}
 
 max_y<- round(max(nat_chg_und$Chg_Prior, na.rm = TRUE), digits = -1)
 max_y
@@ -256,7 +337,7 @@ get_p <- function(chg_vector) {
 
 nat_chg_und_grouped <- nat_chg_und %>%
   group_by(Cycle, Year, Sampling_Frame, Nativity) %>%
-  filter(!is.na(Chg_Prior)) %>%
+  dplyr::filter(!is.na(Chg_Prior)) %>%
   summarize(out_median = median(Chg_Prior, na.rm = TRUE),
             n_plots = n(),
             p_val = get_p(Chg_Prior)) %>%
@@ -266,15 +347,22 @@ nat_chg_und_grouped <- nat_chg_und %>%
   )) %>%
   mutate(Sampling_Frame2 = paste0(Sampling_Frame, " (", n_plots, ")"))
 
-## Trends ----
+## Trends graph native ----
 
 native_chg_und_cyc2 <- nat_chg_und %>%
   left_join(nat_chg_und_grouped) %>%
   #ungroup() %>%
   filter(Nativity == "Native") %>%
   filter(Cycle == 2) %>%
-  filter(Sampling_Frame %in% c("Kahuku", "Kipahulu District", "Olaa", "Puu Alii", "Nahuku/East Rift")) |>
-  ggplot(aes(x=fct_reorder(.na_rm = TRUE, Sampling_Frame2, desc(Chg_Prior), median),
+  #dplyr::filter(Cycle == 1) |>
+  dplyr::filter(!(Unit_Code ==  "HALE" & Cycle == 3)) |>
+  dplyr::filter(!(Unit_Code ==  "KALA" & Cycle == 3)) |>
+  # Add n to sampling frame label ______________________________________________
+  dplyr::group_by(Sampling_Frame) |>
+  dplyr::mutate(n = dplyr::n_distinct(Cycle, Plot_Number)) |>
+  dplyr::mutate(Sampling_Frame_n = paste0(Formal_Sampling_Frame, "\n [n=", n, "] ")) |>
+  #_____________________________________________________________________________
+  ggplot(aes(x=fct_reorder(.na_rm = TRUE, Sampling_Frame_n, desc(Chg_Prior), median),
              y=Chg_Prior,
              fill = high_low)) +
   geom_boxplot() +
@@ -282,7 +370,7 @@ native_chg_und_cyc2 <- nat_chg_und %>%
   theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) +
   ggtitle("Cycle 2-1 (2015-19 vs. 2010-14)") +
   xlab("Sampling Frame") + ylab("NATIVE - Change in % cover") +
-  scale_fill_manual(values=c("#336600", "#FF6633")) +
+  scale_fill_manual(values=c("#336600", "red")) +
   theme(legend.position="none") +
   scale_y_continuous(limits = c(min_y, max_y), breaks=seq(min_y,max_y,10)) +
   gghighlight(min(p_val) < 0.05,
@@ -293,11 +381,18 @@ native_chg_und_cyc2
 
 native_chg_und_cyc3 <- nat_chg_und %>%
   left_join(nat_chg_und_grouped) %>%
-  ungroup() %>%
+  #ungroup() %>%
   filter(Nativity == "Native") %>%
   filter(Cycle == 3) %>%
-  filter(Sampling_Frame %in% c("Kahuku", "Kipahulu District", "Olaa", "Puu Alii", "Nahuku/East Rift")) |>
-  ggplot(aes(x=fct_reorder(.na_rm = TRUE, Sampling_Frame2, desc(Chg_Prior), median),
+  #dplyr::filter(Cycle == 1) |>
+  dplyr::filter(!(Unit_Code ==  "HALE" & Cycle == 3)) |>
+  dplyr::filter(!(Unit_Code ==  "KALA" & Cycle == 3)) |>
+  # Add n to sampling frame label ______________________________________________
+  dplyr::group_by(Sampling_Frame) |>
+  dplyr::mutate(n = dplyr::n_distinct(Cycle, Plot_Number)) |>
+  dplyr::mutate(Sampling_Frame_n = paste0(Formal_Sampling_Frame, "\n [n=", n, "] ")) |>
+  #_____________________________________________________________________________
+  ggplot(aes(x=fct_reorder(.na_rm = TRUE, Sampling_Frame_n, desc(Chg_Prior), median),
              y=Chg_Prior,
              fill = high_low)) +
   geom_boxplot() +
@@ -305,7 +400,7 @@ native_chg_und_cyc3 <- nat_chg_und %>%
   ggtitle("Cycle 3-2 (2021-23 vs. 2015-19)") +
   xlab("Sampling Frame") +
   #ylab("Change in Native cover per year") +
-  scale_fill_manual(values=c("#336600", "#FF6633")) +
+  scale_fill_manual(values=c("#336600", "red")) +
   theme(legend.position="none",
         #axis.title.x=element_blank(),
         axis.title.y=element_blank(),
@@ -319,7 +414,107 @@ native_chg_und_cyc3 <- nat_chg_und %>%
 native_chg_und_cyc3
 
 # Plot both 2nd and 3rd cycle change on same graph
-grid.arrange(native_chg_und_cyc2, native_chg_und_cyc3, nrow = 1, widths = c(2.1,1))
+grid.arrange(native_chg_und_cyc2, native_chg_und_cyc3, nrow = 1, widths = c(2.1,1.3))
+
+
+## Trends graph Non-native ----
+
+native_chg_und_cyc2 <- nat_chg_und %>%
+  left_join(nat_chg_und_grouped) %>%
+  #ungroup() %>%
+  filter(Nativity == "Non-Native") %>%
+  filter(Cycle == 2) %>%
+  #dplyr::filter(Cycle == 1) |>
+  dplyr::filter(!(Unit_Code ==  "HALE" & Cycle == 3)) |>
+  dplyr::filter(!(Unit_Code ==  "KALA" & Cycle == 3)) |>
+  # Add n to sampling frame label ______________________________________________
+  dplyr::group_by(Sampling_Frame) |>
+  dplyr::mutate(n = dplyr::n_distinct(Cycle, Plot_Number)) |>
+  dplyr::mutate(Sampling_Frame_n = paste0(Formal_Sampling_Frame, "\n [n=", n, "] ")) |>
+  #_____________________________________________________________________________
+  ggplot(aes(x=fct_reorder(.na_rm = TRUE, Sampling_Frame_n, desc(Chg_Prior), median),
+             y=Chg_Prior,
+             fill = high_low)) +
+  geom_boxplot() +
+  #stat_summary(fun.y=mean, geom="point", shape=20, size=5, color="blue", fill="black") +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) +
+  ggtitle("Cycle 2-1 (2015-19 vs. 2010-14)") +
+  xlab("Sampling Frame") + ylab("NON-NATIVE - Change in % cover") +
+  scale_fill_manual(values=c("red", "#d95f02")) +
+  theme(legend.position="none") +
+  scale_y_continuous(limits = c(min_y, max_y), breaks=seq(min_y,max_y,10)) +
+  gghighlight(min(p_val) < 0.05,
+              unhighlighted_params = list(color = "#696969", fill = NULL, alpha = 0.15, outlier.alpha = 0.5)) +
+  geom_hline(yintercept = 0, linetype="dashed", color = "black")
+#geom_text(aes(1.5,0,label = "0%", vjust = -0.5))
+native_chg_und_cyc2
+
+native_chg_und_cyc3 <- nat_chg_und %>%
+  left_join(nat_chg_und_grouped) %>%
+  #ungroup() %>%
+  filter(Nativity == "Non-Native") %>%
+  filter(Cycle == 3) %>%
+  #dplyr::filter(Cycle == 1) |>
+  dplyr::filter(!(Unit_Code ==  "HALE" & Cycle == 3)) |>
+  dplyr::filter(!(Unit_Code ==  "KALA" & Cycle == 3)) |>
+  # Add n to sampling frame label ______________________________________________
+  dplyr::group_by(Sampling_Frame) |>
+  dplyr::mutate(n = dplyr::n_distinct(Cycle, Plot_Number)) |>
+  dplyr::mutate(Sampling_Frame_n = paste0(Formal_Sampling_Frame, "\n [n=", n, "] ")) |>
+  #_____________________________________________________________________________
+  ggplot(aes(x=fct_reorder(.na_rm = TRUE, Sampling_Frame_n, desc(Chg_Prior), median),
+             y=Chg_Prior,
+             fill = high_low)) +
+  geom_boxplot() +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) +
+  ggtitle("Cycle 3-2 (2021-23 vs. 2015-19)") +
+  xlab("Sampling Frame") +
+  #ylab("Change in Native cover per year") +
+  scale_fill_manual(values=c("red", "#d95f02")) +
+  theme(legend.position="none",
+        #axis.title.x=element_blank(),
+        axis.title.y=element_blank(),
+        axis.text.y=element_blank(),
+        axis.ticks.y=element_blank()) +
+  scale_y_continuous(limits = c(min_y, max_y), breaks=seq(min_y,max_y,10)) +
+  gghighlight(min(p_val) < 0.05,
+              unhighlighted_params = list(color = "#696969", fill = NULL, alpha = 0.15, outlier.alpha = 0.5)) +
+  geom_hline(yintercept = 0, linetype="dashed", color = "black")
+
+native_chg_und_cyc3
+
+# Plot both 2nd and 3rd cycle change on same graph
+grid.arrange(native_chg_und_cyc2, native_chg_und_cyc3, nrow = 1, widths = c(2.1,1.3))
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 alien_chg_und_cyc2 <- nat_chg_und %>%
   filter(Nativity == "Non-Native") %>%

@@ -11,7 +11,8 @@ LoadPACNVeg(
   data_source = "db",
   cache = TRUE,
   expire_interval_days = 7,
-  force_refresh = FALSE
+  force_refresh = FALSE,
+  TE_Species = TRUE
 )
 }
 \arguments{
@@ -39,6 +40,8 @@ LoadPACNVeg(
 \item{expire_interval_days}{Amount of time (in days) before the cache expires and has to be refreshed from the Access db. Defaults to 7 days. Ignored if \code{ftpc_conn} and \code{eips_paths} are \code{NULL}.}
 
 \item{force_refresh}{Refresh the cache from the databases even if it's not expired? Ignored if \code{cache == FALSE}.}
+
+\item{TE_Species}{default = TRUE. Include T&E species names in output.}
 }
 \value{
 Invisibly return a list containing all raw data

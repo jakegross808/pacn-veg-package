@@ -86,6 +86,7 @@ ClearPACNVegCache <- function(silent = FALSE) {
 #' @param cache Should the data be cached locally to avoid reading from the databases every time?
 #' @param expire_interval_days Amount of time (in days) before the cache expires and has to be refreshed from the Access db. Defaults to 7 days. Ignored if `ftpc_conn` and `eips_paths` are `NULL`.
 #' @param force_refresh Refresh the cache from the databases even if it's not expired? Ignored if `cache == FALSE`.
+#' @param TE_Species default = TRUE. Include T&E species names in output.
 #'
 #' @return Invisibly return a list containing all raw data
 #' @export
@@ -107,7 +108,7 @@ ClearPACNVegCache <- function(silent = FALSE) {
 #' LoadPACNVeg(data_path = path_to_csv)
 #' }
 #'
-LoadPACNVeg <- function(ftpc_params = "pacn", eips_paths, data_path, data_source = "db", cache = TRUE, expire_interval_days = 7, force_refresh = FALSE) {
+LoadPACNVeg <- function(ftpc_params = "pacn", eips_paths, data_path, data_source = "db", cache = TRUE, expire_interval_days = 7, force_refresh = FALSE, TE_Species = TRUE) {
 
   ## Read from cache or database
   if (data_source == "db") {
@@ -143,7 +144,7 @@ LoadPACNVeg <- function(ftpc_params = "pacn", eips_paths, data_path, data_source
         ftpc_conn <- DBI::dbConnect(odbc::odbc(), ftpc_params)
       }
 
-      ftpc_data <- ReadFTPC(ftpc_conn)
+      ftpc_data <- ReadFTPC(conn = ftpc_conn, TE_Species = TE_Species)
       DBI::dbDisconnect(ftpc_conn)
       eips_data <- ReadEIPS(eips_paths)
 
@@ -219,10 +220,11 @@ LoadPACNVeg <- function(ftpc_params = "pacn", eips_paths, data_path, data_source
 #' Read data from FTPC database
 #'
 #' @param conn Database connection object returned by `DBI::dbConnect`
+#' @param TE_Species Include T&E species names (TRUE/FALSE).
 #'
 #' @return A list of tibbles
 #'
-ReadFTPC <- function(conn) {
+ReadFTPC <- function(conn, TE_Species) {
   # A. Spatial -----------------------------------------------------------------
   # . . 1. tbl_Sites----
 
@@ -369,13 +371,33 @@ ReadFTPC <- function(conn) {
   # . . . . **join** Species & Nativity-------------------------------------------------
 
   # . . . . Species ----
-  Species <- tlu_Species_short %>%
-    dplyr::right_join(xref_Park_Species_Nativity_short, by = "Species_ID")
+  #Species <- tlu_Species_short %>%
+  #  dplyr::right_join(xref_Park_Species_Nativity_short, by = "Species_ID") |>
+  #  dplyr::collect()
 
   # . . . . Species_extra ----
   Species_extra <- tlu_Species_extra %>%
-    dplyr::right_join(xref_Park_Species_Nativity_extra, by = "Species_ID") %>%
-    dplyr::collect()
+    dplyr::right_join(xref_Park_Species_Nativity_extra, by = "Species_ID") #%>%
+    #dplyr::collect()
+
+  if (TE_Species == FALSE) {
+
+    spp_TE_extra <- Species_extra |>
+      dplyr::filter(Conservation_Status %in% c("T", "E", "V")) |>
+      dplyr::select(c(Species_ID, Scientific_Name, Code, Taxonomic_Order,
+                      Taxonomic_Family, Genus, Species, Subdivision, Authority,
+                      Authority_Source, Citation, Life_Cycle,
+                      Update_Comments, Park_Common_Name)) |>
+      dplyr::distinct(Species_ID, .keep_all = TRUE) |>
+    dplyr::mutate(across(-Species_ID, ~ paste0("Native_Sp_", as.character(row_number()))))
+
+    Species_extra <- Species_extra |>
+      dplyr::rows_update(spp_TE_extra, by = "Species_ID", unmatched = "ignore")
+
+    Species <- Species_extra |>
+      dplyr::select(c(Species_ID, Scientific_Name, Code, Life_Form, Park, Nativity))
+
+  }
 
   # D. Monitoring Data----------------------------------------------------------
 
@@ -397,8 +419,8 @@ ReadFTPC <- function(conn) {
     dplyr::right_join(tbl_Lg_Woody_Individual, by = "Event_ID") %>%
     dplyr::left_join(tbl_Multiple_Boles, by = "Large_Woody_ID") %>%
     dplyr::left_join(Species, by = c("Species_ID", "Unit_Code" = "Park")) %>%
+    dplyr::collect() |>
     dplyr::select(-Event_ID, -Species_ID) %>%
-    dplyr::collect() %>%
     dplyr::relocate(Certified, Verified, .after = last_col()) %>%
     dplyr::mutate(Cycle = as.integer(Cycle))
 

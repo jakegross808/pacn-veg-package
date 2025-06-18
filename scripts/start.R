@@ -15,7 +15,7 @@ pacnveg_cache_path <- "C:/Users/JJGross/Documents/Databases_copied_local/certifi
 # Read
 path_file_info <- file.info(list.files(pacnveg_cache_path, full.names = T))
 latest_folder <- rownames(path_file_info)[which.max(path_file_info$mtime)]
-
+latest_folder
 LoadPACNVeg(data_path = latest_folder,
             data_source = "file")
 
@@ -25,6 +25,7 @@ select_dataset <- FilterPACNVeg(data_name = "Enter Dataset Name Here")
 
 Events_FTPC <- FilterPACNVeg(data_name = "Events_extra_xy")
 Events_EIPS <- FilterPACNVeg(data_name = "Events_extra_other_EIPS")
+Species_extra <- FilterPACNVeg(data_name = "Species_extra")
 
 Species_FTPC <- FilterPACNVeg(data_name = "Presence") #%>%
   select(Scientific_Name) %>%
@@ -44,7 +45,10 @@ LoadPACNVeg(ftpc_params = "pacnveg",
             eips_paths = eips_databases,
             cache = TRUE,
             expire_interval_days = 30,
-            force_refresh = TRUE)
+            force_refresh = TRUE,
+            TE_Species = FALSE)
+
+look <- pacnvegetation:::get_data()
 
 # ..........Write Data ----
 path_file_info <- file.info(list.files(pacnveg_cache_path, full.names = T))

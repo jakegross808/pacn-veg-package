@@ -4,10 +4,12 @@
 \alias{ReadFTPC}
 \title{Read data from FTPC database}
 \usage{
-ReadFTPC(conn)
+ReadFTPC(conn, TE_Species)
 }
 \arguments{
 \item{conn}{Database connection object returned by \code{DBI::dbConnect}}
+
+\item{TE_Species}{Include T&E species names (TRUE/FALSE).}
 }
 \value{
 A list of tibbles
