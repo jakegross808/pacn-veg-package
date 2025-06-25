@@ -1,0 +1,378 @@
+Event_ID,Unit_Code,Community,Sampling_Frame,Sampling_Frame_Formal,Year,Cycle,Transect_Type,Transect_Number,Site_Name,Certified,Verified
+20101223103744-814663946.628571,HAVO,Wet Forest,Olaa,ʻŌlaʻa,2010,1,Fixed,3,Hawaiʻi Volcanoes National Park,TRUE,TRUE
+20101223113134-410036683.082581,HAVO,Wet Forest,Olaa,ʻŌlaʻa,2010,1,Rotational,17,Hawaiʻi Volcanoes National Park,TRUE,TRUE
+20101223131632-939971148.967743,HAVO,Wet Forest,Olaa,ʻŌlaʻa,2010,1,Fixed,8,Hawaiʻi Volcanoes National Park,TRUE,TRUE
+20101223135749-547011435.031891,HAVO,Wet Forest,Olaa,ʻŌlaʻa,2010,1,Fixed,9,Hawaiʻi Volcanoes National Park,TRUE,TRUE
+20110103074010-760723590.85083,HAVO,Wet Forest,Olaa,ʻŌlaʻa,2010,1,Fixed,10,Hawaiʻi Volcanoes National Park,TRUE,TRUE
+20110103080124-105452656.745911,HAVO,Wet Forest,Olaa,ʻŌlaʻa,2010,1,Rotational,12,Hawaiʻi Volcanoes National Park,TRUE,TRUE
+20110103082702-330300807.952881,HAVO,Wet Forest,Olaa,ʻŌlaʻa,2010,1,Rotational,13,Hawaiʻi Volcanoes National Park,TRUE,TRUE
+20110103105107-945072233.67691,HAVO,Wet Forest,Olaa,ʻŌlaʻa,2010,1,Rotational,14,Hawaiʻi Volcanoes National Park,TRUE,TRUE
+20110103111547-901996314.525604,HAVO,Wet Forest,Olaa,ʻŌlaʻa,2010,1,Rotational,16,Hawaiʻi Volcanoes National Park,TRUE,TRUE
+20110104121500-709037899.971008,HAVO,Wet Forest,Nahuku/East Rift,Nāhuku / East Rift,2010,1,Fixed,1,Hawaiʻi Volcanoes National Park,TRUE,TRUE
+20110104131931-872546851.634979,HAVO,Wet Forest,Nahuku/East Rift,Nāhuku / East Rift,2010,1,Fixed,2,Hawaiʻi Volcanoes National Park,TRUE,TRUE
+20110104132831-746006906.032562,HAVO,Wet Forest,Nahuku/East Rift,Nāhuku / East Rift,2010,1,Fixed,5,Hawaiʻi Volcanoes National Park,TRUE,TRUE
+20110104140132-694607496.261597,HAVO,Wet Forest,Nahuku/East Rift,Nāhuku / East Rift,2010,1,Fixed,6,Hawaiʻi Volcanoes National Park,TRUE,TRUE
+20110104140525-405744910.240173,HAVO,Wet Forest,Nahuku/East Rift,Nāhuku / East Rift,2010,1,Fixed,9,Hawaiʻi Volcanoes National Park,TRUE,TRUE
+20110104141808-714927077.293396,HAVO,Wet Forest,Nahuku/East Rift,Nāhuku / East Rift,2010,1,Fixed,10,Hawaiʻi Volcanoes National Park,TRUE,TRUE
+20110104144620-546630382.537842,HAVO,Wet Forest,Nahuku/East Rift,Nāhuku / East Rift,2010,1,Fixed,3,Hawaiʻi Volcanoes National Park,TRUE,TRUE
+20110104145116-201244592.666626,HAVO,Wet Forest,Nahuku/East Rift,Nāhuku / East Rift,2010,1,Rotational,11,Hawaiʻi Volcanoes National Park,TRUE,TRUE
+20110104145631-514270186.424255,HAVO,Wet Forest,Nahuku/East Rift,Nāhuku / East Rift,2010,1,Rotational,14,Hawaiʻi Volcanoes National Park,TRUE,TRUE
+20110104151029-271568596.363068,HAVO,Wet Forest,Nahuku/East Rift,Nāhuku / East Rift,2010,1,Rotational,15,Hawaiʻi Volcanoes National Park,TRUE,TRUE
+20110104152454-459249317.646027,HAVO,Wet Forest,Nahuku/East Rift,Nāhuku / East Rift,2010,1,Rotational,17,Hawaiʻi Volcanoes National Park,TRUE,TRUE
+20110104154034-411324739.456177,HAVO,Wet Forest,Nahuku/East Rift,Nāhuku / East Rift,2010,1,Rotational,18,Hawaiʻi Volcanoes National Park,TRUE,TRUE
+20110105092212-709037899.971008,HAVO,Wet Forest,Nahuku/East Rift,Nāhuku / East Rift,2010,1,Rotational,19,Hawaiʻi Volcanoes National Park,TRUE,TRUE
+20110105093500-219409108.161926,HAVO,Wet Forest,Nahuku/East Rift,Nāhuku / East Rift,2010,1,Rotational,20,Hawaiʻi Volcanoes National Park,TRUE,TRUE
+20110105102737-797012567.520142,HAVO,Wet Forest,Olaa,ʻŌlaʻa,2010,1,Fixed,6,Hawaiʻi Volcanoes National Park,TRUE,TRUE
+20110119084024-829801619.052887,HAVO,Wet Forest,Olaa,ʻŌlaʻa,2011,1,Rotational,11,Hawaiʻi Volcanoes National Park,TRUE,TRUE
+20110124073135-862619340.419769,HAVO,Wet Forest,Nahuku/East Rift,Nāhuku / East Rift,2011,1,Fixed,4,Hawaiʻi Volcanoes National Park,TRUE,TRUE
+20110207100200-760723590.85083,HAVO,Wet Forest,Olaa,ʻŌlaʻa,2011,1,Rotational,15,Hawaiʻi Volcanoes National Park,TRUE,TRUE
+20110727065132-579518616.199493,HAVO,Wet Forest,Kahuku,Kahuku,2011,1,Fixed,11,Hawaiʻi Volcanoes National Park,TRUE,TRUE
+20110809061759-579518616.199493,HAVO,Wet Forest,Kahuku,Kahuku,2011,1,Rotational,30,Hawaiʻi Volcanoes National Park,TRUE,TRUE
+20110809064021-533873081.207275,HAVO,Wet Forest,Kahuku,Kahuku,2011,1,Rotational,28,Hawaiʻi Volcanoes National Park,TRUE,TRUE
+20110809064608-404834151.268005,HAVO,Wet Forest,Kahuku,Kahuku,2011,1,Rotational,24,Hawaiʻi Volcanoes National Park,TRUE,TRUE
+20110809065615-169873476.028442,HAVO,Wet Forest,Kahuku,Kahuku,2011,1,Rotational,26,Hawaiʻi Volcanoes National Park,TRUE,TRUE
+20110809070045-114623308.181763,HAVO,Wet Forest,Kahuku,Kahuku,2011,1,Fixed,12,Hawaiʻi Volcanoes National Park,TRUE,TRUE
+20110809075914-226866006.851196,HAVO,Wet Forest,Kahuku,Kahuku,2011,1,Rotational,29,Hawaiʻi Volcanoes National Park,TRUE,TRUE
+20110809114054-56236863.1362915,HAVO,Wet Forest,Kahuku,Kahuku,2011,1,Rotational,16,Hawaiʻi Volcanoes National Park,TRUE,TRUE
+20110809125352-814490020.275116,HAVO,Wet Forest,Kahuku,Kahuku,2011,1,Rotational,20,Hawaiʻi Volcanoes National Park,TRUE,TRUE
+20110809133924-922954559.326172,HAVO,Wet Forest,Kahuku,Kahuku,2011,1,Rotational,17,Hawaiʻi Volcanoes National Park,TRUE,TRUE
+20110809142522-652376711.368561,HAVO,Wet Forest,Kahuku,Kahuku,2011,1,Fixed,3,Hawaiʻi Volcanoes National Park,TRUE,TRUE
+20110809144546-797012567.520142,HAVO,Wet Forest,Kahuku,Kahuku,2011,1,Fixed,1,Hawaiʻi Volcanoes National Park,TRUE,TRUE
+20110811070548-329735934.734344,HAVO,Subalpine Shrubland,Mauna Loa,Mauna Loa,2011,1,Fixed,10,Hawaiʻi Volcanoes National Park,TRUE,TRUE
+20110811071625-114623308.181763,HAVO,Wet Forest,Kahuku,Kahuku,2011,1,Rotational,19,Hawaiʻi Volcanoes National Park,TRUE,TRUE
+20110811085143-169873476.028442,HAVO,Wet Forest,Kahuku,Kahuku,2011,1,Fixed,5,Hawaiʻi Volcanoes National Park,TRUE,TRUE
+20110811090805-446993231.773376,HAVO,Subalpine Shrubland,Mauna Loa,Mauna Loa,2011,1,Fixed,6,Hawaiʻi Volcanoes National Park,TRUE,TRUE
+20110811093315-226866006.851196,HAVO,Wet Forest,Kahuku,Kahuku,2011,1,Rotational,23,Hawaiʻi Volcanoes National Park,TRUE,TRUE
+20110811094542-530212521.55304,HAVO,Wet Forest,Kahuku,Kahuku,2011,1,Fixed,6,Hawaiʻi Volcanoes National Park,TRUE,TRUE
+20110811095313-714816331.863403,HAVO,Subalpine Shrubland,Mauna Loa,Mauna Loa,2011,1,Rotational,15,Hawaiʻi Volcanoes National Park,TRUE,TRUE
+20110830105309-579518616.199493,HAVO,Subalpine Shrubland,Mauna Loa,Mauna Loa,2011,1,Rotational,11,Hawaiʻi Volcanoes National Park,TRUE,TRUE
+20110830133852-378902554.512024,HAVO,Subalpine Shrubland,Mauna Loa,Mauna Loa,2011,1,Fixed,9,Hawaiʻi Volcanoes National Park,TRUE,TRUE
+20110830135445-390471458.435059,HAVO,Wet Forest,Kahuku,Kahuku,2011,1,Fixed,14,Hawaiʻi Volcanoes National Park,TRUE,TRUE
+20110830141740-538246333.599091,HAVO,Wet Forest,Kahuku,Kahuku,2011,1,Fixed,15,Hawaiʻi Volcanoes National Park,TRUE,TRUE
+20110906073909-579518616.199493,HAVO,Wet Forest,Kahuku,Kahuku,2011,1,Rotational,27,Hawaiʻi Volcanoes National Park,TRUE,TRUE
+20110906082913-462980031.967163,HAVO,Subalpine Shrubland,Mauna Loa,Mauna Loa,2011,1,Rotational,17,Hawaiʻi Volcanoes National Park,TRUE,TRUE
+20110906124415-579518616.199493,HAVO,Subalpine Shrubland,Mauna Loa,Mauna Loa,2011,1,Fixed,3,Hawaiʻi Volcanoes National Park,TRUE,TRUE
+20110907084009-536794066.429138,HAVO,Wet Forest,Kahuku,Kahuku,2011,1,Fixed,2,Hawaiʻi Volcanoes National Park,TRUE,TRUE
+20110907100146-378606200.218201,HAVO,Wet Forest,Kahuku,Kahuku,2011,1,Fixed,8,Hawaiʻi Volcanoes National Park,TRUE,TRUE
+20110907133528-579518616.199493,HAVO,Wet Forest,Kahuku,Kahuku,2011,1,Fixed,10,Hawaiʻi Volcanoes National Park,TRUE,TRUE
+20110915130854-284480273.723602,HAVO,Wet Forest,Kahuku,Kahuku,2011,1,Rotational,22,Hawaiʻi Volcanoes National Park,TRUE,TRUE
+20110915135815-492165625.095367,HAVO,Subalpine Shrubland,Mauna Loa,Mauna Loa,2011,1,Fixed,5,Hawaiʻi Volcanoes National Park,TRUE,TRUE
+20110919093019-326206207.275391,HAVO,Wet Forest,Kahuku,Kahuku,2011,1,Fixed,4,Hawaiʻi Volcanoes National Park,TRUE,TRUE
+20110919135040-15682399.2729187,HAVO,Wet Forest,Kahuku,Kahuku,2011,1,Fixed,9,Hawaiʻi Volcanoes National Park,TRUE,TRUE
+20110919150808-441216230.392456,HAVO,Wet Forest,Kahuku,Kahuku,2011,1,Fixed,7,Hawaiʻi Volcanoes National Park,TRUE,TRUE
+20110920151508-428456366.062164,HAVO,Subalpine Shrubland,Mauna Loa,Mauna Loa,2011,1,Rotational,20,Hawaiʻi Volcanoes National Park,TRUE,TRUE
+20110921063104-579518616.199493,HAVO,Subalpine Shrubland,Mauna Loa,Mauna Loa,2011,1,Fixed,8,Hawaiʻi Volcanoes National Park,TRUE,TRUE
+20110921072606-705547511.577606,HAVO,Subalpine Shrubland,Mauna Loa,Mauna Loa,2011,1,Rotational,14,Hawaiʻi Volcanoes National Park,TRUE,TRUE
+20110921133538-579518616.199493,HAVO,Subalpine Shrubland,Mauna Loa,Mauna Loa,2011,1,Fixed,2,Hawaiʻi Volcanoes National Park,TRUE,TRUE
+20110922083609-579518616.199493,HAVO,Subalpine Shrubland,Mauna Loa,Mauna Loa,2011,1,Rotational,18,Hawaiʻi Volcanoes National Park,TRUE,TRUE
+20111012091752-579518616.199493,HAVO,Wet Forest,Kahuku,Kahuku,2011,1,Rotational,21,Hawaiʻi Volcanoes National Park,TRUE,TRUE
+20111012150622-705547511.577606,HAVO,Wet Forest,Kahuku,Kahuku,2011,1,Fixed,13,Hawaiʻi Volcanoes National Park,TRUE,TRUE
+20111017133948-579518616.199493,HAVO,Subalpine Shrubland,Mauna Loa,Mauna Loa,2011,1,Rotational,19,Hawaiʻi Volcanoes National Park,TRUE,TRUE
+20111018134013-579518616.199493,HAVO,Subalpine Shrubland,Mauna Loa,Mauna Loa,2011,1,Rotational,13,Hawaiʻi Volcanoes National Park,TRUE,TRUE
+20111019082128-289562463.760376,HAVO,Wet Forest,Kahuku,Kahuku,2011,1,Rotational,25,Hawaiʻi Volcanoes National Park,TRUE,TRUE
+20111019134724-22629201.4122009,HAVO,Subalpine Shrubland,Mauna Loa,Mauna Loa,2011,1,Fixed,4,Hawaiʻi Volcanoes National Park,TRUE,TRUE
+20111020081841-948571085.929871,HAVO,Subalpine Shrubland,Mauna Loa,Mauna Loa,2011,1,Fixed,7,Hawaiʻi Volcanoes National Park,TRUE,TRUE
+20111116072230-579518616.199493,HAVO,Subalpine Shrubland,Mauna Loa,Mauna Loa,2011,1,Rotational,12,Hawaiʻi Volcanoes National Park,TRUE,TRUE
+20111116142901-579518616.199493,HAVO,Subalpine Shrubland,Mauna Loa,Mauna Loa,2011,1,Fixed,1,Hawaiʻi Volcanoes National Park,TRUE,TRUE
+20111117063102-579518616.199493,HAVO,Subalpine Shrubland,Mauna Loa,Mauna Loa,2011,1,Rotational,16,Hawaiʻi Volcanoes National Park,TRUE,TRUE
+20111121132445-862619340.419769,HAVO,Wet Forest,Kahuku,Kahuku,2011,1,Rotational,18,Hawaiʻi Volcanoes National Park,TRUE,TRUE
+20120208113540-705547511.577606,HAVO,Wet Forest,Olaa,ʻŌlaʻa,2010,1,Fixed,1,Hawaiʻi Volcanoes National Park,TRUE,TRUE
+20120302084109-705547511.577606,HAVO,Wet Forest,Olaa,ʻŌlaʻa,2010,1,Fixed,4,Hawaiʻi Volcanoes National Park,TRUE,TRUE
+20120813100226-705547511.577606,KALA,Coastal Strand,Kalawao,Kalawao,2012,1,Rotational,1,Kalaupapa National Historical Park,TRUE,TRUE
+20120816145527-579518616.199493,KALA,Coastal Strand,Kalawao,Kalawao,2012,1,Rotational,2,Kalaupapa National Historical Park,TRUE,TRUE
+20120817091217-431144356.7276,KALA,Coastal Strand,Kalawao,Kalawao,2012,1,Rotational,3,Kalaupapa National Historical Park,TRUE,TRUE
+20120817110831-281381428.24173,KALA,Coastal Strand,Kalawao,Kalawao,2012,1,Rotational,4,Kalaupapa National Historical Park,TRUE,TRUE
+20120817132255-579518616.199493,KALA,Coastal Strand,Kalawao,Kalawao,2012,1,Rotational,5,Kalaupapa National Historical Park,TRUE,TRUE
+20120820100438-406421303.749084,KALA,Coastal Strand,Kalawao,Kalawao,2012,1,Rotational,6,Kalaupapa National Historical Park,TRUE,TRUE
+20120820104259-410631656.646729,KALA,Coastal Strand,Kalawao,Kalawao,2012,1,Rotational,7,Kalaupapa National Historical Park,TRUE,TRUE
+20120820115622-721003949.642181,KALA,Coastal Strand,Kalawao,Kalawao,2012,1,Rotational,8,Kalaupapa National Historical Park,TRUE,TRUE
+20120820141136-705547511.577606,KALA,Coastal Strand,Kalawao,Kalawao,2012,1,Rotational,9,Kalaupapa National Historical Park,TRUE,TRUE
+20120820153523-326143980.026245,KALA,Coastal Strand,Kalawao,Kalawao,2012,1,Rotational,10,Kalaupapa National Historical Park,TRUE,TRUE
+20120821084725-634571135.044098,KALA,Coastal Strand,Kalawao,Kalawao,2012,1,Rotational,11,Kalaupapa National Historical Park,TRUE,TRUE
+20120821105453-499257028.102875,KALA,Coastal Strand,Kalawao,Kalawao,2012,1,Rotational,12,Kalaupapa National Historical Park,TRUE,TRUE
+20120821115544-579518616.199493,KALA,Coastal Strand,Kalawao,Kalawao,2012,1,Rotational,13,Kalaupapa National Historical Park,TRUE,TRUE
+20120821133754-579518616.199493,KALA,Coastal Strand,Kalawao,Kalawao,2012,1,Rotational,14,Kalaupapa National Historical Park,TRUE,TRUE
+20120822072136-579518616.199493,KALA,Coastal Strand,Kalawao,Kalawao,2012,1,Rotational,15,Kalaupapa National Historical Park,TRUE,TRUE
+20120822102618-579518616.199493,KALA,Coastal Strand,Kalawao,Kalawao,2012,1,Rotational,16,Kalaupapa National Historical Park,TRUE,TRUE
+20120822114054-406421303.749084,KALA,Coastal Strand,Hoolehua,Hoʻolehua,2012,1,Rotational,17,Kalaupapa National Historical Park,TRUE,TRUE
+20120822135820-48118889.3318176,KALA,Coastal Strand,Hoolehua,Hoʻolehua,2012,1,Rotational,19,Kalaupapa National Historical Park,TRUE,TRUE
+20120823080246-579518616.199493,KALA,Coastal Strand,Hoolehua,Hoʻolehua,2012,1,Rotational,18,Kalaupapa National Historical Park,TRUE,TRUE
+20120823113119-579518616.199493,KALA,Coastal Strand,Hoolehua,Hoʻolehua,2012,1,Rotational,20,Kalaupapa National Historical Park,TRUE,TRUE
+20120823133528-579518616.199493,KALA,Coastal Strand,Hoolehua,Hoʻolehua,2012,1,Rotational,21,Kalaupapa National Historical Park,TRUE,TRUE
+20120823143815-138732314.109802,KALA,Coastal Strand,Hoolehua,Hoʻolehua,2012,1,Rotational,22,Kalaupapa National Historical Park,TRUE,TRUE
+20120824073928-536794066.429138,KALA,Coastal Strand,Hoolehua,Hoʻolehua,2012,1,Rotational,23,Kalaupapa National Historical Park,TRUE,TRUE
+20120824083956-121549963.951111,KALA,Coastal Strand,Hoolehua,Hoʻolehua,2012,1,Rotational,24,Kalaupapa National Historical Park,TRUE,TRUE
+20120827144928-928785979.747772,KALA,Coastal Strand,Hoolehua,Hoʻolehua,2012,1,Rotational,25,Kalaupapa National Historical Park,TRUE,TRUE
+20121119132202-579518616.199493,HALE,Subalpine Shrubland,Haleakala,Haleakalā,2012,1,Rotational,17,Haleakalā National Park,TRUE,TRUE
+20121119134003-712730467.319489,HALE,Subalpine Shrubland,Haleakala,Haleakalā,2012,1,Rotational,19,Haleakalā National Park,TRUE,TRUE
+20121119141709-721895098.686218,HALE,Subalpine Shrubland,Haleakala,Haleakalā,2012,1,Rotational,15,Haleakalā National Park,TRUE,TRUE
+20121119144216-802587389.945984,HALE,Subalpine Shrubland,Haleakala,Haleakalā,2012,1,Fixed,1,Haleakalā National Park,TRUE,TRUE
+20121120074126-186013519.763947,HALE,Subalpine Shrubland,Haleakala,Haleakalā,2012,1,Rotational,13,Haleakalā National Park,TRUE,TRUE
+20121120084504-673646688.461304,HALE,Subalpine Shrubland,Haleakala,Haleakalā,2012,1,Rotational,16,Haleakalā National Park,TRUE,TRUE
+20121120092747-446993231.773376,HALE,Subalpine Shrubland,Haleakala,Haleakalā,2012,1,Rotational,14,Haleakalā National Park,TRUE,TRUE
+20121120095427-904373705.387115,HALE,Subalpine Shrubland,Haleakala,Haleakalā,2012,1,Fixed,2,Haleakalā National Park,TRUE,TRUE
+20121120102812-664871633.052826,HALE,Subalpine Shrubland,Haleakala,Haleakalā,2012,1,Rotational,18,Haleakalā National Park,TRUE,TRUE
+20121120104150-375399231.910706,HALE,Subalpine Shrubland,Haleakala,Haleakalā,2012,1,Rotational,11,Haleakalā National Park,TRUE,TRUE
+20121120110134-431542336.940765,HALE,Subalpine Shrubland,Haleakala,Haleakalā,2012,1,Fixed,6,Haleakalā National Park,TRUE,TRUE
+20121120123314-898666501.045227,HALE,Subalpine Shrubland,Haleakala,Haleakalā,2012,1,Fixed,3,Haleakalā National Park,TRUE,TRUE
+20121120125217-805818855.762482,HALE,Subalpine Shrubland,Haleakala,Haleakalā,2012,1,Fixed,10,Haleakalā National Park,TRUE,TRUE
+20121120130018-824579894.542694,HALE,Subalpine Shrubland,Haleakala,Haleakalā,2012,1,Fixed,5,Haleakalā National Park,TRUE,TRUE
+20121120132202-490728914.737701,HALE,Subalpine Shrubland,Haleakala,Haleakalā,2012,1,Fixed,4,Haleakalā National Park,TRUE,TRUE
+20121120133734-774543046.951294,HALE,Subalpine Shrubland,Haleakala,Haleakalā,2012,1,Fixed,8,Haleakalā National Park,TRUE,TRUE
+20130306114657-579518616.199493,HALE,Subalpine Shrubland,Haleakala,Haleakalā,2013,1,Rotational,20,Haleakalā National Park,TRUE,TRUE
+20130307084858-579518616.199493,HALE,Subalpine Shrubland,Haleakala,Haleakalā,2013,1,Fixed,9,Haleakalā National Park,TRUE,TRUE
+20130307105456-106369674.20578,HALE,Wet Forest,Kipahulu District,Kīpahulu District,2013,1,Fixed,3,Haleakalā National Park,TRUE,TRUE
+20130307133035-300970494.747162,HALE,Wet Forest,Kipahulu District,Kīpahulu District,2012,1,Rotational,19,Haleakalā National Park,TRUE,TRUE
+20130307150336-243931353.092194,HALE,Wet Forest,Kipahulu District,Kīpahulu District,2012,1,Rotational,15,Haleakalā National Park,TRUE,TRUE
+20130307155838-757729291.915894,HALE,Wet Forest,Kipahulu District,Kīpahulu District,2012,1,Fixed,9,Haleakalā National Park,TRUE,TRUE
+20130307170551-533022344.112396,HALE,Wet Forest,Kipahulu District,Kīpahulu District,2012,1,Rotational,18,Haleakalā National Park,TRUE,TRUE
+20130311103524-620209574.699402,HALE,Wet Forest,Kipahulu District,Kīpahulu District,2012,1,Fixed,5,Haleakalā National Park,TRUE,TRUE
+20130311114430-965364456.176758,HALE,Wet Forest,Kipahulu District,Kīpahulu District,2013,1,Rotational,16,Haleakalā National Park,TRUE,TRUE
+20130311140216-984253227.710724,HALE,Wet Forest,Kipahulu District,Kīpahulu District,2012,1,Fixed,7,Haleakalā National Park,TRUE,TRUE
+20130311154538-184424817.562103,HALE,Wet Forest,Kipahulu District,Kīpahulu District,2013,1,Fixed,2,Haleakalā National Park,TRUE,TRUE
+20130311164454-868004083.633423,HALE,Wet Forest,Kipahulu District,Kīpahulu District,2013,1,Rotational,20,Haleakalā National Park,TRUE,TRUE
+20130320103159-579518616.199493,HALE,Wet Forest,Kipahulu District,Kīpahulu District,2013,1,Rotational,21,Haleakalā National Park,TRUE,TRUE
+20130320115303-347726404.666901,HALE,Wet Forest,Kipahulu District,Kīpahulu District,2013,1,Fixed,6,Haleakalā National Park,TRUE,TRUE
+20130418144200-579518616.199493,HALE,Subalpine Shrubland,Haleakala,Haleakalā,2013,1,Rotational,12,Haleakalā National Park,TRUE,TRUE
+20130422085318-949556648.731232,HALE,Wet Forest,Kipahulu District,Kīpahulu District,2013,1,Rotational,12,Haleakalā National Park,TRUE,TRUE
+20130502135541-705547511.577606,HALE,Subalpine Shrubland,Haleakala,Haleakalā,2012,1,Rotational,21,Haleakalā National Park,TRUE,TRUE
+20140716132836-774740099.906921,AMME,Mangrove Wetland,Muchot,Muchot,2014,1,Fixed,1,American Memorial National Park,TRUE,TRUE
+20140716145134-506087362.766266,AMME,Mangrove Wetland,Muchot,Muchot,2014,1,Fixed,2,American Memorial National Park,TRUE,TRUE
+20140717085806-705547511.577606,AMME,Mangrove Wetland,Muchot,Muchot,2014,1,Fixed,3,American Memorial National Park,TRUE,TRUE
+20140717101603-322717666.625977,AMME,Mangrove Wetland,Muchot,Muchot,2014,1,Fixed,4,American Memorial National Park,TRUE,TRUE
+20140717120452-404864609.241486,AMME,Mangrove Wetland,Muchot,Muchot,2014,1,Fixed,5A,American Memorial National Park,TRUE,TRUE
+20140717122844-989428222.179413,AMME,Mangrove Wetland,Muchot,Muchot,2014,1,Fixed,5B,American Memorial National Park,TRUE,TRUE
+20140717125203-314812541.007996,AMME,Mangrove Wetland,Muchot,Muchot,2014,1,Fixed,6A,American Memorial National Park,TRUE,TRUE
+20140717132305-714927077.293396,AMME,Mangrove Wetland,Muchot,Muchot,2014,1,Fixed,6B,American Memorial National Park,TRUE,TRUE
+20140811135827-14017641.544342,HALE,Wet Forest,Kipahulu District,Kīpahulu District,2013,1,Rotational,14,Haleakalā National Park,TRUE,TRUE
+20140811144333-677947700.023651,HALE,Wet Forest,Kipahulu District,Kīpahulu District,2013,1,Fixed,1,Haleakalā National Park,TRUE,TRUE
+20140812080129-579518616.199493,HALE,Wet Forest,Kipahulu District,Kīpahulu District,2013,1,Fixed,4,Haleakalā National Park,TRUE,TRUE
+20150323085410-862619340.419769,HAVO,Wet Forest,Nahuku/East Rift,Nāhuku / East Rift,2015,2,Rotational,24,Hawaiʻi Volcanoes National Park,TRUE,TRUE
+20150323123456-807941019.535065,HAVO,Wet Forest,Nahuku/East Rift,Nāhuku / East Rift,2015,2,Rotational,25,Hawaiʻi Volcanoes National Park,TRUE,TRUE
+20150513154911-919377088.546753,HAVO,Wet Forest,Nahuku/East Rift,Nāhuku / East Rift,2015,2,Fixed,2,Hawaiʻi Volcanoes National Park,TRUE,TRUE
+20150514100501-279342055.32074,HAVO,Wet Forest,Olaa,ʻŌlaʻa,2015,2,Rotational,30,Hawaiʻi Volcanoes National Park,TRUE,TRUE
+20150618081302-705547511.577606,HAVO,Wet Forest,Nahuku/East Rift,Nāhuku / East Rift,2015,2,Fixed,5,Hawaiʻi Volcanoes National Park,TRUE,TRUE
+20150826072144-705547511.577606,HAVO,Wet Forest,Nahuku/East Rift,Nāhuku / East Rift,2015,2,Fixed,4,Hawaiʻi Volcanoes National Park,TRUE,TRUE
+20150826075650-579518616.199493,HAVO,Wet Forest,Olaa,ʻŌlaʻa,2015,2,Fixed,9,Hawaiʻi Volcanoes National Park,TRUE,TRUE
+20150826082900-927616536.617279,HAVO,Wet Forest,Nahuku/East Rift,Nāhuku / East Rift,2015,2,Fixed,6,Hawaiʻi Volcanoes National Park,TRUE,TRUE
+20150826090726-972966670.98999,HAVO,Wet Forest,Nahuku/East Rift,Nāhuku / East Rift,2015,2,Fixed,7,Hawaiʻi Volcanoes National Park,TRUE,TRUE
+20150826095036-406934142.112732,HAVO,Wet Forest,Nahuku/East Rift,Nāhuku / East Rift,2015,2,Fixed,9,Hawaiʻi Volcanoes National Park,TRUE,TRUE
+20150826152200-223261773.586273,HAVO,Wet Forest,Nahuku/East Rift,Nāhuku / East Rift,2015,2,Rotational,22,Hawaiʻi Volcanoes National Park,TRUE,TRUE
+20150826161129-909298360.347748,HAVO,Wet Forest,Nahuku/East Rift,Nāhuku / East Rift,2015,2,Rotational,23,Hawaiʻi Volcanoes National Park,TRUE,TRUE
+20150827075238-620209574.699402,HAVO,Wet Forest,Olaa,ʻŌlaʻa,2015,2,Fixed,2,Hawaiʻi Volcanoes National Park,TRUE,TRUE
+20150827085216-646587133.407593,HAVO,Wet Forest,Olaa,ʻŌlaʻa,2015,2,Fixed,3,Hawaiʻi Volcanoes National Park,TRUE,TRUE
+20150902141326-705547511.577606,HAVO,Wet Forest,Olaa,ʻŌlaʻa,2015,2,Fixed,10,Hawaiʻi Volcanoes National Park,TRUE,TRUE
+20150902145053-938545167.446136,HAVO,Wet Forest,Olaa,ʻŌlaʻa,2015,2,Fixed,6,Hawaiʻi Volcanoes National Park,TRUE,TRUE
+20150902154258-705547511.577606,HAVO,Wet Forest,Olaa,ʻŌlaʻa,2015,2,Fixed,8,Hawaiʻi Volcanoes National Park,TRUE,TRUE
+20150902162850-985373914.241791,HAVO,Wet Forest,Olaa,ʻŌlaʻa,2015,2,Rotational,21,Hawaiʻi Volcanoes National Park,TRUE,TRUE
+20150914091853-579518616.199493,HAVO,Wet Forest,Olaa,ʻŌlaʻa,2015,2,Rotational,23,Hawaiʻi Volcanoes National Park,TRUE,TRUE
+20150914094841-886600077.152252,HAVO,Wet Forest,Olaa,ʻŌlaʻa,2015,2,Rotational,22,Hawaiʻi Volcanoes National Park,TRUE,TRUE
+20150914104105-904373705.387115,HAVO,Wet Forest,Olaa,ʻŌlaʻa,2015,2,Rotational,24,Hawaiʻi Volcanoes National Park,TRUE,TRUE
+20150914113618-702406346.797943,HAVO,Wet Forest,Olaa,ʻŌlaʻa,2015,2,Rotational,27,Hawaiʻi Volcanoes National Park,TRUE,TRUE
+20150914120914-56689262.3901367,HAVO,Wet Forest,Olaa,ʻŌlaʻa,2015,2,Rotational,29,Hawaiʻi Volcanoes National Park,TRUE,TRUE
+20150914124724-993945777.416229,HAVO,Wet Forest,Olaa,ʻŌlaʻa,2015,2,Rotational,28,Hawaiʻi Volcanoes National Park,TRUE,TRUE
+20150914141334-777957856.655121,HAVO,Wet Forest,Nahuku/East Rift,Nāhuku / East Rift,2015,2,Fixed,10,Hawaiʻi Volcanoes National Park,TRUE,TRUE
+20150914151355-305358588.695526,HAVO,Wet Forest,Nahuku/East Rift,Nāhuku / East Rift,2015,2,Rotational,26,Hawaiʻi Volcanoes National Park,TRUE,TRUE
+20150914155808-482081532.478333,HAVO,Wet Forest,Nahuku/East Rift,Nāhuku / East Rift,2015,2,Rotational,27,Hawaiʻi Volcanoes National Park,TRUE,TRUE
+20150915064330-579518616.199493,HAVO,Wet Forest,Nahuku/East Rift,Nāhuku / East Rift,2015,2,Rotational,30,Hawaiʻi Volcanoes National Park,TRUE,TRUE
+20151223143805-705547511.577606,HAVO,Wet Forest,Olaa,ʻŌlaʻa,2015,2,Fixed,5,Hawaiʻi Volcanoes National Park,TRUE,TRUE
+20151228103556-905729830.265045,HAVO,Wet Forest,Olaa,ʻŌlaʻa,2015,2,Fixed,7,Hawaiʻi Volcanoes National Park,TRUE,TRUE
+20151228120931-56236863.1362915,HAVO,Wet Forest,Olaa,ʻŌlaʻa,2015,2,Rotational,26,Hawaiʻi Volcanoes National Park,TRUE,TRUE
+20151229111216-364018678.665161,HAVO,Wet Forest,Nahuku/East Rift,Nāhuku / East Rift,2015,2,Fixed,3,Hawaiʻi Volcanoes National Park,TRUE,TRUE
+20160119110711-705547511.577606,HAVO,Wet Forest,Olaa,ʻŌlaʻa,2015,2,Fixed,4,Hawaiʻi Volcanoes National Park,TRUE,TRUE
+20160209092653-705547511.577606,HAVO,Wet Forest,Nahuku/East Rift,Nāhuku / East Rift,2015,2,Fixed,1,Hawaiʻi Volcanoes National Park,TRUE,TRUE
+20160223102705-705547511.577606,HAVO,Wet Forest,Olaa,ʻŌlaʻa,2015,2,Fixed,1,Hawaiʻi Volcanoes National Park,TRUE,TRUE
+20160223122738-705547511.577606,HAVO,Wet Forest,Olaa,ʻŌlaʻa,2015,2,Rotational,25,Hawaiʻi Volcanoes National Park,TRUE,TRUE
+20160328093001-705547511.577606,HAVO,Subalpine Shrubland,Mauna Loa,Mauna Loa,2016,2,Rotational,28,Hawaiʻi Volcanoes National Park,TRUE,TRUE
+20160411083502-45649170.8755493,HAVO,Wet Forest,Kahuku,Kahuku,2016,2,Rotational,36,Hawaiʻi Volcanoes National Park,TRUE,TRUE
+20160411100139-802587389.945984,HAVO,Wet Forest,Kahuku,Kahuku,2016,2,Rotational,45,Hawaiʻi Volcanoes National Park,TRUE,TRUE
+20160411103724-330300807.952881,HAVO,Wet Forest,Kahuku,Kahuku,2016,2,Rotational,42,Hawaiʻi Volcanoes National Park,TRUE,TRUE
+20160411105728-151656985.282898,HAVO,Wet Forest,Kahuku,Kahuku,2016,2,Rotational,40,Hawaiʻi Volcanoes National Park,TRUE,TRUE
+20160411111554-93152582.6454163,HAVO,Wet Forest,Kahuku,Kahuku,2016,2,Rotational,39,Hawaiʻi Volcanoes National Park,TRUE,TRUE
+20160411114430-408760964.870453,HAVO,Wet Forest,Kahuku,Kahuku,2016,2,Fixed,14,Hawaiʻi Volcanoes National Park,TRUE,TRUE
+20160411131214-72723507.8811646,HAVO,Wet Forest,Kahuku,Kahuku,2016,2,Fixed,13,Hawaiʻi Volcanoes National Park,TRUE,TRUE
+20160411133443-326844692.230225,HAVO,Wet Forest,Kahuku,Kahuku,2016,2,Fixed,12,Hawaiʻi Volcanoes National Park,TRUE,TRUE
+20160411135737-498516380.786896,HAVO,Wet Forest,Kahuku,Kahuku,2016,2,Fixed,11,Hawaiʻi Volcanoes National Park,TRUE,TRUE
+20160411141802-953128993.5112,HAVO,Wet Forest,Kahuku,Kahuku,2016,2,Fixed,10,Hawaiʻi Volcanoes National Park,TRUE,TRUE
+20160411144451-467859745.025635,HAVO,Wet Forest,Kahuku,Kahuku,2016,2,Fixed,15,Hawaiʻi Volcanoes National Park,TRUE,TRUE
+20160411154110-220317482.948303,HAVO,Subalpine Shrubland,Mauna Loa,Mauna Loa,2016,2,Fixed,4,Hawaiʻi Volcanoes National Park,TRUE,TRUE
+20160411160749-818339824.676514,HAVO,Subalpine Shrubland,Mauna Loa,Mauna Loa,2016,2,Fixed,5,Hawaiʻi Volcanoes National Park,TRUE,TRUE
+20160413153617-705547511.577606,HAVO,Subalpine Shrubland,Mauna Loa,Mauna Loa,2016,2,Fixed,2,Hawaiʻi Volcanoes National Park,TRUE,TRUE
+20160426085412-705547511.577606,HAVO,Wet Forest,Kahuku,Kahuku,2016,2,Fixed,2,Hawaiʻi Volcanoes National Park,TRUE,TRUE
+20160426095349-620209574.699402,HAVO,Subalpine Shrubland,Mauna Loa,Mauna Loa,2016,2,Rotational,25,Hawaiʻi Volcanoes National Park,TRUE,TRUE
+20160426103054-463584005.832672,HAVO,Subalpine Shrubland,Mauna Loa,Mauna Loa,2016,2,Fixed,1,Hawaiʻi Volcanoes National Park,TRUE,TRUE
+20160426110350-382569313.049316,HAVO,Wet Forest,Kahuku,Kahuku,2016,2,Fixed,3,Hawaiʻi Volcanoes National Park,TRUE,TRUE
+20160426140251-705547511.577606,HAVO,Subalpine Shrubland,Mauna Loa,Mauna Loa,2016,2,Rotational,26,Hawaiʻi Volcanoes National Park,TRUE,TRUE
+20160426150525-206017196.178436,HAVO,Subalpine Shrubland,Mauna Loa,Mauna Loa,2016,2,Rotational,22,Hawaiʻi Volcanoes National Park,TRUE,TRUE
+20160426153008-784488618.373871,HAVO,Subalpine Shrubland,Mauna Loa,Mauna Loa,2016,2,Fixed,7,Hawaiʻi Volcanoes National Park,TRUE,TRUE
+20160426160201-401036381.721497,HAVO,Subalpine Shrubland,Mauna Loa,Mauna Loa,2016,2,Fixed,3,Hawaiʻi Volcanoes National Park,TRUE,TRUE
+20160517085642-579518616.199493,HAVO,Wet Forest,Kahuku,Kahuku,2016,2,Fixed,5,Hawaiʻi Volcanoes National Park,TRUE,TRUE
+20160517104615-538246333.599091,HAVO,Wet Forest,Kahuku,Kahuku,2016,2,Rotational,31,Hawaiʻi Volcanoes National Park,TRUE,TRUE
+20160517114154-106133759.021759,HAVO,Wet Forest,Kahuku,Kahuku,2016,2,Rotational,35,Hawaiʻi Volcanoes National Park,TRUE,TRUE
+20160517131018-579518616.199493,HAVO,Wet Forest,Kahuku,Kahuku,2016,2,Rotational,41,Hawaiʻi Volcanoes National Park,TRUE,TRUE
+20160517134810-847245514.392853,HAVO,Wet Forest,Kahuku,Kahuku,2016,2,Rotational,44,Hawaiʻi Volcanoes National Park,TRUE,TRUE
+20160517152502-18808901.309967,HAVO,Subalpine Shrubland,Mauna Loa,Mauna Loa,2016,2,Fixed,6,Hawaiʻi Volcanoes National Park,TRUE,TRUE
+20160517160147-281609952.449799,HAVO,Subalpine Shrubland,Mauna Loa,Mauna Loa,2016,2,Fixed,8,Hawaiʻi Volcanoes National Park,TRUE,TRUE
+20160517162615-982142031.19278,HAVO,Subalpine Shrubland,Mauna Loa,Mauna Loa,2016,2,Fixed,9,Hawaiʻi Volcanoes National Park,TRUE,TRUE
+20160518083424-826225519.180298,HAVO,Subalpine Shrubland,Mauna Loa,Mauna Loa,2016,2,Fixed,10,Hawaiʻi Volcanoes National Park,TRUE,TRUE
+20160518090038-972966670.98999,HAVO,Subalpine Shrubland,Mauna Loa,Mauna Loa,2016,2,Rotational,21,Hawaiʻi Volcanoes National Park,TRUE,TRUE
+20160518102053-694607496.261597,HAVO,Subalpine Shrubland,Mauna Loa,Mauna Loa,2016,2,Rotational,27,Hawaiʻi Volcanoes National Park,TRUE,TRUE
+20160518104031-794173538.684845,HAVO,Subalpine Shrubland,Mauna Loa,Mauna Loa,2016,2,Rotational,24,Hawaiʻi Volcanoes National Park,TRUE,TRUE
+20160518105651-87257385.2539063,HAVO,Subalpine Shrubland,Mauna Loa,Mauna Loa,2016,2,Rotational,29,Hawaiʻi Volcanoes National Park,TRUE,TRUE
+20160622154755-579518616.199493,HAVO,Subalpine Shrubland,Mauna Loa,Mauna Loa,2016,2,Rotational,23,Hawaiʻi Volcanoes National Park,TRUE,TRUE
+20160705100611-579518616.199493,HAVO,Wet Forest,Kahuku,Kahuku,2016,2,Fixed,1,Hawaiʻi Volcanoes National Park,TRUE,TRUE
+20160705113630-714816331.863403,HAVO,Wet Forest,Kahuku,Kahuku,2016,2,Rotational,32,Hawaiʻi Volcanoes National Park,TRUE,TRUE
+20160718082629-579518616.199493,HAVO,Wet Forest,Kahuku,Kahuku,2016,2,Fixed,7,Hawaiʻi Volcanoes National Park,TRUE,TRUE
+20160718152134-579518616.199493,HAVO,Wet Forest,Kahuku,Kahuku,2016,2,Fixed,8,Hawaiʻi Volcanoes National Park,TRUE,TRUE
+20160718155540-832730174.064636,HAVO,Wet Forest,Kahuku,Kahuku,2016,2,Rotational,43,Hawaiʻi Volcanoes National Park,TRUE,TRUE
+20160718161351-302497565.746307,HAVO,Wet Forest,Kahuku,Kahuku,2016,2,Rotational,38,Hawaiʻi Volcanoes National Park,TRUE,TRUE
+20160719080807-579518616.199493,HAVO,Wet Forest,Kahuku,Kahuku,2016,2,Fixed,9,Hawaiʻi Volcanoes National Park,TRUE,TRUE
+20160719102617-579518616.199493,HAVO,Wet Forest,Kahuku,Kahuku,2016,2,Rotational,37,Hawaiʻi Volcanoes National Park,TRUE,TRUE
+20160719105744-241219.997406006,HAVO,Wet Forest,Kahuku,Kahuku,2016,2,Rotational,34,Hawaiʻi Volcanoes National Park,TRUE,TRUE
+20160719114609-372814297.676086,HAVO,Wet Forest,Kahuku,Kahuku,2016,2,Fixed,6,Hawaiʻi Volcanoes National Park,TRUE,TRUE
+20160726105750-579518616.199493,HAVO,Wet Forest,Kahuku,Kahuku,2016,2,Fixed,4,Hawaiʻi Volcanoes National Park,TRUE,TRUE
+20160816123604-301948010.921478,HAVO,Wet Forest,Nahuku/East Rift,Nāhuku / East Rift,2016,2,Fixed,8,Hawaiʻi Volcanoes National Park,TRUE,TRUE
+20160816141159-216733515.262604,HAVO,Wet Forest,Nahuku/East Rift,Nāhuku / East Rift,2016,2,Rotational,28,Hawaiʻi Volcanoes National Park,TRUE,TRUE
+20160816153132-729410886.764526,HAVO,Wet Forest,Kahuku,Kahuku,2016,2,Rotational,33,Hawaiʻi Volcanoes National Park,TRUE,TRUE
+20160822082643-474459171.295166,HAVO,Wet Forest,Nahuku/East Rift,Nāhuku / East Rift,2016,2,Rotational,29,Hawaiʻi Volcanoes National Park,TRUE,TRUE
+20160822094912-278589427.471161,HAVO,Subalpine Shrubland,Mauna Loa,Mauna Loa,2016,2,Rotational,30,Hawaiʻi Volcanoes National Park,TRUE,TRUE
+20170706135116-301948010.921478,HALE,Subalpine Shrubland,Haleakala,Haleakalā,2017,2,Rotational,25,Haleakalā National Park,TRUE,TRUE
+20170726090245-705547511.577606,HALE,Subalpine Shrubland,Haleakala,Haleakalā,2017,2,Fixed,2,Haleakalā National Park,TRUE,TRUE
+20170726125535-97973823.5473633,HALE,Subalpine Shrubland,Haleakala,Haleakalā,2017,2,Fixed,3,Haleakalā National Park,TRUE,TRUE
+20170726141618-356586277.484894,HALE,Subalpine Shrubland,Haleakala,Haleakalā,2017,2,Fixed,4,Haleakalā National Park,TRUE,TRUE
+20170726162115-390291452.407837,HALE,Subalpine Shrubland,Haleakala,Haleakalā,2017,2,Fixed,5,Haleakalā National Park,TRUE,TRUE
+20170728084241-705547511.577606,HALE,Subalpine Shrubland,Haleakala,Haleakalā,2017,2,Fixed,6,Haleakalā National Park,TRUE,TRUE
+20170728100415-575183808.803558,HALE,Subalpine Shrubland,Haleakala,Haleakalā,2017,2,Fixed,8,Haleakalā National Park,TRUE,TRUE
+20170728133534-579518616.199493,KALA,Coastal Strand,Hoolehua,Hoʻolehua,2017,2,Rotational,47,Kalaupapa National Historical Park,TRUE,TRUE
+20170731080136-579518616.199493,HALE,Subalpine Shrubland,Haleakala,Haleakalā,2017,2,Rotational,26,Haleakalā National Park,TRUE,TRUE
+20170731140024-210368633.270264,HALE,Subalpine Shrubland,Haleakala,Haleakalā,2017,2,Rotational,28,Haleakalā National Park,TRUE,TRUE
+20170731142600-579518616.199493,KALA,Coastal Strand,Hoolehua,Hoʻolehua,2017,2,Rotational,48,Kalaupapa National Historical Park,TRUE,TRUE
+20170731162007-363458693.027496,KALA,Coastal Strand,Hoolehua,Hoʻolehua,2017,2,Rotational,49,Kalaupapa National Historical Park,TRUE,TRUE
+20170731162927-164234161.376953,HALE,Subalpine Shrubland,Haleakala,Haleakalā,2017,2,Rotational,29,Haleakalā National Park,TRUE,TRUE
+20170801101554-980003237.724304,HALE,Subalpine Shrubland,Haleakala,Haleakalā,2017,2,Rotational,30,Haleakalā National Park,TRUE,TRUE
+20170802140107-705547511.577606,HALE,Wet Forest,Kipahulu District,Kīpahulu District,2017,2,Fixed,2,Haleakalā National Park,TRUE,TRUE
+20170803134423-705547511.577606,HALE,Wet Forest,Kipahulu District,Kīpahulu District,2017,2,Fixed,5,Haleakalā National Park,TRUE,TRUE
+20170814162331-579518616.199493,HALE,Subalpine Shrubland,Haleakala,Haleakalā,2017,2,Fixed,7,Haleakalā National Park,TRUE,TRUE
+20170815075221-705547511.577606,HALE,Subalpine Shrubland,Haleakala,Haleakalā,2017,2,Fixed,10,Haleakalā National Park,TRUE,TRUE
+20170815105313-872546851.634979,HALE,Subalpine Shrubland,Haleakala,Haleakalā,2017,2,Rotational,22,Haleakalā National Park,TRUE,TRUE
+20170815135251-849099993.70575,HALE,Subalpine Shrubland,Haleakala,Haleakalā,2017,2,Rotational,23,Haleakalā National Park,TRUE,TRUE
+20170815150117-752542495.727539,HALE,Subalpine Shrubland,Haleakala,Haleakalā,2017,2,Rotational,27,Haleakalā National Park,TRUE,TRUE
+20170816094914-579518616.199493,HALE,Subalpine Shrubland,Haleakala,Haleakalā,2017,2,Rotational,24,Haleakalā National Park,TRUE,TRUE
+20170816102924-543360590.934753,HALE,Subalpine Shrubland,Haleakala,Haleakalā,2017,2,Rotational,31,Haleakalā National Park,TRUE,TRUE
+20170816112842-219409108.161926,HALE,Subalpine Shrubland,Haleakala,Haleakalā,2017,2,Fixed,9,Haleakalā National Park,TRUE,TRUE
+20170817083001-705547511.577606,HALE,Wet Forest,Kipahulu District,Kīpahulu District,2017,2,Fixed,9,Haleakalā National Park,TRUE,TRUE
+20170817132808-579518616.199493,KALA,Coastal Strand,Hoolehua,Hoʻolehua,2017,2,Rotational,46,Kalaupapa National Historical Park,TRUE,TRUE
+20170821102912-705547511.577606,HALE,Wet Forest,Kipahulu District,Kīpahulu District,2017,2,Rotational,30,Haleakalā National Park,TRUE,TRUE
+20170821114626-579518616.199493,KALA,Coastal Strand,Hoolehua,Hoʻolehua,2017,2,Rotational,50,Kalaupapa National Historical Park,TRUE,TRUE
+20171024153509-14017641.544342,KALA,Coastal Strand,Hoolehua,Hoʻolehua,2017,2,Rotational,45,Kalaupapa National Historical Park,TRUE,TRUE
+20171024163307-406421303.749084,KALA,Coastal Strand,Hoolehua,Hoʻolehua,2017,2,Rotational,44,Kalaupapa National Historical Park,TRUE,TRUE
+20171109120701-705547511.577606,HALE,Wet Forest,Kipahulu District,Kīpahulu District,2017,2,Fixed,4,Haleakalā National Park,TRUE,TRUE
+20171115123506-579518616.199493,KALA,Coastal Strand,Hoolehua,Hoʻolehua,2017,2,Rotational,42,Kalaupapa National Historical Park,TRUE,TRUE
+20171116090423-219409108.161926,KALA,Coastal Strand,Hoolehua,Hoʻolehua,2017,2,Rotational,43,Kalaupapa National Historical Park,TRUE,TRUE
+20171116105044-50045013.4277344,KALA,Coastal Strand,Kalawao,Kalawao,2017,2,Rotational,26,Kalaupapa National Historical Park,TRUE,TRUE
+20171116121721-192306995.391846,KALA,Coastal Strand,Kalawao,Kalawao,2017,2,Rotational,27,Kalaupapa National Historical Park,TRUE,TRUE
+20171116141158-240698456.764221,KALA,Coastal Strand,Kalawao,Kalawao,2017,2,Rotational,28,Kalaupapa National Historical Park,TRUE,TRUE
+20171116150250-983708381.652832,KALA,Coastal Strand,Kalawao,Kalawao,2017,2,Rotational,29,Kalaupapa National Historical Park,TRUE,TRUE
+20171212104948-579518616.199493,KALA,Coastal Strand,Kalawao,Kalawao,2017,2,Rotational,30,Kalaupapa National Historical Park,TRUE,TRUE
+20171212133824-150311291.217804,KALA,Coastal Strand,Kalawao,Kalawao,2017,2,Rotational,31,Kalaupapa National Historical Park,TRUE,TRUE
+20171212152428-846187412.7388,KALA,Coastal Strand,Kalawao,Kalawao,2017,2,Rotational,32,Kalaupapa National Historical Park,TRUE,TRUE
+20171213065630-162821590.900421,KALA,Coastal Strand,Kalawao,Kalawao,2017,2,Rotational,33,Kalaupapa National Historical Park,TRUE,TRUE
+20171213084318-256628930.568695,KALA,Coastal Strand,Kalawao,Kalawao,2017,2,Rotational,34,Kalaupapa National Historical Park,TRUE,TRUE
+20171213094225-73953330.5168152,KALA,Coastal Strand,Kalawao,Kalawao,2017,2,Rotational,35,Kalaupapa National Historical Park,TRUE,TRUE
+20171213102126-497070968.151093,KALA,Coastal Strand,Kalawao,Kalawao,2017,2,Rotational,36,Kalaupapa National Historical Park,TRUE,TRUE
+20171213110451-596437752.246857,KALA,Coastal Strand,Kalawao,Kalawao,2017,2,Rotational,37,Kalaupapa National Historical Park,TRUE,TRUE
+20171213131048-645133078.098297,KALA,Coastal Strand,Kalawao,Kalawao,2017,2,Rotational,38,Kalaupapa National Historical Park,TRUE,TRUE
+20171213143200-579518616.199493,KALA,Coastal Strand,Kalawao,Kalawao,2017,2,Rotational,39,Kalaupapa National Historical Park,TRUE,TRUE
+20171214095756-672427594.661713,KALA,Coastal Strand,Kalawao,Kalawao,2017,2,Rotational,40,Kalaupapa National Historical Park,TRUE,TRUE
+20171214110048-223323166.370392,KALA,Coastal Strand,Kalawao,Kalawao,2017,2,Rotational,41,Kalaupapa National Historical Park,TRUE,TRUE
+20180117100706-774740099.906921,HALE,Subalpine Shrubland,Haleakala,Haleakalā,2017,2,Fixed,1,Haleakalā National Park,TRUE,TRUE
+20180213080800-579518616.199493,HALE,Wet Forest,Kipahulu District,Kīpahulu District,2018,2,Rotational,22,Haleakalā National Park,TRUE,TRUE
+20180302081317-705547511.577606,HALE,Wet Forest,Kipahulu District,Kīpahulu District,2018,2,Fixed,3,Haleakalā National Park,TRUE,TRUE
+20180411094001-579518616.199493,HALE,Wet Forest,Kipahulu District,Kīpahulu District,2018,2,Fixed,10,Haleakalā National Park,TRUE,TRUE
+20180411120136-705547511.577606,HALE,Wet Forest,Kipahulu District,Kīpahulu District,2018,2,Fixed,6,Haleakalā National Park,TRUE,TRUE
+20190716111502-705547511.577606,AMME,Mangrove Wetland,Muchot,Muchot,2019,2,Fixed,1,American Memorial National Park,TRUE,TRUE
+20190716140231-928785979.747772,AMME,Mangrove Wetland,Muchot,Muchot,2019,2,Fixed,2,American Memorial National Park,TRUE,TRUE
+20190731091947-705547511.577606,AMME,Mangrove Wetland,Muchot,Muchot,2019,2,Fixed,3,American Memorial National Park,TRUE,TRUE
+20190731114238-657054960.727692,AMME,Mangrove Wetland,Muchot,Muchot,2019,2,Fixed,4,American Memorial National Park,TRUE,TRUE
+20190806073140-300970494.747162,AMME,Mangrove Wetland,Muchot,Muchot,2019,2,Fixed,5A,American Memorial National Park,TRUE,TRUE
+20190806092818-422918260.097504,AMME,Mangrove Wetland,Muchot,Muchot,2019,2,Fixed,5B,American Memorial National Park,TRUE,TRUE
+20190806113043-585937917.232513,AMME,Mangrove Wetland,Muchot,Muchot,2019,2,Fixed,6A,American Memorial National Park,TRUE,TRUE
+20190806134842-184424817.562103,AMME,Mangrove Wetland,Muchot,Muchot,2019,2,Fixed,6B,American Memorial National Park,TRUE,TRUE
+20210928112117-705547511.577606,HAVO,Wet Forest,Olaa,ʻŌlaʻa,2021,3,Fixed,1,Hawaiʻi Volcanoes National Park,TRUE,TRUE
+20210928130858-114623308.181763,HAVO,Wet Forest,Olaa,ʻŌlaʻa,2021,3,Fixed,2,Hawaiʻi Volcanoes National Park,TRUE,TRUE
+20210928135633-573013365.268707,HAVO,Wet Forest,Olaa,ʻŌlaʻa,2021,3,Fixed,3,Hawaiʻi Volcanoes National Park,TRUE,TRUE
+20210928144201-462500154.972076,HAVO,Wet Forest,Olaa,ʻŌlaʻa,2021,3,Fixed,4,Hawaiʻi Volcanoes National Park,TRUE,TRUE
+20210928152523-384382843.971252,HAVO,Wet Forest,Olaa,ʻŌlaʻa,2021,3,Fixed,6,Hawaiʻi Volcanoes National Park,TRUE,TRUE
+20210928160546-239588975.906372,HAVO,Wet Forest,Olaa,ʻŌlaʻa,2021,3,Fixed,8,Hawaiʻi Volcanoes National Park,TRUE,TRUE
+20210928163356-412967801.094055,HAVO,Wet Forest,Olaa,ʻŌlaʻa,2021,3,Fixed,10,Hawaiʻi Volcanoes National Park,TRUE,TRUE
+20210928164948-494376718.997955,HAVO,Wet Forest,Olaa,ʻŌlaʻa,2021,3,Rotational,34,Hawaiʻi Volcanoes National Park,TRUE,TRUE
+20210928170708-378606200.218201,HAVO,Wet Forest,Olaa,ʻŌlaʻa,2021,3,Rotational,35,Hawaiʻi Volcanoes National Park,TRUE,TRUE
+20210929074214-579518616.199493,HAVO,Wet Forest,Olaa,ʻŌlaʻa,2021,3,Rotational,37,Hawaiʻi Volcanoes National Park,TRUE,TRUE
+20211207124436-705547511.577606,HAVO,Wet Forest,Olaa,ʻŌlaʻa,2021,3,Fixed,5,Hawaiʻi Volcanoes National Park,TRUE,TRUE
+20211207133913-674826085.567474,HAVO,Wet Forest,Olaa,ʻŌlaʻa,2021,3,Fixed,7,Hawaiʻi Volcanoes National Park,TRUE,TRUE
+20211207150209-54648637.7716064,HAVO,Wet Forest,Olaa,ʻŌlaʻa,2021,3,Fixed,9,Hawaiʻi Volcanoes National Park,TRUE,TRUE
+20211207153326-363467097.28241,HAVO,Wet Forest,Olaa,ʻŌlaʻa,2021,3,Rotational,31,Hawaiʻi Volcanoes National Park,TRUE,TRUE
+20211207155845-957129836.082458,HAVO,Wet Forest,Olaa,ʻŌlaʻa,2021,3,Rotational,32,Hawaiʻi Volcanoes National Park,TRUE,TRUE
+20211207161552-262924849.98703,HAVO,Wet Forest,Olaa,ʻŌlaʻa,2021,3,Rotational,33,Hawaiʻi Volcanoes National Park,TRUE,TRUE
+20211207164407-606778442.85965,HAVO,Wet Forest,Olaa,ʻŌlaʻa,2021,3,Rotational,36,Hawaiʻi Volcanoes National Park,TRUE,TRUE
+20211207170940-580940365.791321,HAVO,Wet Forest,Olaa,ʻŌlaʻa,2021,3,Rotational,39,Hawaiʻi Volcanoes National Park,TRUE,TRUE
+20211208075522-443862497.806549,HAVO,Wet Forest,Olaa,ʻŌlaʻa,2021,3,Rotational,40,Hawaiʻi Volcanoes National Park,TRUE,TRUE
+20220120111417-705547511.577606,HAVO,Wet Forest,Nahuku/East Rift,Nāhuku / East Rift,2022,3,Fixed,1,Hawaiʻi Volcanoes National Park,TRUE,TRUE
+20220120115808-191922485.8284,HAVO,Wet Forest,Nahuku/East Rift,Nāhuku / East Rift,2021,3,Fixed,2,Hawaiʻi Volcanoes National Park,TRUE,TRUE
+20220120130802-463584005.832672,HAVO,Wet Forest,Nahuku/East Rift,Nāhuku / East Rift,2022,3,Rotational,36,Hawaiʻi Volcanoes National Park,TRUE,TRUE
+20220120140345-413233101.36795,HAVO,Wet Forest,Nahuku/East Rift,Nāhuku / East Rift,2022,3,Rotational,38,Hawaiʻi Volcanoes National Park,TRUE,TRUE
+20220120144758-857411265.37323,HAVO,Wet Forest,Nahuku/East Rift,Nāhuku / East Rift,2022,3,Rotational,40,Hawaiʻi Volcanoes National Park,TRUE,TRUE
+20220321152135-579518616.199493,HAVO,Wet Forest,Nahuku/East Rift,Nāhuku / East Rift,2022,3,Rotational,32,Hawaiʻi Volcanoes National Park,TRUE,TRUE
+20220322095010-130420446.395874,HAVO,Wet Forest,Nahuku/East Rift,Nāhuku / East Rift,2022,3,Rotational,33,Hawaiʻi Volcanoes National Park,TRUE,TRUE
+20220602120255-579518616.199493,HAVO,Wet Forest,Olaa,ʻŌlaʻa,2022,3,Rotational,38,Hawaiʻi Volcanoes National Park,TRUE,TRUE
+20220901091806-705547511.577606,HAVO,Subalpine Shrubland,Mauna Loa,Mauna Loa,2022,3,Fixed,2,Hawaiʻi Volcanoes National Park,TRUE,TRUE
+20220906075318-705547511.577606,HAVO,Wet Forest,Kahuku,Kahuku,2022,3,Fixed,4,Hawaiʻi Volcanoes National Park,TRUE,TRUE
+20220906093025-979077935.218811,HAVO,Wet Forest,Kahuku,Kahuku,2022,3,Rotational,52,Hawaiʻi Volcanoes National Park,TRUE,TRUE
+20220906102830-427533328.533173,HAVO,Wet Forest,Kahuku,Kahuku,2022,3,Rotational,58,Hawaiʻi Volcanoes National Park,TRUE,TRUE
+20220906111452-840887069.702148,HAVO,Wet Forest,Kahuku,Kahuku,2022,3,Fixed,3,Hawaiʻi Volcanoes National Park,TRUE,TRUE
+20220906112616-939971148.967743,HAVO,Wet Forest,Kahuku,Kahuku,2022,3,Rotational,59,Hawaiʻi Volcanoes National Park,TRUE,TRUE
+20220906120039-258442044.258118,HAVO,Wet Forest,Kahuku,Kahuku,2022,3,Rotational,60,Hawaiʻi Volcanoes National Park,TRUE,TRUE
+20220906140854-74107885.3607178,HAVO,Subalpine Shrubland,Mauna Loa,Mauna Loa,2022,3,Rotational,31,Hawaiʻi Volcanoes National Park,TRUE,TRUE
+20220906142758-629987359.046936,HAVO,Subalpine Shrubland,Mauna Loa,Mauna Loa,2022,3,Fixed,8,Hawaiʻi Volcanoes National Park,TRUE,TRUE
+20220906144016-554015040.397644,HAVO,Subalpine Shrubland,Mauna Loa,Mauna Loa,2022,3,Rotational,37,Hawaiʻi Volcanoes National Park,TRUE,TRUE
+20220906145306-43198525.9056091,HAVO,Subalpine Shrubland,Mauna Loa,Mauna Loa,2022,3,Fixed,10,Hawaiʻi Volcanoes National Park,TRUE,TRUE
+20220906151616-246225595.474243,HAVO,Subalpine Shrubland,Mauna Loa,Mauna Loa,2022,3,Fixed,9,Hawaiʻi Volcanoes National Park,TRUE,TRUE
+20220906152721-398755490.779877,HAVO,Wet Forest,Kahuku,Kahuku,2022,3,Fixed,5,Hawaiʻi Volcanoes National Park,TRUE,TRUE
+20220907072544-705547511.577606,HAVO,Wet Forest,Kahuku,Kahuku,2022,3,Fixed,10,Hawaiʻi Volcanoes National Park,TRUE,TRUE
+20220907074031-278279960.155487,HAVO,Wet Forest,Kahuku,Kahuku,2022,3,Rotational,53,Hawaiʻi Volcanoes National Park,TRUE,TRUE
+20220915135835-579518616.199493,HAVO,Wet Forest,Kahuku,Kahuku,2022,3,Rotational,49,Hawaiʻi Volcanoes National Park,TRUE,TRUE
+20220915142825-401374340.057373,HAVO,Wet Forest,Kahuku,Kahuku,2022,3,Rotational,50,Hawaiʻi Volcanoes National Park,TRUE,TRUE
+20220915152233-89896559.715271,HAVO,Subalpine Shrubland,Mauna Loa,Mauna Loa,2022,3,Rotational,32,Hawaiʻi Volcanoes National Park,TRUE,TRUE
+20220915160015-406062722.206116,HAVO,Subalpine Shrubland,Mauna Loa,Mauna Loa,2022,3,Fixed,7,Hawaiʻi Volcanoes National Park,TRUE,TRUE
+20220915162903-110386848.449707,HAVO,Subalpine Shrubland,Mauna Loa,Mauna Loa,2022,3,Fixed,6,Hawaiʻi Volcanoes National Park,TRUE,TRUE
+20220915165205-74107885.3607178,HAVO,Subalpine Shrubland,Mauna Loa,Mauna Loa,2022,3,Rotational,34,Hawaiʻi Volcanoes National Park,TRUE,TRUE
+20220915170810-375399231.910706,HAVO,Subalpine Shrubland,Mauna Loa,Mauna Loa,2022,3,Fixed,5,Hawaiʻi Volcanoes National Park,TRUE,TRUE
+20220919071638-579518616.199493,HAVO,Wet Forest,Kahuku,Kahuku,2022,3,Rotational,57,Hawaiʻi Volcanoes National Park,TRUE,TRUE
+20220928092117-705547511.577606,HAVO,Wet Forest,Kahuku,Kahuku,2022,3,Fixed,6,Hawaiʻi Volcanoes National Park,TRUE,TRUE
+20220928132228-705547511.577606,HAVO,Wet Forest,Kahuku,Kahuku,2022,3,Fixed,8,Hawaiʻi Volcanoes National Park,TRUE,TRUE
+20220928134321-289665043.354034,HAVO,Wet Forest,Kahuku,Kahuku,2022,3,Rotational,56,Hawaiʻi Volcanoes National Park,TRUE,TRUE
+20220928135845-329735934.734344,HAVO,Wet Forest,Kahuku,Kahuku,2022,3,Fixed,9,Hawaiʻi Volcanoes National Park,TRUE,TRUE
+20220928143442-185402512.550354,HAVO,Wet Forest,Kahuku,Kahuku,2022,3,Fixed,7,Hawaiʻi Volcanoes National Park,TRUE,TRUE
+20220928150055-259060978.889465,HAVO,Wet Forest,Kahuku,Kahuku,2022,3,Fixed,2,Hawaiʻi Volcanoes National Park,TRUE,TRUE
+20220928152524-692547857.761383,HAVO,Wet Forest,Kahuku,Kahuku,2022,3,Rotational,55,Hawaiʻi Volcanoes National Park,TRUE,TRUE
+20220928155323-714486360.549927,HAVO,Subalpine Shrubland,Mauna Loa,Mauna Loa,2022,3,Rotational,35,Hawaiʻi Volcanoes National Park,TRUE,TRUE
+20221012072750-579518616.199493,HAVO,Wet Forest,Kahuku,Kahuku,2022,3,Fixed,11,Hawaiʻi Volcanoes National Park,TRUE,TRUE
+20221012073810-999414563.179016,HAVO,Wet Forest,Kahuku,Kahuku,2022,3,Fixed,12,Hawaiʻi Volcanoes National Park,TRUE,TRUE
+20221012080554-513737499.713898,HAVO,Wet Forest,Kahuku,Kahuku,2022,3,Fixed,13,Hawaiʻi Volcanoes National Park,TRUE,TRUE
+20221012082051-81893563.2705688,HAVO,Wet Forest,Kahuku,Kahuku,2022,3,Rotational,46,Hawaiʻi Volcanoes National Park,TRUE,TRUE
+20221012083121-864534497.261047,HAVO,Wet Forest,Kahuku,Kahuku,2022,3,Rotational,51,Hawaiʻi Volcanoes National Park,TRUE,TRUE
+20221012084409-427533328.533173,HAVO,Wet Forest,Kahuku,Kahuku,2022,3,Fixed,1,Hawaiʻi Volcanoes National Park,TRUE,TRUE
+20221024092307-712730467.319489,HAVO,Wet Forest,Kahuku,Kahuku,2022,3,Fixed,14,Hawaiʻi Volcanoes National Park,TRUE,TRUE
+20221024093419-489894747.73407,HAVO,Wet Forest,Kahuku,Kahuku,2022,3,Fixed,15,Hawaiʻi Volcanoes National Park,TRUE,TRUE
+20221024095152-95429062.8433228,HAVO,Subalpine Shrubland,Mauna Loa,Mauna Loa,2022,3,Fixed,4,Hawaiʻi Volcanoes National Park,TRUE,TRUE
+20221024101119-302497565.746307,HAVO,Subalpine Shrubland,Mauna Loa,Mauna Loa,2022,3,Rotational,36,Hawaiʻi Volcanoes National Park,TRUE,TRUE
+20221024115516-579518616.199493,HAVO,Subalpine Shrubland,Mauna Loa,Mauna Loa,2022,3,Rotational,40,Hawaiʻi Volcanoes National Park,TRUE,TRUE
+20221024140937-430261135.101318,HAVO,Subalpine Shrubland,Mauna Loa,Mauna Loa,2022,3,Rotational,33,Hawaiʻi Volcanoes National Park,TRUE,TRUE
+20221031074523-579518616.199493,HAVO,Wet Forest,Kahuku,Kahuku,2022,3,Rotational,47,Hawaiʻi Volcanoes National Park,TRUE,TRUE
+20221031082831-544013977.050781,HAVO,Wet Forest,Kahuku,Kahuku,2022,3,Rotational,54,Hawaiʻi Volcanoes National Park,TRUE,TRUE
+20221115160748-705547511.577606,HAVO,Subalpine Shrubland,Mauna Loa,Mauna Loa,2022,3,Fixed,3,Hawaiʻi Volcanoes National Park,TRUE,TRUE
+20221117074433-774740099.906921,HAVO,Wet Forest,Kahuku,Kahuku,2022,3,Rotational,48,Hawaiʻi Volcanoes National Park,TRUE,TRUE
+20221213115224-207561135.292053,HAVO,Subalpine Shrubland,Mauna Loa,Mauna Loa,2022,3,Rotational,39,Hawaiʻi Volcanoes National Park,TRUE,TRUE
+20230918093853-705547511.577606,HAVO,Subalpine Shrubland,Mauna Loa,Mauna Loa,2023,3,Fixed,1,Hawaiʻi Volcanoes National Park,TRUE,TRUE
+20230918100543-73953330.5168152,HAVO,Subalpine Shrubland,Mauna Loa,Mauna Loa,2023,3,Rotational,38,Hawaiʻi Volcanoes National Park,TRUE,TRUE
+20230918134844-705547511.577606,HAVO,Wet Forest,Nahuku/East Rift,Nāhuku / East Rift,2023,3,Fixed,3,Hawaiʻi Volcanoes National Park,TRUE,TRUE
