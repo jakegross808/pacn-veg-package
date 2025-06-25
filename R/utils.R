@@ -393,11 +393,16 @@ ReadFTPC <- function(conn, TE_Species) {
 
     Species_extra <- Species_extra |>
       dplyr::rows_update(spp_TE_extra, by = "Species_ID", unmatched = "ignore")
-
-    Species <- Species_extra |>
-      dplyr::select(c(Species_ID, Scientific_Name, Code, Life_Form, Park, Nativity))
-
   }
+
+  Species <- Species_extra |>
+    dplyr::select(c(Species_ID, Scientific_Name, Code, Life_Form, Park, Nativity))
+
+  Species_extra <- Species_extra |>
+    dplyr::collect()
+
+
+
 
   # D. Monitoring Data----------------------------------------------------------
 
