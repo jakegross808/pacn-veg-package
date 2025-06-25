@@ -391,14 +391,19 @@ ReadFTPC <- function(conn, TE_Species) {
       dplyr::distinct(Species_ID, .keep_all = TRUE) |>
     dplyr::mutate(across(-Species_ID, ~ paste0("Native_Sp_", as.character(row_number()))))
 
-    Species_extra <- Species_extra |>
-      dplyr::rows_update(spp_TE_extra, by = "Species_ID", unmatched = "ignore")
+    Species_extra2 <- Species_extra |>
+      dplyr::rows_update(spp_TE_extra, by = "Species_ID", unmatched = "ignore") |>
+      dplyr::select(c(Species_ID, Update_Date, Update_By, Park, Life_Form, Nativity,
+                      Distribution, Conservation_Status, Scientific_Name, Code,
+                      Taxonomic_Order, Taxonomic_Family, Genus, Species,
+                      Subdivision, Authority, Authority_Source, Citation, Life_Cycle,
+                      Update_Comments, Park_Common_Name))
   }
 
-  Species <- Species_extra |>
-    dplyr::select(c(Species_ID, Scientific_Name, Code, Life_Form, Park, Nativity))
+  Species <- Species_extra2 |>
+    dplyr::select(c(Species_ID, Life_Form, Park, Nativity, Scientific_Name, Code))
 
-  Species_extra <- Species_extra |>
+  Species_extra <- Species_extra2 |>
     dplyr::collect()
 
 
@@ -426,7 +431,7 @@ ReadFTPC <- function(conn, TE_Species) {
     dplyr::left_join(Species, by = c("Species_ID", "Unit_Code" = "Park")) %>%
     dplyr::collect() |>
     dplyr::select(-Event_ID, -Species_ID) %>%
-    dplyr::relocate(Certified, Verified, .after = last_col()) %>%
+    #dplyr::relocate(Certified, Verified, .after = last_col()) %>%
     dplyr::mutate(Cycle = as.integer(Cycle))
 
 
@@ -510,7 +515,7 @@ ReadFTPC <- function(conn, TE_Species) {
     dplyr::left_join(UnderstorySpecies, by = c("Event_ID", "Point_ID")) %>%
     dplyr::left_join(Species, by = c("Species_ID", "Unit_Code" = "Park")) %>%
     dplyr::select(-Event_ID, -Species_ID, -Point_ID) %>%
-    dplyr::relocate(Certified, Verified, .after = last_col()) %>%
+    #dplyr::relocate(Certified, Verified, .after = last_col()) %>%
     dplyr::collect()
 
 
