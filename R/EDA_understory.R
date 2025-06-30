@@ -1067,12 +1067,24 @@ understorySunburst <- function(sample_frame, cycle, mgmt_unit = TRUE, colors = "
   sb <- as.sunburstDF(sb, value_column = "Avg_Cover")
   sb$color <- colors[stringr::str_replace(sb$ids, " - .*", "")]
 
-  und_species <- und %>%
-    dplyr::select(Code, Scientific_Name)
+  #und_species <- und %>%
+  #  dplyr::select(Code, Scientific_Name)
+
+  park_variable <- und |>
+    dplyr::pull(Unit_Code) |>
+    dplyr::first()
+
+  spp_names <- FilterPACNVeg(data_name = "Species_extra") |>
+    dplyr::filter(Park == park_variable) |>
+    #*** Needs fixed in species database: Eucalyptus spp. has duplicated Code**
+    dplyr::mutate(Code = case_when(Scientific_Name == "Eucalyptus spp." ~ "EUCSP.2",
+                                   .default = Code)) |>
+    dplyr::select(Scientific_Name, Park_Common_Name, Code)
 
   sb <- sb %>%
-    dplyr::left_join(und_species, by = c("labels" = "Code")) %>%
-    dplyr::mutate(Scientific_Name = tidyr::replace_na(Scientific_Name, ""))
+    dplyr::left_join(spp_names, by = c("labels" = "Code")) %>%
+    dplyr::mutate(Scientific_Name = tidyr::replace_na(Scientific_Name, "")) |>
+    dplyr::mutate(Park_Common_Name = tidyr::replace_na(Park_Common_Name, ""))
 
   sunburst <- plotly::plot_ly(sb,
                               ids = ~ids,
@@ -1085,7 +1097,8 @@ understorySunburst <- function(sample_frame, cycle, mgmt_unit = TRUE, colors = "
                               hoverinfo = "text",
                               hovertext = paste0(sb$labels,
                                                 "<br>Avg: ", sb$values, "%",
-                                                "<br>", sb$Scientific_Name))
+                                                "<br>", sb$Scientific_Name,
+                                                "<br>", sb$Park_Common_Name))
 
   return(sunburst)
 }
