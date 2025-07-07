@@ -380,7 +380,7 @@ native_chg_und_cyc2 <- nat_chg_und %>%
 native_chg_und_cyc2
 
 native_chg_und_cyc3 <- nat_chg_und %>%
-  left_join(nat_chg_und_grouped) %>%
+  left_join(nat_chg_und_grouped) #%>%
   #ungroup() %>%
   filter(Nativity == "Native") %>%
   filter(Cycle == 3) %>%
