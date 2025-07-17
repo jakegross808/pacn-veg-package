@@ -1,9 +1,15 @@
 # Startup script to get going on pacnvegetation package.
 #install.packages("devtools")
+
+# If installing from github (not developing package)
 #devtools::install_github("jakegross808/pacn-veg-package")
+
+# If developing the package and using local source (cloned/forked from github + devtools)
+#devtools::install("C:/path_to_local_folder_with_R_package_files")
 
 library(pacnvegetation)
 library(tidyverse)
+
 #--- 1. Read latest cache ----
 LoadPACNVeg(force_refresh = FALSE, eips_paths = "foo")
 
