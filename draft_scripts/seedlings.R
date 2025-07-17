@@ -1,38 +1,130 @@
 library(pacnvegetation)
+library(dplyr)
+#--- 1. Read latest cache ----
+LoadPACNVeg(force_refresh = FALSE, eips_paths = "foo")
 
 names(pacnvegetation:::GetColSpec())
 
 # Prep Events Dataset
 all_events <- FilterPACNVeg(data_name = "Events_extra_xy", is_qa_plot = FALSE) %>%
-  select(-QA_Plot) %>%
+  select(-QA_Plot, -Certified, -Verified) %>%
   group_by(Unit_Code, Sampling_Frame, Cycle) %>%
   mutate(Year = min(Year)) %>%
   ungroup()
 
-# Prep Seedlings Dataset
-seedlings_spp <- FilterPACNVeg(data_name = "SmWoody", is_qa_plot = FALSE) %>%
-  filter(LF_Sm_Woody == "Seedling") %>%
+view_event_years <- all_events |>
+  count(Unit_Code, Sampling_Frame, Cycle, Year)
+
+# Prep SmWoody Dataset
+SmWoody <- FilterPACNVeg(data_name = "SmWoody", is_qa_plot = FALSE) |>
   group_by(Unit_Code, Sampling_Frame, Cycle) %>%
   mutate(Year = min(Year)) %>%
-  ungroup() %>%
+  ungroup() |>
+  right_join(all_events, by = join_by(Unit_Code, Sampling_Frame, Sampling_Frame_Formal, Cycle, Year, Plot_Type, Plot_Number))
+
+# QAQC Checks -----------------------------------------------------------------------
+
+# LF_Sm_Woody does not match Life_Form:
+unmatched_lifeforms <- SmWoody |>
+  mutate(LF_check = case_when(LF_Sm_Woody == "Small Tree" ~ "Tree",
+                              LF_Sm_Woody == "Seedling" ~ "Tree",
+                              LF_Sm_Woody == "Small Tree Fern" ~ "Tree Fern",
+                              .default = LF_Sm_Woody)) |>
+  filter(LF_check != Life_Form)
+
+# Simplified unmatched_lifeforms list
+ulf <- unmatched_lifeforms |>
+  dplyr::select(Sampling_Frame, Cycle, Year, Sample_Area, LF_Sm_Woody, LF_check, DBH,
+         Scientific_Name, Code, Nativity, Life_Form) |>
+  dplyr::distinct() |>
+  dplyr::arrange(-Year)
+
+# any records missing values?
+no_code <- SmWoody |>
+  filter(!is.na(Count) & if_any(c(1:"Code"), is.na))
+
+shrubs_missing_data <- SmWoody |>
+  filter(LF_Sm_Woody == "Shrub") |>
+  select(-DBH) |>
+  filter(if_any(c(1:"Code"), is.na))
+
+seedlings_missing_data <- SmWoody |>
+  filter(LF_Sm_Woody == "Seedling") |>
+  select(-DBH) |>
+  filter(if_any(c(1:"Code"), is.na))
+
+# Check if anything in Quad 4 that is not a small tree
+chk_not_small_tree <- SmWoody |>
+  dplyr::filter(Sample_Area == "Quad 4") |>
+  dplyr::filter(LF_Sm_Woody != "Small Tree")
+print(chk_not_small_tree)
+
+# Check if some plots had more than one entry per species
+chk_mult_LF_Sm_Woody <- SmWoody |>
+  group_by(Unit_Code, Sampling_Frame, Cycle, Plot_Number, Scientific_Name, Code, Life_Form, DBH, Status, Length, Rooting) |>
+  count() |>
+  filter(n > 1) |>
+  left_join(SmWoody)
+
+
+# ..............................................................................
+
+# Seedling table
+Seedling <- SmWoody |>
+  filter(LF_Sm_Woody == "Seedling") %>%
   # All events (plot reads) without seedlings get added in here:
-  full_join(all_events, by = join_by(Unit_Code, Sampling_Frame, Year, Cycle, Plot_Type, Plot_Number)) %>%
-  select(Unit_Code, Sampling_Frame, Year, Cycle, Plot_Type, Plot_Number,
+  full_join(all_events, by = join_by(Unit_Code, Sampling_Frame, Sampling_Frame_Formal, Year, Cycle, Plot_Type, Plot_Number)) %>%
+  select(Unit_Code, Sampling_Frame, Sampling_Frame_Formal, Year, Cycle, Plot_Type, Plot_Number, Sample_Area, LF_Sm_Woody, DBH,
          Status, Length, Rooting,
          Nativity, Life_Form, Scientific_Name, Code,
          Count)
 
+
+
+
+Seedling_Complete <- Seedling |>
+  select(-LF_Sm_Woody)
+  tidyr::complete(tidyr::nesting(Unit_Code, Sampling_Frame, Sampling_Frame_Formal,
+                                 Year, Cycle, Nativity, Life_Form, Scientific_Name, Code,
+                                 Plot_Type, Sample_Area, LF_Sm_Woody),
+                  Plot_Number, Status, Length, Rooting)
+
+check1 <- Seedling |>
+  filter(Sampling_Frame == "Mauna Loa",
+         Plot_Number == 2) |>
+  arrange(Cycle, Scientific_Name)
+
+Seedling_Plot_Count <- Seedling |>
+  group_by(Sampling_Frame, Cycle, Plot_Number, Scientific_Name, Code, Status)  |>
+  summarise(sum_all = sum(Count))
+
+check2 <- Seedling_Plot_Count |>
+  filter(Sampling_Frame == "Mauna Loa",
+         Plot_Number == 2) |>
+  arrange(Cycle, Scientific_Name)
+
+Seedling_Frame_Count <- Seedling_Plot_Count |>
+  group_by(Sampling_Frame, Cycle, Scientific_Name, Code, Status)  |>
+  summarise(sum_total = sum(sum_all))
+
+check3 <- Seedling_Frame_Count |>
+  filter(Sampling_Frame == "Mauna Loa") |>
+  arrange(Cycle, Scientific_Name)
+
+
+
+
 # Run complete() to get zeros for Status, Length, and Rooting classes
-seedlings_spp_complete <- seedlings_spp %>%
-  ungroup() %>%
-  complete(
+Seedling_complete <- Seedling |>
+  dplyr::ungroup() |>
+  tidyr::complete(
     Status, Length, Rooting,
-    nesting(Unit_Code, Sampling_Frame, Year, Cycle, Plot_Type, Plot_Number),
-    nesting(Nativity, Life_Form, Scientific_Name, Code),
+    tidyr::nesting(Unit_Code, Sampling_Frame, Year, Cycle, Plot_Type, Plot_Number),
+    tidyr::nesting(Nativity, Life_Form, Scientific_Name, Code),
     fill = list(Count = 0),
     explicit = FALSE
   )
-
+)
 # Select desired filtering/grouping
 # Species, Length, Rooting, Status - HERE:
 f_grouping <- c()
