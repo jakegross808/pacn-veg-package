@@ -13,6 +13,16 @@ library(tidyverse)
 #--- 1. Read latest cache ----
 LoadPACNVeg(force_refresh = FALSE, eips_paths = "foo")
 
+#--- 1. alternatively Read from "data" folder
+# Load the data (use csv files)
+data <- here::here("data", "vital_signs")
+path_file_info <- file.info(list.files(data, full.names = T))
+latest_folder <- rownames(path_file_info)[which.max(path_file_info$mtime)]
+
+LoadPACNVeg(data_path = latest_folder,
+            data_source = "file")
+
+
 
 # Write/Read csv from pacnvegetation package:
 pacnveg_cache_path <- "C:/Users/JJGross/Documents/Databases_copied_local/R_WritePACNVeg"
