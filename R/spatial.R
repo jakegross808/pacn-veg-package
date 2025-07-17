@@ -470,6 +470,12 @@ MapCoverTotal2 <- function(crosstalk = FALSE, crosstalk_group = "cover", combine
 #'
 #' @return Filename(s) of icon(s)
 pchIcons <- function(pch = 1, width = 30, height = 30, bg = "transparent", col = "black", lwd = 3, ...) {
+
+  cache_path <- normalizePath(paste0(rappdirs::user_cache_dir(appname = "pacnvegetation"), "/Cache"), mustWork = FALSE)
+  if (!dir.exists(dirname(cache_path))) {
+    dir.create(dirname(cache_path), recursive = TRUE)
+  }
+
   n = length(pch)
   files = character(n)
   # create a sequence of png images
