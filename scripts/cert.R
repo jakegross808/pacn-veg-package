@@ -17,6 +17,20 @@ all_EIPS <- FilterPACNVeg(data_name = "EIPS_data")
 all_shrubbelt <- FilterPACNVeg(data_name = "SmWoody")
 
 
+# Load the data (use csv files)
+data <- here::here("data", "vital_signs")
+path_file_info <- file.info(list.files(data, full.names = T))
+latest_folder <- rownames(path_file_info)[which.max(path_file_info$mtime)]
+
+LoadPACNVeg(data_path = latest_folder,
+            data_source = "file")
+
+names(FilterPACNVeg())
+
+all_LgTrees <- FilterPACNVeg(data_name = "LgTrees") |>
+  dplyr::filter(Unit_Code == "KALA") |>
+  dplyr::filter(Nativity == "Native")
+
 
 #--- 2. variable specification -------------------------------------------------
 
