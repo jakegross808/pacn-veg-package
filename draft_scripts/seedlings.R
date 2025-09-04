@@ -5,6 +5,8 @@ LoadPACNVeg(force_refresh = FALSE, eips_paths = "foo")
 
 names(pacnvegetation:::GetColSpec())
 
+# Data Prep ----
+
 # Prep Events Dataset
 all_events <- FilterPACNVeg(data_name = "Events_extra_xy", is_qa_plot = FALSE) %>%
   select(-QA_Plot, -Certified, -Verified) %>%
@@ -12,8 +14,9 @@ all_events <- FilterPACNVeg(data_name = "Events_extra_xy", is_qa_plot = FALSE) %
   mutate(Year = min(Year)) %>%
   ungroup()
 
-view_event_years <- all_events |>
+plots_per_site_and_year <- all_events |>
   count(Unit_Code, Sampling_Frame, Cycle, Year)
+plots_per_site_and_year
 
 # Prep SmWoody Dataset
 SmWoody <- FilterPACNVeg(data_name = "SmWoody", is_qa_plot = FALSE) |>
@@ -22,46 +25,127 @@ SmWoody <- FilterPACNVeg(data_name = "SmWoody", is_qa_plot = FALSE) |>
   ungroup() |>
   right_join(all_events, by = join_by(Unit_Code, Sampling_Frame, Sampling_Frame_Formal, Cycle, Year, Plot_Type, Plot_Number))
 
-# QAQC Checks -----------------------------------------------------------------------
+SmWoody_METPOL <- SmWoody |>
+  dplyr::filter(Code == "METPOL1")
+# QAQC Checks ------------------------------------------------------------------
+
+## Unmatched Lifeforms ----
+unique(SmWoody$LF_Sm_Woody)
+unique(SmWoody$Life_Form)
+
+### full list ----
 
 # LF_Sm_Woody does not match Life_Form:
-unmatched_lifeforms <- SmWoody |>
+QAQC_unmatched_lifeforms_full <- SmWoody |>
   mutate(LF_check = case_when(LF_Sm_Woody == "Small Tree" ~ "Tree",
                               LF_Sm_Woody == "Seedling" ~ "Tree",
                               LF_Sm_Woody == "Small Tree Fern" ~ "Tree Fern",
                               .default = LF_Sm_Woody)) |>
   filter(LF_check != Life_Form)
 
+### short list ----
+
 # Simplified unmatched_lifeforms list
-ulf <- unmatched_lifeforms |>
-  dplyr::select(Sampling_Frame, Cycle, Year, Sample_Area, LF_Sm_Woody, LF_check, DBH,
+QAQC_unmatched_lifeforms_short <- QAQC_unmatched_lifeforms_full |>
+  dplyr::group_by(Sampling_Frame, Cycle, Year, Sample_Area, LF_Sm_Woody, LF_check, DBH,
          Scientific_Name, Code, Nativity, Life_Form) |>
-  dplyr::distinct() |>
+  #dplyr::select() |>
+  dplyr::summarise(n = n()) |>
   dplyr::arrange(-Year)
 
-# any records missing values?
-no_code <- SmWoody |>
+
+## Wrong LF_Sm_Woody ----
+
+### Large Tree Fern----
+# Cannot have "Small Tree Ferns" in sampled area outside of Transect 3
+QAQC_Shrubbelt_TreeFerns <- SmWoody |>
+  filter(LF_Sm_Woody == "Small Tree Fern" & Sample_Area != "Transect 3") # All small tree ferns should be in Transect 3 only
+
+### Large Tree ----
+# Cannot have "Tree" (ie large trees) in Belt transects for all locations
+QAQC_Shrubbelt_Trees <- SmWoody |>
+  filter(LF_Sm_Woody == "Tree" & Sample_Area %in% c("Transect 1", "Transect 3"))
+#QAQC_readr::write_csv(x = Shrubbelt_Trees, file = "QAQC/Trees_in_Shrubbelt.csv")
+
+### Small Tree ----
+# Cannot have "Small Tree" in Belt transects (except for Coastal Strand)
+# located in transect 1 or 3 (excluding Coastal Strand):
+QAQC_Shrubbelt_SmTrees <- SmWoody |>
+  filter(LF_Sm_Woody == "Small Tree" & Sample_Area %in% c("Transect 1", "Transect 3")) |>
+  filter(Community != "Coastal Strand")
+#readr::write_csv(x = Shrubbelt_SmTrees, file = "QAQC/Small_Trees_in_Shrubbelt.csv")
+
+# There should be no "Fern", "Herb" for all SmWoody
+### Herb ----
+QAQC_Shrubbelt_SmWoody_Herbs <- SmWoody |>
+  filter(Life_Form == "Herb")
+### Fern ----
+QAQC_Shrubbelt_SmWoody_Ferns <- SmWoody |>
+  filter(Life_Form == "Fern")
+
+
+## Missing values ----
+# Small Tree Fern
+QAQC_null_small_tree_fern <- SmWoody |>
+  filter(LF_Sm_Woody == "Small Tree Fern") |>
+  filter(if_any(c(1:"Code"), is.na))
+
+# Tree
+QAQC_null_tree <- SmWoody |>
+  filter(Life_Form == "Tree") |>
+  filter(LF_Sm_Woody == "Seedling" | LF_Sm_Woody == "Small Tree") |>
+  filter((if_any(c(1:"Code"), is.na))
+         & (!(is.na(Length) & LF_Sm_Woody == "Small Tree")) # Small trees do not have length data
+         & (!(is.na(Rooting) & (Community == "Coastal Strand" | Community == "Subalpine Shrubland")))) # No rooting class collected for coastal strand and subalpine
+
+# Shrub
+QAQC_null_shrub <- SmWoody |>
+  filter(Life_Form == "Shrub") |>
+  filter((if_any(c(1:"Code"), is.na))
+         & !is.na(Count) # SCATAC & WIKUVA in KAHO & KALA can have NA for count
+         & !is.na(DBH)) # all shrubs have NA for DBH
+
+# Vine
+QAQC_null_vine <- SmWoody |>
+  filter(Life_Form == "Vine") |>
+  filter((if_any(c(1:"Code"), is.na))
+         & !is.na(DBH)) # all vines have NA for DBH
+
+# Unknown
+QAQC_null_unknown <- SmWoody |>
+  filter(Life_Form == "Unknown") |>
+  filter(if_any(c(1:"Code"), is.na))
+
+# Snags
+QAQC_null_snag2 <- SmWoody |>
+  filter(Code == "SNAG") |>
+  filter((if_any(c(1:"Count"), is.na))
+         & (!(is.na(Length) & LF_Sm_Woody == "Small Tree")) # Small trees do not have length data
+         & (!(is.na(Rooting) & (Community == "Coastal Strand" | Community == "Subalpine Shrubland"))) # No rooting class collected for coastal strand and subalpine
+         & (!(is.na(DBH) & LF_Sm_Woody == "Shrub")) # Small trees do not have length data
+         )
+
+# Missing Life_Form
+QAQC_null_Life_Form <- SmWoody |>
+  filter(is.na(Life_Form)) |>
+  filter(Code != "SNAG") |>
   filter(!is.na(Count) & if_any(c(1:"Code"), is.na))
 
-shrubs_missing_data <- SmWoody |>
-  filter(LF_Sm_Woody == "Shrub") |>
-  select(-DBH) |>
-  filter(if_any(c(1:"Code"), is.na))
 
-seedlings_missing_data <- SmWoody |>
-  filter(LF_Sm_Woody == "Seedling") |>
-  select(-DBH) |>
-  filter(if_any(c(1:"Code"), is.na))
+
+# Sample Area ----
 
 # Check if anything in Quad 4 that is not a small tree
-chk_not_small_tree <- SmWoody |>
+QAQC_quad_not_small_tree <- SmWoody |>
   dplyr::filter(Sample_Area == "Quad 4") |>
   dplyr::filter(LF_Sm_Woody != "Small Tree")
-print(chk_not_small_tree)
+
+
+# Duplicates ----
 
 # Check if some plots had more than one entry per species
-chk_mult_LF_Sm_Woody <- SmWoody |>
-  group_by(Unit_Code, Sampling_Frame, Cycle, Plot_Number, Scientific_Name, Code, Life_Form, DBH, Status, Length, Rooting) |>
+QAQC_dup_LF_Sm_Woody <- SmWoody |>
+  group_by(Unit_Code, Sampling_Frame, Cycle, Plot_Number, Sample_Area, Scientific_Name, Code, Life_Form, DBH, Status, Length, Rooting) |>
   count() |>
   filter(n > 1) |>
   left_join(SmWoody)
@@ -69,25 +153,102 @@ chk_mult_LF_Sm_Woody <- SmWoody |>
 
 # ..............................................................................
 
+# All plots
+all_plots <- all_events |>
+  select(Unit_Code, Community, Sampling_Frame, Year, Plot_Number)
+
+chk <- all_plots |>
+  group_by(Sampling_Frame, Year) |>
+  tally() |>
+  arrange(dplyr::desc(Year))
+
+SmWoody$Community <- as.factor(SmWoody$Community)
+SmWoody$Sampling_Frame <- as.factor(SmWoody$Sampling_Frame)
+levels(SmWoody$Community)
+levels(SmWoody$Sampling_Frame)
+
+SmWoody_categories_nonForest <- SmWoody |>
+  dplyr::mutate(Community = as.factor(Community)) |>
+  dplyr::filter(Community %in% c("Subalpine Shrubland", "Coastal Strand")) |>
+  droplevels() |>
+  dplyr::filter(LF_Sm_Woody == "Seedling") |>
+  tidyr::expand(Sampling_Frame, DBH, Status, Length) |>
+  tidyr::drop_na() |>
+  dplyr::mutate(Rooting = "R1")
+
+SmWoody_categories_Forest <- SmWoody |>
+  dplyr::filter(Community %in% c("Wet Forest", "Limestone Forest", "Mangrove Wetland")) |>
+  droplevels() |>
+  dplyr::filter(LF_Sm_Woody == "Seedling") |>
+  tidyr::expand(Sampling_Frame, DBH, Status, Length, Rooting) |>
+  tidyr::drop_na()
+
+SmWoody_categories <- rbind(SmWoody_categories_Forest, SmWoody_categories_nonForest)
+
+SmWoody_categories_distinct <- SmWoody_categories |>
+  dplyr::distinct()
+
+SmWoody_categories_all_plots <- all_plots |>
+  left_join(SmWoody_categories, by = join_by(Sampling_Frame), relationship = "many-to-many")
+
 # Seedling table
 Seedling <- SmWoody |>
   filter(LF_Sm_Woody == "Seedling") %>%
   # All events (plot reads) without seedlings get added in here:
-  full_join(all_events, by = join_by(Unit_Code, Sampling_Frame, Sampling_Frame_Formal, Year, Cycle, Plot_Type, Plot_Number)) %>%
+  #full_join(all_events, by = join_by(Unit_Code, Sampling_Frame, Sampling_Frame_Formal, Year, Cycle, Plot_Type, Plot_Number)) %>%
   select(Unit_Code, Sampling_Frame, Sampling_Frame_Formal, Year, Cycle, Plot_Type, Plot_Number, Sample_Area, LF_Sm_Woody, DBH,
          Status, Length, Rooting,
          Nativity, Life_Form, Scientific_Name, Code,
          Count)
 
+Seedlings_expand <- Seedling |>
+  dplyr::right_join(SmWoody_categories_all_plots)
 
+#https://tidyr.tidyverse.org/reference/expand.html
+
+
+
+test_set <- Seedling |>
+  filter(Sampling_Frame == "Puu Alii") |>
+  filter(Plot_Number == 7)
+
+test_set |>
+  tidyr::expand()
+
+tidyr::expand(data = test_set, Scientific_Name, Status, Length, Rooting)
+
+Seedling_METPOL <- Seedling |>
+  dplyr::filter(Code == "METPOL1") |>
+  dplyr::filter(Sampling_Frame == "Olaa")
 
 
 Seedling_Complete <- Seedling |>
-  select(-LF_Sm_Woody)
+  #select(-LF_Sm_Woody)
   tidyr::complete(tidyr::nesting(Unit_Code, Sampling_Frame, Sampling_Frame_Formal,
                                  Year, Cycle, Nativity, Life_Form, Scientific_Name, Code,
-                                 Plot_Type, Sample_Area, LF_Sm_Woody),
-                  Plot_Number, Status, Length, Rooting)
+                                 Plot_Type, Sample_Area, LF_Sm_Woody, Plot_Number),
+                  Status, Length, Rooting,
+                  fill = list(Count = 0))
+
+Seedling_Complete_METPOL <- Seedling_Complete |>
+  dplyr::filter(Code == "METPOL1") |>
+  dplyr::filter(Sampling_Frame == "Olaa") |>
+  dplyr::arrange(-Count)
+
+METPOL_chk <- Seedling_Complete_METPOL |>
+  # Remove Plot_Number and Plot_Type
+  group_by(Unit_Code, Sampling_Frame, Sampling_Frame_Formal,
+           Year, Cycle, Nativity, Life_Form, Scientific_Name, Code,
+           Sample_Area, LF_Sm_Woody, Status, Length, Rooting) |>
+  summarise(n = n(),
+            Count_Total = sum(Count)) |>
+  dplyr::arrange(dplyr::desc(Status), Length, Rooting, Year)
+
+spp_per_plot <- all_events |>
+  count(Unit_Code, Sampling_Frame, Cycle, Year, )
+
+
+
 
 check1 <- Seedling |>
   filter(Sampling_Frame == "Mauna Loa",
