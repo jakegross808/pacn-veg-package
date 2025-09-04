@@ -123,7 +123,7 @@ hi_vegmap_spp <- hi_vegmap_data %>%
 
 
 # Local Path to Veg Spp database
-veg_species_db_folder <-  "C:/Users/JJGross/Documents/Databases_copied_local/Veg_species_db"
+veg_species_db_folder <-  "C:/Users/JJGross/LocalDocuments/Databases_copied_local/Veg_species_db"
 # If only one database in folder, this will grab full path:
 veg_species_db_full_path <- list.files(veg_species_db_folder,full.names = TRUE)
 veg_species_db_full_path
@@ -131,6 +131,10 @@ veg_species_db_full_path
 raw_spp_data <- read_spp_db(veg_species_db_full_path)
 
 # Get master species list for a park (with ID_Field for field maps):
+
+# KAHO
+spp_list_KAHO <- master_spp_list(veg_species_db_full_path, park = 'NPSA')
+readr::write_excel_csv(spp_list_KAHO, paste0("C:/Users/JJGross/Downloads/spp_list_NPSA_", Sys.Date(), ".csv"))
 
 # KAHO
 spp_list_KAHO <- master_spp_list(veg_species_db_full_path, park = 'KAHO')
