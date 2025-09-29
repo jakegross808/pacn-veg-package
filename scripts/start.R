@@ -5,12 +5,12 @@
 library(pacnvegetation)
 library(tidyverse)
 #--- 1. Read latest cache ----
-LoadPACNVeg(force_refresh = FALSE, eips_paths = "foo")
+#LoadPACNVeg(force_refresh = FALSE, eips_paths = "foo")
 
 
 # Write/Read csv from pacnvegetation package:
-pacnveg_cache_path <- "C:/Users/JJGross/Documents/Databases_copied_local/R_WritePACNVeg"
-pacnveg_cache_path <- "C:/Users/JJGross/Documents/Databases_copied_local/certified"
+#pacnveg_cache_path <- "C:/Users/JJGross/Documents/Databases_copied_local/R_WritePACNVeg"
+pacnveg_cache_path <- "data/vital_signs"
 
 # Read
 path_file_info <- file.info(list.files(pacnveg_cache_path, full.names = T))
@@ -20,6 +20,11 @@ LoadPACNVeg(data_path = latest_folder,
             data_source = "file")
 
 names(FilterPACNVeg())
+
+
+## STOP ##
+
+
 
 select_dataset <- FilterPACNVeg(data_name = "Enter Dataset Name Here")
 
