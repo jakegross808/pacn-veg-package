@@ -36,7 +36,7 @@ Species_FTPC <- FilterPACNVeg(data_name = "Presence") #%>%
 #--- 2. Update and Write Data ----
 
 # ..........Update Data ----
-eips_database_folder_path <- "C:/Users/JJGross/Documents/Databases_copied_local/EIPS"
+eips_database_folder_path <- "C:/Users/JJGross/LocalDocuments/Databases_copied_local/EIPS"
 #eips_database_folder_path <- "C:/Users/JJGross/OneDrive - DOI/Documents/Data Science Assistance/2024/PACN_veg_Data_Science_Shared/data/EIPS_databases"
 eips_databases <- list.files(eips_database_folder_path,full.names = TRUE)
 eips_databases

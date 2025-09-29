@@ -6,7 +6,7 @@ library(pacnvegetation)
 
 # Set download folder location (local workspace): ----
 # Can be any folder on local machine
-var_temp_dest <- "C:/Users/JJGross/Downloads/Check_Photos4"
+var_temp_dest <- "C:/Users/JJGross/Downloads/Check_Photos_KALA_20250916"
 
 
 
@@ -73,11 +73,11 @@ Plants_KALA_2024v2_run <- download_agol(
   temp_dest = var_temp_dest,
   sharepoint_dest = var_sharepoint_dest,
   master_spreadsheet_folder = master_spreadsheet_folder,
-  #after_date_filter = lubridate::mdy_hms("08/18/2024 18:00:00", tz = "HST"),
+  after_date_filter = lubridate::mdy_hms("05/07/2025 18:00:00", tz = "HST"),
   #auto_date_filter = FALSE,
   test_run = TRUE
 )
-
+readr::write_csv(Plants_KALA_2024v2_run, "C:/Users/JJGross/Downloads/Plants_KALA_2024v2_run.csv")
 
 # 2nd Download new photos
 field_maps_data <- download_agol(
@@ -86,7 +86,7 @@ field_maps_data <- download_agol(
   sharepoint_dest = var_sharepoint_dest,
   master_spreadsheet_folder = master_spreadsheet_folder,
   #auto_date_filter = TRUE,
-  after_date_filter = lubridate::mdy_hms("04/24/2025 18:00:00", tz = "HST"),
+  after_date_filter = lubridate::mdy_hms("05/07/2025 18:00:00", tz = "HST"),
   test_run = FALSE
 )
 #2025-04-24 06:47:32
