@@ -391,7 +391,7 @@ ReadFTPC <- function(conn, TE_Species) {
       dplyr::distinct(Species_ID, .keep_all = TRUE) |>
     dplyr::mutate(across(-Species_ID, ~ paste0("Native_Sp_", as.character(row_number()))))
 
-    Species_extra2 <- Species_extra |>
+    Species_extra <- Species_extra |>
       dplyr::rows_update(spp_TE_extra, by = "Species_ID", unmatched = "ignore") |>
       dplyr::select(c(Species_ID, Update_Date, Update_By, Park, Life_Form, Nativity,
                       Distribution, Conservation_Status, Scientific_Name, Code,
@@ -400,7 +400,7 @@ ReadFTPC <- function(conn, TE_Species) {
                       Update_Comments, Park_Common_Name))
   }
 
-  Species <- Species_extra2 |>
+  Species <- Species_extra |>
     dplyr::select(c(Species_ID, Life_Form, Park, Nativity, Scientific_Name, Code))
 
   Species_extra <- Species_extra2 |>
