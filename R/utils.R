@@ -72,7 +72,7 @@ ClearPACNVegCache <- function(silent = FALSE) {
 #' Load raw data into package environment
 #' @description Run this function before you do anything else.
 #'
-#' @param ftpc_params Connection information for FTPC database. Either a DSN name, a path to a csv containing connection information, or a named list of connection arguments. The csv or list should contain the following parameters:
+#' @param ftpc_params Connection information for FTPC database. Either a DSN name (Created in ODBC Data Source Administrator), a path to a csv containing connection information, or a named list of connection arguments. The csv or list should contain the following parameters:
 #' * Driver
 #' * Server
 #' * Database
@@ -108,7 +108,7 @@ ClearPACNVegCache <- function(silent = FALSE) {
 #' LoadPACNVeg(data_path = path_to_csv)
 #' }
 #'
-LoadPACNVeg <- function(ftpc_params = "pacn", eips_paths, data_path, data_source = "db", cache = TRUE, expire_interval_days = 7, force_refresh = FALSE, TE_Species = TRUE) {
+LoadPACNVeg <- function(ftpc_params = "FTPC", eips_paths, data_path, data_source = "db", cache = TRUE, expire_interval_days = 7, force_refresh = FALSE, TE_Species = TRUE) {
 
   ## Read from cache or database
   if (data_source == "db") {
@@ -403,7 +403,7 @@ ReadFTPC <- function(conn, TE_Species) {
   Species <- Species_extra |>
     dplyr::select(c(Species_ID, Life_Form, Park, Nativity, Scientific_Name, Code))
 
-  Species_extra <- Species_extra2 |>
+  Species_extra <- Species |>
     dplyr::collect()
 
 

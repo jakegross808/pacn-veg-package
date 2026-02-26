@@ -4,13 +4,24 @@
 
 library(pacnvegetation)
 library(tidyverse)
-#--- 1. Read latest cache ----
-#LoadPACNVeg(force_refresh = FALSE, eips_paths = "foo")
+library(here)
 
+#--- 1. Load Data (or) ----
+pacnveg_cache_path <- "C:/Users/JJGross/LocalDocuments/Databases_copied_local/EIPS"
+eips_file_info <- list.files(pacnveg_cache_path, full.names = T)
+eips_file_info
+#LoadPACNVeg(ftpc_params = "FTPC", eips_paths = eips_file_info,
+#                    cache = TRUE, force_refresh = TRUE)
+
+#--- 1. Read latest cache ----
+LoadPACNVeg(force_refresh = FALSE, eips_paths = "foo")
 
 # Write/Read csv from pacnvegetation package:
 #pacnveg_cache_path <- "C:/Users/JJGross/Documents/Databases_copied_local/R_WritePACNVeg"
-pacnveg_cache_path <- "data/vital_signs"
+ts <- format(Sys.Date(), "%Y-%m-%d")
+pacnveg_cache_path <- paste0("data/vital_signs/", ts)
+dir.create(pacnveg_cache_path)
+WritePACNVeg(pacnveg_cache_path, create.folders = TRUE)
 
 # Read
 path_file_info <- file.info(list.files(pacnveg_cache_path, full.names = T))
@@ -76,7 +87,7 @@ hi_vegmap_db_paths <- c("C:/Users/JJGross/OneDrive - DOI/Documents/Veg_Map_Data/
                      "C:/Users/JJGross/OneDrive - DOI/Documents/Veg_Map_Data/puhodata.mdb")
 
 WAPA_vegmap_db_paths <- c("C:/Users/JJGross/Documents/Veg_Map_Data/wapadata.mdb")
-
+HAVO_vegmap_db_paths <- c("C:/Users/JJGross/OneDrive - DOI/Documents/Veg_Map_Data/havodata.accdb")
 
 # Veg map & species locations ----
 
@@ -85,6 +96,8 @@ Hawaii_vegmap_data2 <- read_vegmap_db(hi_vegmap_db_paths)
 readr::write_csv(Hawaii_vegmap_data2, paste0("C:/Users/JJGross/Downloads/vegmap_data_", Sys.Date(), ".csv"))
 
 WAPA_vegmap_data <- read_vegmap_db(WAPA_vegmap_db_paths)
+HAVO_vegmap_data <- read_vegmap_db(HAVO_vegmap_db_paths)
+
 
 leaflet::addCircleMarkers()
 
