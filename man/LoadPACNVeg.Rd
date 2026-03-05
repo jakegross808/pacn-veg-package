@@ -5,7 +5,7 @@
 \title{Load raw data into package environment}
 \usage{
 LoadPACNVeg(
-  ftpc_params = "pacn",
+  ftpc_params = "FTPC",
   eips_paths,
   data_path,
   data_source = "db",
@@ -16,7 +16,7 @@ LoadPACNVeg(
 )
 }
 \arguments{
-\item{ftpc_params}{Connection information for FTPC database. Either a DSN name, a path to a csv containing connection information, or a named list of connection arguments. The csv or list should contain the following parameters:
+\item{ftpc_params}{Connection information for FTPC database. Either a DSN name (Created in ODBC Data Source Administrator), a path to a csv containing connection information, or a named list of connection arguments. The csv or list should contain the following parameters:
 \itemize{
 \item Driver
 \item Server
