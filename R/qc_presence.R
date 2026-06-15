@@ -216,7 +216,7 @@ qc_FTPC_spp_pres_dot_plot <- function(sample_frame, plot_number, save_folder, is
   graph_out
 
   path_var <- paste0(save_folder, "/", sample_frame, "/")
-  filename_var <- paste0("spp_pres_plot-dot_", plot_number, ".png")
+  filename_var <- paste0("plot_", plot_number, "_spp_pres_plot-dot.png")
   filename_var
   ggplot2::ggsave(filename = filename_var, path = path_var, height = 10, width = 5)
 }
