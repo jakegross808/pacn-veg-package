@@ -8,6 +8,7 @@ LoadPACNVeg(
   ftpc_params = "FTPC",
   eips_paths,
   data_path,
+  datastore_refs,
   data_source = "db",
   cache = TRUE,
   expire_interval_days = 7,
@@ -33,15 +34,22 @@ LoadPACNVeg(
 \item an .Rdata file
 }}
 
-\item{data_source}{Either "db" (fetch data from databases or cache) or "file" (fetch data from folder or zip archive of csv's).}
+\item{datastore_refs}{Named numeric vector of DataStore reference IDs, e.g.
+\code{c(ftpc = 2311238, eips = 2302909)}. Required when
+\code{data_source = "datastore"}. EIPS is not yet implemented and will be ignored with a message if supplied.}
 
-\item{cache}{Should the data be cached locally to avoid reading from the databases every time?}
+\item{data_source}{One of "db" (fetch from databases), "file" (fetch from
+folder of csvs), or "datastore" (fetch from NPS DataStore via NPSutils).}
 
-\item{expire_interval_days}{Amount of time (in days) before the cache expires and has to be refreshed from the Access db. Defaults to 7 days. Ignored if \code{ftpc_conn} and \code{eips_paths} are \code{NULL}.}
+\item{cache}{Should the data be cached locally?}
 
-\item{force_refresh}{Refresh the cache from the databases even if it's not expired? Ignored if \code{cache == FALSE}.}
+\item{expire_interval_days}{Cache expiration in days. Ignored when
+\code{data_source = "datastore"} (datastore cache does not expire).}
 
-\item{TE_Species}{default = TRUE. Include T&E species names in output.}
+\item{force_refresh}{Force a fresh download / read?}
+
+\item{TE_Species}{Include T&E species names. Ignored when
+\code{data_source = "datastore"}.}
 }
 \value{
 Invisibly return a list containing all raw data

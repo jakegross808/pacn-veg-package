@@ -82,11 +82,17 @@ ClearPACNVegCache <- function(silent = FALSE) {
 #' * a folder containing the data in csv format
 #' * a .zip file containing the data in csv format
 #' * an .Rdata file
-#' @param data_source Either "db" (fetch data from databases or cache) or "file" (fetch data from folder or zip archive of csv's).
-#' @param cache Should the data be cached locally to avoid reading from the databases every time?
-#' @param expire_interval_days Amount of time (in days) before the cache expires and has to be refreshed from the Access db. Defaults to 7 days. Ignored if `ftpc_conn` and `eips_paths` are `NULL`.
-#' @param force_refresh Refresh the cache from the databases even if it's not expired? Ignored if `cache == FALSE`.
-#' @param TE_Species default = TRUE. Include T&E species names in output.
+#' @param datastore_refs Named numeric vector of DataStore reference IDs, e.g.
+#'   `c(ftpc = 2311238, eips = 2302909)`. Required when
+#'   `data_source = "datastore"`. EIPS is not yet implemented and will be ignored with a message if supplied.
+#' @param data_source One of "db" (fetch from databases), "file" (fetch from
+#'   folder of csvs), or "datastore" (fetch from NPS DataStore via NPSutils).
+#' @param cache Should the data be cached locally?
+#' @param expire_interval_days Cache expiration in days. Ignored when
+#'   `data_source = "datastore"` (datastore cache does not expire).
+#' @param force_refresh Force a fresh download / read?
+#' @param TE_Species Include T&E species names. Ignored when
+#'   `data_source = "datastore"`.
 #'
 #' @return Invisibly return a list containing all raw data
 #' @export
@@ -108,7 +114,54 @@ ClearPACNVegCache <- function(silent = FALSE) {
 #' LoadPACNVeg(data_path = path_to_csv)
 #' }
 #'
-LoadPACNVeg <- function(ftpc_params = "FTPC", eips_paths, data_path, data_source = "db", cache = TRUE, expire_interval_days = 7, force_refresh = FALSE, TE_Species = TRUE) {
+LoadPACNVeg <- function(ftpc_params = "FTPC", eips_paths, data_path,
+                        datastore_refs,
+                        data_source = "db",
+                        cache = TRUE, expire_interval_days = 7,
+                        force_refresh = FALSE, TE_Species = TRUE) {
+
+  # Validate data_source up front
+  data_source <- match.arg(data_source, c("db", "file", "datastore"))
+
+  if (data_source == "datastore") {
+    if (missing(datastore_refs)) {
+      stop("data_source = 'datastore' requires `datastore_refs`, e.g. ",
+           "datastore_refs = c(ftpc = 2311238, eips = 2302909)",
+           call. = FALSE)
+    }
+    if (!"ftpc" %in% names(datastore_refs)) {
+      stop("`datastore_refs` must include a named 'ftpc' element.",
+           call. = FALSE)
+    }
+    if ("eips" %in% names(datastore_refs)) {
+      message("EIPS datastore loading is not yet implemented; ",
+              "ignoring the eips reference for now.")
+    }
+
+    # Cache key based on the FTPC reference id (EIPS will be added later)
+    cache_dir <- rappdirs::user_cache_dir("pacnvegetation")
+    cache_file <- file.path(cache_dir,
+                            paste0("datastore_ftpc_",
+                                   datastore_refs[["ftpc"]], ".rds"))
+
+    if (cache && !force_refresh && file.exists(cache_file)) {
+      message("Loading cached datastore data from ", cache_file)
+      data <- readRDS(cache_file)
+    } else {
+      data <- ReadDataStore(reference_id = datastore_refs[["ftpc"]],
+                            protocol = "FTPC")
+      if (cache) {
+        dir.create(cache_dir, recursive = TRUE, showWarnings = FALSE)
+        saveRDS(data, cache_file)
+        message("Cached datastore data to ", cache_file)
+      }
+    }
+
+    set_data(data)
+    return(invisible(data))
+  }
+
+
 
   ## Read from cache or database
   if (data_source == "db") {
@@ -782,23 +835,40 @@ GetColSpec <- function() {
                                      Verified = readr::col_logical(),
                                      .default = readr::col_character()),
     Species_extra = readr::cols(.default = readr::col_character()),
-    LgTrees = readr::cols(Year = readr::col_integer(),
-                          Cycle = readr::col_integer(),
-                          Plot_Number = readr::col_integer(),
-                          QA_Plot = readr::col_logical(),
-                          Height = readr::col_double(),
-                          Height_Dead = readr::col_double(),
-                          Boles = readr::col_integer(),
-                          DBH = readr::col_double(),
-                          Fruit_Flower = readr::col_logical(),
-                          Caudex_Length = readr::col_double(),
-                          Shrublike_Growth = readr::col_logical(),
-                          Resprouts = readr::col_logical(),
-                          DBH_Bole = readr::col_double(),
-                          Measurement = readr::col_double(),
-                          Certified = readr::col_logical(),
-                          Verified = readr::col_logical(),
-                          .default = readr::col_character()),
+    LgTrees = readr::cols(
+        Unit_Code        = readr::col_character(),
+        Community        = readr::col_character(),
+        Sampling_Frame   = readr::col_character(),
+        Year             = readr::col_integer(),
+        Cycle            = readr::col_integer(),
+        Plot_Type        = readr::col_character(),
+        Plot_Number      = readr::col_integer(),
+        QA_Plot          = readr::col_logical(),
+        Large_Woody_ID   = readr::col_character(),   # <-- NEW
+        Quad             = readr::col_integer(),
+        Status           = readr::col_character(),
+        Height           = readr::col_double(),
+        Height_Dead      = readr::col_double(),
+        Boles            = readr::col_integer(),
+        DBH              = readr::col_double(),
+        Measurement_Type = readr::col_character(),
+        Measurement      = readr::col_double(),
+        Vigor            = readr::col_character(),
+        Fruit_Flower     = readr::col_logical(),
+        Rooting          = readr::col_character(),
+        Foliar           = readr::col_character(),
+        Caudex_Length    = readr::col_double(),
+        Shrublike_Growth = readr::col_logical(),
+        Resprouts        = readr::col_logical(),
+        DBH_Bole         = readr::col_double(),
+        Status_Bole      = readr::col_character(),
+        Scientific_Name  = readr::col_character(),
+        Code             = readr::col_character(),
+        Life_Form        = readr::col_character(),
+        Nativity         = readr::col_character(),
+        Certified        = readr::col_logical(),
+        Verified         = readr::col_logical(),
+        .default = readr::col_character()),
     Canopy = readr::cols(Year = readr::col_integer(),
                          Cycle = readr::col_integer(),
                          Plot_Number = readr::col_integer(),
