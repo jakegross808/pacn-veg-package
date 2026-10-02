@@ -9,6 +9,8 @@ v_presence_table(sample_frame, cycle, table_type = "html")
 \arguments{
 \item{sample_frame}{Name of sampling frame}
 
+\item{cycle}{Monitoring cycle.}
+
 \item{table_type}{default is "html" (other option is "tibble")}
 }
 \value{

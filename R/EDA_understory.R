@@ -28,10 +28,13 @@ UnderCombineStrata <- function(data) {
 #' Calculate Total Native & Nonnative Cover in Understory
 #'
 #' @inheritParams FilterPACNVeg
+#'
 #' @param combine_strata If `TRUE`, don't split data into high and low strata. Otherwise, keep as is.
 #' @param paired_change If `TRUE`, calculate change in percent cover across two cycles. If `cycle` is not specified, it will default to the last cycle.
 #' @param paired_cycle Only required if `paired_change == TRUE`. The cycle number to compare to when calculating paired change.
 #' @param rm_unk_natv Remove
+#' @param crosstalk If `TRUE`, return a crosstalk SharedData object.
+#' @param crosstalk_group Crosstalk group name to link widgets.
 #'
 #' @return Summary table of total Percent Cover by Nativity
 #' @export
@@ -148,6 +151,13 @@ UnderNativityCover <- function(combine_strata = FALSE, paired_change = FALSE, rm
 #'
 #' @inheritParams UnderNativityCover
 #'
+#' @param combine_strata If `TRUE`, combine high and low strata into one stratum.
+#' @param crosstalk If `TRUE`, return a crosstalk SharedData object.
+#' @param crosstalk_group Crosstalk group name to link widgets.
+#' @param interactive If `TRUE`, return an interactive (plotly) version.
+#' @param year_filter If `TRUE`, add a year filter control.
+#' @param data_table A data table to plot (bypasses internal data prep).
+#'
 #' @return Nat-v-Non Plot comparing Native and Non-native Cover (or Change in Cover)
 #' @export
 #'
@@ -250,6 +260,7 @@ totalCover_ggplot <- function(data, max_lim) {
 #'
 #' @param data Data to plot
 #' @param max_lim maximum value in data
+#' @param year_filter If `TRUE`, add a year filter control.
 #'
 #' @return html widget
 totalCover_plotly <- function(data, max_lim, year_filter = TRUE) {
@@ -440,6 +451,7 @@ changeInCover_plotly <- function(data, max_lim) {
 #' Summarize Understory Cover Data by Nativity, Life_Form, or Species
 #'
 #' @inheritParams FilterPACNVeg
+#'
 #' @param combine_strata If `TRUE`, combine high and low strata into one stratum.
 #' @param paired_change If `TRUE`, calculate change in percent cover. Note that this drops "Rotational" plots and uses "Fixed" plots only.
 #' @param plant_grouping "None" = No Groups, all vegetation (native & non-native) is lumped together,
@@ -630,6 +642,9 @@ add_stats <- function(.data, ...){
 #' @param remove_unknown "default == TRUE. Removes any Life_form with value == "Unknown".
 #' Also removes the non-vegetated points from final display.
 #'
+#' @param return_n returns number of plots if 'TRUE'
+#' @param species_filter Scientific name(s) to filter to.
+#'
 #' @return graph (gglot) of total Percent Cover by Nativity
 #' @export
 #'
@@ -641,7 +656,7 @@ add_stats <- function(.data, ...){
 
 v_cover_bar_stats <- function(combine_strata = FALSE, plant_grouping = "Nativity", species_filter,
                               paired_change = FALSE, measurement = "Cover", park, sample_frame, community,
-                              year, cycle, plot_type, plot_number, filter_Code, silent = FALSE, return_n = FALSE, remove_unknown = TRUE) {
+                              year, cycle, plot_type, plot_number, species_code, silent = FALSE, return_n = FALSE, remove_unknown = TRUE) {
 
 
   # Set plant_grouping_vars used for calculating stats based on plant_grouping argument
@@ -678,7 +693,9 @@ v_cover_bar_stats <- function(combine_strata = FALSE, plant_grouping = "Nativity
                                       park = park, sample_frame = sample_frame,
                                       community = community, year = year,
                                       cycle = cycle, plot_type = plot_type,
-                                      plot_number = plot_number, silent = silent)
+                                      plot_number = plot_number,
+                                      species_code = species_code,
+                                      silent = silent)
 
   if (!missing("species_filter") && plant_grouping == "Species") {
     understory2 <- understory2 %>%
@@ -820,6 +837,8 @@ v_cover_bar_stats <- function(combine_strata = FALSE, plant_grouping = "Nativity
 #'
 #' @inheritParams summarize_understory
 #'
+#' @param param (default = "Cover") parameter used in summarize_understory + add_stats()
+#'
 #' @return graph (gglot) of total Percent Cover by Nativity
 #' @export
 #'
@@ -831,7 +850,7 @@ v_cover_bar_stats <- function(combine_strata = FALSE, plant_grouping = "Nativity
 
 v_cover_plot_bar_nativity <- function(combine_strata = FALSE,
                             paired_change = FALSE, param = "Cover", park, sample_frame, community,
-                            year, cycle, plot_type, plot_number, filter_Code, silent = FALSE) {
+                            year, cycle, plot_type, plot_number, species_code, silent = FALSE) {
 
   # Get raw data
   understory2 <- summarize_understory(combine_strata = combine_strata,
@@ -840,7 +859,9 @@ v_cover_plot_bar_nativity <- function(combine_strata = FALSE,
                                      park = park, sample_frame = sample_frame,
                                      community = community, year = year,
                                      cycle = cycle, plot_type = plot_type,
-                                     plot_number = plot_number, silent = silent)
+                                     plot_number = plot_number,
+                                     species_code = species_code,
+                                     silent = silent)
 
     unknown_cover <- understory2 %>%
       dplyr::filter(Nativity == "Unknown" & Cover > 0)
@@ -915,6 +936,7 @@ v_cover_plot_bar_nativity <- function(combine_strata = FALSE,
 #' Bar plot of species % cover for each sampling plot
 #'
 #' Can be placed side-by-side to compare two plots
+#' @inheritParams summarize_understory
 #'
 #' @param sample_frame (required)
 #' @param crosstalk_filters Include dropdowns to filter on species, nativity, and mgmt unit?
@@ -1051,7 +1073,7 @@ understorySunburst <- function(sample_frame, cycle, mgmt_unit = TRUE, colors = "
     group_by <- c("GROUP_COL", group_by)
   }
 
-  und <- understorySpeciesCover2(sample_frame = sample_frame, cycle = cycle, group_by = group_by)
+  und <- understorySpeciesCover(sample_frame = sample_frame, cycle = cycle, group_by = group_by)
 
   if (is.null(names(colors))) {
     pal <- grDevices::colorRampPalette(colors)
@@ -1107,7 +1129,8 @@ understorySunburst <- function(sample_frame, cycle, mgmt_unit = TRUE, colors = "
 #'
 #' Broken down by management unit
 #'
-#' @inheritParams LoadPACNVeg
+#' @inheritParams FilterPACNVeg
+#'
 #' @param crosstalk_filters Include dropdowns to filter on species, nativity, and mgmt unit?
 #' @param colors Character vector of color names or hex values. This can be a named vector with names corresponding to each management unit, or you can provide an unnamed vector of any number of colors to create a gradient.
 #' @return An HTML object (if `crosstalk_filters == TRUE`) or a plotly object.
@@ -1120,7 +1143,7 @@ understoryBarCover <- function(sample_frame, cycle, crosstalk_filters = TRUE,
     stop("`sample_frame` is required")
   }
 
-  und <- understorySpeciesCover2(sample_frame = sample_frame, cycle =cycle) %>%
+  und <- understorySpeciesCover(sample_frame = sample_frame, cycle =cycle) %>%
     dplyr::mutate(Cycle = as.factor(Cycle),
                   all = "Select all",
                   hovertext = paste(Scientific_Name, Nativity,
@@ -1159,65 +1182,11 @@ understoryBarCover <- function(sample_frame, cycle, crosstalk_filters = TRUE,
   return(plot)
 }
 
-#' Title
+
+#' understorySpeciesCover
 #'
-#' @inheritParams LoadPACNVeg
-#' @param group_by Columns to group by. Must be a subset of `c("GROUP_COL", "Cycle", "Nativity")`
+#' @inheritParams FilterPACNVeg
 #'
-#' @return A tibble
-#' @export
-#'
-understorySpeciesCover <- function(sample_frame, cycle, group_by = c("GROUP_COL", "Cycle", "Nativity")) {
-  col_order <- c("Unit_Code",
-                 "GROUP_COL",
-                 "Sampling_Frame",
-                 "Cycle",
-                 "Code",
-                 "Scientific_Name",
-                 "Life_Form",
-                 "Nativity",
-                 "Avg_Cover",
-                 "Std_Dev",
-                 "n",
-                 "plots_present")
-
-  und <- FilterPACNVeg("Understory", sample_frame = sample_frame, cycle = cycle)  # Only get data from most recent cycle
-
-  # PLACEHOLDER
-  # TODO: replace this with actual grouping column
-  set.seed(11) # Set random number generation seed so that GROUP_COL is the same each time
-  und <- und %>%
-    dplyr::group_by(Cycle, Sampling_Frame, Plot_Number) %>%
-    dplyr::mutate(GROUP_COL = sample(LETTERS[c(1:5)], size = dplyr::n(), replace = TRUE))
-
-  und <- und %>%
-    dplyr::mutate(Life_Form=replace(Life_Form, Code=="SOPCHR", "Shrub"))
-
-  # prep data for sunburst plot
-  und <- UnderCombineStrata(und) %>%
-    dplyr::mutate(across(where(is.character), replace_na, "No Veg")) %>%
-    dplyr::group_by(across(tidyselect::all_of(c("Unit_Code", "Sampling_Frame", "Plot_Number", "Life_Form", "Scientific_Name", "Code", group_by)))) %>%
-    dplyr::summarize(Hits_Sp = dplyr::n(), .groups = "drop") %>%
-    tidyr::complete(tidyr::nesting(!!!syms(c("Unit_Code", "Sampling_Frame", "Plot_Number", "Life_Form", "Scientific_Name", "Code", group_by))),
-             fill = list(Hits_Sp = 0)) %>%
-    dplyr::mutate(Plot_Percent = Hits_Sp/300) %>%
-    dplyr::group_by(across(tidyselect::all_of(c("Unit_Code", "Sampling_Frame", "Life_Form", "Scientific_Name", "Code", group_by)))) %>%
-    dplyr::summarize(n = dplyr::n(),
-                     plots_present = sum(Hits_Sp > 0),
-                     Avg_Cover = round(mean(Plot_Percent), 3),
-                     Std_Dev = round(sd(Plot_Percent), 3),
-                     .groups = "drop")
-
-  # Reorder columns
-  col_order <- col_order[col_order %in% names(und)]
-  und <- und[, col_order]
-
-  return(und)
-}
-
-#' Title
-#'
-#' @inheritParams LoadPACNVeg
 #' @param group_by Columns to group by. Must be a subset of `c("GROUP_COL", "Cycle")`
 #'
 #' @return A tibble
@@ -1226,26 +1195,20 @@ understorySpeciesCover <- function(sample_frame, cycle, group_by = c("GROUP_COL"
 #' @examples
 #' \dontrun{
 #'
-#' Compare understorySpeciesCover2() vs. summarize_understory()
+#' Compare understorySpeciesCover() vs. summarize_understory()
 #'
-#'comp_usc2 <- understorySpeciesCover2(sample_frame = "Olaa", cycle = 3)
+#'understorySpeciesCover() only used in understorySunburst() & understoryBarCover().
+#'summarize_understory() used everywhere else in package.
+#'see if summarize_understory can be inserted in place of understorySpeciesCover(),
+#'then delete understorySpeciesCover().
 #'
-#'comp_su <- summarize_understory(plant_grouping = "Species", sample_frame = "Olaa", cycle = 3, combine_strata = TRUE)
-#'
-#'comp_su_summarize <- comp_su |>
-#'  group_by(Unit_Code, Sampling_Frame, Nativity, Life_Form, Scientific_Name, Code) |>
-#'  dplyr::summarize(n = dplyr::n(),
-#'                   plots_present = sum(Cover > 0),
-#'                   Avg_Cover = round(mean(Cover), 3),
-#'                   Std_Dev = round(sd(Cover), 3),
-#'                   .groups = "drop")
-#'
-# compare comp_usc2 v. comp_su_summarize
 #' }
 
+understorySpeciesCover <- function(sample_frame, cycle,
+                                   group_by = c("Zone", "Cycle")) {
+  .Deprecated("summarize_understory")
 
-understorySpeciesCover2 <- function(sample_frame, cycle,
-                                    group_by = c("Zone", "Cycle")) {
+  # Original understorySpeciesCover() here:
   col_order <- c("Unit_Code",
                  "Zone",
                  "Sampling_Frame",
@@ -1272,9 +1235,7 @@ understorySpeciesCover2 <- function(sample_frame, cycle,
   #  tidyr::unnest(data) %>%
   #  dplyr::ungroup()
 
-  # NEW PLACEHOLDER
-  # TODO: fix location of mgmt unit (ie where should it first appear?)
-  mgmt <- readr::read_csv(file = here::here("data", "Events_extra_xy_mgmt.csv"))
+  mgmt <- pacnvegetation::events_extra_xy_mgmt
 
   und <- und %>%
     dplyr::left_join(dplyr::select(mgmt, Zone, Unit_Code, Sampling_Frame, Cycle, Plot_Number),
@@ -1293,8 +1254,8 @@ understorySpeciesCover2 <- function(sample_frame, cycle,
     #complete(tidyr::nesting(!!!syms(c("Unit_Code", "Sampling_Frame", "Plot_Number", "Life_Form", "Scientific_Name", "Code", group_by))),
     #         fill = list(Hits_Sp = 0)) %>%
     tidyr::complete(tidyr::nesting(!!!syms(c("Unit_Code", "Sampling_Frame", "Plot_Number", group_by))),
-             tidyr::nesting(!!!syms(c("Nativity", "Code", "Scientific_Name", "Life_Form"))),
-             fill = list(Hits_Sp = 0)) %>%
+                    tidyr::nesting(!!!syms(c("Nativity", "Code", "Scientific_Name", "Life_Form"))),
+                    fill = list(Hits_Sp = 0)) %>%
     dplyr::mutate(Plot_Percent = Hits_Sp/300) %>%
     dplyr::group_by(across(tidyselect::all_of(c("Unit_Code", "Sampling_Frame", "Nativity", "Life_Form", "Scientific_Name", "Code", group_by)))) %>%
     dplyr::summarize(n = dplyr::n(),
@@ -1308,7 +1269,10 @@ understorySpeciesCover2 <- function(sample_frame, cycle,
   und <- und[, col_order]
 
   return(und)
-}
+  }
+
+
+
 
 #' Species understory cover trends, ranked.
 #'

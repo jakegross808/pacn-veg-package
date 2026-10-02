@@ -157,7 +157,7 @@ LoadPACNVeg <- function(ftpc_params = "FTPC", eips_paths, data_path,
       }
     }
 
-    set_data(data)
+    #set_data(data) ##typo or leftover??
     return(invisible(data))
   }
 
@@ -989,6 +989,7 @@ ReadCSV <- function(data_path) {
 #' @param year Monitoring year
 #' @param cycle Monitoring cycle
 #' @param plot_type Type of plot (fixed vs. rotational)
+#' @param plot_number Plot number(s) to filter to.
 #' @param is_qa_plot Whether the plots are QA plots or not (TRUE/FALSE) No argument defaults to FALSE. Can use "c(TRUE, FALSE)" without quotes to return both regular and QA plots.
 #' @param transect_type Type of transect (fixed vs. rotational)
 #' @param species_code 6 letter species code

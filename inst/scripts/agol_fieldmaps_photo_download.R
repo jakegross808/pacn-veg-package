@@ -6,7 +6,7 @@ library(pacnvegetation)
 
 # Set download folder location (local workspace): ----
 # Can be any folder on local machine
-var_temp_dest <- "C:/Users/JJGross/Downloads/Check_Photos_KALA_20250916"
+var_temp_dest <- "C:/Users/JJGross/Downloads/Puu_Alii_20260812"
 
 
 
@@ -14,6 +14,13 @@ var_temp_dest <- "C:/Users/JJGross/Downloads/Check_Photos_KALA_20250916"
 ## AGOL urls: ------------------------------------------------------------------
 
 # Provide URLs to the AGOL rest service that is being downloaded:
+
+# KAHO ED
+
+ED_KAHO_2026 <- "https://services1.arcgis.com/fBc8EJBxQRMcHlei/arcgis/rest/services/WHP_2022_Early_Detection_Plant_Photos/FeatureServer/2"
+var_photo_layers <- c("ED_KAHO_2026")
+var_sharepoint_dest <- "https://doimspp.sharepoint.com/:f:/r/sites/nps-PWR-PACNIM/vital_signs/03_early_detection_invasive_species/Images/2026/KAHO/Originals/"
+master_spreadsheet_folder <- "C:/Users/JJGross/OneDrive - DOI/2026/KAHO/Originals/master_spreadsheet"
 
 # Type in new AGOL layer rest services here:
 #FTPC_KAHO_2022_PA11 <- "https://services1.arcgis.com/fBc8EJBxQRMcHlei/arcgis/rest/services/KAHO_2022_FTPC_Sampling_Points_PA11/FeatureServer/43"
@@ -72,8 +79,8 @@ Plants_KALA_2024v2_run <- download_agol(
   photo_layers = var_photo_layers,
   temp_dest = var_temp_dest,
   sharepoint_dest = var_sharepoint_dest,
-  master_spreadsheet_folder = master_spreadsheet_folder,
-  after_date_filter = lubridate::mdy_hms("05/07/2025 18:00:00", tz = "HST"),
+  #master_spreadsheet_folder = master_spreadsheet_folder,
+  after_date_filter = lubridate::mdy_hms("04/23/2024 18:00:00", tz = "HST"),
   #auto_date_filter = FALSE,
   test_run = TRUE
 )

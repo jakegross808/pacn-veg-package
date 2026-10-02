@@ -18,6 +18,8 @@ master_spp_list(
 )
 }
 \arguments{
+\item{db_path}{Full path to the local copy of the species database.}
+
 \item{park}{Four letter unit code of park or can be "All"}
 
 \item{presence_matrix}{stop function early to return sampling frame vs. species occurrence matrix}
@@ -35,8 +37,6 @@ master_spp_list(
 \item{plot_number}{Plot number}
 
 \item{nativity}{Whether species are native (TRUE/FALSE)}
-
-\item{veg_species_db_path}{Full path to local copy of PACN_veg_species_list.accdb}
 }
 \value{
 A tibble

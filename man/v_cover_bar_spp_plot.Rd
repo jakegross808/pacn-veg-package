@@ -14,6 +14,8 @@ v_cover_bar_spp_plot(
 \arguments{
 \item{sample_frame}{(required)}
 
+\item{cycle}{Monitoring cycle}
+
 \item{crosstalk_filters}{Include dropdowns to filter on species, nativity, and mgmt unit?}
 
 \item{crosstalk_group}{Help distinguish crosstalk iterations}

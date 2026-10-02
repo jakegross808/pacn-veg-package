@@ -1,7 +1,3 @@
-library(dplyr)
-library(tidyr)
-library(purrr)
-
 # ______________________________________________________________________________
 # ---- prep_smwoody() ----
 # Clean SmWoody and return an analysis-ready, zero-filled density-prep table.
@@ -36,6 +32,7 @@ NON_FOREST <- c("Subalpine Shrubland", "Coastal Strand")
 FOREST_COMM <- c("Wet Forest", "Limestone Forest", "Mangrove Wetland")
 ROOTING_ALL <- c("R1", "R2", "R3", "R4", "R5")
 
+#' @noRd
 comm_group_of <- function(community) {
   dplyr::case_when(
     community %in% FOREST_COMM        ~ "Forest",
@@ -52,6 +49,7 @@ comm_group_of <- function(community) {
 #                   large trees, not in SmWoody) -> returns character(0)
 # character(0) signals "this life form does not exist in this community" so the
 # caller drops the record rather than reassigning it.
+#' @noRd
 correct_subplots <- function(life_form, comm_group) {
   if (comm_group == "Coastal Strand") return(c("Transect 1", "Transect 3"))
   if (life_form == "Small Tree") {
@@ -181,7 +179,7 @@ nonconforming <- function(x) {
 #' nonconforming(sw_prepped)
 #' dplyr::count(nonconforming(sw_prepped), disposition)
 #' }
-prep_smwoody <- function(data = SmWoody,
+prep_smwoody <- function(data,
                          life_forms = LEGIT_LF) {
 
   life_forms <- match.arg(life_forms, LEGIT_LF, several.ok = TRUE)
@@ -453,4 +451,155 @@ prep_smwoody <- function(data = SmWoody,
     dplyr::tibble(disposition = character(0))
   attr(completed, "nonconforming") <- log_tbl
   completed
+}
+
+#' Stem density (stems/ha) from a prep_smwoody() result
+#'
+#' Converts zero-filled small-woody counts into stem densities (stems per
+#' hectare) per plot, species (or species group), size/stage class, and status.
+#' Sampled-area denominators follow the PACN protocol and vary by community group
+#' and life form.
+#'
+#' Size class is DBH-based only: tree life forms use the DBH bin (`Seedling` /
+#' `Small Tree` / `Medium Tree`); non-tree life forms (Shrub, Vine, Small Tree
+#' Fern) have no DBH axis, so their `Size_Class` is the life form itself. Length
+#' class is a separate, orthogonal column (`Length_Class`) holding L-classes for
+#' any life form that records them: seedlings (L1-L3) and shrub/vine/fern
+#' (L0-L3); `NA` for small trees.
+#'
+#' Sampled areas (m^2):
+#' \tabular{lll}{
+#'   \strong{Community group} \tab \strong{Seedling/Shrub/Vine/STFern (Transect 3)} \tab \strong{Small Tree (Quad 4)} \cr
+#'   Forest              \tab 100 \tab 250 \cr
+#'   Coastal Strand      \tab 40 per subplot / 80 per plot \tab 40 / 80 \cr
+#'   Subalpine Shrubland \tab 100 \tab -- (not sampled) \cr
+#' }
+#'
+#' @param prepped A tibble returned by [prep_smwoody()].
+#' @param species A character vector of species `Code`s to include, or `NULL`
+#'   (default) for all species in `prepped`. For functional groups, filter
+#'   `prepped` yourself before calling (e.g. `dplyr::filter(x, Nativity ==
+#'   "Native", Life_Form == "Tree")`) or pass the resulting `Code`s here.
+#' @param group_label Short label describing the species selection, carried in
+#'   the output `Group` column. Defaults to `"all species"`.
+#' @param coastal How to treat Coastal Strand's two subplots (Transect 1 and
+#'   Transect 3): `"per_plot"` (default) sums both and divides by 80 m^2;
+#'   `"per_subplot"` keeps them separate, each divided by 40 m^2.
+#' @param status_split If `TRUE` (default), Live and Dead are separate rows;
+#'   if `FALSE`, they are combined.
+#' @param aggregate Which sub-classes to sum over (density is unaffected by these
+#'   since area does not depend on them):
+#'   `"none"` (default) retains both `Rooting` and `Length_Class`;
+#'   `"rooting"` sums over rooting classes; `"length"` sums over length classes
+#'   (collapsing shrub/vine/fern to one row per life form and seedlings across
+#'   L1-L3, while tree DBH size classes stay split); `"both"` sums over both.
+#'
+#' @return A tibble with columns identifying the plot, `Group`, `LF_Sm_Woody`,
+#'   `Size_Class`, `Status` (if split), `Count`, `Area_m2`, and `Density_ha`.
+#' @export
+#'
+#' @seealso [prep_smwoody()]
+#'
+#' @importFrom dplyr filter mutate case_when if_else group_by summarise ungroup
+#' @importFrom dplyr left_join across all_of relocate arrange n
+#'
+#' @examples
+#' \dontrun{
+#' x <- prep_smwoody(FilterPACNVeg(data_name = "SmWoody"))
+#'
+#' # One species
+#' d_metpol <- smwoody_density(x, species = "METPOL1", group_label = "METPOL1")
+#'
+#' # A functional group: all native trees
+#' native_tree_codes <- x |>
+#'   dplyr::filter(Nativity == "Native", Life_Form == "Tree") |>
+#'   dplyr::distinct(Code) |> dplyr::pull(Code)
+#' d_nat <- smwoody_density(x, species = native_tree_codes,
+#'                          group_label = "native trees")
+#' }
+smwoody_density <- function(prepped,
+                            species = NULL,
+                            group_label = "all species",
+                            coastal = c("per_plot", "per_subplot"),
+                            status_split = TRUE,
+                            aggregate = c("none", "rooting", "length", "both")) {
+
+  coastal   <- match.arg(coastal)
+  aggregate <- match.arg(aggregate)
+
+  # ---- Area lookup (m^2) by community group x subplot group --------------------
+  # Subplot_Group: "Tree" = Small Tree (Quad 4); "NonTree" = everything counted
+  # in Transect 3 (seedlings, shrubs, vines, ferns).
+  area_lookup <- dplyr::tibble(
+    Comm_Group = c("Forest", "Forest",
+                   "Subalpine Shrubland",
+                   "Coastal Strand", "Coastal Strand"),
+    Subplot_Group = c("NonTree", "Tree",
+                      "NonTree",
+                      "NonTree", "Tree"),
+    Area_per_plot    = c(100, 250, 100, 80, 80),
+    Area_per_subplot = c(100, 250, 100, 40, 40)
+  )
+
+  # ---- Filter to requested species --------------------------------------------
+  d <- prepped
+  if (!is.null(species)) {
+    d <- dplyr::filter(d, Code %in% species)
+  }
+
+  # ---- Derive size class, length class, subplot group -------------------------
+  # Size_Class: DBH-based for trees; life form for shrub/vine/fern (no DBH axis).
+  # Length_Class: standalone length dimension (seedlings L1-L3, shrub/vine/fern
+  #   L0-L3); NA for small trees. Orthogonal to Size_Class.
+  d <- d |>
+    dplyr::mutate(
+      Size_Class = dplyr::case_when(
+        LF_Sm_Woody == "Seedling"                     ~ "Seedling",
+        LF_Sm_Woody == "Small Tree" & DBH == "1<5"    ~ "Small Tree",
+        LF_Sm_Woody == "Small Tree" & DBH == "5<10"   ~ "Medium Tree",
+        LF_Sm_Woody %in% c("Shrub", "Vine", "Small Tree Fern") ~ LF_Sm_Woody,
+        TRUE ~ NA_character_
+      ),
+      Length_Class  = Length,     # NA for small trees; L-classes otherwise
+      Subplot_Group = dplyr::if_else(LF_Sm_Woody == "Small Tree",
+                                     "Tree", "NonTree")
+    )
+
+  # ---- Grouping keys -----------------------------------------------------------
+  plot_key <- c("Unit_Code", "Sampling_Frame", "Cycle", "Year", "Plot_Number")
+  plot_key <- intersect(plot_key, names(d))
+
+  # Coastal per_plot: collapse Sample_Area (sum T1+T3). Otherwise keep it.
+  keep_sample_area <- (coastal == "per_subplot")
+
+  # Retain Rooting and/or Seedling_Length unless aggregated away.
+  keep_rooting <- !(aggregate %in% c("rooting", "both"))
+  keep_length  <- !(aggregate %in% c("length",  "both"))
+
+  group_cols <- c(plot_key,
+                  if (keep_sample_area) "Sample_Area",
+                  "Comm_Group", "LF_Sm_Woody", "Size_Class", "Subplot_Group",
+                  if (keep_length)  "Length_Class",
+                  if (keep_rooting) "Rooting",
+                  if (status_split) "Status")
+
+  # ---- Aggregate counts, attach area, compute density -------------------------
+  dens <- d |>
+    dplyr::group_by(dplyr::across(dplyr::all_of(group_cols))) |>
+    dplyr::summarise(Count = sum(Count, na.rm = TRUE), .groups = "drop") |>
+    dplyr::left_join(area_lookup, by = c("Comm_Group", "Subplot_Group")) |>
+    dplyr::mutate(
+      Area_m2    = if (keep_sample_area) Area_per_subplot else Area_per_plot,
+      Group      = group_label,
+      Density_ha = Count / Area_m2 * 10000
+    ) |>
+    dplyr::select(-Area_per_plot, -Area_per_subplot) |>
+    dplyr::relocate(Group) |>
+    dplyr::arrange(dplyr::across(dplyr::all_of(group_cols)))
+
+  # ---- Validation --------------------------------------------------------------
+  stopifnot(!any(is.na(dens$Area_m2)))          # every row got an area
+  stopifnot(all(is.finite(dens$Density_ha)))    # finite densities
+
+  dens
 }

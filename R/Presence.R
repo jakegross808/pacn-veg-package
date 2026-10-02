@@ -5,8 +5,8 @@
 #'
 #' @details park filter is required. All other filters are optional. To ignore a filter, omit it or set it to NA.
 #'
-#' @inheritParams FilterOne
-#' @param veg_species_db_path Full path to local copy of PACN_veg_species_list.accdb
+#'
+#' @param db_path Full path to the local copy of the species database.
 #' @param park Four letter unit code of park or can be "All"
 #' @param presence_matrix stop function early to return sampling frame vs. species occurrence matrix
 #' @param sample_frame Name of sample frame
@@ -147,7 +147,9 @@ master_spp_list <- function(db_path, park, presence_matrix = FALSE, sample_frame
 #' min and max plot percentage shown with sparkline showing presence trend for all years
 #'
 #' @param sample_frame Name of sampling frame
+#' @param cycle Monitoring cycle.
 #' @param table_type default is "html" (other option is "tibble")
+#'
 #'
 #' @return A html table
 #' @export

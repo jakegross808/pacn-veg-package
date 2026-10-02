@@ -102,8 +102,7 @@ if (params$sample_frame %in% no_EIPS) {
 }
 
 # Get park name
-#names_all2 <- readxl::read_xlsx(here::here("R", "PACN_veg_names.xlsx")) 
-names_all <- readr::read_csv(here::here("data", "PACN_veg_names_excel_csv.csv")) 
+names_all <- PACN_veg_names
 
 names <- names_all |>
   dplyr::filter(Sampling_Frame == params$sample_frame)
@@ -683,7 +682,7 @@ if ("EIPS" %in% var_protocol) {
   most_frequent <- names(which.max(table(test_data$Scientific_Name))) 
   most_frequent
   ### Non-Native Species
-  v_EIPS_map_interstation3(.data = test_data,
+  v_EIPS_map_interstation(.data = test_data,
                         parameter = "Mean_Species_Cover",
                         change = FALSE, 
                         agol_sample_frame = params$sample_frame)
@@ -720,7 +719,7 @@ window.onload = filter_default;
 ```{r message=FALSE, warning=FALSE, echo=FALSE}
 
 if ("EIPS" %in% var_protocol) {
-  v_EIPS_map_interstation3(.data = test_data, 
+  v_EIPS_map_interstation(.data = test_data, 
                         parameter = "Mean_Total_Cover",
                         change = FALSE,
                         agol_sample_frame = params$sample_frame)
@@ -734,7 +733,7 @@ if ("EIPS" %in% var_protocol) {
 
 ```{r message=FALSE, warning=FALSE, echo=FALSE}
 if ("EIPS" %in% var_protocol) {
-  v_EIPS_map_interstation3(.data = test_data,
+  v_EIPS_map_interstation(.data = test_data,
                         parameter = "Max_Richness",
                         change = FALSE, 
                         agol_sample_frame = params$sample_frame)

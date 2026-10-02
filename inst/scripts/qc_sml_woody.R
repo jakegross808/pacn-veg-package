@@ -1,7 +1,7 @@
 library(pacnvegetation)
 library(dplyr)
 #test
-#--- 1. Read latest cache ----
+#--- Read latest cache ----
 LoadPACNVeg(force_refresh = FALSE, eips_paths = "foo")
 
 names(pacnvegetation:::GetColSpec())
@@ -17,7 +17,7 @@ all_events <- FilterPACNVeg(data_name = "Events_extra_xy", is_qa_plot = FALSE) %
 
 plots_per_site_and_year <- all_events |>
   count(Unit_Code, Sampling_Frame, Cycle, Year)
-plots_per_site_and_year
+print(plots_per_site_and_year, n = 38)
 
 # Prep SmWoody Dataset
 SmWoody <- FilterPACNVeg(data_name = "SmWoody", is_qa_plot = FALSE) |>
@@ -26,9 +26,7 @@ SmWoody <- FilterPACNVeg(data_name = "SmWoody", is_qa_plot = FALSE) |>
   ungroup() |>
   right_join(all_events, by = join_by(Unit_Code, Sampling_Frame, Sampling_Frame_Formal, Cycle, Year, Plot_Type, Plot_Number))
 
-SmWoody_METPOL <- SmWoody |>
-  dplyr::filter(Code == "METPOL1")
-# QAQC Checks ------------------------------------------------------------------
+# 1. QAQC Checks ------------------------------------------------------------------
 
 ## Unmatched Lifeforms ----
 unique(SmWoody$LF_Sm_Woody)
@@ -157,28 +155,59 @@ QAQC_dup_LF_Sm_Woody <- SmWoody |>
 
 # ..............................................................................
 
-# All plots ----
-all_plots <- all_events |>
-  select(Unit_Code, Sampling_Frame, Year, Plot_Number)
 
-chk <- all_plots |>
-  group_by(Sampling_Frame, Year) |>
-  tally() |>
-  arrange(dplyr::desc(Year))
-
+# 2. Summarize SmWoody ----
+glimpse(SmWoody)
 SmWoody$Community <- as.factor(SmWoody$Community)
-SmWoody$Sampling_Frame <- as.factor(SmWoody$Sampling_Frame)
 levels(SmWoody$Community)
+
+SmWoody$Sampling_Frame <- as.factor(SmWoody$Sampling_Frame)
 levels(SmWoody$Sampling_Frame)
 
+# DBH is diameter at breast height. Anything larger than 10 cm DBH is stored in a separate data table (Lg)
+levels(as.factor(SmWoody$DBH))
+
+levels(as.factor(SmWoody$LF_Sm_Woody))
+levels(as.factor(SmWoody$Status))
+levels(as.factor(SmWoody$Length))
+levels(as.factor(SmWoody$Rooting))
+
+# Non Forest Communities only have Rooting Class 1 ("R1") rooted from ground (i.e. not epiphyte)
 SmWoody_categories_nonForest <- SmWoody |>
   dplyr::mutate(Community = as.factor(Community)) |>
   dplyr::filter(Community %in% c("Subalpine Shrubland", "Coastal Strand")) |>
-  droplevels() |>
-  dplyr::filter(LF_Sm_Woody == "Seedling") |>
-  tidyr::expand(Sampling_Frame, DBH, Status, Length) |>
-  tidyr::drop_na() |>
-  dplyr::mutate(Rooting = "R1")
+  droplevels()
+levels(as.factor(SmWoody_categories_nonForest$Rooting))
+
+Seedlings <- SmWoody |>
+  # Anything with DBH == "<1" is considered a seedling
+  dplyr::filter(DBH == "<1") |>
+  droplevels()
+# Seedlings do not have "L0" class (only L1, L2, L3)
+levels(as.factor(Seedlings$Length))
+# All Rooting classes:
+levels(as.factor(Seedlings$Rooting))
+levels(as.factor(Seedlings$DBH))
+# Live and Dead Status
+levels(as.factor(Seedlings$Status))
+
+# "Small Trees' have DBH == "1<5" | DBH == "5<10"
+small_trees <- SmWoody |>
+  # Anything with DBH == "<1" is considered a seedling even if LF_SM_Woody does not specify seedling
+  dplyr::filter(DBH == "1<5" | DBH == "5<10") |>
+  # Length class is not measured for 'small trees' and should always be 'NA'
+  dplyr::filter(is.na(Length)) |>
+  droplevels()
+# DBH <1 cm is seedlings
+# Seedlings do not have "L0" class (only L1, L2, L3)
+levels(as.factor(small_trees$Length))
+# All Rooting classes:
+levels(as.factor(small_trees$Rooting))
+levels(as.factor(small_trees$DBH))
+# Live and Dead Status
+levels(as.factor(small_trees$Status))
+
+# OLD SUMMARIZE ----
 
 SmWoody_categories_Forest <- SmWoody |>
   dplyr::filter(Community %in% c("Wet Forest", "Limestone Forest", "Mangrove Wetland")) |>
@@ -195,7 +224,7 @@ SmWoody_categories_distinct <- SmWoody_categories |>
 SmWoody_categories_all_plots <- all_plots |>
   left_join(SmWoody_categories, by = join_by(Sampling_Frame), relationship = "many-to-many")
 
-# 2. Seedling table ----
+
 Seedling <- SmWoody |>
   filter(LF_Sm_Woody == "Seedling") %>%
   # All events (plot reads) without seedlings get added in here:
@@ -358,14 +387,14 @@ seedlings_MR %>%
 # Elucidate graphs
 look <- seedlings_spp_byplot %>%
   filter(Sampling_Frame == "Olaa") #%>%
-  plot_line(y = seedlings_per_plot, x = Cycle, colour_var = Nativity,
-            #geom = "point",
-            p_size = 3,
-            add_lines = TRUE,
-            dodge_width = 0,
-            alpha = 0.6,
-            stat = "mean",
-            print_stats = TRUE)
+  # elucidate::plot_line(y = seedlings_per_plot, x = Cycle, colour_var = Nativity,
+  #           #geom = "point",
+  #           p_size = 3,
+  #           add_lines = TRUE,
+  #           dodge_width = 0,
+  #           alpha = 0.6,
+  #           stat = "mean",
+  #           print_stats = TRUE)
 
 seedlings_spp_byplot %>%
   #filter(Sampling_Frame == "Olaa") %>%
@@ -448,21 +477,19 @@ seedlings_boxplot
 
 sf <- "Olaa"
 
-library(elucidate)
-
 plot_stat_error(seedlings, y = nat_count_per_m, x = Cycle, colour = "blue")
 
 seedlings %>%
   filter(Unit_Code == "HAVO") %>%
   filter(Nativity == "Native") %>%
-  plot_line(y = nat_count_per_m, x = Cycle, colour_var = Sampling_Frame,
-            #geom = "point",
-            p_size = 3,
-            add_lines = TRUE,
-            dodge_width = 0,
-            alpha = 0.6,
-            stat = "mean",
-            print_stats = TRUE)
+  # elucidate::plot_line(y = nat_count_per_m, x = Cycle, colour_var = Sampling_Frame,
+  #           #geom = "point",
+  #           p_size = 3,
+  #           add_lines = TRUE,
+  #           dodge_width = 0,
+  #           alpha = 0.6,
+  #           stat = "mean",
+  #           print_stats = TRUE)
 
 seedlings %>%
   #filter(Unit_Code == "HAVO") %>%

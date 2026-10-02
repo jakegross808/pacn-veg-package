@@ -27,6 +27,10 @@ UnderNativityCover(
 
 \item{rm_unk_natv}{Remove}
 
+\item{crosstalk}{If \code{TRUE}, return a crosstalk SharedData object.}
+
+\item{crosstalk_group}{Crosstalk group name to link widgets.}
+
 \item{park}{Four letter unit code of park(s)}
 
 \item{sample_frame}{Name of sample frame}

@@ -15,7 +15,7 @@ v_cover_plot_bar_nativity(
   cycle,
   plot_type,
   plot_number,
-  filter_Code,
+  species_code,
   silent = FALSE
 )
 }
@@ -23,6 +23,8 @@ v_cover_plot_bar_nativity(
 \item{combine_strata}{If \code{TRUE}, combine high and low strata into one stratum.}
 
 \item{paired_change}{If \code{TRUE}, calculate change in percent cover. Note that this drops "Rotational" plots and uses "Fixed" plots only.}
+
+\item{param}{(default = "Cover") parameter used in summarize_understory + add_stats()}
 
 \item{park}{Four letter unit code of park(s)}
 
@@ -35,6 +37,10 @@ v_cover_plot_bar_nativity(
 \item{cycle}{Monitoring cycle}
 
 \item{plot_type}{Type of plot (fixed vs. rotational)}
+
+\item{plot_number}{Plot number(s) to filter to.}
+
+\item{species_code}{6 letter species code}
 
 \item{silent}{Suppress informational messages?}
 }

@@ -1,3 +1,25 @@
+#' Read the sampling-frame polygons shipped with the package
+#'
+#' Loads the PACN sampling-frame boundaries from the package's bundled
+#' GeoPackage.
+#'
+#' @return An `sf` object of sampling-frame polygons.
+#' @export
+#'
+#' @examples
+#' \dontrun{
+#' frames <- samp_frames_gpkg()
+#' }
+samp_frames_gpkg <- function() {
+  path <- system.file("extdata", "spatial", "samp_frames.gpkg",
+                      package = "pacnvegetation")
+  if (path == "") {
+    stop("samp_frames.gpkg not found in package extdata. ",
+         "Was the package installed with its data files?")
+  }
+  sf::st_read(path, quiet = TRUE)
+}
+
 #' Get locations of FTPC plots and EIPS transects for mapping.
 #'
 #' @param protocol Character vector indicating whether to include FTPC plots, EIPS transects, or both
@@ -103,13 +125,17 @@ PlotAndTransectLocations <- function(protocol = c("FTPC", "EIPS"), crosstalk = F
 #'
 #' @inheritParams PlotAndTransectLocations
 #'
+#' @param combine_strata If `TRUE`, combine high and low strata into one stratum.
+#' @param community Name of plant community.
+#' @param year Monitoring year.
+#' @param cycle Cycle of interest.
+#' @param paired_cycle Cycle to compare against when calculating paired change.
+#' @param silent Suppress informational messages?
+#'
 #' @return A leaflet map
 #' @export
 #'
-#' @examples
-#' \dontrun{
-#'
-#' }
+
 MapCoverChange <- function(crosstalk = FALSE, crosstalk_group = "cover", combine_strata = TRUE, park, sample_frame, community, year, cycle = 2, plot_type, paired_cycle = 1, is_qa_plot, certified, verified, silent = TRUE) {
 
   if (missing(cycle)) {
@@ -196,6 +222,11 @@ MapCoverChange <- function(crosstalk = FALSE, crosstalk_group = "cover", combine
 }
 
 #' Map Total Native vs. Non-native vegetation cover
+#' @param combine_strata If `TRUE`, combine high and low strata into one stratum.
+#' @param community Name of plant community.
+#' @param year Monitoring year.
+#' @param cycle Monitoring cycle of interest.
+#' @param silent Suppress informational messages?
 #'
 #' @inheritParams PlotAndTransectLocations
 #'
@@ -208,118 +239,7 @@ MapCoverChange <- function(crosstalk = FALSE, crosstalk_group = "cover", combine
 #' MapCoverTotal(park = "AMME")
 #' MapCoverTotal(sample_frame = "Puu Alii")
 #' }
-MapCoverTotal <- function(crosstalk = FALSE, crosstalk_group = "cover", combine_strata = TRUE, park, sample_frame, community, year, cycle = max(cycles), plot_type, is_qa_plot, certified, verified, silent = TRUE) {
-
-  if (missing(cycle)) {
-    stop("cycle is required")
-  }
-  if (length(cycle) > 1) {
-    stop("cycle must be length 1")
-  }
-
-  pts <- PlotAndTransectLocations(protocol = "FTPC", crosstalk = FALSE, crosstalk_group = crosstalk_group, park = park, sample_frame = sample_frame, cycle = cycle, plot_type, is_qa_plot = is_qa_plot, certified = certified, verified = verified) %>%
-    dplyr::mutate(Cycle = as.integer(Cycle),
-                  Year = as.integer(Year),
-                  Sample_Unit_Number = as.integer(Sample_Unit_Number)) %>%
-    dplyr::rename(Plot_Type = Sample_Unit_Type,
-                  Plot_Number = Sample_Unit_Number) %>%
-    dplyr::select(Unit_Code, Sampling_Frame, Plot_Type, Plot_Number, Year, Cycle, Lat, Long)
-  cover_data <- UnderNativityCover(combine_strata = combine_strata, paired_change = FALSE, crosstalk = FALSE, park = park, sample_frame = sample_frame, community = community, year = year, cycle = cycle,
-                                   plot_type = plot_type, silent = silent)
-
-  # Combine cover and location data
-  cover_data <- dplyr::left_join(cover_data, pts, by = c("Unit_Code", "Sampling_Frame", "Plot_Type", "Plot_Number", "Year", "Cycle")) %>%
-    dplyr::mutate(nat_ratio = Native_Cover_Total_pct / (NonNative_Cover_Total_pct + Native_Cover_Total_pct) * 100) %>%
-    dplyr::arrange(nat_ratio)
-
-
-  # pal <- grDevices::colorRampPalette(c("red", "orange", "yellow", "green"))(length(cover_data$nat_ratio))
-  ramp <- grDevices::colorRamp(c("#d11141", "#f37735", "#C8E52A", "#00b159")) #better colors for red, orange, yellow, green
-  #ramp <- grDevices::colorRamp(c("red", "orange", "yellow", "green"))
-  pal <- leaflet::colorNumeric(ramp, domain = c(0,100))
-
-  # dplyr::mutate(color = dplyr::case_when(NonNative_Cover_Total_pct <= 0 & Native_Cover_Total_pct <= 0 ~ "#cccccc",#gray
-  #                                        NonNative_Cover_Total_pct > 0 & Native_Cover_Total_pct <= 0 ~ "#d11141",#red
-  #                                        NonNative_Cover_Total_pct > 0 & Native_Cover_Total_pct > 0 & NonNative_Cover_Total_pct > Native_Cover_Total_pct ~ "#f37735",#orange
-  #                                        NonNative_Cover_Total_pct > 0 & Native_Cover_Total_pct > 0 & NonNative_Cover_Total_pct < Native_Cover_Total_pct ~ "#C8E52A",#yellow
-  #                                        NonNative_Cover_Total_pct <= 0 & Native_Cover_Total_pct > 0 ~ "#00b159"))#green
-
-  cover_data <- cover_data %>%
-    dplyr::mutate(color = pal(nat_ratio))
-
-
-  # Enable crosstalk if specified
-  if (crosstalk) {
-    cover_data <- dplyr::mutate(cover_data, key = paste0(Unit_Code, Sampling_Frame, Plot_Type, Plot_Number, Year, Cycle))
-    cover <- crosstalk::SharedData$new(cover_data, group = crosstalk_group, key = ~key)
-  }
-
-  # Set up icons
-  custom_icons <- pchIcons(pch = rep(22, nrow(cover_data)),
-                                            width = 30,
-                                            height = 30,
-                                            bg = colorspace::darken(cover_data$color),
-                                            col = cover_data$color, 0.3)
-  iconwidth <- 25
-  iconheight <- 25
-
-  # Make NPS map Attribution
-  NPSAttrib <-
-    htmltools::HTML(
-      "<a href='https://www.nps.gov/npmap/disclaimer/'>Disclaimer</a> |
-      &copy; <a href='http://mapbox.com/about/maps' target='_blank'>Mapbox</a>
-      &copy; <a href='http://openstreetmap.org/copyright' target='_blank'>OpenStreetMap</a> contributors |
-      <a class='improve-park-tiles'
-      href='http://insidemaps.nps.gov/places/editor/#background=mapbox-satellite&map=4/-95.97656/39.02772&overlays=park-tiles-overlay'
-      target='_blank'>Improve Park Tiles</a>"
-    )
-
-  # NPS park tiles URLs
-  NPSbasic = "https://atlas-stg.geoplatform.gov/styles/v1/atlas-user/ck58pyquo009v01p99xebegr9/tiles/256/{z}/{x}/{y}@2x?access_token=pk.eyJ1IjoiYXRsYXMtdXNlciIsImEiOiJjazFmdGx2bjQwMDAwMG5wZmYwbmJwbmE2In0.lWXK2UexpXuyVitesLdwUg"
-  NPSimagery = "https://atlas-stg.geoplatform.gov/styles/v1/atlas-user/ck72fwp2642dv07o7tbqinvz4/tiles/256/{z}/{x}/{y}@2x?access_token=pk.eyJ1IjoiYXRsYXMtdXNlciIsImEiOiJjazFmdGx2bjQwMDAwMG5wZmYwbmJwbmE2In0.lWXK2UexpXuyVitesLdwUg"
-  NPSslate = "https://atlas-stg.geoplatform.gov/styles/v1/atlas-user/ck5cpvc2e0avf01p9zaw4co8o/tiles/256/{z}/{x}/{y}@2x?access_token=pk.eyJ1IjoiYXRsYXMtdXNlciIsImEiOiJjazFmdGx2bjQwMDAwMG5wZmYwbmJwbmE2In0.lWXK2UexpXuyVitesLdwUg"
-  NPSlight = "https://atlas-stg.geoplatform.gov/styles/v1/atlas-user/ck5cpia2u0auf01p9vbugvcpv/tiles/256/{z}/{x}/{y}@2x?access_token=pk.eyJ1IjoiYXRsYXMtdXNlciIsImEiOiJjazFmdGx2bjQwMDAwMG5wZmYwbmJwbmE2In0.lWXK2UexpXuyVitesLdwUg"
-
-  map <- leaflet::leaflet(cover) %>%
-    leaflet::addTiles(group = "Basic", urlTemplate = NPSbasic, attribution = NPSAttrib) %>%
-    leaflet::addTiles(group = "Imagery", urlTemplate = NPSimagery, attribution = NPSAttrib) %>%
-    leaflet::addTiles(group = "Slate", urlTemplate = NPSslate, attribution = NPSAttrib) %>%
-    leaflet::addTiles(group = "Light", urlTemplate = NPSlight, attribution = NPSAttrib) %>%
-    leaflet::addLayersControl(baseGroups = c("Basic", "Imagery", "Slate", "Light"),
-                              options=leaflet::layersControlOptions(collapsed = TRUE)) %>%
-    leaflet::addMarkers(lng = ~cover_data$Long,
-                        lat = ~cover_data$Lat,
-                        icon = ~leaflet::icons(iconUrl = custom_icons,
-                                               iconWidth = iconwidth,
-                                               iconHeight = iconheight),
-                        label = ~cover_data$Plot_Number,
-                        # layerId = ~cover_data$key,
-                        labelOptions = leaflet::labelOptions(noHide = TRUE, opacity = .9, textOnly = TRUE, offset = c(0,0), direction = "center", style = list("color" = "white", "font-weight" = "bold")),
-                        popup = ~paste0("<br><strong>Non-native cover:</strong> ", cover_data$NonNative_Cover_Total_pct,
-                                        "<br><strong>Native cover:</strong> ", cover_data$Native_Cover_Total_pct,
-                                        "<br><strong>Sampling Frame:</strong> ", cover_data$Sampling_Frame,
-                                        "<br><strong>Cycle:</strong> ", cover_data$Cycle,
-                                        "<br><strong>Year:</strong> ", cover_data$Year))
-
-  map %<>% leaflet::addScaleBar(position = "bottomleft")
-
-  return(map)
-}
-
-#' Map Total Native vs. Non-native vegetation cover
-#'
-#' @inheritParams PlotAndTransectLocations
-#'
-#' @return A leaflet map
-#' @export
-#'
-#' @examples
-#' \dontrun{
-#' MapCoverTotal(protocol = "FTPC") #currently only FTPC mapping supported
-#' MapCoverTotal(park = "AMME")
-#' MapCoverTotal(sample_frame = "Puu Alii")
-#' }
-MapCoverTotal2 <- function(crosstalk = FALSE, crosstalk_group = "cover", combine_strata = TRUE, cycle, park, sample_frame, community, year, plot_type, is_qa_plot = FALSE, certified, verified, silent = TRUE) {
+MapCoverTotal <- function(crosstalk = FALSE, crosstalk_group = "cover", combine_strata = TRUE, cycle, park, sample_frame, community, year, plot_type, is_qa_plot = FALSE, certified, verified, silent = TRUE) {
 
   #if (missing(fixed_plot_cycle)) {
   #  stop("cycle is required")
@@ -466,6 +386,7 @@ MapCoverTotal2 <- function(crosstalk = FALSE, crosstalk_group = "cover", combine
 #' @param height Height of character
 #' @param bg Background color
 #' @param col Color
+#' @param lwd Line width for the plotted character icons.
 #' @param ... Additional arguments to [graphics::points()]
 #'
 #' @return Filename(s) of icon(s)
@@ -579,7 +500,7 @@ MapPACNVeg <- function(protocol = c("FTPC", "EIPS"), crosstalk = FALSE, crosstal
 #    agol_sample_frame <- "Limestone Forest"
 
   } else if (sample_frame == "Kipahulu District") {
-    agol_sample_frame <- "Kīpahulu District"
+    agol_sample_frame <- "K\u012Bpahulu District"
 
   } else if (sample_frame == "Nahuku/East Rift") {
     agol_sample_frame <- "Thurston/East Rift"
@@ -618,7 +539,7 @@ MapPACNVeg <- function(protocol = c("FTPC", "EIPS"), crosstalk = FALSE, crosstal
     # gdb_layer <- "PACN_Vegetation_Sampling_Frames"
     # agol_sf <- sf::read_sf(gdb, gdb_layer, quiet = TRUE)
 
-    agol_sf <- sf::read_sf(here::here("data", "spatial", "samp_frames.gpkg"), quiet = TRUE)
+    agol_sf <- samp_frames_gpkg()
     agol_sf <- sf::st_transform(agol_sf, crs = 4326)
     agol_sf <- agol_sf |>
        #**need to trim whitespace on GIS file*
@@ -843,7 +764,7 @@ add_mgmt_unit <- function(sample_frame){
   new_folder <- paste0(getwd(),"/R")
   new_folder
   dir.create(new_folder)
-  readr::write_csv(plots_mgmt, file = here::here("data", "Events_extra_xy_mgmt.csv"))
+  readr::write_csv(plots_mgmt, file = here::here("data-raw", "Events_extra_xy_mgmt.csv"))
 
 }
 
@@ -856,6 +777,7 @@ add_mgmt_unit <- function(sample_frame){
 #' @param agol_password Do not hardcode passwords in your saved code! By default, assumes that the password was stored using [keyring::key_set()] with `service = AGOL`.
 #' @param test_run If `TRUE`, returns attachment data and proposed file locations without actually downloading and saving attachments.
 #' @param dest_folder Folder in which to save downloaded attachments
+#' @param share_folder Sharepoint folder path.
 #' @param prefix Prefix for photo file names. Can either be a character string (to set the same prefix for all files) or an unquoted column name from the attachment table.
 #' @param sep Separator character to use between prefix and photo ID in file names. Ignored if `custom_name` == FALSE
 #' @param custom_name Use prefix and sep to create filenames from attachment ID's? If `FALSE`, will use the filename as stored in AGOL. If you are not customizing your filenames when saving attachments, this may cause problems due to duplicate filenames.

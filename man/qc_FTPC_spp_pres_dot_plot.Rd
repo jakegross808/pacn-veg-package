@@ -17,6 +17,8 @@ qc_FTPC_spp_pres_dot_plot(
 \item{plot_number}{plot number (must be only one plot)}
 
 \item{save_folder}{folder where .png plot will be saved}
+
+\item{is_qa_plot}{Whether the plots are QA plots (TRUE/FALSE) (Default = FALSE).}
 }
 \value{
 individual .png files for each plot specified in sampling_frame + plot_number argument

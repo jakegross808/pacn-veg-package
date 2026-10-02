@@ -2,7 +2,7 @@
 % Please edit documentation in R/EIPS.R
 \name{v_EIPS_map_interstation}
 \alias{v_EIPS_map_interstation}
-\title{Map EIPS data}
+\title{Map EIPS data (updated 20250211)}
 \usage{
 v_EIPS_map_interstation(
   .data,
@@ -10,6 +10,15 @@ v_EIPS_map_interstation(
   change = FALSE,
   agol_sample_frame = "*"
 )
+}
+\arguments{
+\item{.data}{A prepared EIPS data frame (e.g. from \code{v_EIPS_prep()}).}
+
+\item{parameter}{The metric to map ("Mean_Species_Cover", "Mean_Total_Cover", or "Max_Richness").}
+
+\item{change}{If \code{TRUE}, map change between cycles rather than a single value.}
+
+\item{agol_sample_frame}{Sampling-frame name matching the AGOL layer.}
 }
 \value{
 leaflet map with crosstalk selection

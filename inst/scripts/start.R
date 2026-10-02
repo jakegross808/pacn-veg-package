@@ -1,6 +1,8 @@
 # Startup script to get going on pacnvegetation package.
 #install.packages("devtools")
 #devtools::install_github("jakegross808/pacn-veg-package")
+#renv::init()
+#renv::install("jakegross808/pacn-veg-package")
 
 library(pacnvegetation)
 library(tidyverse)
@@ -11,7 +13,7 @@ pacnveg_cache_path <- "C:/LocalDocuments/Databases_copied_local/EIPS"
 eips_file_info <- list.files(pacnveg_cache_path, full.names = T)
 eips_file_info
 LoadPACNVeg(ftpc_params = "FTPC", eips_paths = eips_file_info,
-                    cache = TRUE, force_refresh = TRUE, TE_Species = FALSE)
+                    cache = TRUE, force_refresh = FALSE, TE_Species = FALSE)
 
 #--- 1. Read latest cache ----
 LoadPACNVeg(force_refresh = FALSE, eips_paths = "foo", )
@@ -19,9 +21,9 @@ LoadPACNVeg(force_refresh = FALSE, eips_paths = "foo", )
 # Write/Read csv from pacnvegetation package:
 #pacnveg_cache_path <- "C:/Users/JJGross/Documents/Databases_copied_local/R_WritePACNVeg"
 ts <- format(Sys.Date(), "%Y-%m-%d")
-pacnveg_cache_path <- paste0("data/vital_signs/", ts)
+pacnveg_cache_path <- paste0("data/vital_signs/", ts, "_B")
 dir.create(pacnveg_cache_path)
-WritePACNVeg(pacnveg_cache_path, create.folders = TRUE, certified = TRUE, overwrite = TRUE)
+WritePACNVeg(pacnveg_cache_path, create.folders = TRUE, certified = TRUE, overwrite = TRUE, is_qa_plot = NA)
 
 # Read
 path_file_info <- file.info(list.files("data/vital_signs/", full.names = T))
@@ -34,10 +36,13 @@ pacnvegetation::LoadPACNVeg(data_path = "data/vital_signs/2026-04-07",
             data_source = "file")
 
 names(FilterPACNVeg())
-
 select_dataset <- FilterPACNVeg(data_name = "Enter Dataset Name Here")
 
-SmWoody <- FilterPACNVeg(data_name = "SmWoody")
+LgTrees <- FilterPACNVeg(data_name = "LgTrees", park = "HAVO", sci_name = "Metrosideros polymorpha") # trees > 10 cm DBH.
+# Note that there is a "DBH_Bole" column and a "DBH" column. If the individual tree has more than one bole, then the "DBH" and "Large_Woody_ID" will be duplicated for every bole.
+
+SmWoody <- FilterPACNVeg(data_name = "SmWoody", park = "HAVO", sci_name = "Metrosideros polymorpha") # tally of seedlings (< 1 cm DBH) and tally of small trees (1-5, 5-10 cm DBH)
+
 
 
 ## STOP ##
@@ -48,6 +53,7 @@ SmWoody <- FilterPACNVeg(data_name = "SmWoody")
 
 Events_FTPC <- FilterPACNVeg(data_name = "Events_extra_xy")
 Events_EIPS <- FilterPACNVeg(data_name = "Events_extra_other_EIPS")
+Events_extra_QAQC <- FilterPACNVeg(data_name = "Events_extra_QAQC")
 Species_extra <- FilterPACNVeg(data_name = "Species_extra")
 
 Species_FTPC <- FilterPACNVeg(data_name = "Presence") #%>%
@@ -148,12 +154,15 @@ hi_vegmap_spp <- hi_vegmap_data %>%
 
 
 # Local Path to Veg Spp database
-veg_species_db_folder <-  "C:/Users/JJGross/LocalDocuments/Databases_copied_local/Veg_species_db"
+veg_species_db_folder <-  "C:/LocalDocuments/Databases_copied_local/Veg_species_db"
 # If only one database in folder, this will grab full path:
 veg_species_db_full_path <- list.files(veg_species_db_folder,full.names = TRUE)
 veg_species_db_full_path
 # Get raw data from Veg Species Database:
 raw_spp_data <- read_spp_db(veg_species_db_full_path)
+
+unique_spp <- raw_spp_data |>
+  distinct(Scientific_name)
 
 # Get master species list for a park (with ID_Field for field maps):
 

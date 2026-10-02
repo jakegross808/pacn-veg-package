@@ -6,6 +6,13 @@
 \usage{
 v_EIPS_cover_percent2class(df, range_column, cover_column_name)
 }
+\arguments{
+\item{df}{A data frame of EIPS cover data.}
+
+\item{range_column}{Name of the cover-range column to convert.}
+
+\item{cover_column_name}{Name for the output cover-class column.}
+}
 \value{
 Filename and path
 }

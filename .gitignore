@@ -5,6 +5,9 @@
 # Session Data files
 .RData
 
+# Data exported from WritePACNVeg:
+/data/vital_signs
+
 # User-specific files
 .Ruserdata
 
@@ -34,10 +37,9 @@ vignettes/*.pdf
 # Temporary files created by R markdown
 *.utf8.md
 *.knit.md
-skeleton.html
 
 # HTML output of R Markdown
-#inst/rmarkdown/**/Resource_Brief*.html
+/html_reports
 
 # R Environment Variables
 .Renviron

@@ -30,6 +30,8 @@ DownloadAGOLAttachments(
 
 \item{dest_folder}{Folder in which to save downloaded attachments}
 
+\item{share_folder}{Sharepoint folder path.}
+
 \item{custom_name}{Use prefix and sep to create filenames from attachment ID's? If \code{FALSE}, will use the filename as stored in AGOL. If you are not customizing your filenames when saving attachments, this may cause problems due to duplicate filenames.}
 
 \item{prefix}{Prefix for photo file names. Can either be a character string (to set the same prefix for all files) or an unquoted column name from the attachment table.}

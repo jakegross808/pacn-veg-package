@@ -26,28 +26,33 @@ MapCoverChange(
 
 \item{crosstalk_group}{If \code{crosstalk == TRUE}, the crosstalk group name to use. Ignored if \code{crosstalk == FALSE}.}
 
+\item{combine_strata}{If \code{TRUE}, combine high and low strata into one stratum.}
+
 \item{park}{Four letter unit code of park(s)}
 
 \item{sample_frame}{Name of sample frame}
 
-\item{cycle}{Monitoring cycle}
+\item{community}{Name of plant community.}
+
+\item{year}{Monitoring year.}
+
+\item{cycle}{Cycle of interest.}
 
 \item{plot_type}{Type of plot (fixed vs. rotational)}
+
+\item{paired_cycle}{Cycle to compare against when calculating paired change.}
 
 \item{is_qa_plot}{Whether the plots are QA plots or not (TRUE/FALSE) No argument defaults to FALSE. Can use "c(TRUE, FALSE)" without quotes to return both regular and QA plots.}
 
 \item{certified}{Whether data are certified (TRUE/FALSE)}
 
 \item{verified}{Whether data are verified (TRUE/FALSE)}
+
+\item{silent}{Suppress informational messages?}
 }
 \value{
 A leaflet map
 }
 \description{
 Map change in vegetation cover
-}
-\examples{
-\dontrun{
-
-}
 }

@@ -390,13 +390,25 @@ chk_gis_attribute_table <- process_photos(AGOL_Layer = var_AGOL_Layer,
                                           return_first_table = TRUE
 )
 
+filter_Puu_Alii <- chk_gis_attribute_table |>
+  dplyr::filter(Samp_Frame == "PA") #|>
+  #dplyr::filter(Site_numb == "FTPC F01")
+
 chk_final_photos_table <- process_photos(AGOL_Layer = var_AGOL_Layer,
                                          gdb_name = gdb_name_var,
                                          gdb_location = gdb_location_var,
                                          gdb_layer = gdb_layer_var,
-                                         ##test_n_rows = 30,
+                                         #test_n_rows = 30,
+                                         insert_first_table = filter_Puu_Alii#,
                                          #add_watermark = TRUE
-                                         return_last_table = TRUE
+                                         #return_last_table = TRUE
+)
+
+process_photos(AGOL_Layer = var_AGOL_Layer,
+               gdb_name = gdb_name_var,
+               gdb_location = gdb_location_var,
+               gdb_layer = gdb_layer_var,
+               insert_first_table = filter_Puu_Alii
 )
 
 

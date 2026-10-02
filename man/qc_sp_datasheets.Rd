@@ -32,6 +32,8 @@ qc_sp_datasheets(
 
 \item{plot_type}{Type of plot (fixed vs. rotational)}
 
+\item{plot_number}{Plot number(s) to filter to.}
+
 \item{species_code}{6 letter species code}
 
 \item{sci_name}{Scientific name}

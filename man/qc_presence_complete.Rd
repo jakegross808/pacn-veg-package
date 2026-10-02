@@ -22,6 +22,30 @@ qc_presence_complete(
 }
 \arguments{
 \item{all_records}{TRUE = Return all records (e.g. every cover hit), FALSE = Return 1st record of species per plot}
+
+\item{park}{Four letter unit code of park(s)}
+
+\item{sample_frame}{Name of sample frame}
+
+\item{community}{Name of plant community}
+
+\item{year}{Monitoring year}
+
+\item{cycle}{Monitoring cycle}
+
+\item{plot_type}{Type of plot (fixed vs. rotational)}
+
+\item{plot_number}{Plot number(s) to filter to.}
+
+\item{species_code}{6 letter species code}
+
+\item{sci_name}{Scientific name}
+
+\item{nativity}{Whether species are native (TRUE/FALSE)}
+
+\item{is_qa_plot}{Whether the plots are QA plots or not (TRUE/FALSE) No argument defaults to FALSE. Can use "c(TRUE, FALSE)" without quotes to return both regular and QA plots.}
+
+\item{silent}{Suppress informational messages?}
 }
 \value{
 A tibble

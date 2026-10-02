@@ -5,3 +5,4 @@
 ^scratchpad$
 ^draft_scripts$
 ^\.httr-oauth$
+^data-raw$

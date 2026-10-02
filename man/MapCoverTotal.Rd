@@ -8,13 +8,13 @@ MapCoverTotal(
   crosstalk = FALSE,
   crosstalk_group = "cover",
   combine_strata = TRUE,
+  cycle,
   park,
   sample_frame,
   community,
   year,
-  cycle = max(cycles),
   plot_type,
-  is_qa_plot,
+  is_qa_plot = FALSE,
   certified,
   verified,
   silent = TRUE
@@ -25,11 +25,17 @@ MapCoverTotal(
 
 \item{crosstalk_group}{If \code{crosstalk == TRUE}, the crosstalk group name to use. Ignored if \code{crosstalk == FALSE}.}
 
+\item{combine_strata}{If \code{TRUE}, combine high and low strata into one stratum.}
+
+\item{cycle}{Monitoring cycle of interest.}
+
 \item{park}{Four letter unit code of park(s)}
 
 \item{sample_frame}{Name of sample frame}
 
-\item{cycle}{Monitoring cycle}
+\item{community}{Name of plant community.}
+
+\item{year}{Monitoring year.}
 
 \item{plot_type}{Type of plot (fixed vs. rotational)}
 
@@ -38,6 +44,8 @@ MapCoverTotal(
 \item{certified}{Whether data are certified (TRUE/FALSE)}
 
 \item{verified}{Whether data are verified (TRUE/FALSE)}
+
+\item{silent}{Suppress informational messages?}
 }
 \value{
 A leaflet map

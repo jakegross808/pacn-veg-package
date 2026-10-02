@@ -20,10 +20,10 @@ spp_filter <- c("Arundina graminifolia", "Phaius tankervilleae", "Spathoglottis 
 test_data <- v_EIPS_prep(sample_frame = samp)
 
 # Currently option to export df from function not available so I used breakpoint
-# in v_EIPS_map_interstation3() function to utilize intermediate
+# in v_EIPS_map_interstation() function to utilize intermediate
 # 'station_summary_centroids' table before map:
 
-v_EIPS_map_interstation3(.data = test_data,
+v_EIPS_map_interstation(.data = test_data,
                          parameter = "Mean_Species_Cover",
                          change = FALSE,
                          agol_sample_frame = samp)

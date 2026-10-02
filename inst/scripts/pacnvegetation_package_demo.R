@@ -1,14 +1,30 @@
-# Run selected lines in start.R first
+# Script to test and demo some pacnvegetation R package functions:
+# ----------------------------------------------------Jacob Gross 04/08/2026
 
+#renv::init()
+#renv::install("jakegross808/pacn-veg-package")
+
+install.packages("devtools")
+devtools::install_github("jakegross808/pacn-veg-package")
+library(pacnvegetation)
 library(tidyverse)
+
+# Read latest dataset:
+path_file_info <- file.info(list.files("data/WritePACNVeg/", full.names = T))
+latest_folder <- rownames(path_file_info)[which.max(path_file_info$mtime)]
+latest_folder
+LoadPACNVeg(data_path = latest_folder,
+            data_source = "file")
+#LoadPACNVeg() call currently gives warning message related to parsing issues. 
+# Code still works, looking into why 'Update_Date, Start_Date, Year, and Cycle parsers are not matching column names. 
 
 # Get raw data ----
 
-#pacnvegetation::FilterPACNVeg()
-
+# Use the following csv flatfiles to access raw datasets
 names(FilterPACNVeg())
 
 
+# Select a sampling frame and explore the understory dataset of that sampling frame:
 # Understory - Summarize ----
 var_samp_frame <- "Olaa"
 

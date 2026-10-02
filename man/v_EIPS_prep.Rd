@@ -22,6 +22,9 @@ dataframe
 Pulls EIPS dataset from database cache and performs some
 basic data preparation.
 }
+\details{
+#' @inheritParams FilterPACNVeg
+}
 \examples{
 \dontrun{
 v_EIPS_prep(sample_frame = "Olaa")

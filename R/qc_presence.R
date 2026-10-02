@@ -72,6 +72,7 @@ qc_sp_datasheets <- function(park, sample_frame, community, year, cycle, plot_ty
 #' on the Presence datasheet are listed.
 #'
 #' All filters are optional. To ignore a filter, omit it or set it to NA.
+#' @inheritParams FilterPACNVeg
 #'
 #' @param all_records TRUE = Return all records (e.g. every cover hit), FALSE = Return 1st record of species per plot
 #'
@@ -138,6 +139,7 @@ qc_presence_complete <- function(all_records = TRUE, park, sample_frame, communi
 #' @param sample_frame FTPC sampling frame name
 #' @param plot_number plot number (must be only one plot)
 #' @param save_folder folder where .png plot will be saved
+#' @param is_qa_plot Whether the plots are QA plots (TRUE/FALSE) (Default = FALSE).
 #'
 #' @return individual .png files for each plot specified in sampling_frame + plot_number argument
 #' @export
@@ -245,7 +247,7 @@ qc_EIPS_spp_pres_dot_plot <- function(sample_frame, transect_number, save_folder
     dplyr::select(Sampling_Frame, Cycle, Transect_Number, Nativity, Scientific_Name, Code, Cover_Class) |>
     dplyr::distinct() |>
     #dplyr::mutate(Nativity = replace_na(Nativity, "No Veg")) |>
-    dplyr::mutate(Scientific_Name = replace_na(Scientific_Name, " NA segment(s)"))
+    dplyr::mutate(Scientific_Name = replace_na(Scientific_Name, "NA segment(s)"))
 
   eips_pres_trans_num <- eips_presence |>
     dplyr::filter(Transect_Number %in% transect_number)

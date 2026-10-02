@@ -17,7 +17,7 @@ v_cover_bar_stats(
   cycle,
   plot_type,
   plot_number,
-  filter_Code,
+  species_code,
   silent = FALSE,
   return_n = FALSE,
   remove_unknown = TRUE
@@ -30,6 +30,8 @@ v_cover_bar_stats(
 "Nativity" = Cover values lumped by native and non-native vegetation.
 "Life_Form" = Cover values grouped into native and non-native lifeforms (e.g. Trees, Shrubs, Ferns).
 "Species" = Cover values for individual plant species.}
+
+\item{species_filter}{Scientific name(s) to filter to.}
 
 \item{paired_change}{If \code{TRUE}, calculate change in percent cover. Note that this drops "Rotational" plots and uses "Fixed" plots only.}
 
@@ -50,7 +52,13 @@ v_cover_bar_stats(
 
 \item{plot_type}{Type of plot (fixed vs. rotational)}
 
+\item{plot_number}{Plot number(s) to filter to.}
+
+\item{species_code}{6 letter species code}
+
 \item{silent}{Suppress informational messages?}
+
+\item{return_n}{returns number of plots if 'TRUE'}
 
 \item{remove_unknown}{"default == TRUE. Removes any Life_form with value == "Unknown".
 Also removes the non-vegetated points from final display.}

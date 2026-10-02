@@ -21,25 +21,11 @@ all_shrubbelt <- FilterPACNVeg(data_name = "SmWoody")
 
 spp_extra <- FilterPACNVeg(data_name = "Species_extra")
 
-
-# Load the data (use csv files)
-data <- here::here("data", "vital_signs")
-path_file_info <- file.info(list.files(data, full.names = T))
-latest_folder <- rownames(path_file_info)[which.max(path_file_info$mtime)]
-
-LoadPACNVeg(data_path = latest_folder,
-            data_source = "file")
-
-names(FilterPACNVeg())
-
-all_LgTrees <- FilterPACNVeg(data_name = "LgTrees") |>
-  dplyr::filter(Unit_Code == "KALA") |>
-  dplyr::filter(Nativity == "Native")
-
+all_LgTrees <- FilterPACNVeg(data_name = "LgTrees")
 
 #--- 2. variable specification -------------------------------------------------
 
-var_sframe <- "Hoolehua"
+var_sframe <- "Puu Alii"
 
 #nahuku_plots <- c(1, 4, 10, 12, 13, 14, 15, #fixed
 #                  46, 49, 51, 52, 54, 55, 56, 58, #2021 rotational
@@ -140,9 +126,54 @@ all_pres_count <- all_pres |>
   dplyr::group_by(Scientific_Name, Sampling_Frame, Year) |>
   summarise(count = n())
 
+richness <- all_pres|>
+  dplyr::group_by(Sampling_Frame, Year, Plot_Number) |>
+  summarise(count = n())
+
+richness_summary_graph <- richness |>
+  mutate(Year = as.integer(Year)) |>
+  ### Plot the data
+  ggplot2::ggplot(aes(x = Year, y = count)) +
+  # Plot all city data here in gray lines
+  geom_line() +
+  geom_point() +
+  facet_grid(~Plot_Number)
+
+richness_summary_graph
+
+## Understory species -----------------------------------------------------------
+spp_of_interest <- "Melicope sessilis"
+
+SOI_plots <- all_cover |>
+  filter(Scientific_Name == spp_of_interest) |>
+  pull(Plot_Number) |>
+  unique()
+
+# 1. Initialize an empty list to store your plots
+plot_list <- list()
+
+for (x in SOI_plots) {
+  df <- pacnvegetation::v_cover_bar_stats(species_filter = spp_of_interest,
+                                    plant_grouping = "Species",
+                                    sample_frame = var_sframe,
+                                    combine_strata = FALSE,
+                                    cycle = c(1,2,3),
+                                    remove_unknown = FALSE,
+                                    plot_number = x) + ggplot2::labs(title=paste(var_sframe, "Plot #", x))
+  # Store the plot in the list
+  plot_list <- plot_list |>
+    append(df)
+}
+
+plot_list[[1]]$
+
+order(plot_list, decreasing = TRUE)
+# 3. Display all plots together in a grid
+# 'grobs = plot_list' passes the whole list, 'ncol' specifies columns
+gridExtra::grid.arrange(grobs = plot_list, )
 
 ## Presence Dot Plots-----------------------------------------------------------
-var_plot_numbers <- c(1:15)
+var_plot_numbers <- c(1:15, 46:60) #1:15, 46:60
 var_sframe
 save_folder_var <- "C:/Users/JJGross/OneDrive - DOI/Documents/Certification_Local/2024 Certification/R_output"
 
@@ -173,7 +204,7 @@ for (x in var_plot_numbers) {
 }
 
 
-var_plot_number <- c(1)
+var_plot_number <- c(8)
 
 pacnvegetation::v_cover_bar_stats(plant_grouping = "Species",
                                   sample_frame = var_sframe,
@@ -207,7 +238,7 @@ pacnvegetation::understory_spp_trends_rank(sample_frame = "Mauna Loa", remove_na
 pacnvegetation::understory_spp_trends_rank(sample_frame = "Mauna Loa", remove_nativity = "Non-Native", paired_change = TRUE)
 pacnvegetation::understory_spp_trends_rank(sample_frame = "Mauna Loa", remove_nativity = "Native", paired_change = TRUE)
 
-#v_cover_bar_spp_plot(sample_frame = "Olaa", crosstalk_filters = TRUE, crosstalk_group = "spp_plot1")
+v_cover_bar_spp_plot(sample_frame = "Olaa", crosstalk_filters = TRUE, crosstalk_group = "spp_plot1")
 
 ## Shrub spp consistency chk ----------------------------------------------
 
@@ -222,13 +253,19 @@ smwoody_grouped <- smwoody |>
                    Sampling_Frame, Year, Plot_Number, Sample_Area,
                    Status, LF_Sm_Woody, DBH, Length, Rooting))
 
-smwoody_plots <- smwoody |>
-  arrange(Plot_Number) |>
-  pull(Plot_Number) |>
-  unique()
-smwoody_plots
+var_plot_number
+smwoody_grouped |>
+  mutate(count = as.integer(count)) |>
+  dplyr::filter(Plot_Number == var_plot_number) |>
+  ggplot2::ggplot(aes(x=Year, y=count, fill = Status)) +
+  ggplot2::scale_fill_manual(values = c("Live" = "dark green",
+                                        "Dead" = "tan")) +
+  geom_bar(stat='identity') +
+  facet_grid(Scientific_Name ~ Sample_Area) +
+  ggplot2::ggtitle(paste0("Small Woody Density - ", unique(smwoody_grouped$Sampling_Frame),
+                          " - Plot ", var_plot_number))
 
-for (x in smwoody_plots) {
+for (x in var_plot_numbers) {
   graph_out <- smwoody_grouped |>
     mutate(count = as.integer(count)) |>
     dplyr::filter(Plot_Number == x) |>
@@ -242,7 +279,7 @@ for (x in smwoody_plots) {
   path_var <- paste0("C:/Users/JJGross/OneDrive - DOI/Documents/Certification_Local/2024 Certification/R_output/", var_sframe, "/")
   filename_var_v_cover <- paste0("plot_", x, "_smallwoody_spp.png")
   filename_var_v_cover
-  ggsave(filename = filename_var_v_cover, path = path_var, height = 10, width = 15)
+  ggsave(filename = filename_var_v_cover, path = path_var, height = 25, width = 10)
   print(paste("saved plot", x))
 }
 
@@ -250,28 +287,33 @@ for (x in smwoody_plots) {
 
 
 ## LG Trees --------------------------------------
-lg_trees_fixed <- FilterPACNVeg(data_name = "LgTrees",
+lg_trees <- FilterPACNVeg(data_name = "LgTrees",
                           sample_frame = var_sframe,
                           is_qa_plot = FALSE) |>
-  dplyr::mutate(Year = as.character(Year)) |>
-  dplyr::filter(Cycle %in% c(2,3)) |>
-  dplyr::mutate(Quad = paste("Quad", as.character(Quad))) |>
-  dplyr::filter(Plot_Number %in% 1:15)
+  dplyr::mutate(Life_Form = dplyr::case_when(is.na(Life_Form) & Caudex_Length == 999.0 ~ "Tree",
+                                             is.na(Life_Form) & Caudex_Length != 999.0 ~ "Tree Fern",
+                                            .default = as.character(Life_Form))) |>
+  #filter(Plot_Number == var_plot_number) |> ###**delete!!!!!!!!!!!*
+  dplyr::filter(Cycle %in% c(1,2,3)) |>
+  dplyr::mutate(Quad = paste("Quad", as.character(Quad)))
 
-BA <- lg_trees_fixed |>
+BA <- lg_trees |>
+  #filter(Plot_Number == var_plot_number) |> ###**delete!!!!!!!!!!!*
   dplyr::filter(Life_Form == "Tree") |>
-  dplyr::mutate(DBH_Bole = dplyr::case_when(is.na(DBH_Bole) ~ DBH,
+  dplyr::mutate(DBH_Bole = dplyr::case_when(Boles == 1 ~ DBH,
                               .default = as.numeric(DBH_Bole))) |>
+  dplyr::mutate(DBH_Bole = dplyr::case_when(is.na(DBH_Bole) & !is.na(Measurement_Type) ~ Measurement,
+                                          .default = as.numeric(DBH_Bole))) |>
   dplyr::mutate(BA_m2 = (DBH_Bole^2)*0.00007854) |>
-  dplyr::group_by(Sampling_Frame, Year, Plot_Number, Quad, Status, Large_Woody_ID) |>
+  dplyr::group_by(Sampling_Frame, Cycle, Plot_Number, Quad, Status, Large_Woody_ID) |>
   dplyr::summarise(BA_m2_per_tree = sum(BA_m2)) |>
-  dplyr::group_by(Sampling_Frame, Year, Plot_Number, Quad, Status) |>
+  dplyr::group_by(Sampling_Frame, Cycle, Plot_Number, Quad, Status) |>
   dplyr::summarise(BA_m2_per_quad = sum(BA_m2_per_tree))
 
-var_plot_number <- 1
+var_plot_number
 BA |>
   filter(Plot_Number == var_plot_number) |>
-  ggplot2::ggplot(aes(x=Year, y=BA_m2_per_quad, fill = Status)) +
+  ggplot2::ggplot(aes(x=Cycle, y=BA_m2_per_quad, fill = Status)) +
     ggplot2::scale_fill_manual(values = c("Live" = "dark green",
                                   "Dead" = "tan")) +
   geom_bar(stat='identity') +
@@ -279,25 +321,34 @@ BA |>
   ggplot2::ggtitle(paste0("Tree BA - ", unique(BA$Sampling_Frame),
                  " - Plot ", var_plot_number))
 
-path_var <- paste0("C:/Users/JJGross/OneDrive - DOI/Documents/Certification_Local/2021-2022 Certification/R_output/", var_sframe, "/")
-filename_BA <- paste0("plot_", var_plot_number, "_TreeBA.png")
-filename_BA
-ggsave(filename = filename_BA, path = path_var, height = 10, width = 15)
+for (x in var_plot_numbers) {
+  graph_out <- BA |>
+    filter(Plot_Number == x) |>
+    ggplot2::ggplot(aes(x=Cycle, y=BA_m2_per_quad, fill = Status)) +
+    ggplot2::scale_fill_manual(values = c("Live" = "dark green",
+                                          "Dead" = "tan")) +
+    geom_bar(stat='identity') +
+    facet_wrap(~Quad) +
+    ggplot2::ggtitle(paste0("Tree BA - ", unique(BA$Sampling_Frame),
+                            " - Plot ", x))
+
+  path_var <- paste0("C:/Users/JJGross/OneDrive - DOI/Documents/Certification_Local/2024 Certification/R_output/", var_sframe, "/")
+  filename_BA <- paste0("plot_", x, "_TreeBA.png")
+  filename_BA
+  ggsave(filename = filename_BA, path = path_var, height = 10, width = 15)
+  print(paste("saved plot", x))
+}
 
 
-
-
-
-
-lg_tree_count_all <- lg_trees_fixed |>
+lg_tree_count_all <- lg_trees |>
   dplyr::filter(Life_Form == "Tree") |>
-  dplyr::distinct(Sampling_Frame, Year, Plot_Number, Status, Large_Woody_ID) |>
+  dplyr::distinct(Sampling_Frame, Cycle, Plot_Number, Status, Large_Woody_ID) |>
   dplyr::mutate(count = 1) |>
-  dplyr::group_by(Sampling_Frame, Year, Status) |>
+  dplyr::group_by(Sampling_Frame, Cycle, Status) |>
   dplyr::summarise(tree_count_all = sum(count))
 
 lg_tree_count_all |>
-  ggplot2::ggplot(aes(x=Year, y=tree_count_all)) +
+  ggplot2::ggplot(aes(x=Cycle, y=tree_count_all)) +
   geom_bar(stat='identity') +
   facet_wrap(~Status) +
   ggplot2::ggtitle(paste0("Tree Count - ", unique(lg_tree_count_all$Sampling_Frame)))
@@ -306,7 +357,7 @@ lg_tree_count_all |>
 # Per Plot ----
 #Get count of trees per plot/quad
 var_plot_numbers <- c(1)
-var_plot_number <- 1
+var_plot_number <- 60
 var_plot_number
 
 # This includes QA plots for some reason???
@@ -314,7 +365,10 @@ lg_trees <- FilterPACNVeg(data_name = "LgTrees",
                          sample_frame = var_sframe,
                          plot_number = var_plot_number) |>
   dplyr::mutate(Year = as.character(Year)) |>
-  dplyr::mutate(Quad = paste("Quad", as.character(Quad)))
+  dplyr::mutate(Quad = paste("Quad", as.character(Quad))) |>
+  dplyr::mutate(Life_Form = dplyr::case_when(is.na(Life_Form) & Caudex_Length == 999.0 ~ "Tree",
+                                             is.na(Life_Form) & Caudex_Length != 999.0 ~ "Tree Fern",
+                                             .default = as.character(Life_Form)))
 
 lg_tree_count_quad <- lg_trees |>
   dplyr::filter(Life_Form == "Tree") |>
@@ -326,6 +380,14 @@ lg_tree_count_quad <- lg_trees |>
 lg_tree_count_plot <- lg_tree_count_quad |>
   dplyr::group_by(Sampling_Frame, Year, Plot_Number, Status) |>
   dplyr::summarise(tree_count_plot = sum(tree_count_quad))
+lg_tree_count_plot
+
+lg_trees |>
+  dplyr::filter(Plot_Number == var_plot_number) |>
+  dplyr::group_by(Sampling_Frame, Cycle, Plot_Number, Life_Form) |>
+  dplyr::summarise(n = n_distinct(Large_Woody_ID))
+
+
 
 lg_tree_count_quad |>
   filter(Status == "Dead") |>
@@ -357,6 +419,7 @@ lg_tree_count_plot |>
   ggplot2::ggtitle(paste0("Dead Trees - ", unique(lg_tree_count_plot$Sampling_Frame),
                  " - Plot ", unique(lg_tree_count_plot$Plot_Number)))
 
+lg_tree_count_plot
 
 Boles_DBH <- lg_trees |>
   dplyr::filter(Life_Form == "Tree") |>
@@ -373,8 +436,7 @@ Boles_DBH <- lg_trees |>
 
 # Bole DBH histogram
 Boles_DBH |>
-  filter(Year %in% c("2010", "2015", "2021")) |>
-  #filter(Year %in% c("2016", "2022")) |>
+  filter(Year %in% c("2012", "2017", "2024")) |>
   filter(Status == "Live") |>
   ggplot2::ggplot(aes(x=DBH_Bole, color=Year, fill=Year)) +
   geom_histogram(position="dodge", alpha = 0.5)+
@@ -386,7 +448,7 @@ Boles_DBH |>
 
 # Bole DBH Density Plot
 Boles_DBH |>
-  filter(Year %in% c("2010", "2015", "2021")) |>
+  filter(Year %in% c("2012", "2017", "2024")) |>
   #filter(Year %in% c("2016", "2022")) |>
   filter(Status == "Live") |>
   dplyr::mutate(Quad = paste("Quad", as.character(Quad))) |>
@@ -457,15 +519,15 @@ EIPS_segment_check <- EIPS_check |>
 
 
 ## Presence Dot Plots-----------------------------------------------------------
-var_transect_numbers <- c(1:15, 46:60)
+var_transect_numbers <- c(51:66) #1:15,
 var_transect_numbers
 var_sframe
-save_folder_var <- "C:/Users/JJGross/OneDrive - DOI/Documents/Certification_Local/2021-2022 Certification/R_output"
+save_folder_var <- "C:/Users/JJGross/OneDrive - DOI/Documents/Certification_Local/2024 Certification/R_output"
 
 
 # If single graph needed:
 qc_EIPS_spp_pres_dot_plot(sample_frame =var_sframe,
-                          transect_number = 1)
+                          transect_number = 51)
 
 # Make graphs for all transects listed in var_transect_numbers:
 for (x in var_transect_numbers) {
@@ -478,14 +540,14 @@ for (x in var_transect_numbers) {
 
 
 # ---- EIPS Cover Class frequency ------------------------------------------
-var_transect_numbers <- c(1:15, 46:60)
+var_transect_numbers
 var_sframe
-save_folder_var <- "C:/Users/JJGross/OneDrive - DOI/Documents/Certification_Local/2021-2022 Certification/R_output"
+save_folder_var <- "C:/Users/JJGross/OneDrive - DOI/Documents/Certification_Local/2024 Certification/R_output"
 
 
 # If single graph needed:
 EIPS_cover_x_freq(sample_frame =var_sframe,
-                          transect_number = 2)
+                          transect_number = 51)
 
 # Make graphs for all transects listed in var_transect_numbers:
 for (x in var_transect_numbers) {
@@ -497,7 +559,7 @@ for (x in var_transect_numbers) {
 
 # Final Species List ----
 # Local Path to Veg Spp database
-veg_species_db_folder <-  "C:/Users/JJGross/Documents/Databases_copied_local/Veg_species_db"
+veg_species_db_folder <-  "C:/LocalDocuments/Databases_copied_local/Veg_species_db"
 # If only one database in folder, this will grab full path:
 veg_species_db_full_path <- list.files(veg_species_db_folder,full.names = TRUE)
 veg_species_db_full_path
@@ -533,7 +595,7 @@ EIPS_prep <- pacnvegetation::v_EIPS_prep() |>
   dplyr::left_join(EIPS_image_pts, by = c("Unit_Code", "Community", "Sampling_Frame", "Cycle", "Year", "Transect_Type", "Transect_Number", "Start_Image_Point" = "Image_Point"))
 
 
-pacnvegetation::v_EIPS_map_interstation3()
+pacnvegetation::v_EIPS_map_interstation()
 
 all_presence <- FilterPACNVeg(data_name = "Presence") |>
   left_join(Events_extra_xy) |>

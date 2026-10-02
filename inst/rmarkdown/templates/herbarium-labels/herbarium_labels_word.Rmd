@@ -70,8 +70,8 @@ raw_spp_data <- read_spp_db(veg_species_db_full_path)
 raw_HAVO_spp_data <- raw_spp_data %>%
   filter(Park == "HAVO") 
 
-# Read PACN_veg_names.xlsx - which contains correct spelling of Hawaiian place names
-names <- readxl::read_xlsx(here::here("R", "PACN_veg_names.xlsx")) %>%
+# Read PACN_veg_names - which contains correct spelling of Hawaiian place names
+names <- PACN_veg_names %>%
   dplyr::select(Unit_Code, Park_Name, Island, State_Territory) %>%
   dplyr::mutate(Unit_Code = str_trim(Unit_Code)) %>%
   dplyr::distinct()

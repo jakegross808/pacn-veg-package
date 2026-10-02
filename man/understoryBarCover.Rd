@@ -12,6 +12,10 @@ understoryBarCover(
 )
 }
 \arguments{
+\item{sample_frame}{Name of sample frame}
+
+\item{cycle}{Monitoring cycle}
+
 \item{crosstalk_filters}{Include dropdowns to filter on species, nativity, and mgmt unit?}
 
 \item{colors}{Character vector of color names or hex values. This can be a named vector with names corresponding to each management unit, or you can provide an unnamed vector of any number of colors to create a gradient.}

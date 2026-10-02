@@ -23,9 +23,17 @@ UnderNativityCover.plot.nat_v_non(
 )
 }
 \arguments{
-\item{combine_strata}{If \code{TRUE}, don't split data into high and low strata. Otherwise, keep as is.}
+\item{combine_strata}{If \code{TRUE}, combine high and low strata into one stratum.}
 
 \item{paired_change}{If \code{TRUE}, calculate change in percent cover across two cycles. If \code{cycle} is not specified, it will default to the last cycle.}
+
+\item{crosstalk}{If \code{TRUE}, return a crosstalk SharedData object.}
+
+\item{crosstalk_group}{Crosstalk group name to link widgets.}
+
+\item{interactive}{If \code{TRUE}, return an interactive (plotly) version.}
+
+\item{year_filter}{If \code{TRUE}, add a year filter control.}
 
 \item{park}{Four letter unit code of park(s)}
 
@@ -42,6 +50,8 @@ UnderNativityCover.plot.nat_v_non(
 \item{paired_cycle}{Only required if \code{paired_change == TRUE}. The cycle number to compare to when calculating paired change.}
 
 \item{silent}{Suppress informational messages?}
+
+\item{data_table}{A data table to plot (bypasses internal data prep).}
 }
 \value{
 Nat-v-Non Plot comparing Native and Non-native Cover (or Change in Cover)

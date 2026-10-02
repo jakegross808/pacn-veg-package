@@ -25,6 +25,8 @@ pchIcons(
 
 \item{col}{Color}
 
+\item{lwd}{Line width for the plotted character icons.}
+
 \item{...}{Additional arguments to \code{\link[graphics:points]{graphics::points()}}}
 }
 \value{

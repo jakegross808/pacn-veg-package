@@ -2,20 +2,32 @@
 % Please edit documentation in R/EDA_understory.R
 \name{understorySpeciesCover}
 \alias{understorySpeciesCover}
-\title{Title}
+\title{understorySpeciesCover}
 \usage{
-understorySpeciesCover(
-  sample_frame,
-  cycle,
-  group_by = c("GROUP_COL", "Cycle", "Nativity")
-)
+understorySpeciesCover(sample_frame, cycle, group_by = c("Zone", "Cycle"))
 }
 \arguments{
-\item{group_by}{Columns to group by. Must be a subset of \code{c("GROUP_COL", "Cycle", "Nativity")}}
+\item{sample_frame}{Name of sample frame}
+
+\item{cycle}{Monitoring cycle}
+
+\item{group_by}{Columns to group by. Must be a subset of \code{c("GROUP_COL", "Cycle")}}
 }
 \value{
 A tibble
 }
 \description{
-Title
+understorySpeciesCover
+}
+\examples{
+\dontrun{
+
+Compare understorySpeciesCover() vs. summarize_understory()
+
+understorySpeciesCover() only used in understorySunburst() & understoryBarCover().
+summarize_understory() used everywhere else in package.
+see if summarize_understory can be inserted in place of understorySpeciesCover(),
+then delete understorySpeciesCover().
+
+}
 }

@@ -10,6 +10,8 @@ totalCover_plotly(data, max_lim, year_filter = TRUE)
 \item{data}{Data to plot}
 
 \item{max_lim}{maximum value in data}
+
+\item{year_filter}{If \code{TRUE}, add a year filter control.}
 }
 \value{
 html widget
