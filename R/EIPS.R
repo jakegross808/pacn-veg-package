@@ -231,15 +231,16 @@ EIPS_cover_x_freq <- function(sample_frame, transect_number, save_folder) {
     dplyr::distinct()
 
 
-  if (any(eips_data_check$No_Data)) {
+  no_data <- as.logical(eips_data_check$No_Data)
 
-    missing_segs <- eips_data_check[eips_data_check$No_Data,]
+  if (any(no_data, na.rm = TRUE)) {
 
-    warning(paste0("Segment(s) missing data: ",
-                   eips_data_check$Seg_Position[eips_data_check$No_Data == "TRUE"]))
+    missing_segs <- eips_data_check[which(no_data), ]
+
+    warning("Segment(s) missing data: ",
+            paste(missing_segs$Seg_Position, collapse = ", "))
 
     segs$transect_segs_calc <- segs$transect_segs_calc - nrow(missing_segs)
-
   }
 
   print(segs)
@@ -364,7 +365,7 @@ EIPS_cover_x_freq <- function(sample_frame, transect_number, save_folder) {
     ggplot2::geom_point(size = 2) +
     ggplot2::labs(x="% Cover", y=expression(paste("Frequency")))+
     ggplot2::ggtitle(paste(final_table$Sampling_Frame, "Transect", final_table$Transect_Number))+
-    ggplot2::scale_colour_viridis_c(discrete = TRUE, direction = -1) +
+    ggplot2::scale_colour_viridis_d(direction = -1) +
     ggplot2::theme(plot.title = ggplot2::element_text(size=14, face="bold", vjust=1, lineheight=0.8))+
     ggplot2::theme(axis.title.x=element_text(size=12, vjust=-0.2))+
     ggplot2::theme(axis.text.x=element_text(angle=0, size=11, vjust=0.5))+
