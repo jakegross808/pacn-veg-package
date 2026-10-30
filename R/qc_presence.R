@@ -136,6 +136,7 @@ qc_presence_complete <- function(all_records = TRUE, park, sample_frame, communi
 #'
 #' @details X axis is Cycle, y axis is species
 #'
+#' @inheritParams FilterPACNVeg
 #' @param sample_frame FTPC sampling frame name
 #' @param plot_number plot number (must be only one plot)
 #' @param save_folder folder where .png plot will be saved
@@ -148,12 +149,13 @@ qc_presence_complete <- function(all_records = TRUE, park, sample_frame, communi
 #' \dontrun{
 #' qc_FTPC_spp_pres_dot_plot(sample_frame =  "Puu Alii", plot_number = 14, save_folder = "C:/Users/JJGross/OneDrive/Downloads")
 #' }
-qc_FTPC_spp_pres_dot_plot <- function(sample_frame, plot_number, save_folder, is_qa_plot = FALSE) {
+qc_FTPC_spp_pres_dot_plot <- function(save_folder, park, sample_frame, community, year, cycle, plot_type, plot_number, is_qa_plot = FALSE, transect_type, species_code, sci_name) {
 
   chk_pres <- pacnvegetation::FilterPACNVeg(data_name = "Presence",
                                             sample_frame = sample_frame,
                                             plot_number = plot_number,
-                                            is_qa_plot = is_qa_plot)
+                                            is_qa_plot = is_qa_plot,
+                                            cycle = cycle)
 
 
   rare <- pacnvegetation::FilterPACNVeg(data_name = "Presence",
@@ -227,6 +229,7 @@ qc_FTPC_spp_pres_dot_plot <- function(sample_frame, plot_number, save_folder, is
 #'
 #' @details X axis is Cycle, y axis is species
 #'
+#' @inheritParams FilterPACNVeg
 #' @param sample_frame EIPS sampling frame name
 #' @param transect_number transect number (must be only one plot)
 #' @param save_folder folder where .png plot will be saved
@@ -239,7 +242,7 @@ qc_FTPC_spp_pres_dot_plot <- function(sample_frame, plot_number, save_folder, is
 #' \dontrun{
 #' qc_EIPS_spp_pres_dot_plot(sample_frame =  "Puu Alii", transect_number = 14, save_folder = "C:/Users/JJGross/OneDrive/Downloads")
 #' }
-qc_EIPS_spp_pres_dot_plot <- function(sample_frame, transect_number, save_folder) {
+qc_EIPS_spp_pres_dot_plot <- function(save_folder, park, sample_frame, community, year, cycle, transect_type, transect_number, is_qa_plot = FALSE, species_code, sci_name) {
 
   eips_data <- pacnvegetation::FilterPACNVeg(data_name = "EIPS_data", sample_frame = sample_frame)
 

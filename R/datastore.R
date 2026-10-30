@@ -95,6 +95,73 @@ ReadDataStore <- function(reference_id, protocol = c("FTPC", "EIPS"),
 }
 
 
+#' Read a PACN data package from a local zip file
+#'
+#' Temporary bridge for data packages that haven't been published to DataStore
+#' yet. Unzips the archive to a staging folder, reads the CSVs, and routes them
+#' through the same transformers as `ReadDataStore()`. Once the data package is
+#' live on DataStore, swap the `datastore_zips` argument in `LoadPACNVeg()` for
+#' `datastore_refs` and the rest of the pipeline is identical.
+#'
+#' @param zip_path Path to a local zip file containing the data package CSVs.
+#' @param protocol One of "FTPC" or "EIPS". EIPS is not yet implemented.
+#' @param stage_dir Folder where the zip will be unpacked. Defaults to a
+#'   subfolder of the pacnvegetation cache directory. The staging folder is
+#'   named after the zip basename, so re-reading the same zip reuses the same
+#'   location.
+#'
+#' @return A named list of tibbles matching the names used in GetColSpec().
+#' @export
+ReadDataStoreZip <- function(zip_path, protocol = c("FTPC", "EIPS"),
+                             stage_dir = NULL) {
+  protocol <- match.arg(protocol)
+
+  if (!file.exists(zip_path)) {
+    stop("Zip file not found: ", zip_path, call. = FALSE)
+  }
+  if (!requireNamespace("jsonlite", quietly = TRUE)) {
+    stop("Package 'jsonlite' is required for data_source = 'datastore'. ",
+         "Install it with: install.packages('jsonlite')",
+         call. = FALSE)
+  }
+
+  zip_name <- tools::file_path_sans_ext(basename(zip_path))
+  if (is.null(stage_dir)) {
+    stage_dir <- file.path(rappdirs::user_cache_dir("pacnvegetation"),
+                           "datastore_zips", zip_name)
+  }
+  # Fresh unzip each time to avoid stale CSVs if the zip was updated in place
+  if (dir.exists(stage_dir)) unlink(stage_dir, recursive = TRUE)
+  dir.create(stage_dir, recursive = TRUE, showWarnings = FALSE)
+
+  message("Unzipping ", zip_path, " to ", stage_dir)
+  utils::unzip(zip_path, exdir = stage_dir)
+
+  csv_files <- list.files(stage_dir, pattern = "\\.csv$",
+                          full.names = TRUE, recursive = TRUE)
+  if (length(csv_files) == 0) {
+    stop("No CSV files found in ", zip_path, call. = FALSE)
+  }
+
+  message("Reading ", length(csv_files), " CSV file(s)...")
+  raw <- stats::setNames(
+    lapply(csv_files, function(f) {
+      readr::read_csv(f, show_col_types = FALSE,
+                      progress = FALSE, guess_max = 100000)
+    }),
+    tools::file_path_sans_ext(basename(csv_files))
+  )
+
+  if (protocol == "FTPC") {
+    out <- transform_ftpc_tables(raw)
+  } else {
+    stop("EIPS data package loading is not yet implemented.", call. = FALSE)
+  }
+
+  out
+}
+
+
 #' Dispatch data package tables to their transformers
 #'
 #' @param raw Named list of tibbles returned by NPSutils::load_data_package().
@@ -137,6 +204,8 @@ transform_ftpc_tables <- function(raw) {
 #'
 #' @param df A tibble containing a `dynamicProperties` column.
 #' @param fields Named character vector mapping JSON keys -> output column names.
+#'   All extracted columns are coerced to numeric; adjust if non-numeric fields
+#'   are ever needed.
 #' @param drop_source Drop the `dynamicProperties` column after extraction?
 #'
 #' @return The input tibble with extracted columns added.
@@ -146,25 +215,35 @@ parse_dynamic_properties <- function(df, fields, drop_source = TRUE) {
     return(df)
   }
 
-  parsed <- lapply(df$dynamicProperties, function(x) {
-    if (is.na(x) || !nzchar(x)) return(stats::setNames(as.list(rep(NA, length(fields))),
-                                                       unname(fields)))
-    out <- tryCatch(jsonlite::fromJSON(x), error = function(e) NULL)
-    if (is.null(out)) return(stats::setNames(as.list(rep(NA, length(fields))),
-                                             unname(fields)))
-    # Pull each requested JSON key; NA if missing
-    vals <- lapply(names(fields), function(key) {
-      v <- out[[key]]
-      if (is.null(v) || (length(v) == 1 && is.na(v))) NA else v
-    })
-    stats::setNames(vals, unname(fields))
-  })
+  n_rows <- nrow(df)
+  out_names <- unname(fields)
+  json_keys <- names(fields)
 
-  # Bind into columns. suppressWarnings handles type coercion across rows.
-  extracted <- suppressWarnings(
-    dplyr::bind_rows(lapply(parsed, function(x) tibble::as_tibble(x)))
+  # Pre-allocate numeric vectors — avoids per-row tibble construction and the
+  # type-mismatch issues bind_rows() runs into when some rows parse as logical
+  # NA and others as numeric.
+  cols <- stats::setNames(
+    lapply(out_names, function(x) rep(NA_real_, n_rows)),
+    out_names
   )
 
+  for (i in seq_len(n_rows)) {
+    raw <- df$dynamicProperties[[i]]
+    if (is.na(raw) || !nzchar(raw)) next
+    parsed <- tryCatch(jsonlite::fromJSON(raw), error = function(e) NULL)
+    if (is.null(parsed)) next
+    for (j in seq_along(json_keys)) {
+      v <- parsed[[json_keys[j]]]
+      if (is.null(v) || length(v) == 0) next
+      v <- v[[1]]
+      if (is.na(v)) next
+      # Coerce to numeric; strings like "NA" become NA_real_ silently
+      num <- suppressWarnings(as.numeric(v))
+      cols[[out_names[j]]][i] <- num
+    }
+  }
+
+  extracted <- tibble::as_tibble(cols)
   df <- dplyr::bind_cols(df, extracted)
   if (drop_source) df$dynamicProperties <- NULL
   df

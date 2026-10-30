@@ -11,34 +11,50 @@ magrittr::`%<>%`
 pkg_globals <- new.env(parent = emptyenv())
 
 # Load data from global package environment
+
+# The old get_data() iterates over `names(GetColSpec())` and errors if
+# any single one is missing. For the datastore path, some legacy tables are
+# legitimately absent (Events_extra_QAQC, Events_extra_other, etc.) and some
+# extra tables are present (PACN_FTPC_Taxon_Lookup, etc.) that aren't in
+# GetColSpec. Replace the entire function with this version:
+
+#' Load data from global package environment
+#'
+#' @param data_name Optional name of a specific table to return. If omitted,
+#'   returns a named list of all tables available in `pkg_globals`.
+#' @keywords internal
 get_data <- function(data_name) {
   if (!missing(data_name)) {
-    if (!(data_name %in% names(GetColSpec()))) {
-      stop("Invalid data table name. Use names(pacnvegetation:::GetColSpec()) to see valid options for data_name.")
+    # Single-table lookup. Only validate against GetColSpec() if the requested
+    # name looks like a legacy table — pass-through datastore tables
+    # (Taxon_Lookup, Images, etc.) won't appear in GetColSpec() and that's OK.
+    if (exists(data_name, envir = pkg_globals, inherits = FALSE)) {
+      return(get(data_name, envir = pkg_globals, inherits = FALSE))
     }
-    tryCatch({data <- get(data_name, pkg_globals)},
-             error = function(e) {
-               if (grepl(".*object.* not found.*", e$message, ignore.case = TRUE)) {
-                 stop(paste0("Could not find data. Did you remember to call LoadPACNVeg?\n\tOriginal error: ", e$message))
-               }
-               else {e}
-             })
-  } else {
-    tryCatch({
-      data <- lapply(names(GetColSpec()), get, pkg_globals)
-      names(data) <- names(GetColSpec())
-    },
-    error = function(e) {
-      if (grepl(".*object.* not found.*", e$message, ignore.case = TRUE)) {
-        stop(paste0("Could not find data. Did you remember to call LoadPACNVeg?\n\tOriginal error: ", e$message))
-      }
-      else {e}
+    # Not found: give a useful message. If the user asked for a known legacy
+    # table that happens to be absent (e.g. loading from a datastore package
+    # that doesn't include Events_extra_QAQC), return an empty tibble rather
+    # than erroring so downstream code can continue.
+    if (data_name %in% names(GetColSpec())) {
+      message("Table '", data_name, "' is not available in the loaded data. ",
+              "Returning an empty tibble. This is expected when loading from ",
+              "a DataStore data package that uses a different schema.")
+      return(tibble::tibble())
     }
-    )
-
+    stop("Invalid data table name '", data_name, "'. ",
+         "Did you remember to call LoadPACNVeg? ",
+         "Use names(FilterPACNVeg()) to see what's currently loaded.",
+         call. = FALSE)
   }
 
-  return(data)
+  # No name supplied: return everything currently in pkg_globals.
+  all_names <- ls(envir = pkg_globals)
+  if (length(all_names) == 0) {
+    stop("Could not find data. Did you remember to call LoadPACNVeg?",
+         call. = FALSE)
+  }
+  data <- mget(all_names, envir = pkg_globals, inherits = FALSE)
+  data
 }
 
 #' Clear cached data
@@ -69,24 +85,33 @@ ClearPACNVegCache <- function(silent = FALSE) {
 
 }
 
+
+# ============================================================================
+# EDIT 1: LoadPACNVeg() — add data_source = "datastore" branch
+# ============================================================================
+#
+# Supports both DataStore reference IDs (datastore_refs) and local zip files
+# (datastore_zips) as sources. Local zips are a temporary bridge for data
+# packages that haven't been published to DataStore yet.
+
 #' Load raw data into package environment
-#' @description Run this function before you do anything else.
 #'
-#' @param ftpc_params Connection information for FTPC database. Either a DSN name (Created in ODBC Data Source Administrator), a path to a csv containing connection information, or a named list of connection arguments. The csv or list should contain the following parameters:
-#' * Driver
-#' * Server
-#' * Database
-#' * Trusted_Connection
+#' Run this function before you do anything else.
+#'
+#' @param ftpc_params Connection information for FTPC database. (existing docs)
 #' @param eips_paths Character vector of paths to EIPS database(s).
-#' @param data_path A path to either:
-#' * a folder containing the data in csv format
-#' * a .zip file containing the data in csv format
-#' * an .Rdata file
+#' @param data_path A path to either a folder of csv files, a zip of csv files,
+#'   or an .Rdata file.
 #' @param datastore_refs Named numeric vector of DataStore reference IDs, e.g.
-#'   `c(ftpc = 2311238, eips = 2302909)`. Required when
-#'   `data_source = "datastore"`. EIPS is not yet implemented and will be ignored with a message if supplied.
+#'   `c(ftpc = 2311238, eips = 2302909)`. Used when `data_source = "datastore"`.
+#' @param datastore_zips Named character vector of paths to local zip files
+#'   containing data package CSVs, e.g.
+#'   `c(ftpc = "C:/path/to/PACN_FTPC_data_package_20260416.zip")`.
+#'   Temporary bridge for data packages not yet published to DataStore.
+#'   Mutually exclusive with `datastore_refs`.
 #' @param data_source One of "db" (fetch from databases), "file" (fetch from
-#'   folder of csvs), or "datastore" (fetch from NPS DataStore via NPSutils).
+#'   folder of csvs), or "datastore" (fetch from NPS DataStore via NPSutils,
+#'   or from local zips via `datastore_zips`).
 #' @param cache Should the data be cached locally?
 #' @param expire_interval_days Cache expiration in days. Ignored when
 #'   `data_source = "datastore"` (datastore cache does not expire).
@@ -94,62 +119,62 @@ ClearPACNVegCache <- function(silent = FALSE) {
 #' @param TE_Species Include T&E species names. Ignored when
 #'   `data_source = "datastore"`.
 #'
-#' @return Invisibly return a list containing all raw data
 #' @export
-#'
-#' @examples
-#' \dontrun{
-#'
-#' eips <- c("path/to/database1_be.mdb", "path/to/database2_be.mdb")
-#' ftpc <- "pacnveg"
-#'
-#' # Read data from veg databases and cache it locally for a week (default)
-#' LoadPACNVeg(ftpc, eips)
-#'
-#' # Force refresh cached data that haven't expired
-#' LoadPACNVeg(ftpc, eips, force_refresh = TRUE)
-#'
-#' # Read data from a folder of csv files. This will not be cached.
-#' path_to_csv <- "path/to/csv/folder"
-#' LoadPACNVeg(data_path = path_to_csv)
-#' }
-#'
 LoadPACNVeg <- function(ftpc_params = "FTPC", eips_paths, data_path,
-                        datastore_refs,
+                        datastore_refs, datastore_zips,
                         data_source = "db",
                         cache = TRUE, expire_interval_days = 7,
                         force_refresh = FALSE, TE_Species = TRUE) {
 
-  # Validate data_source up front
   data_source <- match.arg(data_source, c("db", "file", "datastore"))
 
   if (data_source == "datastore") {
-    if (missing(datastore_refs)) {
-      stop("data_source = 'datastore' requires `datastore_refs`, e.g. ",
-           "datastore_refs = c(ftpc = 2311238, eips = 2302909)",
+    has_refs <- !missing(datastore_refs)
+    has_zips <- !missing(datastore_zips)
+
+    if (has_refs && has_zips) {
+      stop("Provide either `datastore_refs` or `datastore_zips`, not both.",
            call. = FALSE)
     }
-    if (!"ftpc" %in% names(datastore_refs)) {
-      stop("`datastore_refs` must include a named 'ftpc' element.",
+    if (!has_refs && !has_zips) {
+      stop("data_source = 'datastore' requires `datastore_refs` or ",
+           "`datastore_zips`. Example: ",
+           "datastore_refs = c(ftpc = 2311238, eips = 2302909), or ",
+           "datastore_zips = c(ftpc = 'path/to/zip')",
            call. = FALSE)
-    }
-    if ("eips" %in% names(datastore_refs)) {
-      message("EIPS datastore loading is not yet implemented; ",
-              "ignoring the eips reference for now.")
     }
 
-    # Cache key based on the FTPC reference id (EIPS will be added later)
+    source_arg <- if (has_refs) datastore_refs else datastore_zips
+    source_kind <- if (has_refs) "refs" else "zips"
+
+    if (!"ftpc" %in% names(source_arg)) {
+      stop("`datastore_", source_kind, "` must include a named 'ftpc' element.",
+           call. = FALSE)
+    }
+    if ("eips" %in% names(source_arg)) {
+      message("EIPS datastore loading is not yet implemented; ",
+              "ignoring the eips entry for now.")
+    }
+
+    # Cache key depends on source: use ref id for refs, zip basename for zips
     cache_dir <- rappdirs::user_cache_dir("pacnvegetation")
-    cache_file <- file.path(cache_dir,
-                            paste0("datastore_ftpc_",
-                                   datastore_refs[["ftpc"]], ".rds"))
+    cache_key <- if (has_refs) {
+      paste0("ftpc_ref_", source_arg[["ftpc"]])
+    } else {
+      paste0("ftpc_zip_",
+             tools::file_path_sans_ext(basename(source_arg[["ftpc"]])))
+    }
+    cache_file <- file.path(cache_dir, paste0("datastore_", cache_key, ".rds"))
 
     if (cache && !force_refresh && file.exists(cache_file)) {
       message("Loading cached datastore data from ", cache_file)
       data <- readRDS(cache_file)
     } else {
-      data <- ReadDataStore(reference_id = datastore_refs[["ftpc"]],
-                            protocol = "FTPC")
+      data <- if (has_refs) {
+        ReadDataStore(reference_id = source_arg[["ftpc"]], protocol = "FTPC")
+      } else {
+        ReadDataStoreZip(zip_path = source_arg[["ftpc"]], protocol = "FTPC")
+      }
       if (cache) {
         dir.create(cache_dir, recursive = TRUE, showWarnings = FALSE)
         saveRDS(data, cache_file)
@@ -157,7 +182,9 @@ LoadPACNVeg <- function(ftpc_params = "FTPC", eips_paths, data_path,
       }
     }
 
-    #set_data(data) ##typo or leftover??
+    for (nm in names(data)) {
+      assign(nm, data[[nm]], envir = pkg_globals)
+    }
     return(invisible(data))
   }
 
