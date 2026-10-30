@@ -9,6 +9,7 @@ LoadPACNVeg(
   eips_paths,
   data_path,
   datastore_refs,
+  datastore_zips,
   data_source = "db",
   cache = TRUE,
   expire_interval_days = 7,
@@ -17,29 +18,25 @@ LoadPACNVeg(
 )
 }
 \arguments{
-\item{ftpc_params}{Connection information for FTPC database. Either a DSN name (Created in ODBC Data Source Administrator), a path to a csv containing connection information, or a named list of connection arguments. The csv or list should contain the following parameters:
-\itemize{
-\item Driver
-\item Server
-\item Database
-\item Trusted_Connection
-}}
+\item{ftpc_params}{Connection information for FTPC database. (existing docs)}
 
 \item{eips_paths}{Character vector of paths to EIPS database(s).}
 
-\item{data_path}{A path to either:
-\itemize{
-\item a folder containing the data in csv format
-\item a .zip file containing the data in csv format
-\item an .Rdata file
-}}
+\item{data_path}{A path to either a folder of csv files, a zip of csv files,
+or an .Rdata file.}
 
 \item{datastore_refs}{Named numeric vector of DataStore reference IDs, e.g.
-\code{c(ftpc = 2311238, eips = 2302909)}. Required when
-\code{data_source = "datastore"}. EIPS is not yet implemented and will be ignored with a message if supplied.}
+\code{c(ftpc = 2311238, eips = 2302909)}. Used when \code{data_source = "datastore"}.}
+
+\item{datastore_zips}{Named character vector of paths to local zip files
+containing data package CSVs, e.g.
+\code{c(ftpc = "C:/path/to/PACN_FTPC_data_package_20260416.zip")}.
+Temporary bridge for data packages not yet published to DataStore.
+Mutually exclusive with \code{datastore_refs}.}
 
 \item{data_source}{One of "db" (fetch from databases), "file" (fetch from
-folder of csvs), or "datastore" (fetch from NPS DataStore via NPSutils).}
+folder of csvs), or "datastore" (fetch from NPS DataStore via NPSutils,
+or from local zips via \code{datastore_zips}).}
 
 \item{cache}{Should the data be cached locally?}
 
@@ -51,27 +48,6 @@ folder of csvs), or "datastore" (fetch from NPS DataStore via NPSutils).}
 \item{TE_Species}{Include T&E species names. Ignored when
 \code{data_source = "datastore"}.}
 }
-\value{
-Invisibly return a list containing all raw data
-}
 \description{
 Run this function before you do anything else.
-}
-\examples{
-\dontrun{
-
-eips <- c("path/to/database1_be.mdb", "path/to/database2_be.mdb")
-ftpc <- "pacnveg"
-
-# Read data from veg databases and cache it locally for a week (default)
-LoadPACNVeg(ftpc, eips)
-
-# Force refresh cached data that haven't expired
-LoadPACNVeg(ftpc, eips, force_refresh = TRUE)
-
-# Read data from a folder of csv files. This will not be cached.
-path_to_csv <- "path/to/csv/folder"
-LoadPACNVeg(data_path = path_to_csv)
-}
-
 }

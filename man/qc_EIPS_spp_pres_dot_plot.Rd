@@ -4,14 +4,42 @@
 \alias{qc_EIPS_spp_pres_dot_plot}
 \title{Plot all non-native species presence from EIPS transect}
 \usage{
-qc_EIPS_spp_pres_dot_plot(sample_frame, transect_number, save_folder)
+qc_EIPS_spp_pres_dot_plot(
+  save_folder,
+  park,
+  sample_frame,
+  community,
+  year,
+  cycle,
+  transect_type,
+  transect_number,
+  is_qa_plot = FALSE,
+  species_code,
+  sci_name
+)
 }
 \arguments{
+\item{save_folder}{folder where .png plot will be saved}
+
+\item{park}{Four letter unit code of park(s)}
+
 \item{sample_frame}{EIPS sampling frame name}
+
+\item{community}{Name of plant community}
+
+\item{year}{Monitoring year}
+
+\item{cycle}{Monitoring cycle}
+
+\item{transect_type}{Type of transect (fixed vs. rotational)}
 
 \item{transect_number}{transect number (must be only one plot)}
 
-\item{save_folder}{folder where .png plot will be saved}
+\item{is_qa_plot}{Whether the plots are QA plots or not (TRUE/FALSE) No argument defaults to FALSE. Can use "c(TRUE, FALSE)" without quotes to return both regular and QA plots.}
+
+\item{species_code}{6 letter species code}
+
+\item{sci_name}{Scientific name}
 }
 \value{
 graph of species found in transect across all cycles.

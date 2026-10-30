@@ -5,20 +5,44 @@
 \title{Plot all species presence found within FTPC plot}
 \usage{
 qc_FTPC_spp_pres_dot_plot(
-  sample_frame,
-  plot_number,
   save_folder,
-  is_qa_plot = FALSE
+  park,
+  sample_frame,
+  community,
+  year,
+  cycle,
+  plot_type,
+  plot_number,
+  is_qa_plot = FALSE,
+  transect_type,
+  species_code,
+  sci_name
 )
 }
 \arguments{
+\item{save_folder}{folder where .png plot will be saved}
+
+\item{park}{Four letter unit code of park(s)}
+
 \item{sample_frame}{FTPC sampling frame name}
+
+\item{community}{Name of plant community}
+
+\item{year}{Monitoring year}
+
+\item{cycle}{Monitoring cycle}
+
+\item{plot_type}{Type of plot (fixed vs. rotational)}
 
 \item{plot_number}{plot number (must be only one plot)}
 
-\item{save_folder}{folder where .png plot will be saved}
-
 \item{is_qa_plot}{Whether the plots are QA plots (TRUE/FALSE) (Default = FALSE).}
+
+\item{transect_type}{Type of transect (fixed vs. rotational)}
+
+\item{species_code}{6 letter species code}
+
+\item{sci_name}{Scientific name}
 }
 \value{
 individual .png files for each plot specified in sampling_frame + plot_number argument

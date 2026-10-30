@@ -9,7 +9,9 @@ parse_dynamic_properties(df, fields, drop_source = TRUE)
 \arguments{
 \item{df}{A tibble containing a \code{dynamicProperties} column.}
 
-\item{fields}{Named character vector mapping JSON keys -> output column names.}
+\item{fields}{Named character vector mapping JSON keys -> output column names.
+All extracted columns are coerced to numeric; adjust if non-numeric fields
+are ever needed.}
 
 \item{drop_source}{Drop the \code{dynamicProperties} column after extraction?}
 }
